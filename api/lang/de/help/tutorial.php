@@ -24,6 +24,7 @@ $tutorialFacts = [
     'email_confirmed' => ['label' => 'E-Mail bestätigt', 'help' => 'Die E-Mail des Fahrerkontos ist mit dem Link bestätigt.'],
     'garage_bought' => ['label' => 'Garage gekauft', 'help' => 'Seit dem Start des Schritts hat der Fahrer eine Garage in einer Stadt gekauft. Eine Garage als Belohnung eines Schritts ist kein Kauf und zählt nicht.'],
     'city_open' => ['label' => 'Stadt ohne Garage offen', 'help' => 'Die Stufe des Fahrers öffnet eine Stadt mit Strecke, in der der Fahrer noch keine Garage hat.'],
+    'mission_taken' => ['label' => 'Missionsbelohnung abgeholt', 'help' => 'Der Fahrer hat irgendwann die Belohnung einer Mission abgeholt (täglich, wöchentlich, monatlich oder Hauptmission), auch vor dem Start des Schritts, wie „crate_opened“ jede Kiste zählt.'],
     'tires_mounted:' => ['label' => 'Reifen einer Art am Auto', 'help' => 'Die Art schreibst du hinter den Doppelpunkt: tires_mounted:rain. Das Auto, das der Fahrer fährt, hat Reifen dieser Art montiert: all_season, street, slick, rain, offroad oder winter.'],
     'car_level:' => ['label' => 'Autostufe mindestens', 'help' => 'Eine ganze Zahl hinter dem Doppelpunkt: car_level:6. Das Auto, das der Fahrer fährt, hat diese Stufe oder eine höhere.'],
     'cash:' => ['label' => 'Bargeld mindestens', 'help' => 'Ganze Dollar hinter dem Doppelpunkt, ohne Cent und ohne $-Zeichen: cash:450. Der Fahrer hat mindestens so viel.'],
@@ -159,6 +160,7 @@ return [
                 'equipment' => ['label' => 'Werkstattausstattung', 'help' => 'Der Abschnitt „Ausstattung“ der Werkstatt; sonst der Reiter „Werkstatt“.'],
                 'profile' => ['label' => 'Profil', 'help' => 'Das Banner und der Dialog, die das Konto mit einer E-Mail verknüpfen (Garage); sonst der Reiter „Garage“.'],
                 'garages' => ['label' => 'Garagen', 'help' => 'Die Taste zum Kauf einer Garage im Blatt der Stadt auf der Karte; sonst der Reiter „Karte“.'],
+                'missions' => ['label' => 'Missionen', 'help' => 'Das Feld Missionen in der oberen Leiste, auf jedem Bildschirm des Spiels sichtbar; die Taste „Zeigen“ der Zielleiste führt zum Missionsbildschirm.'],
             ],
         ],
         'goal' => [

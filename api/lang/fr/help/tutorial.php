@@ -24,6 +24,7 @@ $tutorialFacts = [
     'email_confirmed' => ['label' => 'E-mail confirmé', 'help' => 'L’e-mail du compte du pilote est confirmé avec le lien.'],
     'garage_bought' => ['label' => 'Garage acheté', 'help' => 'Depuis le début de l’étape, le pilote a acheté un garage dans une ville. Un garage donné en récompense d’une étape n’est pas un achat et ne compte pas.'],
     'city_open' => ['label' => 'Une ville sans garage est ouverte', 'help' => 'Le niveau du pilote ouvre une ville avec une piste où il n’a pas encore de garage.'],
+    'mission_taken' => ['label' => 'Récompense de mission récupérée', 'help' => 'Le pilote a récupéré à un moment quelconque la récompense d’une mission (du jour, de la semaine, du mois ou principale), même avant le début de l’étape, comme « crate_opened » compte n’importe quelle caisse.'],
     'tires_mounted:' => ['label' => 'Pneus d’un type sur la voiture', 'help' => 'Vous écrivez le type après les deux-points : tires_mounted:rain. La voiture que conduit le pilote porte des pneus de ce type : all_season, street, slick, rain, offroad ou winter.'],
     'car_level:' => ['label' => 'Niveau de voiture au moins', 'help' => 'Un nombre entier après les deux-points : car_level:6. La voiture que conduit le pilote est à ce niveau ou plus haut.'],
     'cash:' => ['label' => 'Argent au moins', 'help' => 'Des dollars entiers après les deux-points, sans centimes ni signe $ : cash:450. Le pilote détient au moins cette somme.'],
@@ -159,6 +160,7 @@ return [
                 'equipment' => ['label' => 'Le matériel de l’atelier', 'help' => 'La section « Équipement » de l’Atelier ; ailleurs l’onglet « Atelier ».'],
                 'profile' => ['label' => 'Le profil', 'help' => 'La bannière et la fenêtre qui lient le compte à un e-mail (Garage) ; ailleurs l’onglet « Garage ».'],
                 'garages' => ['label' => 'Les garages', 'help' => 'Le bouton d’achat d’un garage dans la fiche de la ville sur la Carte ; ailleurs l’onglet « Carte ».'],
+                'missions' => ['label' => 'Les missions', 'help' => 'La plaque Missions de la barre du haut, visible sur chaque écran du jeu ; le bouton « Afficher » de la barre d’objectif mène à l’écran des missions.'],
             ],
         ],
         'goal' => [

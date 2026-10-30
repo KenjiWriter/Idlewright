@@ -1,6 +1,6 @@
 {
   "schema": 0,
-  "version": "2026.10.3",
+  "version": "2026.10.4",
   "steps": [
     {
       "key": "wreck",
@@ -391,6 +391,45 @@
         "cash_cents": 30000,
         "xp": 2100
       }
+    },
+    {
+      "key": "missions",
+      "phase": 3,
+      "trigger": "none",
+      "completion": "acknowledged",
+      "target": "missions",
+      "goal": {
+        "pl": "Zajrzyj do Misji",
+        "en": "Check the Missions",
+        "fr": "Jette un œil aux missions",
+        "de": "Wirf einen Blick auf die Missionen",
+        "pt-BR": "Dê uma olhada nas Missões"
+      },
+      "sender": "+48 555 010 463",
+      "sms": [
+        {
+          "pl": "Awansowałeś, więc dorzucam Ci misje. Co dzień dostajesz nowy zestaw sześciu zadań, a co tydzień i co miesiąc kolejne.",
+          "en": "You’ve moved up, so I’m adding missions. Every day you get a new set of six tasks, and more every week and every month.",
+          "fr": "Tu as pris du galon, alors je t’ajoute des missions. Chaque jour, une nouvelle série de six tâches, et d’autres chaque semaine et chaque mois.",
+          "de": "Du bist aufgestiegen, also gibt es jetzt Missionen. Jeden Tag ein neues Set aus sechs Aufgaben, dazu jede Woche und jeden Monat weitere.",
+          "pt-BR": "Você subiu de nível, então estou liberando as missões. Todo dia sai um conjunto novo de seis tarefas, e mais toda semana e todo mês."
+        },
+        {
+          "pl": "Każda płaci gotówką i XP, czasem skrzynką. Zrób cały zestaw, a dostaniesz jeszcze RideCoin. Plakietka z haczykiem na górze to Misje. — K.",
+          "en": "Each one pays cash and XP, sometimes a crate. Finish the whole set and you get RideCoin on top. The tick plate at the top is Missions. — K.",
+          "fr": "Chacune rapporte de l’argent et de l’XP, parfois une caisse. Termine toute la série et tu gagnes aussi des RideCoin. La plaque avec la coche, en haut, c’est Missions. — K.",
+          "de": "Jede zahlt Geld und XP, manchmal eine Kiste. Schaffst du das ganze Set, gibt es obendrauf RideCoin. Das Feld mit dem Häkchen oben ist Missionen. — K.",
+          "pt-BR": "Cada uma paga dinheiro e XP, às vezes uma caixa. Cumpra o conjunto todo e ganhe RideCoin de bônus. A plaquinha com o visto no alto é Missões. — K."
+        }
+      ],
+      "reply": {
+        "pl": "OK, zaglądam",
+        "en": "OK, I’ll look",
+        "fr": "OK, j’y jette un œil",
+        "de": "OK, ich schaue rein",
+        "pt-BR": "OK, vou ver"
+      },
+      "reward": {}
     },
     {
       "key": "offroad",
@@ -871,6 +910,94 @@
         "fr": "Attend que tu aies 5 000 $ et le niveau d’une autre ville",
         "de": "Wartet, bis du $5.000 hast und die Stufe einer weiteren Stadt erreichst",
         "pt-BR": "Espera você juntar $5.000 e chegar ao nível de outra cidade"
+      },
+      "reward": {}
+    },
+    {
+      "key": "first-mission",
+      "phase": 4,
+      "trigger": "none",
+      "completion": "mission_taken",
+      "target": "missions",
+      "goal": {
+        "pl": "Odbierz nagrodę za pierwszą misję",
+        "en": "Take the reward of your first mission",
+        "fr": "Récupère la récompense de ta première mission",
+        "de": "Hol die Belohnung deiner ersten Mission ab",
+        "pt-BR": "Receba a recompensa da sua primeira missão"
+      },
+      "sender": "+48 555 010 664",
+      "sms": [
+        {
+          "pl": "Zrób którąkolwiek z dzisiejszych misji. Okrążenia i zarobek liczą się same, gdy auto jeździ, nawet gdy Cię nie ma.",
+          "en": "Do any of today’s missions. Laps and earnings count by themselves while the car drives, even when you’re away.",
+          "fr": "Fais n’importe laquelle des missions du jour. Les tours et les gains se comptent tout seuls quand la voiture roule, même en ton absence.",
+          "de": "Schaff irgendeine der heutigen Missionen. Runden und Verdienst zählen von allein, solange das Auto fährt, auch wenn du nicht da bist.",
+          "pt-BR": "Cumpra qualquer uma das missões de hoje. Voltas e ganhos contam sozinhos enquanto o carro anda, mesmo quando você não está."
+        },
+        {
+          "pl": "Gdy misja jest wykonana, na plakietce pojawia się liczba. Wejdź i dotknij „Odbierz”, a nagroda jest Twoja. Dorzucam $100. — K.",
+          "en": "When a mission is done, a number appears on the plate. Go in and tap “Take”, and the reward is yours. I’m adding $100. — K.",
+          "fr": "Quand une mission est terminée, un chiffre apparaît sur la plaque. Entre et touche « Récupérer », la récompense est à toi. Je t’ajoute 100 $. — K.",
+          "de": "Ist eine Mission geschafft, erscheint eine Zahl auf dem Feld. Geh rein und tippe auf „Abholen“, dann gehört die Belohnung dir. Ich lege 100 $ drauf. — K.",
+          "pt-BR": "Quando uma missão fica pronta, aparece um número na plaquinha. Entre e toque em “Receber”, e a recompensa é sua. Estou somando $ 100. — K."
+        }
+      ],
+      "reply": {
+        "pl": "OK, zrobię",
+        "en": "OK, I’ll do one",
+        "fr": "OK, j’en fais une",
+        "de": "OK, ich schaffe eine",
+        "pt-BR": "OK, vou cumprir uma"
+      },
+      "decline": {
+        "pl": "Później",
+        "en": "Later",
+        "fr": "Plus tard",
+        "de": "Später",
+        "pt-BR": "Depois"
+      },
+      "optional": true,
+      "reward": {
+        "cash_cents": 10000
+      }
+    },
+    {
+      "key": "main-missions",
+      "phase": 4,
+      "trigger": "none",
+      "completion": "acknowledged",
+      "target": "missions",
+      "goal": {
+        "pl": "Poznaj misje główne",
+        "en": "Meet the main missions",
+        "fr": "Découvre les missions principales",
+        "de": "Lerne die Hauptmissionen kennen",
+        "pt-BR": "Conheça as missões principais"
+      },
+      "sender": "+48 555 010 687",
+      "sms": [
+        {
+          "pl": "Szkolenie za Tobą. Teraz masz misje główne: trzy ścieżki, Kierowca, Mechanik i Kolekcjoner, a w każdej jedna misja naraz.",
+          "en": "The training is behind you. Now you have the main missions: three paths, Driver, Mechanic and Collector, with one mission at a time in each.",
+          "fr": "La formation est terminée. Voici les missions principales : trois parcours, Pilote, Mécanicien et Collectionneur, avec une mission à la fois dans chacun.",
+          "de": "Das Training ist geschafft. Jetzt gibt es die Hauptmissionen: drei Pfade, Fahrer, Mechaniker und Sammler, in jedem immer eine Mission.",
+          "pt-BR": "O treinamento acabou. Agora vêm as missões principais: três trilhas, Piloto, Mecânico e Colecionador, com uma missão por vez em cada."
+        },
+        {
+          "pl": "Liczy się wszystko, co już zrobiłeś, więc część jest prawie gotowa. Zajrzyj do zakładki „Główne”. — K.",
+          "en": "Everything you’ve already done counts, so some are nearly done. Look in the “Main” tab. — K.",
+          "fr": "Tout ce que tu as déjà fait compte, donc certaines sont presque terminées. Regarde l’onglet « Principales ». — K.",
+          "de": "Alles, was du schon getan hast, zählt, also sind manche fast geschafft. Schau in den Tab „Haupt“. — K.",
+          "pt-BR": "Tudo o que você já fez conta, então algumas estão quase prontas. Olhe a aba “Principais”. — K."
+        }
+      ],
+      "reply": {
+        "pl": "OK, rozumiem",
+        "en": "OK, got it",
+        "fr": "OK, compris",
+        "de": "OK, verstanden",
+        "pt-BR": "OK, entendi"
       },
       "reward": {}
     }

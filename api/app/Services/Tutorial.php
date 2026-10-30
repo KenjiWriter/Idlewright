@@ -139,6 +139,11 @@ final class Tutorial
         $rows = $this->rows($userId);
         $rewarded = [];
 
+        // A driver who left the tutorial is not given the steps that were added to it after they did.
+        if ($rows->contains('state', TutorialProgress::STATE_SKIPPED)) {
+            return $this->state($userId, $rewarded);
+        }
+
         foreach ($this->steps->all() as $step) {
             $row = $rows->get($step['key']);
 

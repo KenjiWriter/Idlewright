@@ -59,7 +59,7 @@ describe('the first day', function () {
         $car = Car::query()->findOrFail($run->car_id);
         $gift->first()->forceFill(['car_id' => $car->id, 'mounted_slot' => 'tires'])->save();
 
-        test()->postJson('/api/v1/tutorial/reply', [], bearerFor($driver))->assertJsonPath('data.goal.key', 'rain')->assertJsonPath('data.done', 11);
+        test()->postJson('/api/v1/tutorial/reply', [], bearerFor($driver))->assertJsonPath('data.goal.key', 'rain')->assertJsonPath('data.done', 12);
     });
 
     it('waits for rain and a level 6 car before it gives the rain tires', function () {
@@ -110,7 +110,7 @@ describe('the first day', function () {
 
         test()->postJson('/api/v1/market/exchange/tutorial/buy', [], bearerFor($driver))->assertSuccessful();
 
-        weekGet($driver)->assertJsonPath('data.done', 14)->assertJsonPath('data.rewarded.0.key', 'exchange')->assertJsonPath('data.rewarded.0.cash_cents', 30_000);
+        weekGet($driver)->assertJsonPath('data.done', 15)->assertJsonPath('data.rewarded.0.key', 'exchange')->assertJsonPath('data.rewarded.0.cash_cents', 30_000);
         expect(Wallet::query()->find($driver->id)->cash_cents)->toBe(30_000);
     });
 });
@@ -123,7 +123,7 @@ describe('the first week', function () {
         test()->postJson('/api/v1/tutorial/decline', [], bearerFor($driver))->assertOk()
             ->assertJsonPath('data.current', null)
             ->assertJsonPath('data.goal.key', 'network')
-            ->assertJsonPath('data.done', 19);
+            ->assertJsonPath('data.done', 20);
 
         expect(Wallet::query()->find($driver->id)->cash_cents)->toBe(0);
 

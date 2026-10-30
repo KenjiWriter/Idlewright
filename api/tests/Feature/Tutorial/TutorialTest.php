@@ -69,7 +69,7 @@ describe('the tutorial', function () {
             ->assertOk()
             ->assertHeader('Cache-Control', 'no-store, private')
             ->assertExactJson(['data' => [
-                'status' => 'in_progress', 'total' => 20, 'done' => 0, 'current' => null, 'rewarded' => [],
+                'status' => 'in_progress', 'total' => 23, 'done' => 0, 'current' => null, 'rewarded' => [],
                 // The goal is in front of the driver from the first screen: the wreck is the first thing to do.
                 'goal' => ['key' => 'wreck', 'number' => 1, 'phase' => 1, 'title' => 'Pick your wreck', 'waiting' => null, 'target' => null, 'tire_kind' => null, 'optional' => false, 'reward' => ['cash_cents' => 0, 'car_xp' => 0, 'xp' => 0, 'part' => null, 'garage' => null]],
             ]]);
@@ -312,8 +312,8 @@ describe('the tutorial', function () {
         getTutorial($driver)->assertJsonPath('data.status', 'skipped')->assertJsonPath('data.current', null)->assertJsonPath('data.rewarded', []);
 
         expect(driverCash($driver))->toBe(1_550)
-            // Every step but the first, which was done: the nineteen of the twenty.
-            ->and(TutorialProgress::query()->where('user_id', $driver->id)->where('state', 'skipped')->count())->toBe(19);
+            // Every step but the first, which was done: the twenty-two of the twenty-three.
+            ->and(TutorialProgress::query()->where('user_id', $driver->id)->where('state', 'skipped')->count())->toBe(22);
     });
 
     it('keeps what was done when the driver skips, and what it was paid', function () {
@@ -472,11 +472,11 @@ describe('the guided first minutes', function () {
         getTutorial($driver)->assertOk()
             ->assertJsonPath('data.status', 'in_progress')
             ->assertJsonPath('data.done', 10)
-            // The journey of a test is over at once, so the first step of the first day has started: its goal is in front of the driver.
-            ->assertJsonPath('data.goal.key', 'offroad')
+            // The journey of a test is over at once, so the step that introduces the missions has started: its goal is in front of the driver.
+            ->assertJsonPath('data.goal.key', 'missions')
             ->assertJsonPath('data.goal.number', 11)
             ->assertJsonPath('data.goal.waiting', null)
-            ->assertJsonPath('data.current.key', 'offroad')
+            ->assertJsonPath('data.current.key', 'missions')
             ->assertJsonPath('data.rewarded', [['key' => 'travel', 'cash_cents' => 30_000, 'car_xp' => 0, 'xp' => 2_100, 'part' => null, 'garage' => null]]);
 
         expect(driverCash($driver))->toBe(30_000);

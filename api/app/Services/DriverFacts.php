@@ -17,6 +17,7 @@ use App\Models\RaceRun;
 use App\Models\Travel;
 use App\Models\TutorialProgress;
 use App\Models\User;
+use App\Models\UserMission;
 use App\Models\Wallet;
 use App\Models\WorkshopJob;
 use Carbon\CarbonInterface;
@@ -91,6 +92,7 @@ final class DriverFacts
             'car_bought' => $this->bought($userId, 'exchange', $since),
             'equipment_bought' => $this->bought($userId, 'workshop_gear', $since),
             'garage_bought' => $this->bought($userId, 'garage', $since),
+            'mission_taken' => UserMission::query()->where('user_id', $userId)->whereNotNull('claimed_at')->exists(),
             'email_confirmed' => User::query()->whereKey($userId)->whereNotNull('email_verified_at')->exists(),
             'city_open' => $this->cityOpen($userId),
             'tires_mounted' => $this->tiresMounted($userId, (string) $argument),
