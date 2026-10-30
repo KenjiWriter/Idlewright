@@ -45,31 +45,73 @@ final class MissionDraw
             $chosen[] = ['slot' => $index + 1, 'key' => $key, 'template' => $fitting[$key]];
         }
 
-        $budget = $this->rules->missions()['periods'][$period];
-        $shares = array_sum(array_map(static fn (array $mission): int => (int) $mission['template']['reward_share'], $chosen)) ?: 1;
-        $cash = max(0, $tankful['net_cents']) * $budget['cash_ppm'] / 1_000_000;
-        $xp = $tankful['xp'] * $budget['xp_ppm'] / 1_000_000;
         $set = [];
 
         foreach ($chosen as $mission) {
             $template = $mission['template'];
-            $share = (int) $template['reward_share'] / $shares;
 
             $set[] = [
                 'slot' => $mission['slot'],
                 'key' => $mission['key'],
                 'objective' => $template['objective'],
                 'target' => $this->target($template, $tankful),
-                'reward' => [
-                    'cash_cents' => $budget['cash_ppm'] > 0 ? $this->dollars((int) round($cash * $share)) : 0,
-                    'xp' => $budget['xp_ppm'] > 0 ? max(1, (int) round($xp * $share)) : 0,
-                    'car_xp' => isset($template['car_xp_laps']) ? (int) $template['car_xp_laps'] * $this->rules->carXpPerLap() : 0,
-                    'items' => $template['items'] ?? [],
-                ],
+                'reward' => $this->templateReward($period, $template, $tankful),
             ];
         }
 
         return $set;
+    }
+
+    /**
+     * What a mission of a set pays: the part of its worth (times its multiplier) that the rules of the period pay in cash and in XP, the experience of the car and the
+     * items of the template.
+     *
+     * @param  array<string, mixed>  $template
+     * @param  array{laps: int, lap_cash_cents: int, gross_cents: int, net_cents: int, xp: int, fuel_cents: int}  $tankful
+     * @return array{cash_cents: int, xp: int, car_xp: int, items: list<array<string, string>>}
+     */
+    public function templateReward(string $period, array $template, array $tankful): array
+    {
+        return $this->paid($this->templateWorth($template, $tankful) * (int) $template['reward_share'], $this->rules->missions()['periods'][$period], $tankful, $template);
+    }
+
+    /**
+     * What a template is worth, in tanks of the best car of the driver: the work it asks (a part of a tank of laps, of earnings or of fuel, or a number of times) times what
+     * the missions say a unit of that work is worth (`effort`). A mission pays a part of this, so a goal that asks for much pays much.
+     *
+     * @param  array<string, mixed>  $template
+     * @param  array{laps: int, lap_cash_cents: int, gross_cents: int, net_cents: int, xp: int, fuel_cents: int}  $tankful
+     */
+    public function templateWorth(array $template, array $tankful): float
+    {
+        $objective = (string) $template['objective'];
+        $amount = in_array($objective, MissionCatalog::TANK_OBJECTIVES, true) ? ((int) ($template['tanks_ppm'] ?? 0)) / 1_000_000 : (int) ($template['count'] ?? 1);
+
+        return $amount * ($this->catalog->effort()[$objective] ?? 0) / 1_000_000;
+    }
+
+    /**
+     * What a main mission is worth in tanks of the best car of the driver as it opens: the laps, the cash and the fuel that it asks over all the time are turned into
+     * tanks of that car (so a better car makes a goal of laps worth the same work), and the rest is a number of times, a level or a number of things the driver has.
+     *
+     * @param  array<string, mixed>  $mission
+     * @param  array{laps: int, lap_cash_cents: int, gross_cents: int, net_cents: int, xp: int, fuel_cents: int}  $tankful
+     */
+    public function chainWorth(array $mission, array $tankful): float
+    {
+        $objective = (string) $mission['objective'];
+        $count = (int) $mission['count'];
+        $effort = $this->catalog->effort();
+        $key = isset($mission['param']) ? "{$objective}:{$mission['param']}" : $objective;
+
+        $amount = match ($objective) {
+            'laps', 'wet_laps' => $count / max(1, $tankful['laps']),
+            'cash_earned' => $count / max(1, $tankful['gross_cents']),
+            'fuel_spent' => $count / max(1, $tankful['fuel_cents']),
+            default => $count,
+        };
+
+        return $amount * ($effort[$key] ?? $effort[$objective] ?? 0) / 1_000_000;
     }
 
     /**
@@ -91,20 +133,34 @@ final class MissionDraw
     }
 
     /**
-     * What a main mission pays, worked out when it opens from a tank of the best car of the driver: its cash and XP are parts of it, the experience of the car is
-     * that many laps of it, and the items are as the mission gives them.
+     * What a main mission pays, worked out when it opens from what it is worth in tanks of the best car of the driver (`chainWorth`): a part of it in cash and a part
+     * in XP (the rules of the main missions), the experience of the car as that many laps of it, and the items as the mission gives them.
      *
-     * @param  array{cash_tanks_ppm?: int, xp_tanks_ppm?: int, car_xp_laps?: int, items?: list<array<string, string>>}  $reward
+     * @param  array<string, mixed>  $mission
      * @param  array{laps: int, lap_cash_cents: int, gross_cents: int, net_cents: int, xp: int, fuel_cents: int}  $tankful
      * @return array{cash_cents: int, xp: int, car_xp: int, items: list<array<string, string>>}
      */
-    public function chainReward(array $reward, array $tankful): array
+    public function chainReward(array $mission, array $tankful): array
+    {
+        return $this->paid($this->chainWorth($mission, $tankful), $this->rules->missions()['main'], $tankful, $mission['reward'] ?? []);
+    }
+
+    /**
+     * What a worth of tanks pays: the cash is a part of the net earnings of that many tanks, and the XP a part of their XP (whole dollars, and at least a dollar and a
+     * point where the rules pay anything at all); the experience of the car and the items are the ones the template or the mission gives.
+     *
+     * @param  array{cash_ppm: int, xp_ppm: int}  $share
+     * @param  array{laps: int, lap_cash_cents: int, gross_cents: int, net_cents: int, xp: int, fuel_cents: int}  $tankful
+     * @param  array<string, mixed>  $gives
+     * @return array{cash_cents: int, xp: int, car_xp: int, items: list<array<string, string>>}
+     */
+    private function paid(float $worth, array $share, array $tankful, array $gives): array
     {
         return [
-            'cash_cents' => isset($reward['cash_tanks_ppm']) ? $this->dollars((int) round(max(0, $tankful['net_cents']) * $reward['cash_tanks_ppm'] / 1_000_000)) : 0,
-            'xp' => isset($reward['xp_tanks_ppm']) ? max(1, (int) round($tankful['xp'] * $reward['xp_tanks_ppm'] / 1_000_000)) : 0,
-            'car_xp' => isset($reward['car_xp_laps']) ? (int) $reward['car_xp_laps'] * $this->rules->carXpPerLap() : 0,
-            'items' => $reward['items'] ?? [],
+            'cash_cents' => $share['cash_ppm'] > 0 ? $this->dollars((int) round($worth * max(0, $tankful['net_cents']) * $share['cash_ppm'] / 1_000_000)) : 0,
+            'xp' => $share['xp_ppm'] > 0 ? max(1, (int) round($worth * $tankful['xp'] * $share['xp_ppm'] / 1_000_000)) : 0,
+            'car_xp' => isset($gives['car_xp_laps']) ? (int) $gives['car_xp_laps'] * $this->rules->carXpPerLap() : 0,
+            'items' => $gives['items'] ?? [],
         ];
     }
 

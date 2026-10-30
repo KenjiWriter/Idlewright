@@ -13,9 +13,9 @@ use App\Services\MissionScale;
 use Illuminate\Console\Command;
 
 /**
- * What the missions of the game ask and pay, for a car on a track: the goals of every template, what each set pays in all (cash and XP as a part of a tank, the
- * items, the bonus in coins), what a month of doing everything comes to, and the coins of a month next to the prices of the game. The tool for tuning the numbers of
- * the rules, and for seeing what a change does before it is published.
+ * What the missions of the game ask and pay, for a car on a track: for every template the goal it asks, what it is worth (in tanks of the car) and what it pays in cash and
+ * XP, what a set pays on average (a set draws one template of every slot, by weight), what a month of doing everything comes to, and the coins of a month next to the
+ * prices of the game. The tool for tuning the numbers of the rules, and for seeing what a change does before it is published.
  */
 final class MissionsBudget extends Command
 {
@@ -53,42 +53,54 @@ final class MissionsBudget extends Command
 
         $this->info(sprintf('A tank of the %s on %s: %d laps, %s gross, %s after the fuel, %d XP; filling it costs %s. The missions are %s.', $this->option('car'), $this->option('track'), $tank['laps'], $dollars($tank['gross_cents']), $dollars($tank['net_cents']), $tank['xp'], $dollars($tank['fuel_cents']), $settings['enabled'] ? 'on' : 'OFF'));
 
-        $cashes = [];
-        $xps = [];
-        $coins = [];
+        $cash = [];
+        $xp = [];
+        $worth = [];
 
         foreach (MissionCatalog::PERIODS as $period) {
-            $budget = $settings['periods'][$period];
-            $cash = (int) round(max(0, $tank['net_cents']) * $budget['cash_ppm'] / 1_000_000);
-            $xp = (int) round($tank['xp'] * $budget['xp_ppm'] / 1_000_000);
             $rows = [];
+            $cash[$period] = 0.0;
+            $xp[$period] = 0.0;
+            $worth[$period] = 0.0;
 
             foreach ($catalog->slots($period) as $slot) {
+                $fitting = array_filter($slot['templates'], static fn (array $template): bool => $level >= ($template['min_player_level'] ?? 1) && $level <= ($template['max_player_level'] ?? PHP_INT_MAX));
+                $weights = array_sum(array_column($fitting, 'weight')) ?: 1;
+
                 foreach ($slot['templates'] as $key => $template) {
-                    $fits = $level >= ($template['min_player_level'] ?? 1) && $level <= ($template['max_player_level'] ?? PHP_INT_MAX);
+                    $fits = isset($fitting[$key]);
+                    $reward = $draw->templateReward($period, $template, $tank);
+                    $worthOf = $draw->templateWorth($template, $tank) * (int) $template['reward_share'];
                     $items = implode(', ', array_map(static fn (array $item): string => $item['type'] === 'crate' ? "crate {$item['kind']}" : "part {$item['rarity']}", $template['items'] ?? []));
-                    $rows[] = [$slot['key'], $key, $template['objective'], $fits ? $this->goal($template, $draw->target($template, $tank)) : '(does not fit)', $template['weight'], $template['reward_share'], $items];
+
+                    if ($fits) {
+                        $chance = $template['weight'] / $weights;
+                        $cash[$period] += $chance * $reward['cash_cents'];
+                        $xp[$period] += $chance * $reward['xp'];
+                        $worth[$period] += $chance * $worthOf;
+                    }
+
+                    $rows[] = [$slot['key'], $key, $fits ? $this->goal($template, $draw->target($template, $tank)) : '(does not fit)', $template['weight'], number_format($worthOf, 2).' tanks', $dollars($reward['cash_cents']), $reward['xp'], $items];
                 }
             }
 
             $this->newLine();
-            $this->line(sprintf('%s: %d missions, the set pays %s and %d XP, and %d coins for the whole set.', strtoupper($period), count($catalog->slots($period)), $dollars($cash), $xp, $budget['bonus_coins']));
-            $this->table(['slot', 'template', 'goal', 'asks', 'weight', 'share', 'items'], $rows);
-
-            $cashes[$period] = $cash;
-            $xps[$period] = $xp;
-            $coins[$period] = $budget['bonus_coins'];
+            $this->line(sprintf('%s: %d missions, on average worth %.1f tanks of work, and the set pays about %s and %d XP, and %d coins for the whole set.', strtoupper($period), count($catalog->slots($period)), $worth[$period], $dollars($cash[$period]), (int) round($xp[$period]), $settings['periods'][$period]['bonus_coins']));
+            $this->table(['slot', 'template', 'goal', 'weight', 'worth', 'cash', 'XP', 'items'], $rows);
         }
+
+        $this->newLine();
+        $this->line(sprintf('The main missions pay %d%% of what they are worth in cash and %d%% in XP (see missions:budget --help for the rest; the chains are in rules/missions).', $settings['main']['cash_ppm'] / 10_000, $settings['main']['xp_ppm'] / 10_000));
 
         // A month of 30 days of doing everything: 30 days, 30 / 7 weeks and one month.
         $weeks = 30 / 7;
-        $monthCash = 30 * $cashes['daily'] + $weeks * $cashes['weekly'] + $cashes['monthly'];
-        $monthXp = 30 * $xps['daily'] + $weeks * $xps['weekly'] + $xps['monthly'];
-        $monthCoins = 30 * $coins['daily'] + $weeks * $coins['weekly'] + $coins['monthly'];
+        $monthCash = 30 * $cash['daily'] + $weeks * $cash['weekly'] + $cash['monthly'];
+        $monthXp = 30 * $xp['daily'] + $weeks * $xp['weekly'] + $xp['monthly'];
+        $monthCoins = 30 * $settings['periods']['daily']['bonus_coins'] + $weeks * $settings['periods']['weekly']['bonus_coins'] + $settings['periods']['monthly']['bonus_coins'];
         $day = max(1, $tank['net_cents']);
 
         $this->newLine();
-        $this->line(sprintf('A month of doing everything: %s (%d%% of the %s that 30 tanks earn), %d XP (%d%% of the %d of 30 tanks), %d coins.', $dollars($monthCash), (int) round(100 * $monthCash / (30 * $day)), $dollars(30 * $day), $monthXp, (int) round(100 * $monthXp / max(1, 30 * $tank['xp'])), 30 * $tank['xp'], (int) round($monthCoins)));
+        $this->line(sprintf('A month of doing everything: %s (%d%% of the %s that 30 tanks earn), %d XP (%d%% of the %d of 30 tanks), %d coins.', $dollars($monthCash), (int) round(100 * $monthCash / (30 * $day)), $dollars(30 * $day), (int) round($monthXp), (int) round(100 * $monthXp / max(1, 30 * $tank['xp'])), 30 * $tank['xp'], (int) round($monthCoins)));
 
         $vip = $rules->vip();
         $products = $rules->premiumProducts();
@@ -110,7 +122,7 @@ final class MissionsBudget extends Command
     {
         return match ($template['objective']) {
             'cash_earned', 'fuel_spent' => '$'.number_format($target / 100, 0),
-            default => (string) $target,
+            default => $template['objective'].' '.$target,
         };
     }
 }

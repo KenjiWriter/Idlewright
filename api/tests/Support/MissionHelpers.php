@@ -36,6 +36,7 @@ function theMissionsAre(?array $daily = null, ?array $weekly = null, ?array $mon
     app()->instance(MissionCatalog::class, MissionCatalog::fromArray([
         'schema' => 0,
         'version' => '2026.10.1',
+        'effort' => repositoryDocument('rules/missions')['effort'],
         'periodic' => [
             'daily' => $daily ?? [
                 ['key' => 'drive', 'templates' => ['t-laps' => missionTemplate('laps', ['tanks_ppm' => 200_000])]],

@@ -17,6 +17,7 @@ use App\Models\UserMission;
 use App\Models\Wallet;
 use App\Services\DefinitionUsage;
 use App\Services\Ledger;
+use App\Services\MissionDraw;
 use App\Services\MissionScale;
 use Illuminate\Support\Carbon;
 
@@ -35,7 +36,7 @@ function words(string $pl, string $en): array
 }
 
 /** @param  array<string, mixed>  $extra */
-function chainMission(string $key, string $objective, int $count, array $extra = [], array $reward = ['cash_tanks_ppm' => 500_000, 'xp_tanks_ppm' => 100_000]): array
+function chainMission(string $key, string $objective, int $count, array $extra = [], array $reward = []): array
 {
     return ['key' => $key, 'title' => words("T {$key}", "T {$key}"), 'text' => words("Zrób {$key}", "Do {$key}"), 'objective' => $objective, 'count' => $count, ...$extra, 'reward' => $reward];
 }
@@ -46,7 +47,7 @@ function testChains(): array
     return [
         ['key' => 'road', 'title' => words('Droga', 'Road'), 'missions' => [
             chainMission('road-laps-5', 'laps', 5),
-            chainMission('road-laps-20', 'laps', 20, reward: ['cash_tanks_ppm' => 1_000_000, 'items' => [['type' => 'crate', 'kind' => 'slot']]]),
+            chainMission('road-laps-20', 'laps', 20, reward: ['items' => [['type' => 'crate', 'kind' => 'slot']]]),
             chainMission('road-level-2', 'player_level', 2, ['min_player_level' => 25]),
         ]],
         ['key' => 'garage', 'title' => words('Garaż', 'Garage'), 'missions' => [
@@ -158,7 +159,7 @@ describe('the main missions', function () {
 });
 
 describe('taking a main mission', function () {
-    it('pays a reward that is a part of the tank of the best car, once, and gives the crate', function () {
+    it('pays a part of what the mission is worth, once, and gives the crate', function () {
         $driver = freeDriver();
         missionsOf($driver);
         Carbon::setTestNow(missionNoon()->addHours(3));
@@ -166,12 +167,15 @@ describe('taking a main mission', function () {
         $second = $road['missions'][1];
         $tank = app(MissionScale::class)->tankful($driver->id);
 
-        // A tank earns 375 dollars after the fuel for the car of the factory: the second mission pays a whole tank, in whole dollars, and a crate.
+        // Twenty laps are worth twenty of the thirty laps of a tank of the car of the factory, and the main missions pay the part of that that the rules say (in whole dollars).
+        $worth = 20 / $tank['laps'];
+        $expected = max(100, intdiv((int) round($worth * $tank['net_cents'] * repositoryDocument('rules/starter')['missions']['main']['cash_ppm'] / 1_000_000) + 50, 100) * 100);
         $cash = Wallet::query()->find($driver->id)->cash_cents;
         $claimed = claimMission($driver, $second['id'])->assertOk();
         $again = claimMission($driver, $second['id'])->assertOk();
 
-        expect($second['reward']['cash_cents'])->toBe((int) (round($tank['net_cents'] / 100) * 100))
+        expect($second['reward']['cash_cents'])->toBe($expected)
+            ->and($second['reward']['xp'])->toBeGreaterThan(0)
             ->and($claimed->json('claimed.cash_cents'))->toBe($second['reward']['cash_cents'])
             ->and($claimed->json('claimed.parts'))->toHaveCount(1)
             ->and($again->json('repeated'))->toBeTrue()
@@ -234,10 +238,11 @@ describe('the pack', function () {
             ->and(app(DefinitionUsage::class)->removedInUse('missions', $before, $before))->toBe([]);
     });
 
-    it('ships three chains of eight missions, in five languages, that cost a few tanks in all', function () {
+    it('ships three chains of eight missions, in five languages, that pay a part of what each is worth', function () {
         $catalog = MissionCatalog::fromSource(repositoryContent());
-        $cash = 0;
-        $xp = 0;
+        $draw = app(MissionDraw::class);
+        $tank = app(MissionScale::class)->tankOf(new RaceRun(['car_slug' => 'rdzak-gt-4', 'track_slug' => 'zlomowo-street']));
+        $share = repositoryDocument('rules/starter')['missions']['main'];
 
         expect(array_column($catalog->chains(), 'key'))->toBe(['driver', 'mechanic', 'collector']);
 
@@ -249,13 +254,15 @@ describe('the pack', function () {
                     expect($mission['title'])->toHaveKey($locale)->and($mission['text'])->toHaveKey($locale);
                 }
 
-                $cash += $mission['reward']['cash_tanks_ppm'];
-                $xp += $mission['reward']['xp_tanks_ppm'];
+                // What a mission asks is worth something, and it pays that part of it that the rules say (to the whole dollar and at least a dollar).
+                $worth = $draw->chainWorth($mission, $tank);
+                $paid = $draw->chainReward($mission, $tank);
+
+                expect($worth)->toBeGreaterThan(0.0, $mission['key'])
+                    ->and(abs($paid['cash_cents'] - $worth * $tank['net_cents'] * $share['cash_ppm'] / 1_000_000))->toBeLessThanOrEqual(max(100, 50))
+                    ->and($paid['xp'])->toBeGreaterThan(0);
             }
         }
-
-        // About seven tanks of cash and three of XP for the whole of the main missions, a few percent of what a driver earns on the way to level twenty.
-        expect($cash / 1_000_000)->toBeBetween(5.0, 9.0)->and($xp / 1_000_000)->toBeBetween(2.0, 4.0);
 
         $warnings = array_filter(PackValidator::fromConfig()->validateSource(repositoryContent())->warnings(), static fn (array $issue): bool => $issue['file'] === 'rules/missions.json');
 

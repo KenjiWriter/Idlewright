@@ -553,7 +553,7 @@ final class Rules
      * after which the sets start, and for each period what a whole set pays (cash and XP as parts of a tank of the best car, in ppm) and the premium coins for having
      * done all of it. Null when the rules do not mention them, which is the same as off.
      *
-     * @return array{enabled: bool, timezone: string, reset_hour: int, unlock_after_step: string, periods: array<string, array{bonus_coins: int, cash_ppm: int, xp_ppm: int}>}|null
+     * @return array{enabled: bool, timezone: string, reset_hour: int, unlock_after_step: string, periods: array<string, array{bonus_coins: int, cash_ppm: int, xp_ppm: int}>, main: array{cash_ppm: int, xp_ppm: int}}|null
      */
     public function missions(): ?array
     {
@@ -568,6 +568,7 @@ final class Rules
                 static fn (array $period): array => ['bonus_coins' => (int) $period['bonus_coins'], 'cash_ppm' => (int) $period['cash_ppm'], 'xp_ppm' => (int) $period['xp_ppm']],
                 $missions['periods'],
             ),
+            'main' => ['cash_ppm' => (int) $missions['main']['cash_ppm'], 'xp_ppm' => (int) $missions['main']['xp_ppm']],
         ];
     }
 

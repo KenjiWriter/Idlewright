@@ -637,6 +637,7 @@ final class PackValidator
         }
 
         $missions = $source->document('rules/missions');
+        $effort = $missions['effort'] ?? [];
         $levels = (int) ($rules['player']['max_level'] ?? 30);
         $kinds = array_keys($rules['shop']['crates']['kinds'] ?? []);
         $keys = [];
@@ -655,6 +656,10 @@ final class PackValidator
 
                     $keys[$key] = true;
                     $objective = $template['objective'];
+
+                    if (! isset($effort[$objective])) {
+                        $result->addError($file, '/effort', "The goal {$objective} is used by the template {$key}, and the effort has no entry for it: nothing can say what it is worth.");
+                    }
 
                     if (! in_array($objective, MissionCatalog::PERIODIC_OBJECTIVES, true)) {
                         $result->addError($file, "{$pointer}/objective", "{$objective} is a goal of the main missions: a set cannot count it over a period.");
@@ -709,6 +714,10 @@ final class PackValidator
                 $missionKeys[$mission['key']] = true;
                 $objective = $mission['objective'];
                 $param = $mission['param'] ?? null;
+
+                if (! isset($effort[$objective]) && ! isset($effort["{$objective}:{$param}"])) {
+                    $result->addError($file, '/effort', "The goal {$objective} is used by the mission {$mission['key']}, and the effort has no entry for it: nothing can say what it is worth.");
+                }
 
                 if ($objective === 'rarity_owned' && ! in_array($param, $rarities, true)) {
                     $result->addError($file, "{$pointer}/param", 'The mission counts the parts of a rarity, and param is not one of: '.implode(', ', $rarities).'.');

@@ -221,6 +221,8 @@ return [
             '/missions/periods/daily/xp_ppm',
             '/missions/periods/weekly/xp_ppm',
             '/missions/periods/monthly/xp_ppm',
+            '/missions/main/cash_ppm',
+            '/missions/main/xp_ppm',
         ],
     ],
 

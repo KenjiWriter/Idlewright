@@ -293,7 +293,7 @@ final class Missions
                 'params' => json_encode(['param' => $next['param'] ?? null], JSON_THROW_ON_ERROR),
                 'target' => $next['count'],
                 'progress' => 0,
-                'reward' => json_encode($this->draw->chainReward($next['reward'], $tankful), JSON_THROW_ON_ERROR),
+                'reward' => json_encode($this->draw->chainReward($next, $tankful), JSON_THROW_ON_ERROR),
                 'created_at' => $now,
                 'updated_at' => $now,
             ]);

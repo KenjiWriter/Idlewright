@@ -275,7 +275,7 @@ return [
             'affixes' => 'What it changes: the strength, the odds and the effects of the affixes of parts, including those that depend on the surface.',
             'wear' => 'What it changes: how long parts last, what repair and service cost, and how neglect spoils a car.',
             'premium' => 'What it changes: the prices of coin packs, speeding up for coins, and the price of the lawyer.',
-            'missions' => 'What it changes: when the day of the missions starts, and what the sets pay: cash and XP as a part of a tank, and the bonus in coins for a whole set. These are the only free coins in the game.',
+            'missions' => 'What it changes: when the day of the missions starts, what part of the worth of the work that the missions ask they pay in cash and in XP (the sets and the main missions), and the bonus in coins for a whole set. These are the only free coins in the game.',
             'workshop' => 'What it changes: the times of fitting, upgrading and merging, the prices of bays and mechanics, and the length of the queue.',
             'tire_matrix' => 'What it changes: the grip of every kind of tire on every surface.',
             'weather' => 'What it changes: how the weather affects a lap.',

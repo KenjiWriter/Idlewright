@@ -12,6 +12,7 @@ use App\Models\UserMissionPeriod;
 use App\Models\Wallet;
 use App\Services\Ledger;
 use App\Services\MissionPeriods;
+use App\Services\MissionScale;
 use Illuminate\Support\Carbon;
 
 require_once __DIR__.'/../../Support/MissionHelpers.php';
@@ -143,22 +144,27 @@ describe('the sets', function () {
             ->and(UserMission::query()->count())->toBe(0);
     });
 
-    it('divide what the set pays among its missions by their shares, so that it pays the same whatever is drawn', function () {
+    it('pay a part of what they are worth: a mission that asks twice as much pays twice as much, and the multiplier of a template pays more', function () {
         theMissionsAre(daily: [
-            ['key' => 'a', 'templates' => ['t-a' => missionTemplate('laps', ['tanks_ppm' => 200_000, 'reward_share' => 3])]],
-            ['key' => 'b', 'templates' => ['t-b' => missionTemplate('service', ['count' => 1, 'reward_share' => 1])]],
+            ['key' => 'a', 'templates' => ['t-a' => missionTemplate('laps', ['tanks_ppm' => 400_000])]],
+            ['key' => 'b', 'templates' => ['t-b' => missionTemplate('laps', ['tanks_ppm' => 800_000])]],
+            ['key' => 'c', 'templates' => ['t-c' => missionTemplate('laps', ['tanks_ppm' => 400_000, 'reward_share' => 3])]],
         ]);
         $driver = missionDriver();
 
         $missions = missionsOf($driver)->json('data.periods.daily.missions');
         $cash = array_column(array_column($missions, 'reward'), 'cash_cents');
         $xp = array_column(array_column($missions, 'reward'), 'xp');
+        $tank = app(MissionScale::class)->tankful($driver->id);
+        $share = repositoryDocument('rules/starter')['missions']['periods']['daily'];
 
-        // Three parts to one, to the whole dollar.
-        expect($cash[0])->toBeGreaterThan($cash[1])
-            ->and($cash[0] % 100)->toBe(0)
-            ->and(abs($cash[0] - 3 * $cash[1]))->toBeLessThanOrEqual(200)
-            ->and($xp[0])->toBeGreaterThan($xp[1]);
+        // 0.4 of a tank of laps is worth 0.4 tanks, and the set pays that part of it that the rules say, in whole dollars.
+        expect($cash[0])->toBe(max(100, intdiv((int) round(0.4 * $tank['net_cents'] * $share['cash_ppm'] / 1_000_000) + 50, 100) * 100))
+            ->and($xp[0])->toBe(max(1, (int) round(0.4 * $tank['xp'] * $share['xp_ppm'] / 1_000_000)))
+            ->and(abs($cash[1] - 2 * $cash[0]))->toBeLessThanOrEqual(100)
+            ->and($xp[1])->toBe((int) round(0.8 * $tank['xp'] * $share['xp_ppm'] / 1_000_000))
+            ->and(abs($cash[2] - 3 * $cash[0]))->toBeLessThanOrEqual(200)
+            ->and($cash[0] % 100)->toBe(0);
     });
 });
 

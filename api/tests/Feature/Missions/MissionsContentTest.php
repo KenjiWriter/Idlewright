@@ -12,6 +12,7 @@ use App\Models\UserMissionPeriod;
 use App\Services\AccountErasure;
 use App\Services\AccountExport;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Artisan;
 
 require_once __DIR__.'/../../Support/MissionHelpers.php';
 
@@ -160,14 +161,26 @@ describe('the budget', function () {
             ->assertSuccessful();
     });
 
-    it('stays within what the owner approved for the economy: about a tenth of the cash and under a tenth of the XP of a month of tanks', function () {
-        $rules = repositoryDocument('rules/starter')['missions']['periods'];
+    it('pays, for a month of doing everything, a part of what 30 tanks earn that the owner can read in the command, and that a slip of the hand cannot double', function () {
+        Artisan::call('missions:budget', ['--level' => 12]);
+        $output = Artisan::output();
 
-        // In parts of a tank (1.0 is one tank): the day, the week and the month, over the 30 tanks that a driver who looks in once a day fills in a month.
-        $cash = (30 * $rules['daily']['cash_ppm'] + (30 / 7) * $rules['weekly']['cash_ppm'] + $rules['monthly']['cash_ppm']) / 1_000_000 / 30;
-        $xp = (30 * $rules['daily']['xp_ppm'] + (30 / 7) * $rules['weekly']['xp_ppm'] + $rules['monthly']['xp_ppm']) / 1_000_000 / 30;
+        expect(preg_match('/A month of doing everything: \$[\d,.]+ \((\d+)% of the .*?\), (\d+) XP \((\d+)% of/', $output, $found))->toBe(1);
 
-        expect($cash)->toBeBetween(0.09, 0.12)->and($xp)->toBeBetween(0.06, 0.09);
+        // The month of a driver who looks in once a day and does every mission of every set: more than a sixth of what the cars earn (so that the missions are worth doing)
+        // and under the whole of it (so that they are not the game), and the XP, which is a gate of the game, under half.
+        expect((int) $found[1])->toBeBetween(15, 100)->and((int) $found[3])->toBeBetween(5, 50);
+    });
+
+    it('refuse a goal that the effort does not value, because nothing can say what a mission that asks it is worth', function () {
+        $content = withMissions(function (array $missions): array {
+            unset($missions['effort']['upgrade'], $missions['effort']['rarity_owned:epic']);
+
+            return $missions;
+        });
+        $errors = missionErrors($content);
+
+        expect($errors)->toContain('rules/missions.json /effort');
     });
 });
 

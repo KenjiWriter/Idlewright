@@ -404,10 +404,11 @@
     "reset_hour": 4,
     "unlock_after_step": "travel",
     "periods": {
-      "daily": { "bonus_coins": 2, "cash_ppm": 60000, "xp_ppm": 50000 },
-      "weekly": { "bonus_coins": 8, "cash_ppm": 200000, "xp_ppm": 150000 },
-      "monthly": { "bonus_coins": 25, "cash_ppm": 600000, "xp_ppm": 400000 }
-    }
+      "daily": { "bonus_coins": 2, "cash_ppm": 100000, "xp_ppm": 60000 },
+      "weekly": { "bonus_coins": 8, "cash_ppm": 100000, "xp_ppm": 60000 },
+      "monthly": { "bonus_coins": 25, "cash_ppm": 100000, "xp_ppm": 60000 }
+    },
+    "main": { "cash_ppm": 150000, "xp_ppm": 90000 }
   },
   "workshop": {
     "mechanic_level": 1,

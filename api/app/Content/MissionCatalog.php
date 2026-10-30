@@ -45,6 +45,17 @@ final class MissionCatalog
     }
 
     /**
+     * What a goal is worth, in ppm of a tank of the best car of the driver (1 000 000 is a tank), for the unit it is counted in: a whole tank of laps, of cash or of fuel
+     * for the goals that are parts of a tank, one time for the others. A goal that is about a rarity or a kind of tires has its param after a colon (`rarity_owned:rare`).
+     *
+     * @return array<string, int>
+     */
+    public function effort(): array
+    {
+        return array_map(intval(...), $this->data['effort'] ?? []);
+    }
+
+    /**
      * The slots of the set of a period, in the order of the set.
      *
      * @return list<array{key: string, templates: array<string, array<string, mixed>>}>

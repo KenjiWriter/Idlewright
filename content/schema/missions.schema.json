@@ -7,6 +7,13 @@
   "properties": {
     "schema": { "const": 0 },
     "version": { "type": "string", "pattern": "^[0-9]{4}\\.[0-9]{1,2}\\.[0-9]+$" },
+    "effort": {
+      "description": "What the work that a goal asks is worth, in ppm of a tank of the best car of the driver (1 000 000 is a tank): for the goals that are a part of a tank (laps, wet_laps, cash_earned, fuel_spent) the worth of a whole tank of that work, for the others the worth of doing it once (a level, a car, a garage, a part of a rarity are counted the same way; `rarity_owned:rare` is the worth of a part of that rarity, and `rarity_owned` of any other). A mission pays a part of what it is worth (the shares are in the rules, section missions), so what it asks and what it pays go up together. Every goal that a template or a chain uses needs an entry.",
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "pattern": "^[a-z_]+(:[a-z_]+)?$" },
+      "additionalProperties": { "type": "integer", "minimum": 0, "maximum": 1000000000 }
+    },
     "periodic": {
       "description": "The sets that come back: a set of a day, a week or a month has one mission for every slot, drawn from the templates of the slot (by weight, from a seed that is the driver and the period, so that the same driver gets the same set all through the period). A driver draws a set the first time they look in the period.",
       "type": "object",
@@ -33,7 +40,7 @@
       }
     }
   },
-  "required": ["schema", "version", "periodic"],
+  "required": ["schema", "version", "effort", "periodic"],
   "additionalProperties": false,
   "$defs": {
     "objective": {
@@ -91,7 +98,7 @@
         "tanks_ppm": { "description": "For laps, wet_laps, cash_earned and fuel_spent: how much of a tank of the best car of the driver the goal is (1 000 000 is one full tank: its laps, what they pay, what the fuel costs).", "type": "integer", "minimum": 1, "maximum": 100000000 },
         "count": { "description": "For the other goals: how many times.", "type": "integer", "minimum": 1, "maximum": 100000 },
         "weight": { "description": "How often the slot draws it, against the others of the slot.", "type": "integer", "minimum": 1, "maximum": 1000 },
-        "reward_share": { "description": "Its share of what the set pays in cash and XP (the set pays the same whatever it draws; the shares tell how it is divided).", "type": "integer", "minimum": 1, "maximum": 1000 },
+        "reward_share": { "description": "A multiplier on what the mission is worth when the set pays it: 1 pays the part of its worth that the rules give, 2 twice that. Leave it at 1 unless a mission should pay more or less than the work it asks.", "type": "integer", "minimum": 1, "maximum": 1000 },
         "min_player_level": { "type": "integer", "minimum": 1, "maximum": 100 },
         "max_player_level": { "type": "integer", "minimum": 1, "maximum": 100 },
         "car_xp_laps": { "description": "Experience for the car that is played, as many laps of it as this.", "type": "integer", "minimum": 1, "maximum": 100000 },
@@ -111,10 +118,9 @@
         "param": { "description": "The rarity (rarity_owned) or the kind of tires (tires_mounted) the mission is about.", "type": "string", "pattern": "^[a-z_]+$" },
         "min_player_level": { "description": "The mission opens only for a driver of this level, whatever the chain has done.", "type": "integer", "minimum": 1, "maximum": 100 },
         "reward": {
+          "description": "What the mission gives besides the part of its worth that the rules pay in cash and XP (section missions, main).",
           "type": "object",
           "properties": {
-            "cash_tanks_ppm": { "description": "Cash, as a part of the net earnings of a tank of the best car of the driver (1 000 000 is a tank).", "type": "integer", "minimum": 1, "maximum": 100000000 },
-            "xp_tanks_ppm": { "description": "Experience for the driver, as a part of the XP of a tank of the best car.", "type": "integer", "minimum": 1, "maximum": 100000000 },
             "car_xp_laps": { "description": "Experience for the car that is played, as many laps of it as this.", "type": "integer", "minimum": 1, "maximum": 100000 },
             "items": { "$ref": "#/$defs/items" }
           },

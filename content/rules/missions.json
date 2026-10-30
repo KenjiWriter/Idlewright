@@ -1,6 +1,31 @@
 {
   "schema": 0,
-  "version": "2026.10.1",
+  "version": "2026.10.2",
+  "effort": {
+    "laps": 1000000,
+    "cash_earned": 1000000,
+    "wet_laps": 1500000,
+    "fuel_spent": 400000,
+    "mount": 300000,
+    "upgrade": 600000,
+    "service": 250000,
+    "crate": 1000000,
+    "parts_bought": 1000000,
+    "journey": 500000,
+    "car_bought": 5000000,
+    "repair": 300000,
+    "merge": 1000000,
+    "player_level": 500000,
+    "car_level": 500000,
+    "cars_owned": 3000000,
+    "garages_owned": 4000000,
+    "tires_mounted": 500000,
+    "rarity_owned": 1000000,
+    "rarity_owned:uncommon": 300000,
+    "rarity_owned:rare": 1000000,
+    "rarity_owned:epic": 4000000,
+    "rarity_owned:legendary": 15000000
+  },
   "periodic": {
     "daily": [
       {
@@ -10,13 +35,13 @@
             "objective": "laps",
             "tanks_ppm": 600000,
             "weight": 3,
-            "reward_share": 2
+            "reward_share": 1
           },
           "daily-laps-long": {
             "objective": "laps",
             "tanks_ppm": 900000,
             "weight": 1,
-            "reward_share": 3
+            "reward_share": 1
           }
         }
       },
@@ -27,7 +52,7 @@
             "objective": "cash_earned",
             "tanks_ppm": 600000,
             "weight": 1,
-            "reward_share": 2
+            "reward_share": 1
           }
         }
       },
@@ -90,7 +115,7 @@
               }
             ],
             "weight": 2,
-            "reward_share": 2
+            "reward_share": 1
           },
           "daily-laps-marathon": {
             "objective": "laps",
@@ -102,7 +127,7 @@
               }
             ],
             "weight": 1,
-            "reward_share": 3
+            "reward_share": 1
           }
         }
       }
@@ -115,7 +140,7 @@
             "objective": "laps",
             "tanks_ppm": 4000000,
             "weight": 1,
-            "reward_share": 2
+            "reward_share": 1
           }
         }
       },
@@ -126,7 +151,7 @@
             "objective": "cash_earned",
             "tanks_ppm": 4000000,
             "weight": 1,
-            "reward_share": 2
+            "reward_share": 1
           }
         }
       },
@@ -221,7 +246,7 @@
             "objective": "laps",
             "tanks_ppm": 20000000,
             "weight": 1,
-            "reward_share": 2
+            "reward_share": 1
           }
         }
       },
@@ -232,7 +257,7 @@
             "objective": "cash_earned",
             "tanks_ppm": 20000000,
             "weight": 1,
-            "reward_share": 2
+            "reward_share": 1
           }
         }
       },
@@ -338,10 +363,7 @@
           },
           "objective": "laps",
           "count": 50,
-          "reward": {
-            "cash_tanks_ppm": 100000,
-            "xp_tanks_ppm": 50000
-          }
+          "reward": {}
         },
         {
           "key": "driver-laps-250",
@@ -362,8 +384,6 @@
           "objective": "laps",
           "count": 250,
           "reward": {
-            "cash_tanks_ppm": 150000,
-            "xp_tanks_ppm": 80000,
             "items": [
               {
                 "type": "crate",
@@ -390,10 +410,7 @@
           },
           "objective": "player_level",
           "count": 10,
-          "reward": {
-            "cash_tanks_ppm": 200000,
-            "xp_tanks_ppm": 100000
-          }
+          "reward": {}
         },
         {
           "key": "driver-cash-5k",
@@ -414,8 +431,6 @@
           "objective": "cash_earned",
           "count": 500000,
           "reward": {
-            "cash_tanks_ppm": 200000,
-            "xp_tanks_ppm": 100000,
             "items": [
               {
                 "type": "crate",
@@ -443,8 +458,6 @@
           "objective": "laps",
           "count": 1000,
           "reward": {
-            "cash_tanks_ppm": 300000,
-            "xp_tanks_ppm": 150000,
             "car_xp_laps": 50
           }
         },
@@ -467,8 +480,6 @@
           "objective": "player_level",
           "count": 15,
           "reward": {
-            "cash_tanks_ppm": 400000,
-            "xp_tanks_ppm": 150000,
             "items": [
               {
                 "type": "crate",
@@ -496,8 +507,6 @@
           "objective": "cash_earned",
           "count": 10000000,
           "reward": {
-            "cash_tanks_ppm": 500000,
-            "xp_tanks_ppm": 200000,
             "items": [
               {
                 "type": "crate",
@@ -525,8 +534,6 @@
           "objective": "laps",
           "count": 5000,
           "reward": {
-            "cash_tanks_ppm": 600000,
-            "xp_tanks_ppm": 250000,
             "car_xp_laps": 200,
             "items": [
               {
@@ -566,10 +573,7 @@
           },
           "objective": "mount",
           "count": 5,
-          "reward": {
-            "cash_tanks_ppm": 100000,
-            "xp_tanks_ppm": 50000
-          }
+          "reward": {}
         },
         {
           "key": "mechanic-upgrade-3",
@@ -590,8 +594,6 @@
           "objective": "upgrade",
           "count": 3,
           "reward": {
-            "cash_tanks_ppm": 150000,
-            "xp_tanks_ppm": 80000,
             "items": [
               {
                 "type": "crate",
@@ -619,10 +621,7 @@
           "objective": "tires_mounted",
           "count": 1,
           "param": "rain",
-          "reward": {
-            "cash_tanks_ppm": 150000,
-            "xp_tanks_ppm": 80000
-          }
+          "reward": {}
         },
         {
           "key": "mechanic-service-5",
@@ -643,8 +642,6 @@
           "objective": "service",
           "count": 5,
           "reward": {
-            "cash_tanks_ppm": 200000,
-            "xp_tanks_ppm": 100000,
             "items": [
               {
                 "type": "crate",
@@ -672,8 +669,6 @@
           "objective": "merge",
           "count": 3,
           "reward": {
-            "cash_tanks_ppm": 250000,
-            "xp_tanks_ppm": 120000,
             "items": [
               {
                 "type": "crate",
@@ -701,10 +696,7 @@
           "objective": "rarity_owned",
           "count": 3,
           "param": "rare",
-          "reward": {
-            "cash_tanks_ppm": 300000,
-            "xp_tanks_ppm": 150000
-          }
+          "reward": {}
         },
         {
           "key": "mechanic-upgrade-20",
@@ -725,8 +717,6 @@
           "objective": "upgrade",
           "count": 20,
           "reward": {
-            "cash_tanks_ppm": 400000,
-            "xp_tanks_ppm": 200000,
             "car_xp_laps": 100,
             "items": [
               {
@@ -756,8 +746,6 @@
           "count": 1,
           "param": "epic",
           "reward": {
-            "cash_tanks_ppm": 500000,
-            "xp_tanks_ppm": 250000,
             "items": [
               {
                 "type": "part",
@@ -797,8 +785,6 @@
           "objective": "crate",
           "count": 5,
           "reward": {
-            "cash_tanks_ppm": 100000,
-            "xp_tanks_ppm": 50000,
             "items": [
               {
                 "type": "crate",
@@ -825,10 +811,7 @@
           },
           "objective": "journey",
           "count": 3,
-          "reward": {
-            "cash_tanks_ppm": 150000,
-            "xp_tanks_ppm": 80000
-          }
+          "reward": {}
         },
         {
           "key": "collector-cars-2",
@@ -848,10 +831,7 @@
           },
           "objective": "cars_owned",
           "count": 2,
-          "reward": {
-            "cash_tanks_ppm": 200000,
-            "xp_tanks_ppm": 100000
-          }
+          "reward": {}
         },
         {
           "key": "collector-crates-25",
@@ -872,8 +852,6 @@
           "objective": "crate",
           "count": 25,
           "reward": {
-            "cash_tanks_ppm": 250000,
-            "xp_tanks_ppm": 120000,
             "items": [
               {
                 "type": "crate",
@@ -900,10 +878,7 @@
           },
           "objective": "garages_owned",
           "count": 3,
-          "reward": {
-            "cash_tanks_ppm": 300000,
-            "xp_tanks_ppm": 150000
-          }
+          "reward": {}
         },
         {
           "key": "collector-cars-4",
@@ -924,8 +899,6 @@
           "objective": "cars_owned",
           "count": 4,
           "reward": {
-            "cash_tanks_ppm": 400000,
-            "xp_tanks_ppm": 200000,
             "items": [
               {
                 "type": "crate",
@@ -953,8 +926,6 @@
           "objective": "journey",
           "count": 25,
           "reward": {
-            "cash_tanks_ppm": 400000,
-            "xp_tanks_ppm": 200000,
             "items": [
               {
                 "type": "crate",
@@ -982,8 +953,6 @@
           "objective": "crate",
           "count": 100,
           "reward": {
-            "cash_tanks_ppm": 600000,
-            "xp_tanks_ppm": 300000,
             "items": [
               {
                 "type": "part",

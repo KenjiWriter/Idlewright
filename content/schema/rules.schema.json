@@ -619,6 +619,16 @@
         "timezone": { "description": "The time zone in which the day, the week and the month of the missions start (a name of the IANA database).", "type": "string", "pattern": "^[A-Za-z]+([_/+-][A-Za-z0-9]+)*$" },
         "reset_hour": { "description": "The hour of the day (in the time zone) at which the day of the missions starts; the week starts on Monday and the month on the first at this hour. Four in the morning keeps an evening session in one day.", "type": "integer", "minimum": 0, "maximum": 23 },
         "unlock_after_step": { "description": "The key of the step of the tutorial after which the daily, weekly and monthly missions start (a driver who left the tutorial has them at once). The main missions start when the tutorial is over.", "$ref": "common.schema.json#/$defs/slug" },
+        "main": {
+          "description": "What a main mission pays, worked out when it opens from what it is worth (the work it asks in tanks of the best car of the driver, see effort in rules/missions): a part of that in cash and a part in XP, with the experience of the car and the items that the mission gives.",
+          "type": "object",
+          "properties": {
+            "cash_ppm": { "description": "The part of the worth of a main mission that is paid in cash (1 000 000 is all of it).", "type": "integer", "minimum": 0, "maximum": 10000000 },
+            "xp_ppm": { "description": "The part of the worth of a main mission that is paid in XP of the driver (1 000 000 is all of it). The level of a driver is a gate of the game, so keep it small.", "type": "integer", "minimum": 0, "maximum": 10000000 }
+          },
+          "required": ["cash_ppm", "xp_ppm"],
+          "additionalProperties": false
+        },
         "periods": {
           "type": "object",
           "properties": {
@@ -627,8 +637,8 @@
           "type": "object",
           "properties": {
             "bonus_coins": { "description": "The premium coins that a driver gets for having done every mission of the set. They are the only premium coins the missions give, and paid for in no other way, so this is all the free coins the game hands out for a day of missions. The schema caps it so that a slip of the hand does not make the missions a tap.", "type": "integer", "minimum": 0, "maximum": 5 },
-            "cash_ppm": { "description": "What the whole set pays in cash, as a part of the net earnings of a tank of the best car of the driver (1 000 000 is one tank). The missions of the set divide it by their shares, so the set pays the same whichever missions it draws.", "type": "integer", "minimum": 0, "maximum": 10000000 },
-            "xp_ppm": { "description": "What the whole set pays in XP of the driver, as a part of the XP of a tank of the best car (1 000 000 is one tank). The level of a driver is a gate of the game, so keep it small.", "type": "integer", "minimum": 0, "maximum": 10000000 }
+            "cash_ppm": { "description": "The part of the worth of the missions of the set that is paid in cash (1 000 000 is all of it). The worth of a mission is the work it asks in tanks of the best car of the driver (see effort in rules/missions), so a mission that asks much pays much; the cash is that many tanks of net earnings. It is on top of the earnings of the cars and does not count in the economy of the game.", "type": "integer", "minimum": 0, "maximum": 10000000 },
+            "xp_ppm": { "description": "The part of the worth of the missions of the set that is paid in XP of the driver (1 000 000 is all of it): that many tanks of the XP of the best car. The level of a driver is a gate of the game, so keep it small.", "type": "integer", "minimum": 0, "maximum": 10000000 }
           },
           "required": ["bonus_coins", "cash_ppm", "xp_ppm"],
           "additionalProperties": false
@@ -638,8 +648,8 @@
           "type": "object",
           "properties": {
             "bonus_coins": { "description": "The premium coins that a driver gets for having done every mission of the set. They are the only premium coins the missions give, and paid for in no other way, so this is all the free coins the game hands out for a week of missions. The schema caps it so that a slip of the hand does not make the missions a tap.", "type": "integer", "minimum": 0, "maximum": 20 },
-            "cash_ppm": { "description": "What the whole set pays in cash, as a part of the net earnings of a tank of the best car of the driver (1 000 000 is one tank). The missions of the set divide it by their shares, so the set pays the same whichever missions it draws.", "type": "integer", "minimum": 0, "maximum": 10000000 },
-            "xp_ppm": { "description": "What the whole set pays in XP of the driver, as a part of the XP of a tank of the best car (1 000 000 is one tank). The level of a driver is a gate of the game, so keep it small.", "type": "integer", "minimum": 0, "maximum": 10000000 }
+            "cash_ppm": { "description": "The part of the worth of the missions of the set that is paid in cash (1 000 000 is all of it). The worth of a mission is the work it asks in tanks of the best car of the driver (see effort in rules/missions), so a mission that asks much pays much; the cash is that many tanks of net earnings. It is on top of the earnings of the cars and does not count in the economy of the game.", "type": "integer", "minimum": 0, "maximum": 10000000 },
+            "xp_ppm": { "description": "The part of the worth of the missions of the set that is paid in XP of the driver (1 000 000 is all of it): that many tanks of the XP of the best car. The level of a driver is a gate of the game, so keep it small.", "type": "integer", "minimum": 0, "maximum": 10000000 }
           },
           "required": ["bonus_coins", "cash_ppm", "xp_ppm"],
           "additionalProperties": false
@@ -649,8 +659,8 @@
           "type": "object",
           "properties": {
             "bonus_coins": { "description": "The premium coins that a driver gets for having done every mission of the set. They are the only premium coins the missions give, and paid for in no other way, so this is all the free coins the game hands out for a month of missions. The schema caps it so that a slip of the hand does not make the missions a tap.", "type": "integer", "minimum": 0, "maximum": 60 },
-            "cash_ppm": { "description": "What the whole set pays in cash, as a part of the net earnings of a tank of the best car of the driver (1 000 000 is one tank). The missions of the set divide it by their shares, so the set pays the same whichever missions it draws.", "type": "integer", "minimum": 0, "maximum": 10000000 },
-            "xp_ppm": { "description": "What the whole set pays in XP of the driver, as a part of the XP of a tank of the best car (1 000 000 is one tank). The level of a driver is a gate of the game, so keep it small.", "type": "integer", "minimum": 0, "maximum": 10000000 }
+            "cash_ppm": { "description": "The part of the worth of the missions of the set that is paid in cash (1 000 000 is all of it). The worth of a mission is the work it asks in tanks of the best car of the driver (see effort in rules/missions), so a mission that asks much pays much; the cash is that many tanks of net earnings. It is on top of the earnings of the cars and does not count in the economy of the game.", "type": "integer", "minimum": 0, "maximum": 10000000 },
+            "xp_ppm": { "description": "The part of the worth of the missions of the set that is paid in XP of the driver (1 000 000 is all of it): that many tanks of the XP of the best car. The level of a driver is a gate of the game, so keep it small.", "type": "integer", "minimum": 0, "maximum": 10000000 }
           },
           "required": ["bonus_coins", "cash_ppm", "xp_ppm"],
           "additionalProperties": false
@@ -660,7 +670,7 @@
           "additionalProperties": false
         }
       },
-      "required": ["enabled", "timezone", "reset_hour", "unlock_after_step", "periods"],
+      "required": ["enabled", "timezone", "reset_hour", "unlock_after_step", "periods", "main"],
       "additionalProperties": false
     },
     "workshop": {

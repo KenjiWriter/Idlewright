@@ -275,7 +275,7 @@ return [
             'affixes' => 'Co to zmieni: siłę, szanse i efekty afiksów części, także tych zależnych od nawierzchni.',
             'wear' => 'Co to zmieni: jak długo żyją części, ile kosztuje naprawa i serwis oraz jak zaniedbanie psuje auto.',
             'premium' => 'Co to zmieni: ceny paczek monet, przyspieszanie za monety i cenę prawnika.',
-            'missions' => 'Co to zmieni: kiedy zaczyna się dzień misji i ile płacą zestawy: gotówkę i XP jako część baku oraz premię w monetach za komplet. To jedyne darmowe monety w grze.',
+            'missions' => 'Co to zmieni: kiedy zaczyna się dzień misji i jaką część wartości pracy, której misje chcą, płacą w gotówce i w XP (zestawy i misje główne), oraz premię w monetach za komplet. To jedyne darmowe monety w grze.',
             'workshop' => 'Co to zmieni: czasy montażu, ulepszeń i łączenia, ceny stanowisk i mechaników oraz długość kolejki.',
             'tire_matrix' => 'Co to zmieni: przyczepność każdego rodzaju opon na każdej nawierzchni.',
             'weather' => 'Co to zmieni: jak pogoda wpływa na okrążenie.',
