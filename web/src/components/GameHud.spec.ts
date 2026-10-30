@@ -328,4 +328,8 @@ describe('GameHud', () => {
       expect(mount(GameHud, { global: { plugins: [pinia, i18n, aRouter()] } }).find('[data-test="hud-missions"]').exists()).toBe(false)
     })
   })
+
+  it('has the plate of the missions as the thing that the tutorial points at when it introduces them', () => {
+    expect(show().get('[data-test="hud-missions"]').attributes('data-tutorial')).toBe('missions')
+  })
 })

@@ -4,8 +4,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { defineComponent, h } from 'vue'
 
 import { storeToken } from '@/auth/token'
+import { useTutorialStore } from '@/stores/tutorial'
 import { respond, serveApi } from '@/test/fetchServer'
 import { missionsView } from '@/test/missionsFixtures'
+import { aTutorial } from '@/test/tutorialFixtures'
 
 import { MISSIONS_POLL_MS, useMissionsSync } from './useMissionsSync'
 
@@ -78,6 +80,22 @@ describe('useMissionsSync', () => {
     await flushPromises()
     fail = false
     await vi.advanceTimersByTimeAsync(MISSIONS_POLL_MS)
+
+    expect(asked(calls)).toBe(2)
+  })
+
+  it('asks again at once when a step of the tutorial was done, because it can open the sets or the main missions', async () => {
+    const calls = serveApi(fetchMock, { 'GET /api/v1/missions': () => respond(200, { data: missionsView() }) })
+    const tutorial = useTutorialStore()
+    tutorial.tutorial = aTutorial(null, { done: 21 }).data
+
+    mount(Host)
+    await flushPromises()
+    expect(asked(calls)).toBe(1)
+
+    // The last step is done a moment after the first question, well within the gap between two questions.
+    tutorial.tutorial = aTutorial(null, { done: 23, status: 'finished', goal: null }).data
+    await flushPromises()
 
     expect(asked(calls)).toBe(2)
   })

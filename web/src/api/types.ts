@@ -800,6 +800,7 @@ export type TutorialTarget =
   | 'equipment'
   | 'profile'
   | 'garages'
+  | 'missions'
 
 /** The step that waits: the messages of the mentor, in the language of the driver, and what to highlight. */
 export interface TutorialStep {

@@ -85,4 +85,17 @@ describe('TutorialGoal', () => {
     const skipped = await show(aTutorial(null, { status: 'skipped' }))
     expect(skipped.wrapper.find('[data-test="goal"]').exists()).toBe(false)
   })
+
+  it('leads to the missions from the plate of the missions, which is the target of the steps that introduce them, and not when the driver is there', async () => {
+    const goal = aGoal({ key: 'missions', number: 11, title: 'Check the Missions', target: 'missions', reward: { cash_cents: 0, car_xp: 0, xp: 0, part: null, garage: null } })
+
+    const away = await show(aTutorial(aStep({ key: 'missions', acknowledged: true, target: 'missions' }), { goal, total: 23 }), '/garage')
+
+    expect(away.wrapper.get('[data-test="goal-title"]').text()).toBe('Goal Check the Missions')
+    expect(away.wrapper.get('[data-test="goal-show"]').attributes('href')).toBe('/missions')
+
+    const here = await show(aTutorial(aStep({ key: 'missions', acknowledged: true, target: 'missions' }), { goal, total: 23 }), '/missions')
+
+    expect(here.wrapper.find('[data-test="goal-show"]').exists()).toBe(false)
+  })
 })

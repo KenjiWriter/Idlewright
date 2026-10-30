@@ -83,6 +83,7 @@ const phaseName = computed(() => (te(`clock.phase.${time.value.phase}`) ? t(`clo
         :to="{ name: 'missions' }"
         class="hud-gear hud-missions"
         :aria-label="missionsCount > 0 ? t('hud.missionsCount', { count: missionsCount }, missionsCount) : t('hud.missions')"
+        data-tutorial="missions"
         data-test="hud-missions"
       >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
