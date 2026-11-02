@@ -46,6 +46,30 @@ final class BriefRecorder
         return $brief;
     }
 
+    /** The instruction for one car or part, made and recorded like the other: the same record of the same record's instruction over the same content has the same code. */
+    public function prepareRecord(string $kind, string $slug, string $locale, ?Admin $admin = null): Brief
+    {
+        $admin ??= Auth::guard('admin')->user();
+        $locale = in_array($locale, BriefSelection::LOCALES, true) ? $locale : 'pl';
+        $pack = (string) ($this->packs->active()?->number ?? '');
+        $snapshot = $this->snapshot->current();
+        $key = substr(hash('sha256', "record:{$kind}:{$slug}:{$locale}|{$snapshot}|{$pack}"), 0, 32);
+
+        $exchange = AiExchange::query()
+            ->where('kind', AiExchange::KIND_BRIEF)
+            ->where('admin_id', $admin?->id)
+            ->where('selection', $key)
+            ->first() ?? $this->open(new BriefSelection(locale: $locale), $admin, $pack, $snapshot, $key);
+
+        $brief = $this->builder->buildRecord($kind, $slug, $locale, $exchange->code);
+
+        $exchange->forceFill(['scope' => $brief->scope, 'bytes' => $brief->bytes, 'tokens' => $brief->tokens, 'sha256' => hash('sha256', $brief->text)])->save();
+
+        $this->audit->record('ai_brief_prepared', $admin, 'ai_exchange:'.$exchange->code, ['scope' => $brief->scope, 'bytes' => $brief->bytes, 'tokens' => $brief->tokens, 'locale' => $locale]);
+
+        return $brief;
+    }
+
     private function open(BriefSelection $selection, ?Admin $admin, string $pack, string $snapshot, string $key): AiExchange
     {
         do {

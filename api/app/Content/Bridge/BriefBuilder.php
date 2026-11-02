@@ -12,6 +12,7 @@ use App\Models\ContentDefinition;
 use App\Models\Game;
 use App\Services\ContentPacks;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
 
 /**
  * Makes the instruction that a person gives an AI before the two talk: the role and the manners of the conversation, the format of the block of changes it ends in, and the
@@ -36,6 +37,66 @@ final class BriefBuilder
         private readonly CurrentGame $current,
         private readonly ChangeResolver $resolver,
     ) {}
+
+    /**
+     * The instruction for ONE car or part: the whole record with its numbers and texts, and the ones beside it (the same slot, or the cars) to measure it by. What an answer
+     * to it may change is that record and nothing else, so it cannot make a new car or touch another.
+     *
+     * @throws InvalidArgumentException when there is no such car or part
+     */
+    public function buildRecord(string $kind, string $slug, string $locale, string $code, ?string $nonce = null): Brief
+    {
+        $definition = ContentDefinition::query()->where('kind', $kind)->where('slug', $slug)->where('status', '!=', ContentDefinition::STATUS_ARCHIVED)->first()
+            ?? throw new InvalidArgumentException("There is no {$kind} {$slug}.");
+
+        $nonce ??= Str::lower(Str::random(10));
+        $game = Game::query()->find($this->current->id());
+        $document = $definition->workingDocument();
+        $base = ['pack' => (string) ($this->packs->active()?->number ?? ''), 'snapshot' => $this->snapshot->current(), 'brief' => $code];
+        $scope = ["{$kind}:{$slug}"];
+        $numbers = (new ParameterIndex("{$kind}:{$slug}", $document))->all();
+
+        $lines = [
+            'GAME '.$this->json(['slug' => (string) $game?->slug, 'name' => (string) $game?->name, 'descriptions_in' => $locale]),
+            'BASE '.$this->json($base),
+            'SCOPE '.$this->json($scope),
+            'RECORD '.$this->json(['kind' => $kind, 'slug' => $slug, 'name' => $this->nameOf($document, $slug, $locale)]),
+            ...array_map(fn (Parameter $parameter): string => $this->json([$parameter->pointer(), BridgeUnits::token($parameter->unit), $parameter->display(), $parameter->minDisplay(), $parameter->maxDisplay()]), $numbers),
+        ];
+
+        $texts = TextIndex::of($document);
+
+        if ($texts !== []) {
+            $lines[] = 'TEXTS '.$this->json(['kind' => $kind, 'slug' => $slug]);
+
+            foreach ($texts as $pointer => $languages) {
+                $lines[] = $this->json([$pointer, $languages]);
+            }
+        }
+
+        // The ones beside it, to measure it by: the parts of the same slot, or the cars.
+        $lines = [...$lines, ...$this->tables($kind, $locale, $kind === ContentDefinition::KIND_PART ? (string) ($document['slot'] ?? '-') : '-')];
+
+        $operations = [];
+
+        if (isset($document['name']['en'])) {
+            $operations[] = ['op' => 'text', 'id' => 'rename', 'target' => ['kind' => $kind, 'slug' => $slug], 'path' => '/name', 'locale' => 'en', 'value' => $document['name']['en'].' (renamed)'];
+        }
+
+        if (isset($document['price_cents'])) {
+            $operations[] = ['op' => 'scale', 'id' => 'price', 'target' => ['kind' => $kind, 'slug' => $slug], 'path' => '/price_cents', 'percent' => 10];
+        }
+
+        $operations = $operations === [] ? [['op' => 'scale', 'target' => ['kind' => $kind, 'slug' => $slug], 'path' => '/price_cents', 'percent' => 10]] : $operations;
+        $envelope = ['format' => 'ride-changes/1', 'game' => (string) $game?->slug, 'base' => $base, 'summary' => 'One sentence saying what the block does', 'ops' => $operations];
+
+        $text = BriefTexts::role()."\n\n"
+            .BriefTexts::format($this->schema(), json_encode($envelope, self::JSON | JSON_PRETTY_PRINT))."\n\n"
+            .BriefTexts::dataIntro($nonce)."\n".implode("\n", $lines)."\n"
+            .BriefTexts::dataEnd($nonce)."\n";
+
+        return new Brief($text, $scope, $code, $base['pack'], $base['snapshot'], strlen($text), (int) ceil(strlen($text) / 3.2));
+    }
 
     /**
      * The sections of the rules that have numbers, with how many numbers each has and how many of those the simple mode shows.
@@ -103,7 +164,7 @@ final class BriefBuilder
      *
      * @return list<string>
      */
-    private function tables(string $kind, string $locale): array
+    private function tables(string $kind, string $locale, ?string $only = null): array
     {
         $groups = [];
 
@@ -118,6 +179,10 @@ final class BriefBuilder
         $lines = [];
 
         foreach ($groups as $group => $items) {
+            if ($only !== null && (string) $group !== $only) {
+                continue;
+            }
+
             $facts = [];
             $units = [];
             $prepared = [];
