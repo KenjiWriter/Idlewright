@@ -16,6 +16,7 @@ final readonly class ChangeCheck
      * @param  array<string, array<string, mixed>>  $documents  the documents that the block touches as they would be, by `rules:starter`, `part:slug`
      * @param  array<string, array{draft: bool, saved_at: string|null}>  $touched  whether each of them has a draft now, and when it was saved
      * @param  array<string, mixed>|null  $block  the block as it was written, when it could be read
+     * @param  list<string>  $created  the documents of $documents that are new cars and parts (they are made, not changed)
      */
     public function __construct(
         public array $changes = [],
@@ -23,6 +24,7 @@ final readonly class ChangeCheck
         public array $documents = [],
         public array $touched = [],
         public ?array $block = null,
+        public array $created = [],
     ) {}
 
     /** @param  list<BridgeIssue>  $issues */
@@ -34,13 +36,13 @@ final readonly class ChangeCheck
     /** @param  list<BridgeIssue>  $more */
     public function withIssues(array $more): self
     {
-        return new self($this->changes, [...$this->issues, ...$more], $this->documents, $this->touched, $this->block);
+        return new self($this->changes, [...$this->issues, ...$more], $this->documents, $this->touched, $this->block, $this->created);
     }
 
     /** @param  array<string, mixed>  $block */
     public function withBlock(array $block): self
     {
-        return new self($this->changes, $this->issues, $this->documents, $this->touched, $block);
+        return new self($this->changes, $this->issues, $this->documents, $this->touched, $block, $this->created);
     }
 
     /** @return list<BridgeIssue> */
@@ -87,6 +89,7 @@ final readonly class ChangeCheck
             'changes' => array_map(static fn (ResolvedChange $change): array => $change->toArray(), $this->changes),
             'issues' => array_map(static fn (BridgeIssue $issue): array => $issue->toArray(), $this->issues),
             'touched' => $this->touched,
+            'created' => $this->created,
         ];
     }
 }

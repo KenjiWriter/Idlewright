@@ -17,6 +17,8 @@ use InvalidArgumentException;
  */
 final class ChangeResolver
 {
+    use ResolvesTextsAndCreations;
+
     public const MAX_TARGETS = 200;
 
     public const MAX_CHANGES = 500;
@@ -39,6 +41,9 @@ final class ChangeResolver
     /** @var list<ResolvedChange> */
     private array $changes = [];
 
+    /** @var list<string> the new cars and parts, by `part:slug` */
+    private array $created = [];
+
     /** @var list<BridgeIssue> */
     private array $issues = [];
 
@@ -51,7 +56,7 @@ final class ChangeResolver
      */
     public function resolve(array $block, ?array $scope = null): ChangeCheck
     {
-        $this->definitions = $this->indexes = $this->documents = $this->touched = $this->written = $this->changes = $this->issues = [];
+        $this->definitions = $this->indexes = $this->documents = $this->touched = $this->written = $this->changes = $this->issues = $this->created = [];
         $this->scope = $scope;
 
         foreach ($block['ops'] as $position => $operation) {
@@ -61,6 +66,8 @@ final class ChangeResolver
             match ($operation['op']) {
                 'set' => $this->set($number, $id, $operation),
                 'scale' => $this->scale($number, $id, $operation),
+                'text' => $this->text($number, $id, $operation),
+                'create' => $this->create($number, $id, $operation),
             };
 
             if (count($this->changes) > self::MAX_CHANGES) {
@@ -70,7 +77,7 @@ final class ChangeResolver
             }
         }
 
-        return new ChangeCheck($this->changes, $this->issues, $this->documents, $this->touched, $block);
+        return new ChangeCheck($this->changes, $this->issues, $this->documents, $this->touched, $block, $this->created);
     }
 
     /** @param  array<string, mixed>  $operation */

@@ -34,6 +34,8 @@ final class ChangeReverter
         /** @var array<string, string|null> $after */
         $after = (array) ($exchange->resolved['after'] ?? []);
 
+        /** @var list<string> $created */
+        $created = (array) ($exchange->resolved['created'] ?? []);
         $definitions = [];
         $conflicts = [];
 
@@ -54,8 +56,14 @@ final class ChangeReverter
         }
 
         try {
-            DB::transaction(function () use ($definitions, $before, $admin): void {
+            DB::transaction(function () use ($definitions, $before, $created, $admin): void {
                 foreach ($definitions as $key => $definition) {
+                    if (in_array($key, $created, true)) {
+                        $this->drafts->delete($definition, $admin);
+
+                        continue;
+                    }
+
                     if ($before[$key] === null) {
                         if ($definition->hasDraft()) {
                             $this->drafts->discard($definition, $admin);

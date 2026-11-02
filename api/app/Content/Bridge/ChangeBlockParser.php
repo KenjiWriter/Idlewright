@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Content\Bridge;
 
+use App\Content\Definitions\JsonDocument;
 use JsonException;
 use Opis\JsonSchema\Errors\ErrorFormatter;
 use Opis\JsonSchema\Validator;
@@ -50,10 +51,12 @@ final class ChangeBlockParser
 
         try {
             $object = json_decode($json, false, self::MAX_DEPTH, JSON_THROW_ON_ERROR);
-            $block = json_decode($json, true, self::MAX_DEPTH, JSON_THROW_ON_ERROR);
         } catch (JsonException $exception) {
             return $this->refused('bad_json', 'The block is not valid JSON: '.$exception->getMessage().'.');
         }
+
+        // The block as arrays, except an empty object, which stays an object (a car that is made with `{}` in a field has to keep it).
+        $block = JsonDocument::arrays($object);
 
         if (! $object instanceof stdClass || ! is_array($block)) {
             return $this->refused('bad_block', 'The block has to be one JSON object.');

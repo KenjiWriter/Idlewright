@@ -62,10 +62,18 @@ final class ChangeApplier
             DB::transaction(function () use ($check, $admin, &$before, &$after): void {
                 foreach ($check->documents as $key => $document) {
                     [$kind, $slug] = explode(':', $key, 2);
-                    $definition = ContentDefinition::query()->where('kind', $kind)->where('slug', $slug)->firstOrFail();
 
-                    $before[$key] = $definition->draft;
-                    $this->drafts->save($definition, $document, $admin);
+                    if (in_array($key, $check->created, true)) {
+                        // A new car or part has no draft to go back to: it is made, and undoing it deletes it.
+                        $definition = $this->drafts->create($kind, $document, $admin);
+                        $before[$key] = null;
+                    } else {
+                        $definition = ContentDefinition::query()->where('kind', $kind)->where('slug', $slug)->firstOrFail();
+
+                        $before[$key] = $definition->draft;
+                        $this->drafts->save($definition, $document, $admin);
+                    }
+
                     $after[$key] = $definition->fresh()?->draft === null ? null : sha1((string) $definition->fresh()->draft);
                 }
             });
@@ -78,7 +86,7 @@ final class ChangeApplier
             'applied_at' => now(),
             'reverted_at' => null,
             'before' => $before,
-            'resolved' => [...(array) $exchange->resolved, 'after' => $after],
+            'resolved' => [...(array) $exchange->resolved, 'after' => $after, 'created' => $check->created],
         ])->save();
 
         $this->audit->record('ai_changes_applied', $admin, 'ai_exchange:'.$exchange->code, ['changes' => count($check->changes), 'documents' => array_keys($check->documents), 'summary' => $check->block['summary'] ?? null, 'brief' => $exchange->parent?->code]);

@@ -25,6 +25,7 @@ final readonly class BriefSelection
         public array $sections = [],
         public bool $simple = true,
         public string $locale = 'pl',
+        public bool $texts = false,
     ) {}
 
     /** @param  array<string, mixed>  $state  the state of the form of the page */
@@ -40,6 +41,7 @@ final readonly class BriefSelection
             sections: array_values(array_filter((array) ($state['sections'] ?? []), 'is_string')),
             simple: (bool) ($state['simple'] ?? true),
             locale: in_array($locale, self::LOCALES, true) ? $locale : 'pl',
+            texts: (bool) ($state['texts'] ?? false),
         );
     }
 
@@ -76,6 +78,6 @@ final readonly class BriefSelection
         $sections = $this->sections;
         sort($sections);
 
-        return substr(hash('sha256', json_encode([$this->vehicles, $this->parts, $this->rules, $sections, $this->simple, $this->locale], JSON_THROW_ON_ERROR)), 0, 32);
+        return substr(hash('sha256', json_encode([$this->vehicles, $this->parts, $this->rules, $sections, $this->simple, $this->locale, $this->texts], JSON_THROW_ON_ERROR)), 0, 32);
     }
 }

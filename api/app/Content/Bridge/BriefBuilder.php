@@ -73,6 +73,7 @@ final class BriefBuilder
 
         [$rules, $held, $picked] = $selection->rules ? $this->rules($selection) : [[], [], []];
         $scope = $selection->scope($held);
+        $texts = $selection->texts ? $this->texts($selection, $held) : [];
 
         $lines = [
             'GAME '.$this->json(['slug' => (string) $game?->slug, 'name' => (string) $game?->name, 'descriptions_in' => $selection->locale]),
@@ -80,6 +81,7 @@ final class BriefBuilder
             'SCOPE '.$this->json($scope),
             ...$tables,
             ...$rules,
+            ...$texts,
         ];
 
         $envelope = ['format' => 'ride-changes/1', 'game' => (string) $game?->slug, 'base' => $base, 'summary' => 'One sentence saying what the block does', 'ops' => $this->examples($scope, $base, (string) $game?->slug, $picked)];
@@ -205,6 +207,46 @@ final class BriefBuilder
         return [$lines, $held, array_merge(...array_values($bySection) ?: [[]])];
     }
 
+    /**
+     * The texts that have several languages: the names and descriptions of the cars and parts, and the texts of the sections of the rules that the instruction holds.
+     *
+     * @param  list<string>  $held  the sections of the rules held
+     * @return list<string>
+     */
+    private function texts(BriefSelection $selection, array $held): array
+    {
+        $lines = [];
+
+        foreach (array_filter([ContentDefinition::KIND_VEHICLE => $selection->vehicles, ContentDefinition::KIND_PART => $selection->parts]) as $kind => $_) {
+            $lines[] = 'TEXTS '.$this->json(['kind' => $kind]);
+
+            foreach (ContentDefinition::query()->where('kind', $kind)->where('status', '!=', ContentDefinition::STATUS_ARCHIVED)->orderBy('slug')->get() as $definition) {
+                $texts = array_intersect_key(TextIndex::of($definition->workingDocument()), ['/name' => 1, '/description' => 1]);
+                $lines[] = $this->json([$definition->slug, $texts]);
+            }
+        }
+
+        $rules = $selection->rules ? $this->rulesDocument() : null;
+
+        if ($rules !== null) {
+            $lines[] = 'TEXTS '.$this->json(['document' => BriefSelection::RULES]);
+
+            foreach (TextIndex::of($rules) as $pointer => $texts) {
+                if (in_array(explode('/', $pointer)[1], $held, true)) {
+                    $lines[] = $this->json([$pointer, $texts]);
+                }
+            }
+        }
+
+        return $lines;
+    }
+
+    /** @return array<string, mixed>|null */
+    private function rulesDocument(): ?array
+    {
+        return ContentDefinition::query()->where('kind', ContentDefinition::KIND_RULES)->where('slug', BriefSelection::RULES)->where('status', '!=', ContentDefinition::STATUS_ARCHIVED)->first()?->workingDocument();
+    }
+
     /** What a kind of number is for: the entry of the catalog of help in the language, else what the schema says of it. */
     private function explanation(Parameter $parameter, string $locale): string
     {
@@ -230,6 +272,16 @@ final class BriefBuilder
         $part = ContentDefinition::query()->where('kind', ContentDefinition::KIND_PART)->where('status', '!=', ContentDefinition::STATUS_ARCHIVED)->orderBy('slug')->get()
             ->map(fn (ContentDefinition $definition): array => $definition->workingDocument())
             ->first(fn (array $document): bool => isset($document['slot'], $document['tier'], $document['price_cents']));
+
+        if ($part !== null && isset($part['slug'], $part['name']['en'])) {
+            $candidates[] = ['op' => 'text', 'id' => 'rename', 'target' => ['kind' => 'part', 'slug' => $part['slug']], 'path' => '/name', 'locale' => 'en', 'value' => $part['name']['en'].' (renamed)'];
+        }
+
+        $car = ContentDefinition::query()->where('kind', ContentDefinition::KIND_VEHICLE)->where('status', '!=', ContentDefinition::STATUS_ARCHIVED)->orderBy('slug')->first()?->workingDocument();
+
+        if ($car !== null && isset($car['slug'], $car['price_cents'], $car['name']['en'])) {
+            $candidates[] = ['op' => 'create', 'id' => 'new-car', 'kind' => 'vehicle', 'from' => $car['slug'], 'slug' => $car['slug'].'-2', 'fields' => ['name' => array_map(static fn (string $name): string => $name.' II', $car['name']), 'price_cents' => $car['price_cents'] + 100_000]];
+        }
 
         if ($part !== null) {
             $candidates[] = ['op' => 'scale', 'id' => 'prices', 'select' => ['kind' => 'part', 'where' => ['slot' => $part['slot'], 'tier' => $part['tier']]], 'path' => '/price_cents', 'percent' => 10];
