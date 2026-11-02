@@ -7,6 +7,7 @@ namespace App\Console\Commands;
 use App\Console\Commands\Concerns\PrintsPayers;
 use App\Content\Catalog;
 use App\Content\GameCrates;
+use App\Content\GameGigs;
 use App\Content\GameIncome;
 use App\Content\GameMissions;
 use App\Content\GamePerks;
@@ -23,6 +24,8 @@ use App\Domain\Economy\Finding;
 use App\Domain\Economy\GameLadder;
 use App\Domain\Economy\GateReport;
 use App\Domain\Economy\GateRow;
+use App\Domain\Economy\GigResult;
+use App\Domain\Economy\GigStudy;
 use App\Domain\Economy\LadderRow;
 use App\Domain\Economy\MergeEconomy;
 use App\Domain\Economy\MissionEconomy;
@@ -79,11 +82,12 @@ final class SimulateEconomy extends Command
         {--payers : Add the payers table: the missions, the VIP account, the auto-refill and the pass against a player who pays nothing}
         {--json : Print the report as JSON}
         {--strict : Fail also when a number of the rules of the game is off the anchors}
+        {--gigs : Add the gigs table: the gigs of the board on top of the game scenario, and the shift of the days of the ladder they cause}
         {--strict-game : Fail also when the fleet of the game is out of the pace of the design, or the ladder of the game is off the anchors}';
 
     protected $description = 'Simulate three kinds of players up the ladder of cars and check the pace against the design (the gate), and the rules of the game against the anchors';
 
-    public function handle(Rules $game, Catalog $catalog, Simulator $simulator, PaceGate $gate, RulesConsistency $consistency, GameLadder $ladder, GameIncome $income, ExtrasStudy $study, GameCrates $crates, GameUnits $units, TutorialSteps $tutorial, RunInputsFactory $factory, PayerStudy $payerStudy, GameMissions $gameMissions, GamePerks $gamePerks): int
+    public function handle(Rules $game, Catalog $catalog, Simulator $simulator, PaceGate $gate, RulesConsistency $consistency, GameLadder $ladder, GameIncome $income, ExtrasStudy $study, GameCrates $crates, GameUnits $units, TutorialSteps $tutorial, RunInputsFactory $factory, PayerStudy $payerStudy, GameMissions $gameMissions, GamePerks $gamePerks, GigStudy $gigStudy, GameGigs $gameGigs): int
     {
         $path = (string) ($this->option('ruleset') ?: config('ride.content_path').'/rules/economy.json');
 
@@ -130,6 +134,13 @@ final class SimulateEconomy extends Command
             $audit = $missions === null ? null : $this->effortAudit($economy, $crateEconomy, $missions);
         }
 
+        $gigs = null;
+
+        if ($this->option('gigs')) {
+            $gigEconomy = $gameGigs->economy($incomeByLevel);
+            $gigs = $gigEconomy === null ? null : $gigStudy->run($economy, $gigEconomy, array_map('strval', array_keys($runs)), array_keys($incomeByLevel));
+        }
+
         if ($this->option('json')) {
             $document = $this->asArray($economy, $runs, $report, $findings, $game, $extras, $merge, $upkeep);
 
@@ -141,6 +152,10 @@ final class SimulateEconomy extends Command
                 }
             }
 
+            if ($gigs !== null) {
+                $document['gigs'] = $this->gigsAsArray($gigs);
+            }
+
             $this->line((string) json_encode($document, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR));
         } else {
             $this->print($economy, $runs, $report, $findings, $game, $extras, $merge, $upkeep);
@@ -149,11 +164,15 @@ final class SimulateEconomy extends Command
             if ($payers !== null) {
                 $this->printPayers($economy, $payers, $audit);
             }
+
+            if ($gigs !== null) {
+                $this->printGigs($economy, $gigs);
+            }
         }
 
         $strict = (bool) $this->option('strict');
 
-        return $report->passed() && (! $strict || $off === []) && (! $this->option('strict-game') || $gameOk) ? self::SUCCESS : self::FAILURE;
+        return $report->passed() && (! $strict || $off === []) && (! $this->option('strict-game') || ($gameOk && ($gigs?->passed() ?? true))) ? self::SUCCESS : self::FAILURE;
     }
 
     /**
@@ -525,6 +544,56 @@ final class SimulateEconomy extends Command
     }
 
     /** A share as a percent, with a decimal below ten percent. */
+    /** The gigs played on top of the scenario game, and the shift of the days of the ladder that each plan causes. */
+    private function printGigs(EconomyRules $economy, GigResult $gigs): void
+    {
+        $rungs = $economy->rungs();
+        $days = static fn (PlayerRun $run): array => array_map(static fn (int $rung): string => (string) ($run->dayOf($rung) ?? '-'), range(1, $rungs - 1));
+        $caption = array_map(static fn (int $rung): string => $economy->rungName($rung), range(1, $rungs - 1));
+
+        $this->newLine();
+        $this->line('Gigs, on top of the game scenario: the main car takes a gig on the visits a player takes one on, and is paid what the board pays on average at the level (after the fuel).');
+        $this->line('The gate is the shift of the days of the ladder from the scenario without them (tolerance '.sprintf('%.0f%%', $economy->gateTolerance() * 100).'), asked of the plan with a gig on every visit.');
+
+        $this->table(['level', 'gig, $', 'XP', 'hours', 'offers it can take', 'daily limit'], array_map(fn (array $row): array => [$row['level'], $this->trim(round($row['cash'], 1)), $this->trim(round($row['xp'])), $this->trim(round($row['hours'], 2)), $this->percent($row['share']), $row['limit']], $gigs->worth));
+
+        foreach (array_keys($gigs->baseline) as $key) {
+            $this->newLine();
+            $this->line("Player {$key}:");
+            $rows = [['none', ...$days($gigs->baseline[$key]), '-', '-']];
+
+            foreach ($gigs->plans as $plan) {
+                $note = $plan['runs'][$key]->notes['gigs'];
+                $rows[] = [$plan['label'], ...$days($plan['runs'][$key]), $this->trim($note['gigs']), '+'.$this->trim($note['uplift_cash_30d'] * 100).'%'];
+            }
+
+            $this->table(['plan', ...$caption, 'gigs', 'cash, 30 days'], $rows);
+        }
+
+        foreach ($gigs->plans as $plan) {
+            $failures = array_filter($plan['gate']->rows, static fn (GateRow $row): bool => ! $row->passed);
+
+            $failures === []
+                ? $this->info("Gig shift gate ({$plan['label']}): passed.")
+                : $this->warn("Gig shift gate ({$plan['label']}): ".count($failures).' days are out of the tolerance.'.($plan['binding'] ? ' This does not fail the command, except with --strict-game.' : ' It is not asked of this plan.'));
+        }
+    }
+
+    /** @return array<string, mixed> */
+    private function gigsAsArray(GigResult $gigs): array
+    {
+        return [
+            'passed' => $gigs->passed(),
+            'worth' => $gigs->worth,
+            'plans' => array_map(fn (array $plan): array => [
+                'label' => $plan['label'],
+                'binding' => $plan['binding'],
+                'gate' => $this->gateAsArray($plan['gate']),
+                'players' => array_map(static fn (PlayerRun $run): array => $run->notes['gigs'], $plan['runs']),
+            ], $gigs->plans),
+        ];
+    }
+
     private function percent(float $share): string
     {
         return sprintf($share < 0.1 ? '%.1f%%' : '%.0f%%', $share * 100);

@@ -40,6 +40,16 @@ final class GigCatalog
         return ($this->data['templates'] ?? []) === [];
     }
 
+    /**
+     * The document as it is, for the study that reads all of it.
+     *
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return $this->data;
+    }
+
     /** Whether the game has gigs: the document is there and switched on. */
     public function enabled(): bool
     {
