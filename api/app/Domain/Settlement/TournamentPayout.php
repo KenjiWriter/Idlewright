@@ -64,6 +64,60 @@ final class TournamentPayout
         return new PayoutResult($total, $pool, $total - $pool, $groups, $pool - $paid);
     }
 
+    /**
+     * The split of a pool that only the real players of a bracket paid into (the other places are held by bots, which pay nothing and take nothing): the pool is
+     * the fees of the real players less the rake, and the real players take the places in the order they finished. When there are fewer real players than paying
+     * places, the shares of the places they take are scaled up to the whole pool, so nothing is left over and nobody is paid for a place that is a bot's. With as
+     * many real players as the bracket has places this is `split`.
+     *
+     * @param  int  $realPlayers  how many real players paid the fee, at least one and no more than the size
+     */
+    public static function splitAmong(int $realPlayers, int $size, int $entryFeeCents): PayoutResult
+    {
+        if (! isset(self::SHARES[$size])) {
+            throw new InvalidArgumentException("No payout table for {$size} players. Sizes: ".implode(', ', self::sizes()).'.');
+        }
+
+        if ($realPlayers < 1 || $realPlayers > $size) {
+            throw new InvalidArgumentException("A bracket of {$size} has between one and {$size} real players, not {$realPlayers}.");
+        }
+
+        if ($entryFeeCents <= 0) {
+            throw new InvalidArgumentException('The entry fee must be positive.');
+        }
+
+        $total = $realPlayers * $entryFeeCents;
+        $pool = intdiv($total * (self::WHOLE - self::RAKE_BASIS_POINTS), self::WHOLE);
+
+        $places = [];
+
+        foreach (self::SHARES[$size] as [$stage, $count, $basisPoints]) {
+            for ($i = 0; $i < $count; $i++) {
+                $places[] = [$stage, $basisPoints];
+            }
+        }
+
+        $occupied = array_slice($places, 0, $realPlayers);
+        $shares = array_sum(array_map(static fn (array $place): int => $place[1], $occupied));
+
+        $groups = [];
+        $paid = 0;
+
+        foreach ($occupied as [$stage, $basisPoints]) {
+            $each = intdiv($pool * $basisPoints, $shares);
+            $paid += $each;
+            $last = array_key_last($groups);
+
+            if ($last !== null && $groups[$last]['stage'] === $stage) {
+                $groups[$last]['count']++;
+            } else {
+                $groups[] = ['stage' => $stage, 'count' => 1, 'each_cents' => $each];
+            }
+        }
+
+        return new PayoutResult($total, $pool, $total - $pool, $groups, $pool - $paid);
+    }
+
     /** Basis points paid to the players of one bracket size; always 10 000. */
     public static function basisPointsPaid(int $players): int
     {

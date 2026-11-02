@@ -7,19 +7,26 @@ declare(strict_types=1);
 | differently on different platforms and would make a result depend on the machine, so the
 | files that decide results are scanned for anything that produces a float.
 |
-| EloTable is not scanned: it computes a table with floats, but only to create the data file.
+| EloTable and LuckTable are not scanned: they compute a table with floats, but only to create the data file.
 */
 
 const INTEGER_ONLY_FILES = [
-    'Ppm.php',
-    'Settler.php',
-    'Rating.php',
-    'TournamentPayout.php',
-    'PayoutResult.php',
-    'RunState.php',
-    'RunConfig.php',
-    'SettlementEvent.php',
-    'SettlementResult.php',
+    'Settlement/Ppm.php',
+    'Settlement/Settler.php',
+    'Settlement/Rating.php',
+    'Settlement/RatingRules.php',
+    'Settlement/TournamentPayout.php',
+    'Settlement/PayoutResult.php',
+    'Settlement/RunState.php',
+    'Settlement/RunConfig.php',
+    'Settlement/SettlementEvent.php',
+    'Settlement/SettlementResult.php',
+    'Competition/PerformanceIndex.php',
+    'Competition/PerformanceClasses.php',
+    'Competition/MatchEngine.php',
+    'Competition/MatchResult.php',
+    'Competition/Bracket.php',
+    'Competition/BracketResult.php',
 ];
 
 const FLOAT_FUNCTIONS = ['floor', 'ceil', 'round', 'sqrt', 'pow', 'fdiv', 'floatval', 'doubleval', 'log', 'exp', 'number_format'];
@@ -55,7 +62,7 @@ function floatTokensIn(string $path): array
 }
 
 it('uses no floating point arithmetic in the files that decide results', function (string $file) {
-    $path = dirname(__DIR__, 3).'/app/Domain/Settlement/'.$file;
+    $path = dirname(__DIR__, 3).'/app/Domain/'.$file;
 
     expect($path)->toBeFile()
         ->and(floatTokensIn($path))->toBe([]);

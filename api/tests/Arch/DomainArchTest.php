@@ -57,5 +57,10 @@ arch('domain value objects are immutable')
         'App\Domain\Settlement\SettlementResult',
         'App\Domain\Settlement\PayoutResult',
         'App\Domain\Settlement\EloTable',
+        'App\Domain\Settlement\RatingRules',
+        'App\Domain\Competition\LuckTable',
+        'App\Domain\Competition\PerformanceClasses',
+        'App\Domain\Competition\MatchResult',
+        'App\Domain\Competition\BracketResult',
     ])
     ->toBeReadonly();
