@@ -40,7 +40,9 @@
       "items": {
         "oneOf": [
           { "$ref": "#/$defs/set" },
-          { "$ref": "#/$defs/scale" }
+          { "$ref": "#/$defs/scale" },
+          { "$ref": "#/$defs/text" },
+          { "$ref": "#/$defs/create" }
         ]
       }
     }
@@ -123,6 +125,44 @@
         }
       },
       "required": ["kind", "where"],
+      "additionalProperties": false
+    },
+    "locale": {
+      "description": "The languages of the game.",
+      "enum": ["en", "pl", "fr", "de", "pt-BR"]
+    },
+    "text": {
+      "description": "Sets the text of ONE language in a text that has several (a name, a description). The other languages stay as they are. No markup and no links.",
+      "type": "object",
+      "properties": {
+        "op": { "const": "text" },
+        "id": { "$ref": "#/$defs/id" },
+        "target": { "$ref": "#/$defs/target" },
+        "path": { "description": "The place of the text that has the languages, for example /name.", "$ref": "#/$defs/pointer" },
+        "locale": { "$ref": "#/$defs/locale" },
+        "value": { "type": "string", "minLength": 1, "maxLength": 1000 }
+      },
+      "required": ["op", "target", "path", "locale", "value"],
+      "additionalProperties": false
+    },
+    "create": {
+      "description": "Makes a new car or part as a draft. `from` is the slug of one that exists: the new one starts as a copy of it (without its picture) and `fields` replaces whole fields of it. A new car or part cannot be changed by another operation of the same block: give its values in `fields`. Never give a picture.",
+      "type": "object",
+      "properties": {
+        "op": { "const": "create" },
+        "id": { "$ref": "#/$defs/id" },
+        "kind": { "enum": ["part", "vehicle"] },
+        "slug": { "description": "The slug of the new one: it is for good and is never used again.", "$ref": "#/$defs/slug" },
+        "from": { "$ref": "#/$defs/slug" },
+        "fields": {
+          "description": "The fields of the car or part to set, as the tables of the data show them in the file (prices in cents, powers in the units of the file), a text as an object with its languages (give en, pl, fr, de and pt-BR).",
+          "type": "object",
+          "minProperties": 1,
+          "maxProperties": 40,
+          "not": { "anyOf": [{ "required": ["image"] }, { "required": ["slug"] }] }
+        }
+      },
+      "required": ["op", "kind", "slug", "fields"],
       "additionalProperties": false
     },
     "set": {
