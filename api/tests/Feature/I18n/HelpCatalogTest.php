@@ -16,7 +16,7 @@ const HELP_LOCALES = ['pl', 'en', 'fr', 'de', 'pt_BR'];
 const HELP_DYNAMIC_CHOICES = [
     'world.from', 'world.to', 'world.track_region', 'world.reference_tires', 'world.stat', 'thread.track',
     'tutorial.gift_part', 'tutorial.reward_part', 'tutorial.reward_garage', 'tutorial.listing_vehicle',
-    'wizard.copy_from', 'vocabulary.area', 'rules_text.document', 'studio.section', 'model.stat', 'model.role',
+    'wizard.copy_from', 'vocabulary.area', 'rules_text.document', 'studio.section', 'model.stat', 'model.role', 'ai.sections',
     'missions.timezone', 'missions.unlock_after_step', 'missions.mission_param', 'missions.budget_car', 'missions.budget_track',
 ];
 

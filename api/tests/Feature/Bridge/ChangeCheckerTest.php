@@ -17,13 +17,13 @@ require_once __DIR__.'/../../Support/BridgeHelpers.php';
 
 beforeEach(fn () => contentPacks()->import(repositoryContent(), activate: true, checkTables: false));
 
-/** @param list<array<string, mixed>> $ops @param array<string, mixed> $over */
-function bridgeMessage(array $ops, array $over = []): string
+/** @param list<array<string, mixed>> $ops @param array<string, mixed> $over @param list<string>|null $scope what the instruction the block answers contained */
+function bridgeMessage(array $ops, array $over = [], ?array $scope = null): string
 {
     return bridgeFenced([
         'format' => 'ride-changes/1',
         'game' => Game::query()->where('is_default', true)->value('slug'),
-        'base' => ['pack' => contentPacks()->active()->number, 'snapshot' => app(ContentSnapshot::class)->current()],
+        'base' => ['pack' => contentPacks()->active()->number, 'snapshot' => app(ContentSnapshot::class)->current(), 'brief' => bridgeBrief($scope)->code],
         'summary' => 'A change for the test',
         'ops' => $ops,
         ...$over,
@@ -33,7 +33,7 @@ function bridgeMessage(array $ops, array $over = []): string
 /** @param list<array<string, mixed>> $ops @param list<string>|null $scope */
 function bridgeCheck(array $ops, ?array $scope = null, array $over = []): ChangeCheck
 {
-    return app(ChangeChecker::class)->check(bridgeMessage($ops, $over), $scope);
+    return app(ChangeChecker::class)->check(bridgeMessage($ops, $over, $scope));
 }
 
 /** @return list<string> */
@@ -256,6 +256,28 @@ describe('what the instruction contained', function () {
     });
 });
 
+describe('the instruction a block answers', function () {
+    it('is refused when the code it carries is not one this game gave', function () {
+        $check = bridgeCheck([bridgeSetCoins(120)], null, ['base' => ['pack' => '2026.11.1', 'snapshot' => '9f3a1c20', 'brief' => 'nosuchone']]);
+
+        expect(bridgeCodes($check))->toBe(['unknown_brief'])->and($check->ok())->toBeFalse();
+    });
+
+    it('may change only the sections of the rules the instruction held', function () {
+        $held = ['rules:starter#premium'];
+
+        $inside = bridgeCheck([bridgeSetCoins(120)], $held);
+        $outside = bridgeCheck([['op' => 'scale', 'target' => ['rules' => 'starter'], 'path' => '/fuel/price_cents_per_liter', 'percent' => 5]], $held);
+        $star = bridgeCheck([['op' => 'scale', 'target' => ['rules' => 'starter'], 'path' => '/premium/products/*/coins', 'percent' => 5]], $held);
+        $parts = bridgeCheck([bridgeEngines(12)], $held);
+
+        expect($inside->errors())->toBe([])
+            ->and(bridgeCodes($outside))->toBe(['out_of_scope'])
+            ->and($star->errors())->toBe([])
+            ->and(bridgeCodes($parts))->toContain('out_of_scope');
+    });
+});
+
 describe('the block as a whole', function () {
     it('is refused for another game, whatever it holds', function () {
         $check = bridgeCheck([bridgeSetCoins(120)], null, ['game' => 'another-game']);
@@ -264,7 +286,7 @@ describe('the block as a whole', function () {
     });
 
     it('is told when it was made from other content than there is now', function () {
-        $pack = bridgeCheck([bridgeSetCoins(120)], null, ['base' => ['pack' => '2020.1.1', 'snapshot' => '00000000']]);
+        $pack = bridgeCheck([bridgeSetCoins(120)], null, ['base' => ['pack' => '2020.1.1', 'snapshot' => '00000000', 'brief' => bridgeBrief()->code]]);
 
         expect($pack->errors())->toBe([])
             ->and(bridgeCodes($pack))->toContain('base_pack', 'base_changed')

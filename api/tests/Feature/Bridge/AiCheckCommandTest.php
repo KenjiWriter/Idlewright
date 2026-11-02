@@ -23,7 +23,7 @@ function bridgeAnswer(string $path, array $ops, array $over = []): void
 {
     file_put_contents($path, bridgeFenced(bridgeBlockOf([
         'game' => Game::query()->where('is_default', true)->value('slug'),
-        'base' => ['pack' => contentPacks()->active()->number, 'snapshot' => app(ContentSnapshot::class)->current()],
+        'base' => ['pack' => contentPacks()->active()->number, 'snapshot' => app(ContentSnapshot::class)->current(), 'brief' => bridgeBrief()->code],
         'ops' => $ops,
         ...$over,
     ])));
@@ -68,4 +68,18 @@ it('prints the same as JSON for a program to read', function () {
 it('says when there is no such file or no such game', function () {
     $this->artisan('ai:check', ['file' => '/no/such/file.txt'])->expectsOutputToContain('There is no file')->assertFailed();
     $this->artisan('ai:check', ['file' => $this->answer, '--game' => 'no-such-game'])->expectsOutputToContain('There is no game no-such-game.')->assertFailed();
+});
+
+it('makes the instruction from the console as the panel does, and says what it holds', function () {
+    $out = tempnam(sys_get_temp_dir(), 'ai-brief');
+
+    Artisan::call('ai:brief', ['--out' => $out, '--locale' => 'en', '--without' => ['vehicles'], '--section' => ['premium'], '--all-numbers' => true]);
+
+    $text = (string) file_get_contents($out);
+    unlink($out);
+
+    expect(Artisan::output())->toContain('it holds kind:part rules:starter#premium')
+        ->and($text)->toContain('Assistant for changing the parameters of one game')
+        ->and($text)->toContain('RULES {"document":"starter","section":"premium"}')
+        ->and($text)->not->toContain('"kind":"vehicle"');
 });

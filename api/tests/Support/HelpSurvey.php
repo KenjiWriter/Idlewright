@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Support;
 
+use App\Filament\Pages\AiBridgePage;
 use App\Filament\Pages\BrandingPage;
 use App\Filament\Pages\MissionsPage;
 use App\Filament\Pages\ModelPage;
@@ -47,6 +48,7 @@ final class HelpSurvey
             'branding' => BrandingPage::class,
             'premium' => PremiumPage::class,
             'missions' => MissionsPage::class,
+            'ai' => AiBridgePage::class,
             'vocabulary' => VocabularyPage::class,
             'rules_text' => RulesJsonPage::class,
             'studio' => StudioPage::class,
