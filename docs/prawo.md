@@ -11,7 +11,8 @@ Teksty są **projektem roboczym**: napisałem je na podstawie tego, co aplikacja
 | Zmienna (`api/.env`) | Znaczenie |
 |---|---|
 | `LEGAL_MIN_AGE` | Minimalny wiek, który kierowca potwierdza. **Roboczo 16** (najwyższy próg zgody cyfrowej w RODO), do potwierdzenia po przeglądzie prawnym. Trafia do obu tekstów i do pola wyboru w oknie. |
-| `LEGAL_VERSION` | Dzień ostatniej zmiany tekstów (`2026-10-23`). Pokazuje się na stronach i zapisuje przy pierwszej zgodzie konta (`users.terms_version`). |
+| `LEGAL_VERSION` | Dzień ostatniej zmiany tekstów (`2026-10-23`). Pokazuje się na stronach i zapisuje przy każdej zgodzie konta (`users.terms_version`, a historia w `consent_records`). |
+| `LEGAL_CONSENT_VERSION` | Dzień ostatniej zmiany tekstów, która wymaga **nowej zgody**. Puste: każda zmiana `LEGAL_VERSION` pyta o zgodę jeszcze raz. Drobna poprawka podnosi tylko `LEGAL_VERSION`. |
 | `LEGAL_OPERATOR_NAME`, `LEGAL_OPERATOR_ADDRESS`, `LEGAL_CONTACT_EMAIL` | Kto prowadzi grę i gdzie pisać. Strony pokazują je na górze. **Puste pole strona pokazuje na czerwono jako „jeszcze nie podano”**, więc niedokończona konfiguracja jest widoczna. |
 
 Czas, po którym wygasa konto gościa (`ride.guest_expiry_days`, 90) też idzie z serwera do tekstów.
@@ -20,7 +21,8 @@ Czas, po którym wygasa konto gościa (`ride.guest_expiry_days`, 90) też idzie 
 
 1. Zmień ten sam akapit we **wszystkich pięciu** plikach (test sprawdzi strukturę, ale nie sens tłumaczenia).
 2. Podnieś `LEGAL_VERSION` (do dnia zmiany) w `api/.env` i, jeśli zmieniasz domyślną wartość, w `api/config/ride.php`.
-3. Konta, które już się zgodziły, mają zapisaną starą wersję. **Aplikacja nie wymusza ponownej zgody po zmianie wersji**: to decyzja do podjęcia z prawnikiem (kiedy zmiana jest istotna na tyle, że trzeba zapytać jeszcze raz).
+3. Konta, które już się zgodziły, mają zapisaną starą wersję. **Aplikacja wymusza ponowną zgodę** po zmianie wersji (od 2026-11-02): kierowca z wersją starszą niż `LEGAL_CONSENT_VERSION` (albo bez wersji) dostaje 403 `consent_required` na każde wywołanie poza kilkoma i widzi ekran `/consent` z listą zmian i dwoma polami wyboru (regulamin i wiek). Gość, który niczego nie akceptował, nie jest zatrzymywany. Domyślnie pyta **każda** zmiana `LEGAL_VERSION`; jeśli prawnik uzna, że część zmian jest drobna, podnoś w nich tylko `LEGAL_VERSION`, a `LEGAL_CONSENT_VERSION` dopiero przy zmianie istotnej.
+4. Dopisz wpis dla nowej wersji w `web/src/legal/changes.ts` (co się zmieniło, w pięciu językach): ekran zgody go pokaże. Bez wpisu pokazuje tylko ogólne zdanie i linki do tekstów.
 
 Liczby w tekstach to `{minAge}` i `{guestDays}`. Podstawia je `fillLegal`, a nie vue-i18n, bo kompilator komunikatów traktuje znaki takie jak `@` i `|` jak składnię, a tekst prawny powinien móc je zawierać. Uwaga: polskie „po {guestDays} dniach” zakłada, że to nie jest jeden dzień.
 
@@ -37,7 +39,7 @@ To jest podstawa polityki prywatności i lista, od której prawnik powinien zacz
 | Kod odzyskiwania: tylko skrót i data | `users` | odzyskanie konta | jak konto |
 | E-mail (małymi literami), czas potwierdzenia | `users`, `account_identities` | logowanie linkiem, kontakt | jak konto |
 | Identyfikator u Google/Facebook/Apple i adres, który zgłosili | `account_identities` | logowanie | jak konto |
-| Moment zgody na regulamin i potwierdzenia wieku, wersja regulaminu | `users` | wykazanie zgody | jak konto |
+| Moment zgody na regulamin i potwierdzenia wieku, wersja regulaminu, każda zgoda z wersją, momentem i źródłem | `users`, `consent_records` | wykazanie zgody | jak konto |
 | Sekrety jednorazowe: skrót, e-mail, cel, czas | `account_tokens` | linki i logowanie przez dostawcę | ważne 30 min (link), 10 min (stan), 5 min (bilet); sprzątane co godzinę, gdy wygasły albo zostały użyte ponad dobę temu |
 | Liczniki limitów: adres IP, skrót e-maila | cache | ograniczanie nadużyć | najwyżej godzina |
 | Kolejka maili: adres i treść | `jobs`, `failed_jobs` | wysyłka | do wysłania; **nieudane zadania zostają w `failed_jobs`, dopóki ktoś ich nie usunie** (`queue:prune-failed`), więc to trzeba ustawić; `accounts:delete` usuwa te, które dotyczą adresów usuwanego konta (tylko przy kolejce w bazie) |
@@ -65,11 +67,11 @@ Aplikacja **nie używa** cookies (token, język i kilka znaczników są w `local
 
 1. **Próg wieku.** Czy 16 lat jest właściwe? RODO (art. 8) pozwala państwom ustalić 13–16 lat dla zgody dziecka na usługi społeczeństwa informacyjnego (Polska i Niemcy: 16, Francja: 15). W Brazylii dane dzieci i nastolatków podlegają LGPD. Dostawcy logowania mają własne limity wieku. Do tego trzeba zdecydować, czy wystarczy pole wyboru, czy potrzebna jest zgoda opiekuna poniżej progu.
 2. **Gość bez zgody.** Konto gościa powstaje od razu i nie ma pola wyboru: jest tylko informacja z linkami przy tworzeniu kierowcy, a zgody (z potwierdzeniem wieku) składa się dopiero przy zabezpieczaniu konta. Czy to wystarcza, czy pole wyboru ma być już przy tworzeniu? Gość podaje tylko imię kierowcy.
-3. **Prawa osób, których dane dotyczą.** Polityka mówi, że dostęp, sprostowanie, usunięcie i przeniesienie obsługuje się mailem. Kierowca robi to sam w garażu („Twoje dane”), a operator ma polecenia `accounts:export` i `accounts:delete` dla próśb mailowych i kont, do których nie da się wejść (procedura w sekcji „Kopia i usunięcie danych”). Do przeglądu prawnego: czy samo wpisanie imienia wystarcza jako potwierdzenie i czy trzeba osobnej ścieżki dla prośby o sprostowanie danych (zmiany adresu e-mail w aplikacji nie ma).
+3. **Prawa osób, których dane dotyczą.** Polityka mówi, że dostęp, sprostowanie, usunięcie i przeniesienie obsługuje się mailem. Kierowca robi to sam w garażu („Twoje dane”), a operator ma polecenia `accounts:export` i `accounts:delete` dla próśb mailowych i kont, do których nie da się wejść (procedura w sekcji „Kopia i usunięcie danych”). Do przeglądu prawnego: czy samo wpisanie imienia wystarcza jako potwierdzenie i czy trzeba osobnej ścieżki dla prośby o sprostowanie danych (zmiana adresu e-mail jest w aplikacji: karta „Twoje sposoby logowania”).
 4. **Administrator i umowy.** Kto jest administratorem (dane w `LEGAL_*`), rejestr czynności przetwarzania, umowy powierzenia z hostingiem i dostawcą poczty, podstawy prawne (dobrałem art. 6 ust. 1 lit. b i f).
 5. **Przekazywanie poza EOG.** Tekst mówi ogólnie o „zabezpieczeniach wymaganych przez prawo”. Trzeba je nazwać, gdy będzie wybrany hosting i poczta.
 6. **Odpowiedzialność, prawo właściwe, sąd.** Celowo ich nie wybrałem: regulamin mówi tylko, że bezwzględne przepisy konsumenckie kraju użytkownika nadal obowiązują, a odpowiedzialność ogranicza „w zakresie dozwolonym przez prawo”. To powinien sformułować prawnik.
-7. **Zmiany regulaminu** i ponowna zgoda (patrz wyżej) oraz zapis, że dalsze korzystanie oznacza przyjęcie nowej wersji.
+7. **Zmiany regulaminu** i ponowna zgoda: aplikacja **pyta wprost** (`/consent`, dwa pola wyboru) i nie uznaje dalszego korzystania za przyjęcie (patrz „Jak zmienić teksty”). Do prawnika: które zmiany są na tyle istotne, że trzeba pytać (`LEGAL_CONSENT_VERSION`), czy konta ze zgodą sprzed numerowania wersji (puste `terms_version`) też mają być pytane (dziś: tak), czy gościa, który niczego nie akceptował, też zatrzymywać (dziś: nie), czy pytanie o wiek ma wracać przy każdej zmianie (dziś: tak, bo próg mógł się zmienić), i czy teksty ekranu (`consent.*`) oraz mail powiadamiający o zmianie e-maila i odpięciu logowania są wystarczające. Zapisana jest też **historia zgód** (`consent_records`), więc wersję zaakceptowaną w danym dniu da się wykazać.
 8. **Płatności.** Dziś gra jest darmowa i tak mówi regulamin. Gdy pojawią się zakupy, potrzebne będą osobne warunki (prawo konsumenckie, odstąpienie od umowy, ceny).
 9. **Dostawcy logowania wymagają adresów tych stron.** W konsoli Google (ekran zgody OAuth), w ustawieniach aplikacji Facebooka i przy Services ID Apple trzeba podać adres polityki prywatności (`WEB_URL/privacy`), a Google i Facebook także regulaminu (`WEB_URL/terms`). Bez tego aplikacja nie przejdzie weryfikacji.
 10. **Kopie zapasowe.** Skrypty wdrożenia robią nocną kopię bazy i trzymają ją 14 dni; konto usunięte na prośbę zostaje w kopiach do tego czasu. Polityka prywatności o tym nie mówi, a mówi o usunięciu bez zastrzeżeń. Trzeba zdecydować, czy dopisać zdanie o kopiach i ich okresie (i czy 14 dni jest właściwe), oraz co z kopiami, które operator przenosi poza serwer.
