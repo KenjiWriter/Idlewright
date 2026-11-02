@@ -57,7 +57,9 @@ final class RunInputsFactory
         $region = $this->rules->region($track['region']) ?? throw new InvalidArgumentException("Unknown region {$track['region']}.");
 
         $plan = $odometer === null ? null : $this->wearPlan($carSlug, $trackSlug, $mounted, $odometer);
-        $car = $this->stats($carSlug, $mounted, $plan?->servicePenaltyPpm() ?? 0);
+        // The bonuses of the tuning that work on tracks of a kind are read for the kind of this track; a car that asks for no track gets the ones that work everywhere.
+        $kind = $track['kind'] ?? 'standard';
+        $car = $this->stats($carSlug, $mounted, $plan?->servicePenaltyPpm() ?? 0, $kind);
 
         $unsupported = array_diff(array_keys($track['demand']), array_keys($car->stats));
 
@@ -70,7 +72,7 @@ final class RunInputsFactory
 
         foreach (array_keys($region['weather_ppm']) as $weather) {
             $effect = $this->rules->weather()[$weather];
-            $multipliersPpm = $this->statMultipliersPpm($effect, $track['surface'], $tireKind, $tireAffixes, $tireCondition, $surfaceLossPpm, $tractionPpm);
+            $multipliersPpm = $this->statMultipliersPpm($effect, $weather, $track['surface'], $tireKind, $tireAffixes, $tireCondition, $surfaceLossPpm, $tractionPpm, $mounted, $kind);
 
             $effects[$weather] = new WeatherEffect(
                 array_map(static fn (int $ppm): float => $ppm / 1_000_000, $multipliersPpm),
@@ -80,7 +82,7 @@ final class RunInputsFactory
         }
 
         $thread = $this->rules->lapFrom($trackSlug) === 'thread'
-            ? $this->threadLap($trackSlug, $track, $car, $region, $tireKind, $tireAffixes, $tireCondition, $surfaceLossPpm, $tractionPpm)
+            ? $this->threadLap($trackSlug, $track, $car, $region, $tireKind, $tireAffixes, $tireCondition, $surfaceLossPpm, $tractionPpm, $mounted, $kind)
             : null;
 
         return new RunInputs(
@@ -96,7 +98,7 @@ final class RunInputsFactory
             weatherChancesPpm: $region['weather_ppm'],
             weatherEffects: $effects,
             climateSeed: $region['climate_seed'],
-            breakChancePerLapPpm: $this->rules->breakChancePerLapPpmFor($conditionPpm, $plan?->meanWearPpm() ?? 0, $plan?->overdueSharePpm() ?? 0, $plan?->unserviceableParts($this->rules->unserviceablePpm()) ?? 0, $this->reliabilityKeptPpm($mounted)),
+            breakChancePerLapPpm: $this->rules->breakChancePerLapPpmFor($conditionPpm, $plan?->meanWearPpm() ?? 0, $plan?->overdueSharePpm() ?? 0, $plan?->unserviceableParts($this->rules->unserviceablePpm()) ?? 0, $this->reliabilityKeptPpm($mounted, $kind)),
             nightLapPpm: $track['lit'] ? Ppm::ONE : $this->rules->nightLapPpm(),
             field: $this->field($trackSlug, (int) $vehicle['tier']),
             wear: $plan,
@@ -121,10 +123,11 @@ final class RunInputsFactory
         $track = $this->rules->track($trackSlug) ?? throw new InvalidArgumentException("Unknown track {$trackSlug}.");
         $region = $this->rules->region($track['region']) ?? throw new InvalidArgumentException("Unknown region {$track['region']}.");
         $plan = $odometer === null ? null : $this->wearPlan($carSlug, $trackSlug, $mounted, $odometer);
-        $car = $this->stats($carSlug, $mounted, $plan?->servicePenaltyPpm() ?? 0);
+        $kind = $track['kind'] ?? 'standard';
+        $car = $this->stats($carSlug, $mounted, $plan?->servicePenaltyPpm() ?? 0, $kind);
         [$tireKind, $tireAffixes, $tireCondition, $surfaceLossPpm, $tractionPpm] = $this->tireContext($vehicle, $mounted);
 
-        return $this->threadLap($trackSlug, $track, $car, $region, $tireKind, $tireAffixes, $tireCondition, $surfaceLossPpm, $tractionPpm);
+        return $this->threadLap($trackSlug, $track, $car, $region, $tireKind, $tireAffixes, $tireCondition, $surfaceLossPpm, $tractionPpm, $mounted, $kind);
     }
 
     /** The thread of the track of a run for the car it has now, as `forRun` makes the run. */
@@ -160,28 +163,36 @@ final class RunInputsFactory
     /**
      * What the weather, the tires and the drive of the car multiply the statistics by on a surface, in ppm: the multipliers of the weather by itself, and on the grip, the
      * handling and the braking what the tires grip on the surface (the matrix, less what the adaptive compound of a legendary pair does not lose, more what the affixes of
-     * the surface add) times the traction of the drive on it.
+     * the surface add) times the traction of the drive on it. The bonuses of the tuning that depend on the ground or the weather add where the car is: what they give
+     * the tires on the surface goes with the affixes of the surface, and what they give a statistic multiplies it again.
      *
      * @param  array<string, mixed>  $weather  the weather of the rules: its `ground` and its `stat_ppm`
+     * @param  string  $weatherKey  the key of that weather
      * @param  string  $trackSurface  `asphalt` or `gravel`: what the section is made of when it is dry
      * @param  array<string, int>  $tireAffixes
      * @param  array<string, int>  $tractionPpm  the traction of the drive by surface
+     * @param  array<string, string|array{slug: string, rarity: int, upgrade?: int, wear?: int, affixes?: array<string, int>, tuning?: array<int, array{key: string, ppm: int}|null>}>  $mounted  the parts on the car, by slot
      * @return array<string, int>
      */
-    private function statMultipliersPpm(array $weather, string $trackSurface, string $tireKind, array $tireAffixes, int $tireCondition, int $surfaceLossPpm, array $tractionPpm): array
+    private function statMultipliersPpm(array $weather, string $weatherKey, string $trackSurface, string $tireKind, array $tireAffixes, int $tireCondition, int $surfaceLossPpm, array $tractionPpm, array $mounted, ?string $kind): array
     {
         $multipliersPpm = $weather['stat_ppm'];
         $surface = Surface::of($trackSurface, $weather['ground']);
+        $tuning = $this->tuningLoop($mounted, $kind, $weatherKey, $surface);
         $matrixPpm = $this->rules->tireGripPpm($tireKind, $surface);
 
         if ($surfaceLossPpm > 0 && $matrixPpm < Ppm::ONE) {
             $matrixPpm = Ppm::ONE - Ppm::mul(Ppm::ONE - $matrixPpm, Ppm::ONE - $surfaceLossPpm);
         }
 
-        $tirePpm = Ppm::mul(Ppm::mul($matrixPpm, Ppm::ONE + $this->rules->surfaceAffixPpm($tireAffixes, $surface, $tireCondition)), $tractionPpm[$surface]);
+        $tirePpm = Ppm::mul(Ppm::mul($matrixPpm, Ppm::ONE + $this->rules->surfaceAffixPpm($tireAffixes, $surface, $tireCondition) + $tuning['surface']), $tractionPpm[$surface]);
 
         foreach (self::TRACTION_STATS as $stat) {
             $multipliersPpm[$stat] = Ppm::mul($tirePpm, $multipliersPpm[$stat] ?? Ppm::ONE);
+        }
+
+        foreach ($tuning['stats'] as $stat => $ppm) {
+            $multipliersPpm[$stat] = Ppm::mul($multipliersPpm[$stat] ?? Ppm::ONE, Ppm::ONE + $ppm);
         }
 
         return $multipliersPpm;
@@ -196,8 +207,9 @@ final class RunInputsFactory
      * @param  array<string, mixed>  $region
      * @param  array<string, int>  $tireAffixes
      * @param  array<string, int>  $tractionPpm
+     * @param  array<string, string|array{slug: string, rarity: int, upgrade?: int, wear?: int, affixes?: array<string, int>, tuning?: array<int, array{key: string, ppm: int}|null>}>  $mounted  the parts on the car, by slot
      */
-    private function threadLap(string $trackSlug, array $track, CarStats $car, array $region, string $tireKind, array $tireAffixes, int $tireCondition, int $surfaceLossPpm, array $tractionPpm): ThreadLap
+    private function threadLap(string $trackSlug, array $track, CarStats $car, array $region, string $tireKind, array $tireAffixes, int $tireCondition, int $surfaceLossPpm, array $tractionPpm, array $mounted, ?string $kind): ThreadLap
     {
         $thread = $this->rules->thread($trackSlug) ?? throw new InvalidArgumentException("The track {$trackSlug} is driven on its thread and has none.");
         $weathers = array_unique([...array_keys($region['weather_ppm']), 'dry']);
@@ -207,7 +219,7 @@ final class RunInputsFactory
             $effect = $this->rules->weather()[$weather] ?? ['ground' => 'dry', 'stat_ppm' => []];
 
             foreach ($thread->surfaces() as $trackSurface) {
-                $multipliers = array_map(static fn (int $ppm): float => $ppm / 1_000_000, $this->statMultipliersPpm($effect, $trackSurface, $tireKind, $tireAffixes, $tireCondition, $surfaceLossPpm, $tractionPpm));
+                $multipliers = array_map(static fn (int $ppm): float => $ppm / 1_000_000, $this->statMultipliersPpm($effect, $weather, $trackSurface, $tireKind, $tireAffixes, $tireCondition, $surfaceLossPpm, $tractionPpm, $mounted, $kind));
 
                 $cars[$weather][$trackSurface] = new CarOnSurface(
                     Surface::of($trackSurface, $effect['ground']),
@@ -246,14 +258,78 @@ final class RunInputsFactory
     }
 
     /**
-     * The affixes of a mounted part as the car feels them: the ones it was drawn with and, for a legendary part, the modifiers of the unique effect of its slot.
+     * The affixes of a mounted part as the car feels them: the ones it was drawn with, for a legendary part the modifiers of the unique effect of its slot, and the
+     * bonuses of its tuning that work on a track of this kind (the ones about the fuel, the wear and the reliability are read here, the ones about a statistic in
+     * `tuningStats` and the ones of a surface or a weather in `tuningLoop`).
      *
-     * @param  string|array{slug: string, rarity: int, upgrade?: int, wear?: int, affixes?: array<string, int>}  $entry
+     * @param  string|array{slug: string, rarity: int, upgrade?: int, wear?: int, affixes?: array<string, int>, tuning?: array<int, array{key: string, ppm: int}|null>}  $entry
      * @return array<string, int>
      */
-    private function affixesOf(string $slot, string|array $entry): array
+    private function affixesOf(string $slot, string|array $entry, ?string $kind = null): array
     {
-        return is_array($entry) ? $this->rules->withUniqueAffixes((array) ($entry['affixes'] ?? []), Rarity::tryFrom((int) $entry['rarity']) ?? Rarity::Common, $slot) : [];
+        return is_array($entry)
+            ? [...$this->rules->withUniqueAffixes((array) ($entry['affixes'] ?? []), Rarity::tryFrom((int) $entry['rarity']) ?? Rarity::Common, $slot), ...$this->rules->tuningAffixes((array) ($entry['tuning'] ?? []), $kind)]
+            : [];
+    }
+
+    /**
+     * What the bonuses of the tuning of the parts on the car that are about a statistic add to it on a track of this kind, in ppm by statistic: all of them together
+     * add no more to one statistic than the rules let a car have (`tuning.car_cap_ppm`).
+     *
+     * @param  array<string, string|array{slug: string, rarity: int, upgrade?: int, wear?: int, affixes?: array<string, int>, tuning?: array<int, array{key: string, ppm: int}|null>}>  $mounted  the parts on the car, by slot
+     * @return array<string, int>
+     */
+    private function tuningStats(array $mounted, ?string $kind): array
+    {
+        $sums = [];
+
+        foreach ($mounted as $entry) {
+            if (! is_array($entry) || empty($entry['tuning'])) {
+                continue;
+            }
+
+            $condition = $this->rules->conditionStatPpm($this->rules->stagedConditionPpm((int) ($entry['wear'] ?? 0)));
+
+            foreach ($this->rules->tuningStatPpm((array) $entry['tuning'], $kind, $condition) as $stat => $ppm) {
+                $sums[$stat] = ($sums[$stat] ?? 0) + $ppm;
+            }
+        }
+
+        $cap = $this->rules->tuningCapPpm();
+
+        return array_map(static fn (int $ppm): int => min($ppm, $cap), $sums);
+    }
+
+    /**
+     * What the bonuses of the tuning that depend on the ground or the weather add to the car in this weather, on this surface and on a track of this kind: by
+     * statistic (a multiplier of the statistic) and for the grip of the tires. Each is cut at what the rules let a car have.
+     *
+     * @param  array<string, string|array{slug: string, rarity: int, upgrade?: int, wear?: int, affixes?: array<string, int>, tuning?: array<int, array{key: string, ppm: int}|null>}>  $mounted  the parts on the car, by slot
+     * @return array{stats: array<string, int>, surface: int}
+     */
+    private function tuningLoop(array $mounted, ?string $kind, string $weather, string $surface): array
+    {
+        $stats = [];
+        $onSurface = 0;
+
+        foreach ($mounted as $entry) {
+            if (! is_array($entry) || empty($entry['tuning'])) {
+                continue;
+            }
+
+            $condition = $this->rules->conditionStatPpm($this->rules->stagedConditionPpm((int) ($entry['wear'] ?? 0)));
+            $found = $this->rules->tuningLoopPpm((array) $entry['tuning'], $kind, $weather, $surface, $condition);
+
+            foreach ($found['stats'] as $stat => $ppm) {
+                $stats[$stat] = ($stats[$stat] ?? 0) + $ppm;
+            }
+
+            $onSurface += $found['surface'];
+        }
+
+        $cap = $this->rules->tuningCapPpm();
+
+        return ['stats' => array_map(static fn (int $ppm): int => min($ppm, $cap), $stats), 'surface' => min($onSurface, $cap)];
     }
 
     /**
@@ -275,13 +351,13 @@ final class RunInputsFactory
      *
      * @param  array<string, string|array{slug: string, rarity: int, upgrade?: int, wear?: int, affixes?: array<string, int>}>  $mounted  the parts on the car, by slot
      */
-    private function reliabilityKeptPpm(array $mounted): int
+    private function reliabilityKeptPpm(array $mounted, ?string $kind = null): int
     {
         $kept = Ppm::ONE;
 
         foreach ($mounted as $slot => $entry) {
             if (is_array($entry)) {
-                $kept = Ppm::mul($kept, Ppm::ONE - $this->rules->affixCutPpm($this->affixesOf($slot, $entry), 'reliability'));
+                $kept = Ppm::mul($kept, Ppm::ONE - $this->rules->affixCutPpm($this->affixesOf($slot, $entry, $kind), 'reliability'));
             }
         }
 
@@ -330,7 +406,7 @@ final class RunInputsFactory
 
             // A part with an affix of durability wears slower.
             if (is_array($entry)) {
-                $perKm[$slot] = Ppm::mul($perKm[$slot], Ppm::ONE - $this->rules->affixCutPpm($this->affixesOf($slot, $entry), 'wear'));
+                $perKm[$slot] = Ppm::mul($perKm[$slot], Ppm::ONE - $this->rules->affixCutPpm($this->affixesOf($slot, $entry, $track['kind'] ?? 'standard'), 'wear'));
             }
 
             $perLap[$slot] = intdiv($perKm[$slot] * $lengthM + 500, 1000);
@@ -536,11 +612,13 @@ final class RunInputsFactory
      *
      * @param  array<string, string|array{slug: string, rarity: int, upgrade?: int, wear?: int, affixes?: array<string, int>}>  $mounted  the parts on the car, by slot
      * @param  int  $servicePenaltyPpm  what the overdue of the service takes off the performance, in ppm
+     * @param  string|null  $kind  the kind of the track the car is for: the bonuses of the tuning that work on tracks of that kind count. Null (a car with no track, the class of
+     *                             a car) counts only the ones that work everywhere, so that what a car is rated at does not depend on a track.
      */
-    public function stats(string $carSlug, array $mounted = [], int $servicePenaltyPpm = 0): CarStats
+    public function stats(string $carSlug, array $mounted = [], int $servicePenaltyPpm = 0, ?string $kind = null): CarStats
     {
         $vehicle = $this->vehicle($carSlug);
-        $parts = $this->parts($mounted);
+        $parts = $this->parts($mounted, $kind);
         $tires = $this->partOf($parts, 'tires') ?? $this->stockTires();
         $suspension = $this->partOf($parts, 'suspension');
         $gearbox = $this->partOf($parts, 'gearbox');
@@ -577,15 +655,17 @@ final class RunInputsFactory
 
         // A car that is overdue for its service performs worse: everything but the clearance, which is about the body, not the engine and the wheels.
         $kept = (Ppm::ONE - max(0, min(Ppm::ONE, $servicePenaltyPpm))) / Ppm::ONE;
+        // What the bonuses of the tuning that are about a statistic add to the statistic of the car, as a multiplier of it.
+        $tuned = array_map(static fn (int $ppm): float => 1.0 + $ppm / Ppm::ONE, $this->tuningStats($mounted, $kind));
 
         return new CarStats(
             stats: [
-                'accel' => $power / ($mass / 1000) * $startFactor * $driveStart * $kept,
-                'top_speed' => $topSpeed * $kept,
-                'grip' => (float) $tires['stats']['grip'] * $kept,
-                'handling' => $this->average($tires['stats']['handling'], $suspension['stats']['handling'] ?? null) * $handlingMassFactor * $driveHandling * $kept,
-                'braking' => $this->average($tires['stats']['braking'], $this->partOf($parts, 'brakes')['stats']['braking'] ?? null) * $massFactor * $kept,
-                'clearance' => $this->average($vehicle['clearance'], $suspension['stats']['clearance'] ?? null),
+                'accel' => $power / ($mass / 1000) * $startFactor * $driveStart * $kept * ($tuned['accel'] ?? 1.0),
+                'top_speed' => $topSpeed * $kept * ($tuned['top_speed'] ?? 1.0),
+                'grip' => (float) $tires['stats']['grip'] * $kept * ($tuned['grip'] ?? 1.0),
+                'handling' => $this->average($tires['stats']['handling'], $suspension['stats']['handling'] ?? null) * $handlingMassFactor * $driveHandling * $kept * ($tuned['handling'] ?? 1.0),
+                'braking' => $this->average($tires['stats']['braking'], $this->partOf($parts, 'brakes')['stats']['braking'] ?? null) * $massFactor * $kept * ($tuned['braking'] ?? 1.0),
+                'clearance' => $this->average($vehicle['clearance'], $suspension['stats']['clearance'] ?? null) * ($tuned['clearance'] ?? 1.0),
             ],
             fuelUseMultiplier: (1.0 + self::FUEL_USE_POWER_SHARE * $fuelPower / $this->rules->fuelReferencePowerKw()) / self::FUEL_USE_BASE * $fuelMultiplier * $drivetrain['fuel'],
         );
@@ -598,7 +678,7 @@ final class RunInputsFactory
      * @param  array<string, string|array{slug: string, rarity: int, upgrade?: int, wear?: int, affixes?: array<string, int>}>  $mounted  the parts on the car, by slot
      * @return array<string, array<string, mixed>>
      */
-    private function parts(array $mounted): array
+    private function parts(array $mounted, ?string $kind = null): array
     {
         $parts = [];
 
@@ -613,7 +693,7 @@ final class RunInputsFactory
             }
 
             $condition = $this->rules->effectiveConditionPpm($slot, $rarity, $this->rules->stagedConditionPpm(is_array($entry) ? (int) ($entry['wear'] ?? 0) : 0));
-            $affixes = $this->rules->withUniqueAffixes(is_array($entry) ? (array) ($entry['affixes'] ?? []) : [], $rarity, $slot);
+            $affixes = [...$this->rules->withUniqueAffixes(is_array($entry) ? (array) ($entry['affixes'] ?? []) : [], $rarity, $slot), ...$this->rules->tuningAffixes(is_array($entry) ? (array) ($entry['tuning'] ?? []) : [], $kind)];
             $part['stats'] = $this->rules->scaledStats($part['stats'] ?? [], $rarity, $upgrade, $condition, $affixes);
             // What the affixes that are not about a statistic do is read from the part (`fuel` in the statistics of the car, `wear` and `reliability` in the plan).
             $part['affixes'] = $affixes;

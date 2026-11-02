@@ -1323,7 +1323,7 @@
         "name": { "$ref": "common.schema.json#/$defs/i18n" },
         "description": { "$ref": "common.schema.json#/$defs/i18n" },
         "effect": { "enum": ["stat", "surface", "fuel", "wear", "reliability"] },
-        "stat": { "enum": ["accel", "top_speed", "grip", "handling", "braking", "clearance", "power"] },
+        "stat": { "enum": ["accel", "top_speed", "grip", "handling", "braking", "clearance"] },
         "context": {
           "type": "object",
           "properties": {

@@ -384,6 +384,11 @@ final class PackValidator
                 $result->addError('rules/starter.json', "{$where}/mean_ppm", 'The mean of a bonus lies between the least it gives and the most it gives.');
             }
 
+            // A bonus works as an affix of the same effect, so it is found by its key: no key is the key of an affix too.
+            if (isset($rules['affixes']['definitions'][$key])) {
+                $result->addError('rules/starter.json', $where, 'The key of a bonus is the key of an affix too.');
+            }
+
             $limit = (int) ($tuning[empty($bonus['context']) ? 'max_ppm_plain' : 'max_ppm_context'] ?? 1_000_000);
 
             if (($bonus['max_ppm'] ?? 0) > $limit) {

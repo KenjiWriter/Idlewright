@@ -1119,6 +1119,117 @@ final class Rules
         return $this->data['tuning'] ?? ['slots' => 0, 'definitions' => []];
     }
 
+    /** The most that the bonuses of all the parts on a car add to one statistic in one context, in ppm. */
+    public function tuningCapPpm(): int
+    {
+        return (int) ($this->tuning()['car_cap_ppm'] ?? Ppm::ONE);
+    }
+
+    /**
+     * The bonuses that the places of a part hold and that work on a track of this kind, for the part itself, as amounts by key: the ones that are about the fuel, the
+     * wear or the reliability, and have no context (every track) or only kinds of track. They are read like affixes. The bonuses about a statistic multiply the
+     * statistic of the car (`tuningStatPpm`), and the ones of a surface or a weather work in the weather effects of the car (`tuningLoopPpm`). A part of a car with
+     * no track asks with a null kind and gets the ones that work everywhere.
+     *
+     * @param  array<int, array{key: string, ppm: int}|null>  $places  what the part holds, by place
+     * @param  string|null  $kind  the kind of the track (`sprint`, `standard`, `endurance`), null for no track
+     * @return array<string, int>
+     */
+    public function tuningAffixes(array $places, ?string $kind): array
+    {
+        $definitions = $this->tuning()['definitions'] ?? [];
+        $found = [];
+
+        foreach ($places as $held) {
+            $definition = is_array($held) ? ($definitions[$held['key']] ?? null) : null;
+
+            if ($definition === null || ! in_array($definition['effect'], ['fuel', 'wear', 'reliability'], true)) {
+                continue;
+            }
+
+            $context = $definition['context'] ?? [];
+
+            if (isset($context['surfaces']) || isset($context['weathers']) || (isset($context['kinds']) && ($kind === null || ! in_array($kind, $context['kinds'], true)))) {
+                continue;
+            }
+
+            $found[$held['key']] = (int) $held['ppm'];
+        }
+
+        return $found;
+    }
+
+    /**
+     * What the bonuses of a part that are about a statistic and work on a track of this kind add to the statistic of the car, in ppm, by statistic: the ones with no
+     * context (every track) or only kinds of track. As much as the condition of the part lets them give.
+     *
+     * @param  array<int, array{key: string, ppm: int}|null>  $places  what the part holds, by place
+     * @return array<string, int>
+     */
+    public function tuningStatPpm(array $places, ?string $kind, int $conditionStatPpm = Ppm::ONE): array
+    {
+        $definitions = $this->tuning()['definitions'] ?? [];
+        $stats = [];
+
+        foreach ($places as $held) {
+            $definition = is_array($held) ? ($definitions[$held['key']] ?? null) : null;
+
+            if ($definition === null || $definition['effect'] !== 'stat') {
+                continue;
+            }
+
+            $context = $definition['context'] ?? [];
+
+            if (isset($context['surfaces']) || isset($context['weathers']) || (isset($context['kinds']) && ($kind === null || ! in_array($kind, $context['kinds'], true)))) {
+                continue;
+            }
+
+            $stats[$definition['stat']] = ($stats[$definition['stat']] ?? 0) + Ppm::mul((int) $held['ppm'], $conditionStatPpm);
+        }
+
+        return $stats;
+    }
+
+    /**
+     * What the bonuses of a part that depend on the ground or the weather add where the car is: in this weather, on this surface, on a track of this kind. By
+     * statistic for the bonuses of a statistic (a multiplier of the statistic in that weather), and as one sum for the bonuses of a surface (what they add to the grip
+     * of the tires). As much as the condition of the part lets them give.
+     *
+     * @param  array<int, array{key: string, ppm: int}|null>  $places  what the part holds, by place
+     * @return array{stats: array<string, int>, surface: int}
+     */
+    public function tuningLoopPpm(array $places, ?string $kind, string $weather, string $surface, int $conditionStatPpm = Ppm::ONE): array
+    {
+        $definitions = $this->tuning()['definitions'] ?? [];
+        $stats = [];
+        $onSurface = 0;
+
+        foreach ($places as $held) {
+            $definition = is_array($held) ? ($definitions[$held['key']] ?? null) : null;
+
+            if ($definition === null) {
+                continue;
+            }
+
+            $context = $definition['context'] ?? [];
+            $loop = $definition['effect'] === 'surface' || isset($context['surfaces']) || isset($context['weathers']);
+
+            if (! $loop || (isset($context['kinds']) && ($kind === null || ! in_array($kind, $context['kinds'], true))) || (isset($context['weathers']) && ! in_array($weather, $context['weathers'], true)) || (isset($context['surfaces']) && ! in_array($surface, $context['surfaces'], true))) {
+                continue;
+            }
+
+            $amount = Ppm::mul((int) $held['ppm'], $conditionStatPpm);
+
+            if ($definition['effect'] === 'surface') {
+                $onSurface += $amount;
+            } elseif ($definition['effect'] === 'stat') {
+                $stats[$definition['stat']] = ($stats[$definition['stat']] ?? 0) + $amount;
+            }
+        }
+
+        return ['stats' => $stats, 'surface' => $onSurface];
+    }
+
     /**
      * What the affixes that are about a statistic add to it, in ppm, by statistic (`grip`, `handling`, `braking`, `clearance`, `power`), as much as the condition
      * of the part lets them give. An affix that the rules do not know (a pack that took it out) gives nothing.
@@ -1238,6 +1349,11 @@ final class Rules
      */
     private function affixDefinition(string $key): ?array
     {
+        // A bonus of the tuning of a part works as an affix of the same effect: the same sums, the same cuts.
+        if (isset($this->tuning()['definitions'][$key]) && ! isset($this->affixes()['definitions'][$key])) {
+            return $this->tuning()['definitions'][$key];
+        }
+
         if (str_starts_with($key, 'unique:')) {
             [, $slot, $n] = explode(':', $key);
             $mod = $this->data['affixes']['unique'][$slot]['mods'][(int) $n] ?? null;

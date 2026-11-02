@@ -279,6 +279,16 @@ describe('the tuning of the rules', function () {
             ->and(array_column($plain->errors(), 'pointer'))->toContain('/tuning/definitions/sprint-launch/max_ppm');
     });
 
+    it('is refused when a bonus has the key of an affix, because both are read by their key', function () {
+        $clash = PackValidator::fromConfig()->validateSource(contentWith(['rules/starter' => function (array $rules): array {
+            $rules['tuning']['definitions']['grip'] = $rules['tuning']['definitions']['dry-grip'];
+
+            return $rules;
+        }]));
+
+        expect(array_column($clash->errors(), 'pointer'))->toContain('/tuning/definitions/grip');
+    });
+
     it('lets a part say how many places it has, from none to three, and refuses more', function () {
         $ok = PackValidator::fromConfig()->validateSource(contentWith(['parts/street-tires-t2' => function (array $part): array {
             $part['tuning_slots'] = 0;
