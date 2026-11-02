@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Content\Branding\Branding;
+use App\Content\Branding\CssPolicy;
 use App\Content\Definitions\BrandingForm;
 use App\Content\PackValidator;
 use App\Filament\Forms\BrandingFields;
@@ -278,6 +279,31 @@ describe('keeping a draft', function () {
         expect(brandingDefinition())->toBeNull()
             ->and(array_column($result->errors(), 'pointer'))->toBe(['/css', '/css'])
             ->and(implode(' ', array_column($result->errors(), 'message')))->toContain('@import')->toContain('url()');
+    });
+});
+
+describe('the length of the style sheet', function () {
+    it('is counted in bytes, as the policy counts it, and the field says so before the policy has to', function () {
+        signedInAdmin();
+        // 12 006 characters, but 24 006 bytes: more than the policy takes, less than 20 000 characters.
+        $css = '/* '.str_repeat('ą', 12_000).' */';
+
+        Livewire::test(BrandingPage::class)
+            ->fillForm(brandingPageState(['css' => $css]))
+            ->call('save')
+            ->assertHasFormErrors(['css']);
+
+        expect(brandingDefinition())->toBeNull();
+    });
+
+    it('may be as long as the policy takes', function () {
+        signedInAdmin();
+        $css = '/* '.str_repeat('a', CssPolicy::MAX_BYTES - 6).' */';
+
+        Livewire::test(BrandingPage::class)
+            ->fillForm(brandingPageState(['css' => $css]))
+            ->call('save')
+            ->assertHasNoFormErrors();
     });
 });
 

@@ -79,7 +79,7 @@ class StudioPage extends RulesDocumentPage
             Toggle::make('simple')
                 ->helpKey('studio.simple')
                 ->live()
-                ->afterStateUpdated(fn () => $this->fillForm()),
+                ->afterStateUpdated(fn (mixed $old) => $this->refillKeepingTyped('simple', $old)),
             Select::make('section')
                 ->helpKey('studio.section')
                 ->options($options)
@@ -90,11 +90,33 @@ class StudioPage extends RulesDocumentPage
             Toggle::make('sliders')
                 ->helpKey('studio.sliders')
                 ->live()
-                ->afterStateUpdated(fn () => $this->fillForm()),
+                ->afterStateUpdated(fn (mixed $old) => $this->refillKeepingTyped('sliders', $old)),
             ...($effect === null ? [] : [Text::make($effect)]),
             ...($this->simple() ? [Text::make(__('admin.studio.simple_shown', ['shown' => $shown, 'total' => $all]))] : []),
             ...StudioFields::schema($this->parameters($document, $section), $sliders),
         ];
+    }
+
+    /**
+     * Shows the form again for a switch that was just flipped (the simple mode, the sliders), with the numbers that were typed and not saved still in it: the switch changes
+     * how the numbers are shown and which of them are, and not what the person has written. The bar of the changes still compares them with what is saved.
+     */
+    private function refillKeepingTyped(string $key, mixed $old): void
+    {
+        $definition = $this->definition();
+
+        if ($definition === null) {
+            $this->fillForm();
+
+            return;
+        }
+
+        $new = $this->data[$key] ?? null;
+        $this->data[$key] = $old;
+        $typed = $this->toDocument($definition->workingDocument(), $this->data);
+        $this->data[$key] = $new;
+
+        $this->fillFormKeeping($typed);
     }
 
     protected function toState(array $document): array

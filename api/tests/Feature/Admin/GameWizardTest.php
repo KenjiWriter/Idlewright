@@ -51,6 +51,20 @@ beforeEach(function () {
 });
 
 describe('making a game in three steps', function () {
+    it('fills in a slug that a game may have even when the name starts with a digit or is long', function () {
+        signedInAdmin();
+
+        Livewire::test(CreateGame::class)
+            ->fillForm(['name' => '2048 Racing Club'])
+            ->assertFormSet(['slug' => 'racing-club']);
+
+        $long = 'Wielkie Wyścigi Gwiezdnych Statków Dalekiego Zasięgu';
+
+        Livewire::test(CreateGame::class)
+            ->fillForm(['name' => $long])
+            ->assertFormSet(['slug' => 'wielkie-wyscigi-gwiezdnych-statk']);
+    });
+
     it('makes the game, a draft, with its slug from the name, and takes the admin to the page of its domain, in the game that was made', function () {
         signedInAdmin();
 

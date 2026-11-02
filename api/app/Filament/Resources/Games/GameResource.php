@@ -28,6 +28,7 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 /**
  * The games that this installation runs: their name, their domain and the colour of their title. Only an admin who may work in every game sees them, because making a
@@ -40,6 +41,17 @@ class GameResource extends Resource
 
     /** What a slug looks like: lower case words joined by dashes, the first one a letter. */
     public const SLUG = '/^[a-z][a-z0-9-]{1,31}$/';
+
+    /**
+     * The slug that a name makes: lower case words joined by dashes, cut to what `SLUG` allows (a letter first, 32 characters at the most). A name that is only digits makes
+     * none, and the person writes one.
+     */
+    public static function slugFrom(string $name): string
+    {
+        $slug = (string) preg_replace('/^[^a-z]+/', '', Str::slug($name));
+
+        return rtrim(substr($slug, 0, 32), '-');
+    }
 
     /** A host in lower case: the names of the parts of a domain joined by dots. */
     public const HOST = '/^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)*$/';

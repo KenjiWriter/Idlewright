@@ -199,6 +199,8 @@ final class ParameterCatalog
         // A number in a list, or in a map that is keyed by numbers (the tiers), is named and counted by the key above it.
         $named = $unitKey !== null && is_int(end($path));
         $integer = ! in_array($schema['type'] ?? 'integer', ['number', ['number']], true) && is_int($value);
+        // The tire matrix is a table of multiples like the factors of a drive, which are percent.
+        $unit = $section === 'tire_matrix' ? Unit::Percent : $this->unitOf($named ? $unitKey : $key, $named ? null : $container);
 
         $found[] = new Parameter(
             path: $path,
@@ -209,13 +211,33 @@ final class ParameterCatalog
             label: $named ? $this->humanize($unitKey).' '.($inList ? ((int) $key) + 1 : $key) : $this->humanize($key),
             description: isset($schema['description']) ? (string) $schema['description'] : null,
             integer: $integer,
-            unit: $this->unitOf($named ? $unitKey : $key, $named ? null : $container),
+            unit: $unit,
             value: $value,
             live: is_numeric($live) && ! is_bool($live) ? $live : null,
-            min: isset($schema['minimum']) && is_numeric($schema['minimum']) ? $schema['minimum'] : null,
+            min: self::lowerBound($schema, $integer, $unit),
             max: isset($schema['maximum']) && is_numeric($schema['maximum']) ? $schema['maximum'] : null,
             pattern: '/'.implode('/', $pattern),
+            position: end($pattern) === '*' ? ($inList ? '#'.(((int) $key) + 1) : $this->humanize($key)) : '',
         );
+    }
+
+    /**
+     * The least a number may be: the minimum of the schema, or for a number that has to be above a limit (`exclusiveMinimum`) the first value above it that a person can
+     * write, which is one more for a whole number and one step of its unit for a decimal. A number with neither has no least.
+     *
+     * @param  array<string, mixed>  $schema
+     */
+    private static function lowerBound(array $schema, bool $integer, Unit $unit): int|float|null
+    {
+        if (isset($schema['minimum']) && is_numeric($schema['minimum'])) {
+            return $schema['minimum'];
+        }
+
+        if (isset($schema['exclusiveMinimum']) && is_numeric($schema['exclusiveMinimum'])) {
+            return $schema['exclusiveMinimum'] + ($integer ? 1 : $unit->raw($unit->step(false), false));
+        }
+
+        return null;
     }
 
     /** The unit of a number by its name; a name that says none (`uncommon`, `tires`, `min`) has the unit that the name of the object holding it says (`base_ppm`, `base_time_ms`). */

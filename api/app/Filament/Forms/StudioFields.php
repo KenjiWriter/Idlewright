@@ -70,7 +70,7 @@ final class StudioFields
 
         return $field
             ->extraAttributes(['data-help' => 'rules.'.$parameter->pattern])
-            ->label($help['label'] ?? $parameter->label)
+            ->label(($help['label'] ?? $parameter->label).($help === null || $parameter->position === '' ? '' : " · {$parameter->position}"))
             ->helperText($help === null ? $parameter->description : (FieldHelp::html($help) ?? $parameter->description))
             ->hint(fn (Get $get): string => self::say($get($name), $suffix).($live !== null && $live != $get($name) ? ' · '.__('admin.studio.live', ['value' => self::say($live, $suffix)]) : ''))
             ->hintColor(fn (Get $get): string => $live !== null && $live != $get($name) ? 'warning' : 'gray')

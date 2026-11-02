@@ -206,6 +206,17 @@ abstract class RulesDocumentPage extends Page implements HasSchemas
         $this->rememberSavedState();
     }
 
+    /** Starts the form again from the saved document, and puts in it a document that was not saved (what a person typed), so that the bar of the changes still shows the difference. */
+    protected function fillFormKeeping(array $typed): void
+    {
+        $this->fillForm();
+        $definition = $this->definition();
+
+        if ($definition !== null && $typed != $definition->workingDocument()) {
+            $this->form->fill($this->toState($typed));
+        }
+    }
+
     protected function definition(): ?ContentDefinition
     {
         return $this->loaded ??= ContentDefinition::query()

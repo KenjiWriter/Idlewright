@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace App\Filament\Forms;
 
 use App\Content\Branding\Branding;
+use App\Content\Branding\CssPolicy;
 use App\Content\Definitions\BrandingForm;
 use App\Content\Definitions\DefinitionForm;
 use App\Filament\Support\FieldHelp;
 use App\Services\ContentImages;
+use Closure;
 use Filament\Forms\Components\Builder;
 use Filament\Forms\Components\Builder\Block;
 use Filament\Forms\Components\ColorPicker;
@@ -121,7 +123,12 @@ final class BrandingFields
                     ->helpKey('branding.css')
                     ->hiddenLabel()
                     ->rows(16)
-                    ->maxLength(20000)
+                    ->rules([fn (): Closure => function (string $attribute, mixed $value, Closure $fail): void {
+                        // The policy counts bytes, and a text of 20 000 characters can be 40 000 bytes: the field says what the policy does.
+                        if (strlen((string) $value) > CssPolicy::MAX_BYTES) {
+                            $fail(__('admin.branding.css_too_long', ['max' => CssPolicy::MAX_BYTES]));
+                        }
+                    }])
                     ->extraInputAttributes(['style' => 'font-family: ui-monospace, Consolas, monospace; font-size: 13px;', 'spellcheck' => 'false']),
             ]);
     }

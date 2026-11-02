@@ -30,7 +30,6 @@ use Filament\Schemas\Components\Wizard\Step;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 
 /**
  * Makes a game in three steps: its name and domain, the content it starts from, and what the server does about the domain. It asks for no more than that: the slug follows from the
@@ -62,7 +61,7 @@ class CreateGame extends CreateRecord
                     ->live(onBlur: true)
                     ->afterStateUpdated(function (Get $get, Set $set, ?string $state): void {
                         if (blank($get('slug'))) {
-                            $set('slug', Str::slug((string) $state));
+                            $set('slug', GameResource::slugFrom((string) $state));
                         }
                     }),
                 TextInput::make('slug')
