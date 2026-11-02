@@ -658,7 +658,7 @@ async function finish(jobId: number): Promise<void> {
               <PartStats :part="part" />
               <PartAffixes :part="part" />
               <PartCompare :offer="part" :fitted="fittedOf(part)" />
-              <PartCondition :percent="part.condition_percent" class="mt-1.5" />
+              <PartCondition :percent="part.condition_percent" :unserviceable="part.unserviceable" class="mt-1.5" />
               <p v-if="part.repair_next?.locked?.reason === 'worn_out'" class="sub mt-1" :data-test="`repair-info-${part.id}`">{{ t('workshop.repairWornOut') }}</p>
               </div>
             </div>

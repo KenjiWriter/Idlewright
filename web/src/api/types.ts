@@ -417,6 +417,8 @@ export interface OwnedPart extends PartInfo {
   car_id: number | null
   /** How much of its life the part has left, in percent: 100 is new, and the statistics above already count it (x 0.6 + 0.4 x condition). */
   condition_percent: number
+  /** Whether the part is worn under the line of the rules (`wear.unserviceable_ppm`): the car breaks down more with it, and the game says so. */
+  unserviceable: boolean
   /** How much less the part gives for it than a new one, in percent (50% of life left is 20% less). */
   condition_loss_percent: number
   /** What putting it right would cost and take: the parts of the inventory of the garage have it (those on the car have it in `MountedPart`). */
@@ -1136,6 +1138,8 @@ export interface MarketResponse {
     garage: { owned: boolean; capacity: number; used: number; free: number }
     exchange: { refresh_ms: number; next_refresh_ms: number; listings: ExchangeListing[] }
     dealer: DealerOffer[]
+    /** What the odometer of a new car of the dealer says, in km: a rule of the game. */
+    dealer_mileage_km: number
     wrecks: YardCar[]
     storage: { pity_every: number; units: StorageUnit[] }
   }

@@ -94,13 +94,13 @@ export function splitSlots(slots: GarageSlot[], layout: SpotLayout, roleOf: (slo
   return { placed, unplaced }
 }
 
-/** What a part is like, for the ring of its spot: none on the slot, worn out (under a fifth of its life), or as it should be. */
+/** What a part is like, for the ring of its spot: none on the slot, worn out (under the line of the rules, a fifth of its life now), or as it should be. */
 export function slotState(slot: GarageSlot): 'empty' | 'worn' | 'ok' {
   if (!slot.part) {
     return 'empty'
   }
 
-  return slot.part.condition_percent < 20 ? 'worn' : 'ok'
+  return slot.part.unserviceable ? 'worn' : 'ok'
 }
 
 /** A circle as the path of an icon. */

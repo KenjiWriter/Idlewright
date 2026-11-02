@@ -69,7 +69,7 @@ const factory = computed(() => !!props.slot && !props.slot.part)
     </div>
 
     <template v-if="part">
-      <PartCondition :percent="part.condition_percent" />
+      <PartCondition :percent="part.condition_percent" :unserviceable="part.unserviceable" />
       <PartStats :part="part" />
       <PartAffixes :part="part" />
     </template>

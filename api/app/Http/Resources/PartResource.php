@@ -98,6 +98,8 @@ final class PartResource extends JsonResource
             ...self::describe($definition ?? ['slug' => $this->resource->part_slug, 'slot' => $this->resource->slot], Rarity::tryFrom((int) $this->resource->rarity) ?? Rarity::Common, (int) $this->resource->upgrade_level, $this->resource->conditionPpm(), (array) ($this->resource->affixes ?? [])),
             // How much of its life the part has left, in percent: the statistics above already count it.
             'condition_percent' => (int) round($this->resource->conditionPpm() / 10_000),
+            // Whether it is worn under the line of the rules (`wear.unserviceable_ppm`): the car breaks down more with it. The app says it by this and has no line of its own.
+            'unserviceable' => $this->resource->conditionPpm() < app(Rules::class)->unserviceablePpm(),
             // How much less the part gives for it than a new one, in percent (50% of life left is 20% less).
             'condition_loss_percent' => 100 - (int) round(app(Rules::class)->conditionStatPpm($this->resource->conditionPpm()) / 10_000),
             'mounted' => $this->resource->isMounted(),

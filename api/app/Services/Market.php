@@ -88,6 +88,7 @@ final class Market
                 'listings' => array_map(fn (UsedListing $listing): array => $this->listingData($listing, isset($done["inspect:{$userId}:{$listing->key}"])), $listings),
             ],
             'dealer' => $this->dealerData($level),
+            'dealer_mileage_km' => $this->rules->dealerMileageKm(),
             'wrecks' => $this->garages->yard(),
             'storage' => $this->storageData($userId, $level),
         ];

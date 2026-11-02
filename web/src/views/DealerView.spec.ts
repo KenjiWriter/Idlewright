@@ -33,6 +33,16 @@ describe('DealerView', () => {
     vi.unstubAllGlobals()
   })
 
+  it('says the mileage of a new car that the rules of the game give, and not the one of the board', async () => {
+    serve({ 'GET /api/v1/market': () => respond(200, aMarket({ dealer_mileage_km: 10 })), 'GET /api/v1/runs/current': noRun })
+
+    const { wrapper } = await mountView(DealerView, '/dealer')
+    await flushPromises()
+
+    expect(wrapper.get('[data-test="sub"]').text()).toBe('Złomowo · new cars · mileage 0–10 km')
+    expect(wrapper.get('[data-test="offer-rdzak-gt-2"]').text()).toContain('Mileage 0–10 km · condition 100% · no hidden defects')
+  })
+
   it('lists the new cars as the board does: name, class, price, engine, speed and mass, and that they are new', async () => {
     serve({ 'GET /api/v1/market': () => respond(200, aMarket()), 'GET /api/v1/runs/current': noRun })
 

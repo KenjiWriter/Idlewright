@@ -17,6 +17,8 @@ export function aPart(overrides: Partial<OwnedPart> = {}): OwnedPart {
     upgrade: 0,
     upgrade_max: 3,
     condition_percent: 100,
+    // What the server says: a part under a fifth of its life is unserviceable.
+    unserviceable: (overrides.condition_percent ?? 100) < 20,
     condition_loss_percent: 0,
     mounted: false,
     car_id: null,
@@ -54,7 +56,7 @@ export function aMergeResult(overrides: Partial<MergeResult> = {}): MergeResult 
 
 /** A part that sits on the car, with the next step of its upgrade. */
 export function aMountedPart(overrides: Partial<MountedPart> = {}): MountedPart {
-  return { ...aPart({ mounted: true, car_id: 5 }), upgrade_next: anUpgradeStep(), repair_next: NOTHING_TO_REPAIR, ...overrides }
+  return { ...aPart({ mounted: true, car_id: 5, ...overrides }), upgrade_next: anUpgradeStep(), repair_next: NOTHING_TO_REPAIR, ...overrides }
 }
 
 export function anOffer(overrides: Partial<ShopOffer> = {}): ShopOffer {

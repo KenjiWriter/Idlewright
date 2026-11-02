@@ -13,8 +13,8 @@ const { store, t, done, loadError, busy, error, cash, garage, city, hasRoom, cla
 const { money, number } = useFormat()
 const { distanceKm, speed } = useUnits()
 
-/** How far a new car has been driven, at the most, when the dealer sells it: 15 km (canonical), shown in the unit of travel of the game. */
-const newCarMileage = computed(() => distanceKm(15))
+/** What the odometer of a new car of the dealer says: the rule `market.dealer_mileage_km` of the game (canonical km), shown in the unit of travel of the game. */
+const newCarMileage = computed(() => distanceKm(store.market?.dealer_mileage_km ?? 0))
 
 const offers = computed(() => store.market?.dealer ?? [])
 

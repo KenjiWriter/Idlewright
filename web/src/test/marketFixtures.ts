@@ -60,6 +60,7 @@ export function aMarket(data: Partial<MarketResponse['data']> = {}, cashCents = 
         anOffer({ vehicle: aVehicle({ slug: 'rdzak-gt-5', name: 'Rdzak GT-5', engine: 'R4 1.6', power_kw: 92, top_speed_kmh: 175, mass_kg: 1020 }), price_cents: 2_450_000, level_required: 6, open: false }),
         anOffer({ vehicle: aVehicle({ slug: 'kornet-v6', name: 'Kornet V6', class: 'coupe', engine: 'V6 2.5', power_kw: 160, top_speed_kmh: 210, mass_kg: 1380 }), price_cents: 3_000_000, level_required: 9, open: false }),
       ],
+      dealer_mileage_km: 15,
       wrecks: [
         { slug: 'rdzak-gt-4', name: 'Rdzak GT-4', class: 'hatchback', price_cents: 114_000 },
         { slug: 'bizon-m-2', name: 'Bizon M-2', class: 'muscle', price_cents: 139_000 },

@@ -2,12 +2,12 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-const props = defineProps<{ percent: number }>()
+const props = defineProps<{ percent: number; unserviceable: boolean }>()
 
 const { t } = useI18n()
 
-/** Under a fifth of its life a part is unserviceable, and the car breaks down more. */
-const unserviceable = computed(() => props.percent < 20)
+/** Under the line that the rules set (a fifth of its life now) a part is unserviceable, and the car breaks down more: the server says it. */
+const unserviceable = computed(() => props.unserviceable)
 </script>
 
 <template>
