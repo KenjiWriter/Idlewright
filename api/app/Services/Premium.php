@@ -9,6 +9,7 @@ use App\Exceptions\IdempotencyConflictException;
 use App\Exceptions\RuleRefusedException;
 use App\Models\LedgerEntry;
 use App\Models\Purchase;
+use App\Payments\Payments;
 
 /**
  * The premium currency of a driver: what they have, what the shop sells, and the two ways the coins move that do not need a payment: a gift (support, a
@@ -21,7 +22,7 @@ final class Premium
     /** How many of the last purchases the shop shows. */
     public const RECENT_PURCHASES = 10;
 
-    public function __construct(private readonly Ledger $ledger, private readonly Rules $rules) {}
+    public function __construct(private readonly Ledger $ledger, private readonly Rules $rules, private readonly Payments $payments) {}
 
     public function balance(int $userId): int
     {
@@ -29,17 +30,19 @@ final class Premium
     }
 
     /**
-     * What the shop of the premium currency shows a driver: the balance, the currency, the packs that are sold with their price and bonus, and the last purchases.
+     * What the shop of the premium currency shows a driver: the balance, the currency, the packs that are sold with their price and bonus (and whether they can be bought here
+     * now), what a purchase needs of the driver (`payments`), and the last purchases.
      * When the rules sell nothing, `currency` and `products` say so (null and empty), and the balance is still the driver's.
      *
-     * @return array{balance: int, currency: array{code: string, name: string}|null, price_currency: string|null, products: list<array<string, mixed>>, purchases: list<array<string, mixed>>}
+     * @return array{balance: int, currency: array{code: string, name: string}|null, price_currency: string|null, products: list<array<string, mixed>>, payments: array<string, mixed>, purchases: list<array<string, mixed>>}
      */
     public function view(int $userId): array
     {
         $products = [];
+        $payments = $this->payments->summary();
 
         foreach ($this->rules->premiumProducts() as $slug => $product) {
-            $products[] = ['slug' => $slug, ...$product];
+            $products[] = ['slug' => $slug, ...$product, 'purchasable' => $payments['available']];
         }
 
         $purchases = Purchase::query()->where('user_id', $userId)->orderByDesc('id')->limit(self::RECENT_PURCHASES)->get()
@@ -57,6 +60,7 @@ final class Premium
             'currency' => $this->rules->premiumCurrency(),
             'price_currency' => $this->rules->premiumPriceCurrency(),
             'products' => $products,
+            'payments' => $payments,
             'purchases' => $purchases,
         ];
     }

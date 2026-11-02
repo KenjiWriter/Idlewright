@@ -14,6 +14,7 @@ use App\Filament\Support\FieldHelp;
 use App\Games\CurrentGame;
 use App\Games\Games;
 use App\Listeners\AuditAdminSignIn;
+use App\Payments\FakeProvider;
 use App\Services\Accounts;
 use App\Services\ContentPacks;
 use App\Services\Ledger;
@@ -49,6 +50,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->scoped(MissionCatalog::class, fn () => MissionCatalog::fromConfig());
         $this->app->scoped(Vocabulary::class, fn () => Vocabulary::fromConfig());
         $this->app->scoped(Branding::class, fn () => Branding::fromConfig());
+        // The provider that takes no money remembers its pages for as long as the process lives, so what a test starts it can finish.
+        $this->app->singleton(FakeProvider::class);
     }
 
     /**
@@ -69,6 +72,14 @@ class AppServiceProvider extends ServiceProvider
 
         // The missions are counted out of the facts of the game whenever they are looked at, and the bar of the game looks every minute or so.
         RateLimiter::for('missions', fn (Request $request) => Limit::perMinute(30)->by((string) $request->user()?->getAuthIdentifier()));
+
+        // A page of payment is made at the provider, which has its own limits and its own fraud checks: a driver and an address are kept from asking for many.
+        RateLimiter::for('payments-checkout', fn (Request $request) => [
+            Limit::perMinute(5)->by('user:'.$request->user()?->getAuthIdentifier()),
+            Limit::perHour(20)->by('ip:'.$request->ip()),
+        ]);
+        // The page a driver comes back to asks how the payment went every few seconds.
+        RateLimiter::for('payments-status', fn (Request $request) => Limit::perMinute(60)->by('user:'.$request->user()?->getAuthIdentifier()));
 
         // Creating a guest is free, so it is limited per address.
         RateLimiter::for('guest-create', fn (Request $request) => Limit::perHour(10)->by((string) $request->ip()));

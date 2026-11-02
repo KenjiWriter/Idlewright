@@ -59,7 +59,7 @@ describe('the shop of the extras', function () {
     });
 
     it('says the pass can be bought when a provider is connected', function () {
-        config(['ride.premium.provider' => 'stripe']);
+        config(['ride.premium.provider' => 'fake']);
 
         $this->getJson('/api/v1/premium', bearerFor(User::factory()->guest()->create()))->assertJsonPath('data.infinity.purchasable', true);
     });
@@ -72,7 +72,7 @@ describe('the shop of the extras', function () {
 
             return $data;
         });
-        config(['ride.premium.provider' => 'stripe']);
+        config(['ride.premium.provider' => 'fake']);
 
         $response = $this->getJson('/api/v1/premium', bearerFor(User::factory()->guest()->create()))->assertOk();
 

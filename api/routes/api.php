@@ -21,6 +21,8 @@ use App\Http\Controllers\Api\V1\MeController;
 use App\Http\Controllers\Api\V1\MediaController;
 use App\Http\Controllers\Api\V1\MissionController;
 use App\Http\Controllers\Api\V1\ModelController;
+use App\Http\Controllers\Api\V1\PaymentController;
+use App\Http\Controllers\Api\V1\PaymentWebhookController;
 use App\Http\Controllers\Api\V1\PlayerController;
 use App\Http\Controllers\Api\V1\PremiumController;
 use App\Http\Controllers\Api\V1\RunController;
@@ -32,6 +34,7 @@ use App\Http\Controllers\Api\V1\VocabularyController;
 use App\Http\Controllers\Api\V1\WorldController;
 use App\Http\Middleware\ApplyVocabulary;
 use App\Http\Middleware\EnsureConsent;
+use App\Http\Middleware\ResolveGame;
 use App\Http\Middleware\TouchLastSeen;
 use App\Models\AccountIdentity;
 use App\Services\ContentImages;
@@ -57,6 +60,10 @@ Route::prefix('v1')->group(function (): void {
     Route::post('/auth/complete', [SocialAuthController::class, 'complete'])->middleware('throttle:account-confirm');
     Route::post('/auth/{provider}/start', [SocialAuthController::class, 'startLogin'])->whereIn('provider', AccountIdentity::SOCIAL)->middleware('throttle:account-oauth-start');
     Route::match(['get', 'post'], '/auth/{provider}/callback', [SocialAuthController::class, 'callback'])->whereIn('provider', AccountIdentity::SOCIAL);
+
+    // What a payment provider tells the game. It comes from the provider's servers, not from a game's domain: no game is claimed by the host (the game of a payment is the one
+    // of its attempt), and nothing but the signature lets it in.
+    Route::post('/webhooks/stripe', [PaymentWebhookController::class, 'stripe'])->withoutMiddleware(ResolveGame::class);
 
     // A new guest driver. Limited per address to make mass account creation expensive.
     Route::post('/players', [PlayerController::class, 'store'])->middleware('throttle:guest-create');
@@ -128,6 +135,9 @@ Route::prefix('v1')->group(function (): void {
         Route::post('/premium/autorefill', [PremiumController::class, 'buyAutoRefill']);
         Route::patch('/premium/autorefill', [PremiumController::class, 'setAutoRefill']);
         Route::post('/premium/vip', [PremiumController::class, 'buyVip']);
+        // Paying with real money: the driver is sent to the page of the provider, and comes back to ask how it went.
+        Route::post('/premium/checkout', [PaymentController::class, 'checkout'])->middleware('throttle:payments-checkout');
+        Route::get('/premium/checkout/{attempt}', [PaymentController::class, 'status'])->where('attempt', '[0-9A-Za-z]{26}')->middleware('throttle:payments-status');
 
         // The sets of missions of a day, a week and a month, and taking what they pay.
         Route::get('/missions', [MissionController::class, 'show'])->middleware('throttle:missions');
