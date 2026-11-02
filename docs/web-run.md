@@ -435,6 +435,17 @@ Decyzje i punkty końcowe: `docs/konto.md` (D1–D10). Tu tylko to, co jest po s
 - **`AccountSecureView` (`/account/secure`).** „To nie Ty?”: strona sama nic nie robi, dopiero przycisk „Zabezpiecz garaż” woła `POST /account/email/revoke`; po sukcesie, jeśli to urządzenie jest zalogowane, pyta o profil (401 kończy sesję) i prowadzi do `/recover`.
 - **Testy:** `UnlinkDialog.spec.ts`, `ChangeEmailDialog.spec.ts`, `ConsentView.spec.ts`, `AccountSecureView.spec.ts`, `changes.spec.ts` oraz nowe przypadki w `LinkedAccounts`, `ConfirmEmailView`, `AuthCallbackView`, `guards`, `client`, sklepach `session` i `account`.
 
+## Kursy: tablica zleceń w mieście (`/gigs`, J4, 2026-11-02)
+
+Zakładka **Kursy** stoi pierwsza wśród usług miasta (`CityTabs`: Kursy, Sklep, Giełda, Dealer, Magazyny), a „Miasto" w dolnym pasku świeci na niej (`GameNav`). `GigsView` pyta `GET /gigs` (sklep `stores/gigs.ts`, zegar serwera z ostatniej odpowiedzi) i odświeża tablicę, gdy kończy się fala (22,5 min) albo gdy zlecenie auta dobiegnie końca, najwyżej co 3 s.
+
+- **Karta oferty:** rodzaj (tag), rzadkość (znacznik „Dobre"/„Świetne"), tytuł, trasa („Po mieście, 12 km" albo „Złomowo → Kruszyn i z powrotem, 76 km", w jednostkach gry), wypłata, **„Weź"**, a pod spodem: kogo albo ile wiezie, czas jazdy, paliwo i jak długo oferta wisi na tablicy. Oferta, której auto nie może wziąć, jest przygaszona i mówi dlaczego (miejsca, ładunek, klasa, termin, paliwo, auto już na zleceniu, limit dobowy).
+- **Zlecenie w toku** wygląda jak podróż: „Na zleceniu: …, wróci za …, wypłata …" z przyciskiem **„Wycofaj"** przez pierwszą minutę; pozostałe oferty są wtedy wyłączone. Pod nagłówkiem jest auto (miejsca, ładunek, prędkość kursu) i licznik „Dziś: 1 z 6 zleceń".
+- **Auto na zleceniu** ma baner na ekranach Garaż i Turniej („Auto jest na zleceniu do …, wróci za …. Do powrotu nie jeździ okrążeń."), status „Na zleceniu" (pasek, flota z „… na zleceniu do …, wróci za …") i **kartę „Pod Twoją nieobecność"** z listą zleceń i sumą (`awayAccount.gigs`).
+- **Samouczek:** pierwsza oferta, którą auto może wziąć, ma `data-tutorial="gig"`, a cel `gigs` na innym ekranie prowadzi do zakładki „Miasto".
+- **Pięć języków** (`gigs.*`, `market.tabGigs`, `run.banner.gig`, `run.status.gig`, `fleet.onGig`, `awayAccount.gigs`, `awayAccount.gig`); francuskie napisy mają twardą spację przed znakiem interpunkcyjnym, jak reszta. Teksty fr/de/pt-BR są moje, bez przeglądu native speakera.
+- **Sprawdzone** w specyfikacjach (`GigsView.spec.ts` 9, `AccountAway.spec.ts` 2) i **w prawdziwej przeglądarce** na telefonie (tablica, wzięcie, karta zlecenia, banery na Garażu i Turnieju). Nie sprawdzone w przeglądarce: „Wycofaj", zlecenie do innego miasta, wypłata po powrocie, krok samouczka.
+
 ## Sprawdzenie
 
 Testy komponentów i sklepów: `cd web && npm test`. Dodatkowo ścieżka została sprawdzona ręcznie w przeglądarce na lokalnym API (tymczasowa baza SQLite): wybór wraku na telefonie po polsku i na szerokim ekranie po angielsku, start, nieobecność dwóch godzin (28 okrążeń, 434 $, 700 XP, koniec paliwa), tankowanie, awaria wykryta przez odpytywanie bez odświeżania strony i naprawa. To sprawdzenie ujawniło jedną wadę, poprawioną osobnym commitem: wynik tankowania zostawał pod licznikiem bez końca.
