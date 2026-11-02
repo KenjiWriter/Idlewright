@@ -28,6 +28,12 @@ class AiExchange extends Model
         return ['scope' => 'array', 'resolved' => 'array', 'before' => 'array', 'applied_at' => 'datetime', 'reverted_at' => 'datetime'];
     }
 
+    /** @return BelongsTo<self, $this> the instruction that an answer answers */
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'parent_id');
+    }
+
     /** @return BelongsTo<Admin, $this> */
     public function admin(): BelongsTo
     {

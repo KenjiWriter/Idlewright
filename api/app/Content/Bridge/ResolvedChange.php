@@ -18,6 +18,7 @@ final readonly class ResolvedChange
      * @param  list<string|int>  $path  the keys from the top of the document
      * @param  int|float|null  $published  the number in the version that is live, null when there is none
      * @param  list<string>  $notes  `rounded`, `draft` (the document has a draft that the change goes on top of)
+     * @param  string|null  $pattern  where the number is in the document with a star for every name that is not a property of the schema (what the catalog of help is keyed by)
      */
     public function __construct(
         public int $op,
@@ -30,6 +31,7 @@ final readonly class ResolvedChange
         public int|float $before,
         public int|float $after,
         public array $notes = [],
+        public ?string $pattern = null,
     ) {}
 
     public function pointer(): string
@@ -73,6 +75,7 @@ final readonly class ResolvedChange
             'after' => $this->after,
             'percent' => $this->percent(),
             'notes' => $this->notes,
+            'pattern' => $this->pattern,
         ];
     }
 

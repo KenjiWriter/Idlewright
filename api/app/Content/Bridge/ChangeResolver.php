@@ -298,6 +298,7 @@ final class ChangeResolver
             before: $before,
             after: $after,
             notes: [...$notes, ...($definition->hasDraft() ? ['draft'] : [])],
+            pattern: $parameter->pattern,
         );
     }
 
