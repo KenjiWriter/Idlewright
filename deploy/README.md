@@ -70,13 +70,13 @@ Skrypt wysyła zatwierdzony stan `deploy/` do `~/rideidle-deploy` i pokazuje, co
 **B. Przez git na serwerze** (gdy logujesz się innym narzędziem, np. MobaXterm). Zmiany muszą być wypchnięte do GitHuba, a repozytorium dostępne dla serwera (publiczne albo z kluczem):
 
 ```bash
-git clone https://github.com/KenjiWriter/RideIdle.git ~/RideIdle
+git clone https://github.com/KenjiWriter/Idlewright.git ~/Idlewright
 ```
 
 W obu wypadkach potem, na serwerze (`sudo env` przekazuje zmienne; jako `root` pomiń `sudo`):
 
 ```bash
-cd ~/rideidle-deploy   # albo: cd ~/RideIdle/deploy
+cd ~/rideidle-deploy   # albo: cd ~/Idlewright/deploy
 sudo env DOMAIN=raceidle.cerasusdigital.pl ADMIN_EMAIL=twoj@adres.pl bash provision.sh
 ```
 
@@ -161,7 +161,7 @@ deploy/upload.sh release deploy@raceidle.cerasusdigital.pl
 Bez klucza SSH na komputerze (droga B z kroku 2) wydanie zrobisz na samym serwerze, jako użytkownik `deploy`; serwer pobierze kod z GitHuba (musi być wypchnięty):
 
 ```bash
-sudo -iu deploy /var/www/rideidle/bin/deploy.sh --repo https://github.com/KenjiWriter/RideIdle.git --ref main
+sudo -iu deploy /var/www/rideidle/bin/deploy.sh --repo https://github.com/KenjiWriter/Idlewright.git --ref main
 ```
 
 Wysyłany przez `upload.sh` jest **zatwierdzony** stan (`HEAD`), nie to, co leży w katalogu roboczym; skrypt ostrzega, jeśli masz niezatwierdzone zmiany. Inny commit lub tag: `deploy/upload.sh release deploy@... v1.0`. Pierwsze wydanie trwa kilka minut (Composer, `npm ci`, budowanie). Kroki: źródła → `composer install --no-dev` → `npm ci` i `npm run build` → `.env` i `storage` z `shared/` → `content:validate` → migracje → `content:check --install` (treść, z której czyta gra, jest cała i pasuje do tego kodu; przy `CONTENT_SOURCE=database` pierwsze wdrożenie wkłada do bazy paczkę wydania, a każde następne tylko sprawdza paczkę, która jest na żywo, i niczego nie nadpisuje) → pamięci podręczne Laravela → przełączenie linku `current` → przeładowanie PHP-FPM i restart kolejki → **sprawdzenie** (`/up`, `/api/v1/meta/locales` i strona główna z serwera na samego siebie). Jeśli sprawdzenie nie przejdzie, poprzednie wydanie wraca, a skrypt kończy się błędem; nieudane wydanie zostaje w `releases/` do obejrzenia.
