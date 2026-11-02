@@ -21,7 +21,8 @@ final class GenerateLuckTable extends Command
         $json = LuckTable::computedJson();
 
         if ($this->option('check')) {
-            if (is_file($path) && file_get_contents($path) === $json) {
+            // The numbers are compared, not the bytes, which a checkout may change at the ends of the lines.
+            if (is_file($path) && json_decode((string) file_get_contents($path), true) == json_decode($json, true)) {
                 $this->info('The luck table is up to date.');
 
                 return self::SUCCESS;

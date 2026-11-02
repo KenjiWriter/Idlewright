@@ -13,7 +13,7 @@ function luckTable(): LuckTable
 }
 
 it('is the table that the generator computes, so a stale file is caught', function () {
-    expect(file_get_contents(dirname(__DIR__, 4).'/content/tables/luck-ppm.json'))->toBe(LuckTable::computedJson());
+    expect(json_decode((string) file_get_contents(dirname(__DIR__, 4).'/content/tables/luck-ppm.json'), true))->toBe(json_decode(LuckTable::computedJson(), true));
 });
 
 it('has the shape of the normal distribution: symmetric, rising, 1 sigma at the 84th percent and a tail of about 3.3 sigma', function () {

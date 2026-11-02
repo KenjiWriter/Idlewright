@@ -28,7 +28,7 @@ it('resets a season to three quarters of the rating and a quarter of the start, 
 
 it('takes the numbers of another game and lets Rating use them', function () {
     $rules = RatingRules::fromArray([
-        'start' => 1_200, 'floor' => 800, 'k_new' => 50, 'new_matches' => 10, 'k_established' => 30, 'k_top' => 20,
+        'start' => 1_200, 'minimum' => 800, 'k_new' => 50, 'new_matches' => 10, 'k_established' => 30, 'k_top' => 20,
         'top_from' => 2_000, 'club_from' => 1_300, 'regional_from' => 1_600, 'elite_from' => 1_900, 'season_keep_ppm' => 500_000,
     ]);
 
@@ -44,10 +44,10 @@ it('takes the numbers of another game and lets Rating use them', function () {
 });
 
 it('refuses numbers that cannot be ratings', function () {
-    $good = ['start' => 1_000, 'floor' => 600, 'k_new' => 40, 'new_matches' => 20, 'k_established' => 24, 'k_top' => 16, 'top_from' => 1_700, 'club_from' => 1_100, 'regional_from' => 1_400, 'elite_from' => 1_700, 'season_keep_ppm' => 750_000];
+    $good = ['start' => 1_000, 'minimum' => 600, 'k_new' => 40, 'new_matches' => 20, 'k_established' => 24, 'k_top' => 16, 'top_from' => 1_700, 'club_from' => 1_100, 'regional_from' => 1_400, 'elite_from' => 1_700, 'season_keep_ppm' => 750_000];
 
     expect(RatingRules::fromArray($good)->minimum)->toBe(600)
-        ->and(fn () => RatingRules::fromArray([...$good, 'floor' => 1_100]))->toThrow(InvalidArgumentException::class)
+        ->and(fn () => RatingRules::fromArray([...$good, 'minimum' => 1_100]))->toThrow(InvalidArgumentException::class)
         ->and(fn () => RatingRules::fromArray([...$good, 'k_top' => 0]))->toThrow(InvalidArgumentException::class)
         ->and(fn () => RatingRules::fromArray([...$good, 'regional_from' => 1_100]))->toThrow(InvalidArgumentException::class)
         ->and(fn () => RatingRules::fromArray([...$good, 'season_keep_ppm' => 1_000_001]))->toThrow(InvalidArgumentException::class);

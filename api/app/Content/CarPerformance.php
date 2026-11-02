@@ -1,0 +1,79 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Content;
+
+use App\Domain\Competition\PerformanceIndex;
+use App\Models\Car;
+use InvalidArgumentException;
+
+/**
+ * The performance index (PI) and the class of a car, out of the statistics that the pipeline of a run makes (`RunInputsFactory::stats`) and the numbers of the
+ * competition in the rules. This is the one place where the floating point statistics of a car become integers (thousandths) for the index, so the index itself
+ * (`PerformanceIndex`) is integer arithmetic. The index does not read a lap time, so it does not depend on a track or on how a lap is worked out, and it does
+ * not count the overdue service of a car, which comes and goes, but it counts the wear of the parts, which is part of what the parts are worth.
+ */
+final class CarPerformance
+{
+    /** @var array<string, int>|null the statistics of the reference car, in thousandths */
+    private ?array $reference = null;
+
+    public function __construct(private readonly RunInputsFactory $inputs, private readonly Rules $rules) {}
+
+    /**
+     * The PI of a car of the pack with these parts on it.
+     *
+     * @param  array<string, string|array{slug: string, rarity: int, upgrade?: int, wear?: int, affixes?: array<string, int>}>  $mounted  the parts on the car, by slot
+     */
+    public function of(string $carSlug, array $mounted = []): int
+    {
+        $pi = $this->settings();
+
+        return PerformanceIndex::of(self::milli($this->inputs->stats($carSlug, $mounted)->stats), $this->referenceMilli(), $pi['weights_ppm'], $pi['stat_cap_ppm'], $pi['reference_pi']);
+    }
+
+    /** The PI of a car of a driver, as it is now. */
+    public function ofCar(Car $car): int
+    {
+        return $this->of($car->vehicle_slug, $car->mountedParts());
+    }
+
+    /** The class that a PI is in. */
+    public function classOf(int $pi): string
+    {
+        return $this->rules->performanceClasses()->of($pi);
+    }
+
+    /**
+     * The PI that every statistic at the ceiling of the game would give: the most a car could ever be worth, which the classes have to reach (a limit above it would be
+     * a class that no car can be in).
+     */
+    public function ceiling(): int
+    {
+        $pi = $this->settings();
+
+        return PerformanceIndex::of(self::milli($this->rules->statCeilings()), $this->referenceMilli(), $pi['weights_ppm'], $pi['stat_cap_ppm'], $pi['reference_pi']);
+    }
+
+    /** @return array<string, int> */
+    private function referenceMilli(): array
+    {
+        return $this->reference ??= self::milli($this->inputs->stats($this->settings()['reference_car'])->stats);
+    }
+
+    /** @return array{reference_car: string, reference_pi: int, stat_cap_ppm: int, weights_ppm: array<string, int>, class_max_pi: array<string, int>, top_class: string} */
+    private function settings(): array
+    {
+        return $this->rules->competition()['pi'] ?? throw new InvalidArgumentException('The rules of this game have no competition, so cars have no performance index.');
+    }
+
+    /**
+     * @param  array<string, float|int>  $stats
+     * @return array<string, int>
+     */
+    private static function milli(array $stats): array
+    {
+        return array_map(static fn (float|int $value): int => (int) round($value * 1000), $stats);
+    }
+}

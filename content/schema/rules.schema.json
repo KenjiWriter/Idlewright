@@ -789,6 +789,66 @@
       "required": ["enabled", "base", "vip", "swap_ms", "swap_fee_ppm"],
       "additionalProperties": false
     },
+    "competition": {
+      "description": "The competition between drivers: the strength of a car (the performance index, PI) and the classes made of it, the rating of a driver (Respekt) and how a match between two cars is played. Duels and tournaments are played out of the laps that were frozen with the cars, so nobody has to be online. What the competition pays is not in the economy of the game, as the missions and the VIP account are not.",
+      "type": "object",
+      "properties": {
+        "enabled": { "description": "Whether the game has a competition. When it is off nothing is entered, played or paid; what the drivers have is kept.", "type": "boolean" },
+        "pi": {
+          "description": "The performance index of a car: the weighted mean of its statistics over the statistics of the reference car, times the PI of the reference car. It is made of the statistics and not of a lap time, so it does not depend on the track or on how the game works out a lap.",
+          "type": "object",
+          "properties": {
+            "reference_car": { "description": "The car that has exactly the reference PI, with its stock parts. Every other car is measured against it.", "$ref": "common.schema.json#/$defs/slug" },
+            "reference_pi": { "description": "What the reference car is worth in PI. The classes are limits on this scale.", "type": "integer", "minimum": 1, "maximum": 100000 },
+            "stat_cap_ppm": { "description": "The most that one statistic counts for, as a multiple of the reference car (1 000 000 is the same as the reference car). It stops one huge number from buying a class.", "type": "integer", "minimum": 1000000, "maximum": 100000000 },
+            "weights_ppm": {
+              "description": "How much each statistic counts for in the PI, by the key of the statistic (the statistics of the model of the game). The weights add up to a million.",
+              "type": "object",
+              "additionalProperties": { "type": "integer", "minimum": 0, "maximum": 1000000 }
+            },
+            "class_max_pi": {
+              "description": "The highest PI of each class but the top one, from the weakest class up. A car is in the first class whose limit it is under; the cars above the last limit are in the top class.",
+              "type": "object",
+              "additionalProperties": { "type": "integer", "minimum": 1, "maximum": 1000000 }
+            },
+            "top_class": { "description": "The name of the class above the last limit.", "type": "string", "minLength": 1, "maxLength": 8 }
+          },
+          "required": ["reference_car", "reference_pi", "stat_cap_ppm", "weights_ppm", "class_max_pi", "top_class"],
+          "additionalProperties": false
+        },
+        "rating": {
+          "description": "Respekt, the rating of a driver: an Elo style number that rises with a win and falls with a loss, by how much the rival was expected to lose.",
+          "type": "object",
+          "properties": {
+            "start": { "description": "The Respekt of a new driver, and the value that a season pulls the rating back towards.", "type": "integer", "minimum": 1, "maximum": 100000 },
+            "minimum": { "description": "The lowest Respekt a driver can fall to.", "type": "integer", "minimum": 0, "maximum": 100000 },
+            "k_new": { "description": "How fast the rating moves for a driver who has played fewer matches than the next number says (the points that a win over an equal rival gives, times two).", "type": "integer", "minimum": 1, "maximum": 400 },
+            "new_matches": { "description": "How many rated matches a driver is new for.", "type": "integer", "minimum": 0, "maximum": 1000 },
+            "k_established": { "description": "How fast the rating moves for a driver who is not new and is below the top.", "type": "integer", "minimum": 1, "maximum": 400 },
+            "k_top": { "description": "How fast the rating moves for a driver at the top.", "type": "integer", "minimum": 1, "maximum": 400 },
+            "top_from": { "description": "The Respekt from which a driver is at the top, and moves slowest.", "type": "integer", "minimum": 1, "maximum": 100000 },
+            "club_from": { "description": "The Respekt from which a driver is in the club division (below it: street).", "type": "integer", "minimum": 1, "maximum": 100000 },
+            "regional_from": { "description": "The Respekt from which a driver is in the regional division.", "type": "integer", "minimum": 1, "maximum": 100000 },
+            "elite_from": { "description": "The Respekt from which a driver is in the elite division.", "type": "integer", "minimum": 1, "maximum": 100000 },
+            "season_keep_ppm": { "description": "How much of a rating stays after the reset of a season (1 000 000 keeps all of it); the rest goes back to the start value.", "type": "integer", "minimum": 0, "maximum": 1000000 }
+          },
+          "required": ["start", "minimum", "k_new", "new_matches", "k_established", "k_top", "top_from", "club_from", "regional_from", "elite_from", "season_keep_ppm"],
+          "additionalProperties": false
+        },
+        "match": {
+          "description": "How a match between two cars is played.",
+          "type": "object",
+          "properties": {
+            "luck_sigma_ppm": { "description": "The width of the luck of a run, as a part of the lap time: about two runs in three are within this much of the lap of the car, and none is further than three and a third times as much. Zero is no luck at all.", "type": "integer", "minimum": 0, "maximum": 100000 },
+            "runs": { "description": "How many runs a match is made of; the side that wins most of them wins the match, so it is an odd number.", "type": "integer", "minimum": 1, "maximum": 9 }
+          },
+          "required": ["luck_sigma_ppm", "runs"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["enabled", "pi", "rating", "match"],
+      "additionalProperties": false
+    },
     "workshop": {
       "description": "Jobs of the workshop: putting a part on a car and taking it off. One mechanic, and no equipment yet, so a job takes base_time_ms of the slot times the tier, cut by the level of the mechanic.",
       "type": "object",

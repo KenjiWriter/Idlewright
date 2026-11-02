@@ -146,3 +146,21 @@ Dwie rzeczy wchodzą do `Settler` **jako dane**, nie jako część zamrożonej k
 - Zmiana auta na bieg w trakcie.
 - Cena paliwa, pojemność baku i koszt naprawy z paczek treści (na razie parametry `refuel` i `repair`), prawdziwy harmonogram pogody z klimatu regionu.
 - Rundy z pozycją (`round_complete`) i dropy z ziarna (`sha256`), kursy i podróże, cykl jazda i ładowanie EV.
+
+## Rywalizacja: czysty silnik (F6, etap C0, 2026-11-02)
+
+Projekt (D1–D22) zatwierdził właściciel. **C0 to dane i czysta domena, jeszcze bez bazy, API i ekranów.** Kod: `api/app/Domain/Competition/` (bez frameworka, same liczby całkowite, skan `IntegerArithmeticTest` i testy architektury obejmują nowe pliki).
+
+| Klasa | Rola |
+|---|---|
+| `PerformanceIndex`, `PerformanceClasses` | PI auta **ze statystyk** (średnia ważona stosunków do auta odniesienia, sufit jednej statystyki), nie z czasu okrążenia; klasy D–X z progów w regułach |
+| `RatingRules` (w `Settlement`) | K, progi dywizji, najniższy Respekt i miękki reset sezonu jako dane gry; `Rating` zostaje z tym samym API i bierze domyślne liczby pierwszej gry (testy `RatingTest` bez zmian) |
+| `LuckTable` | los biegu: kwantyle rozkładu normalnego w ppm (`content/tables/luck-ppm.json`, polecenie `content:luck-table [--check]`), bez logarytmów w czasie gry |
+| `MatchEngine`, `MatchResult` | mecz z nieparzystej liczby biegów na zamrożonych czasach okrążeń (tor, pogoda, ms); los z ziarna (`Rng`, sha256), remis biegu z ziarna; silnik nie zna wzoru czasu okrążenia |
+| `Bracket`, `BracketResult` | losowanie (dwójka najlepszych do przeciwnych połówek, kolejni dwaj do różnych ćwiartek, wolne losy dla najwyższych, reszta z ziarna) i rozegranie drabinki |
+| `TournamentPayout::splitAmong` | pula tylko z wpisowych prawdziwych graczy; miejsca zajmują prawdziwi, udziały zajętych miejsc skalują się do całej puli (przy pełnym polu to samo co `split`) |
+| `CarPerformance` (w `Content`) | PI auta z potoku (`RunInputsFactory::stats`): jedyne miejsce, gdzie statystyki `float` stają się liczbami całkowitymi (tysięczne) |
+
+Reguły: sekcja `competition` w `rules/starter.json` (`pi`, `rating`, `match`; w Studio z pomocą w pięciu językach; walidator sprawdza auto odniesienia, wagi, progi klas, dywizje i nieparzystą liczbę biegów). Polecenie `php artisan competition:pi-report [--json]` pokazuje PI aut seryjnych i z najlepszymi częściami sklepu (dolna i górna granica, dopasowania części nie sprawdza) na tle klas.
+
+**Pomiar (seryjne auta paczki, Rdzak GT-4 = 300):** PI 235–460 (D: 2 auta, C: 19, B: 2, A–X: 0). Z najlepszymi częściami sklepu w rzadkości zwykłej 438–571, w legendarnej +12 744–809; sufit statystyk gry to 933. Części dominują nad nadwoziem (po tuningu auta różnią się o kilkadziesiąt PI), a klasy A–X zaczynają się dopiero z częściami: progi z płótna (249/399/549/699/849) czekają na zatwierdzenie właściciela po tym pomiarze.

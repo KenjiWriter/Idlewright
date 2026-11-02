@@ -831,6 +831,31 @@
     "swap_ms": 120000,
     "swap_fee_ppm": 20000
   },
+  "competition": {
+    "enabled": true,
+    "pi": {
+      "reference_car": "rdzak-gt-4",
+      "reference_pi": 300,
+      "stat_cap_ppm": 4000000,
+      "weights_ppm": { "accel": 217000, "top_speed": 127000, "grip": 230000, "handling": 197000, "braking": 163000, "clearance": 66000 },
+      "class_max_pi": { "D": 249, "C": 399, "B": 549, "A": 699, "S": 849 },
+      "top_class": "X"
+    },
+    "rating": {
+      "start": 1000,
+      "minimum": 600,
+      "k_new": 40,
+      "new_matches": 20,
+      "k_established": 24,
+      "k_top": 16,
+      "top_from": 1700,
+      "club_from": 1100,
+      "regional_from": 1400,
+      "elite_from": 1700,
+      "season_keep_ppm": 750000
+    },
+    "match": { "luck_sigma_ppm": 20000, "runs": 3 }
+  },
   "workshop": {
     "mechanic_level": 1,
     "time_cut_ppm_per_level": 20000,

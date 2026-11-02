@@ -44,13 +44,13 @@ final readonly class RatingRules
     }
 
     /**
-     * @param  array{start: int, floor: int, k_new: int, new_matches: int, k_established: int, k_top: int, top_from: int, club_from: int, regional_from: int, elite_from: int, season_keep_ppm: int}  $rating
+     * @param  array{start: int, minimum: int, k_new: int, new_matches: int, k_established: int, k_top: int, top_from: int, club_from: int, regional_from: int, elite_from: int, season_keep_ppm: int}  $rating
      */
     public static function fromArray(array $rating): self
     {
         return new self(
             $rating['start'],
-            $rating['floor'],
+            $rating['minimum'],
             $rating['k_new'],
             $rating['new_matches'],
             $rating['k_established'],

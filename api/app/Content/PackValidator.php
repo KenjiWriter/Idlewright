@@ -339,6 +339,7 @@ final class PackValidator
         $this->checkMissions($source, $rules, $result);
         $this->checkGigs($source, $vehicles, $result);
         $this->checkPremium($rules, $result);
+        $this->checkCompetition($source, $rules, $vehicles, $result);
         $this->checkStreaks($rules, $result);
         $this->checkWithdrawn($source, $parts, $vehicles, $result);
         $this->checkAffixes($rules, $result);
@@ -980,6 +981,70 @@ final class PackValidator
             if (is_numeric($product['coins'] ?? null) && is_numeric($product['price_minor'] ?? null) && $product['coins'] * $first['price_minor'] < $product['price_minor'] * $first['coins']) {
                 $result->addWarning('rules/starter.json', "/premium/products/{$slug}", 'The pack gives fewer coins for its price than the first pack, so it has no bonus (the first pack is the reference price of a coin).');
             }
+        }
+    }
+
+    /**
+     * What the schema cannot say about the competition: the reference car is a car of the pack, the weights are for the statistics of the model of the game and add up
+     * to a million, the limits of the classes grow and the top class is not one of them, the numbers of Respekt agree (the divisions grow, the minimum is not above the
+     * start) and a match has an odd number of runs.
+     *
+     * @param  array<string, mixed>  $rules
+     * @param  list<string>  $vehicles  the slugs of the cars of the pack
+     */
+    private function checkCompetition(ContentSource $source, array $rules, array $vehicles, PackValidationResult $result): void
+    {
+        $section = $rules['competition'] ?? null;
+
+        if ($section === null) {
+            return;
+        }
+
+        $file = 'rules/starter.json';
+        $pi = $section['pi'];
+
+        if (! in_array($pi['reference_car'], $vehicles, true)) {
+            $result->addError($file, '/competition/pi/reference_car', "There is no car {$pi['reference_car']} in the pack.");
+        }
+
+        $stats = GameModel::fromSource($source)->stats();
+
+        foreach (array_keys($pi['weights_ppm']) as $stat) {
+            if (! in_array($stat, $stats, true)) {
+                $result->addError($file, "/competition/pi/weights_ppm/{$stat}", "{$stat} is not a statistic of the model of the game.");
+            }
+        }
+
+        if (array_sum($pi['weights_ppm']) !== 1_000_000) {
+            $result->addError($file, '/competition/pi/weights_ppm', 'The weights of the statistics add up to '.array_sum($pi['weights_ppm']).', and they must add up to 1 000 000.');
+        }
+
+        $previous = 0;
+
+        foreach ($pi['class_max_pi'] as $class => $limit) {
+            if ($limit <= $previous) {
+                $result->addError($file, "/competition/pi/class_max_pi/{$class}", "The limit of the class {$class} must be above the one of the class before it ({$previous}).");
+            }
+
+            $previous = $limit;
+        }
+
+        if (array_key_exists($pi['top_class'], $pi['class_max_pi'])) {
+            $result->addError($file, '/competition/pi/top_class', "The top class {$pi['top_class']} is also a class with a limit.");
+        }
+
+        $rating = $section['rating'];
+
+        if ($rating['minimum'] > $rating['start']) {
+            $result->addError($file, '/competition/rating/minimum', 'The lowest Respekt is above the Respekt of a new driver.');
+        }
+
+        if (! ($rating['club_from'] < $rating['regional_from'] && $rating['regional_from'] < $rating['elite_from'])) {
+            $result->addError($file, '/competition/rating', 'The divisions must begin at a higher Respekt one after the other: club, regional, elite.');
+        }
+
+        if ($section['match']['runs'] % 2 === 0) {
+            $result->addError($file, '/competition/match/runs', 'A match is played in an odd number of runs, so that one side wins most of them.');
         }
     }
 

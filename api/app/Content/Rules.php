@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace App\Content;
 
 use App\Content\Units\Measures;
+use App\Domain\Competition\PerformanceClasses;
 use App\Domain\Economy\PlayerXpCurve;
 use App\Domain\Run\Dynamics;
 use App\Domain\Run\Rarity;
 use App\Domain\Run\Surface;
 use App\Domain\Run\Thread;
 use App\Domain\Settlement\Ppm;
+use App\Domain\Settlement\RatingRules;
 use App\Domain\Workshop\WorkshopGear;
 use App\Support\I18nText;
 use InvalidArgumentException;
@@ -578,6 +580,61 @@ final class Rules
     public function missionsOn(): bool
     {
         return ($this->missions()['enabled'] ?? false) === true;
+    }
+
+    /**
+     * The competition as the rules give it: the switch, how the performance index of a car is made and the classes cut out of it, the numbers of Respekt (the rating of
+     * a driver) and how a match is played. Null when the rules do not mention it, which is the same as off.
+     *
+     * @return array{enabled: bool, pi: array{reference_car: string, reference_pi: int, stat_cap_ppm: int, weights_ppm: array<string, int>, class_max_pi: array<string, int>, top_class: string}, rating: array{start: int, minimum: int, k_new: int, new_matches: int, k_established: int, k_top: int, top_from: int, club_from: int, regional_from: int, elite_from: int, season_keep_ppm: int}, match: array{luck_sigma_ppm: int, runs: int}}|null
+     */
+    public function competition(): ?array
+    {
+        $competition = $this->data['competition'] ?? null;
+
+        if ($competition === null) {
+            return null;
+        }
+
+        $pi = $competition['pi'];
+
+        return [
+            'enabled' => (bool) $competition['enabled'],
+            'pi' => [
+                'reference_car' => (string) $pi['reference_car'],
+                'reference_pi' => (int) $pi['reference_pi'],
+                'stat_cap_ppm' => (int) $pi['stat_cap_ppm'],
+                'weights_ppm' => array_map('intval', $pi['weights_ppm']),
+                'class_max_pi' => array_map('intval', $pi['class_max_pi']),
+                'top_class' => (string) $pi['top_class'],
+            ],
+            'rating' => array_map('intval', $competition['rating']),
+            'match' => ['luck_sigma_ppm' => (int) $competition['match']['luck_sigma_ppm'], 'runs' => (int) $competition['match']['runs']],
+        ];
+    }
+
+    /** Whether the game has a competition: it is in the rules and switched on. */
+    public function competitionOn(): bool
+    {
+        return ($this->competition()['enabled'] ?? false) === true;
+    }
+
+    /** The numbers of Respekt of this game: the ones of its rules, or those of the first game when the rules have no competition. */
+    public function ratingRules(): RatingRules
+    {
+        $rating = $this->competition()['rating'] ?? null;
+
+        return $rating === null ? RatingRules::defaults() : RatingRules::fromArray($rating);
+    }
+
+    /** The classes of the cars by their performance index. */
+    public function performanceClasses(): PerformanceClasses
+    {
+        $pi = $this->competition()['pi'] ?? null;
+
+        return $pi === null
+            ? new PerformanceClasses(['D' => 249, 'C' => 399, 'B' => 549, 'A' => 699, 'S' => 849], 'X')
+            : new PerformanceClasses($pi['class_max_pi'], $pi['top_class']);
     }
 
     /**
