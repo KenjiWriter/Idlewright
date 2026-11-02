@@ -162,7 +162,7 @@ return [
                 'profile' => ['label' => 'Le profil', 'help' => 'La bannière et la fenêtre qui lient le compte à un e-mail (Garage) ; ailleurs l’onglet « Garage ».'],
                 'garages' => ['label' => 'Les garages', 'help' => 'Le bouton d’achat d’un garage dans la fiche de la ville sur la Carte ; ailleurs l’onglet « Carte ».'],
                 'missions' => ['label' => 'Les missions', 'help' => 'La plaque Missions de la barre du haut, visible sur chaque écran du jeu ; le bouton « Afficher » de la barre d’objectif mène à l’écran des missions.'],
-                'gigs' => ['label' => 'Les courses', 'help' => 'La première offre que la voiture peut prendre dans l’onglet Courses de la ville ; ailleurs l’onglet « Ville ».'],
+                'gigs' => ['label' => 'Les courses', 'help' => 'La première offre que la voiture peut prendre dans l’onglet Courses de la ville ; ailleurs l’onglet « Ville ».'],
             ],
         ],
         'goal' => [

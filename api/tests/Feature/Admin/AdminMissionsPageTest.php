@@ -64,7 +64,7 @@ describe('the form of the missions', function () {
             ->and($state['settings'])->toMatchArray(['enabled' => true, 'timezone' => 'Europe/Warsaw', 'reset_hour' => 4, 'unlock_after_step' => 'travel'])
             ->and($laps)->toMatchArray(['objective' => 'laps', 'tanks_percent' => 60, 'count' => null, 'weight' => 3, 'share' => 1])
             ->and($mount)->toMatchArray(['objective' => 'mount', 'tanks_percent' => null, 'count' => 1])
-            ->and(array_column($state['chains'], 'key'))->toBe(['driver', 'mechanic', 'collector'])
+            ->and(array_column($state['chains'], 'key'))->toBe(['driver', 'mechanic', 'collector', 'courier'])
             ->and($state['chains'][0]['missions'][0])->toMatchArray(['key' => 'driver-laps-50', 'objective' => 'laps', 'count' => 50, 'car_xp_laps' => null, 'items' => []]);
     });
 
@@ -150,7 +150,7 @@ describe('the page', function () {
 
         expect($page->get('data.settings.periods.daily.bonus_coins'))->toBe(2)
             ->and($page->get('data.settings.main.cash_percent'))->toEqual(15)
-            ->and(array_column(array_values($page->get('data.chains')), 'key'))->toBe(['driver', 'mechanic', 'collector'])
+            ->and(array_column(array_values($page->get('data.chains')), 'key'))->toBe(['driver', 'mechanic', 'collector', 'courier'])
             ->and(count($page->get('data.sets.daily')))->toBe(6)
             ->and($page->get('data.budget'))->toBe(['car' => 'rdzak-gt-4', 'track' => 'zlomowo-street', 'level' => 1]);
 
