@@ -128,4 +128,17 @@ describe('AccountAway', () => {
     expect(mountAway(aSummary({ missions: null })).find('[data-test="away-missions"]').exists()).toBe(false)
     expect(mountAway(aSummary({ missions: { done: 1, collected: 0, cash_cents: 0, xp: 0, coins: 0 } })).find('[data-test="away-missions-taken"]').exists()).toBe(false)
   })
+
+  it('tells of the streak: kept, saved by a shield, lost, and what the server took', () => {
+    const kept = mountAway(aSummary({ missions: { done: 0, collected: 0, cash_cents: 0, xp: 0, coins: 0, streak: { current: 5, counted: 2, shields_used: 1, lost: null, cash_cents: 1_600, xp: 6 } } }))
+
+    expect(kept.get('[data-test="away-streak"]').text()).toBe('Streak: 5 days')
+    expect(kept.get('[data-test="away-streak-shield"]').text()).toBe('Shields used to save the streak: 1')
+    expect(kept.get('[data-test="away-streak-taken"]').text()).toBe('Taken for you: $16, 6 XP')
+
+    const lost = mountAway(aSummary({ missions: { done: 0, collected: 0, cash_cents: 0, xp: 0, coins: 0, streak: { current: 0, counted: 0, shields_used: 0, lost: 6, cash_cents: 0, xp: 0 } } }))
+
+    expect(lost.get('[data-test="away-streak-lost"]').text()).toBe('The streak is over (it was 6 days).')
+    expect(lost.find('[data-test="away-streak"]').exists()).toBe(false)
+  })
 })

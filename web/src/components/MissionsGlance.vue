@@ -32,6 +32,7 @@ const percent = computed(() => (day.value === null || day.value.total === 0 ? 0 
       <span v-if="missions.claimable > 0" class="tag tag-am" data-test="missions-glance-take">{{ t('missions.glance.take', { count: missions.claimable }, missions.claimable) }}</span>
       <span v-else class="mono text-[12px] text-muted" data-test="missions-glance-reset">{{ t('missions.resets', { time: resets }) }}</span>
     </div>
+    <p v-if="missions.streak" class="text-[12px] text-muted" data-test="missions-glance-streak">{{ t('missions.glance.streak', { count: missions.streak.current, done: missions.streak.goal.done, needed: missions.streak.goal.needed }, missions.streak.current) }}</p>
     <div class="flex items-center gap-2">
       <div class="bar bar-cy flex-1" role="progressbar" :aria-label="t('missions.glance.title')" :aria-valuenow="percent" aria-valuemin="0" aria-valuemax="100">
         <i :style="{ width: `${percent}%` }" />

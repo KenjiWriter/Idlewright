@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 
 import { api } from '@/api/client'
-import type { Mission, MissionKind, MissionPeriodKind, MissionsClaimed, MissionsResponse, MissionsView } from '@/api/types'
+import type { Mission, MissionKind, MissionPeriodKind, MissionsClaimed, MissionsResponse, MissionStreak, MissionsView } from '@/api/types'
 
 /**
  * The missions of the driver: the sets of a day, a week and a month, and the main missions. The server decides what is done and what a set pays; this only asks,
@@ -24,6 +24,8 @@ export const useMissionsStore = defineStore('missions', () => {
   const periods = computed(() => view.value?.periods ?? null)
   const main = computed(() => view.value?.main ?? [])
   const collected = computed(() => view.value?.auto_collected ?? [])
+  /** The streak of days, or null when the game has none (or the driver has no sets yet). */
+  const streak = computed<MissionStreak | null>(() => view.value?.streak ?? null)
   /** The reason the sets are not there yet (the tutorial), or null. */
   const locked = computed(() => view.value?.locked ?? null)
 
@@ -114,6 +116,13 @@ export const useMissionsStore = defineStore('missions', () => {
     return response.repeated ? 0 : (response.bonus_coins ?? 0)
   }
 
+  /** Takes what the days of the streak that count paid. */
+  async function claimStreak(): Promise<MissionsClaimed | null> {
+    const response = await api<MissionsResponse>('/v1/missions/streak/claim', { method: 'POST' })
+
+    return took(response)
+  }
+
   function took(response: MissionsResponse): MissionsClaimed | null {
     apply(response.data)
     lastClaim.value = { claimed: response.repeated ? null : (response.claimed ?? null), bonusCoins: response.repeated ? 0 : (response.bonus_coins ?? 0) }
@@ -130,5 +139,5 @@ export const useMissionsStore = defineStore('missions', () => {
     lastClaim.value = null
   }
 
-  return { view, asked, justDone, lastClaim, available, claimable, periods, main, collected, locked, goalMission, seenAt, apply, load, ensure, claim, claimAll, claimBonus, clearDone, clearClaim }
+  return { view, asked, justDone, lastClaim, available, claimable, periods, main, collected, streak, locked, goalMission, seenAt, apply, load, ensure, claim, claimAll, claimBonus, claimStreak, clearDone, clearClaim }
 })

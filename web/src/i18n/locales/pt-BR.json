@@ -659,7 +659,8 @@
     "refuel": "Abastecer",
     "fuel": "Combustível: {percent}%",
     "missions": "Missões",
-    "missionsCount": "Missões: {count} para receber | Missões: {count} para receber"
+    "missionsCount": "Missões: {count} para receber | Missões: {count} para receber",
+    "streak": "Sequência: {count} dia | Sequência: {count} dias"
   },
   "onboarding": {
     "step": "Etapa {step} de {total}"
@@ -846,7 +847,22 @@
       },
       "part": "Peça: {rarity}"
     },
-    "glance": {"title": "Missões do dia", "take": "{count} para receber | {count} para receber"},
+    "streak": {
+      "title": "Sequência de dias",
+      "days": "{count} dia | {count} dias",
+      "shields": "Escudos: {count} de {cap}",
+      "shieldHint": "Um escudo salva a sequência de um dia perdido. Você ganha um a cada {days} dias de sequência.",
+      "best": "Melhor: {count}",
+      "goal": "Meta do dia: {done} de {needed}",
+      "goalReached": "Meta do dia cumprida",
+      "cycle": "Recompensas dos dias do ciclo",
+      "claim": "Receber a recompensa do dia",
+      "next": "Cumpra a meta do dia para ganhar: {reward}",
+      "tomorrow": "Amanhã: {reward}",
+      "milestone": "Próximo marco: dia {day}",
+      "lost": "A sequência acabou (eram {count} dia). Cumpra a meta do dia para começar outra. | A sequência acabou (eram {count} dias). Cumpra a meta do dia para começar outra."
+    },
+    "glance": {"title": "Missões do dia", "take": "{count} para receber | {count} para receber", "streak": "Sequência: {count} dia, meta {done} de {needed} | Sequência: {count} dias, meta {done} de {needed}"},
     "toast": {
       "one": "Missão cumprida: {title}",
       "many": "Missões cumpridas: {count}"
@@ -900,7 +916,11 @@
     "missionsTitle": "Missões",
     "missionsDone": "Missões cumpridas: {count}",
     "missionsTaken": "Recebidas por você quando o período acabou: {count} ({cash}, {xp} XP)",
-    "missionsCoins": "Bônus do conjunto completo: +{coins} RideCoin"
+    "missionsCoins": "Bônus do conjunto completo: +{coins} RideCoin",
+    "streakKept": "Sequência: {count} dia | Sequência: {count} dias",
+    "streakShield": "Escudos usados para salvar a sequência: {count}",
+    "streakLost": "A sequência acabou (eram {count} dia). | A sequência acabou (eram {count} dias).",
+    "streakTaken": "Recebido por você: {cash}, {xp} XP"
   },
   "trackPicker": {
     "kind": { "sprint": "Sprint", "standard": "Padrão", "endurance": "Endurance" },

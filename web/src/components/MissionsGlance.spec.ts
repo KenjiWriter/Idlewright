@@ -5,7 +5,7 @@ import { createMemoryHistory, createRouter } from 'vue-router'
 
 import { i18n, setLocale } from '@/i18n'
 import { useMissionsStore } from '@/stores/missions'
-import { aMission, aSet, missionsView } from '@/test/missionsFixtures'
+import { aMission, aSet, aStreak, missionsView } from '@/test/missionsFixtures'
 
 import MissionsGlance from './MissionsGlance.vue'
 
@@ -47,5 +47,12 @@ describe('MissionsGlance', () => {
   it('is not there when the game has no missions or the set was not drawn yet', () => {
     expect(show(missionsView({ available: false })).find('[data-test="missions-glance"]').exists()).toBe(false)
     expect(show(missionsView({ periods: { ...missionsView().periods!, daily: aSet([], { drawn: false }) } })).find('[data-test="missions-glance"]').exists()).toBe(false)
+  })
+
+  it('says how long the streak is and how far the goal of the day is', () => {
+    const wrapper = show(missionsView({ streak: aStreak() }))
+
+    expect(wrapper.get('[data-test="missions-glance-streak"]').text()).toBe('Streak: 3 days, goal 2 of 3')
+    expect(show(missionsView({ streak: null })).find('[data-test="missions-glance-streak"]').exists()).toBe(false)
   })
 })

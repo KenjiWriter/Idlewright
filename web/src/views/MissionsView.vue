@@ -9,6 +9,7 @@ import MissionCard from '@/components/MissionCard.vue'
 import PartAffixes from '@/components/PartAffixes.vue'
 import PartStats from '@/components/PartStats.vue'
 import RarityMark from '@/components/RarityMark.vue'
+import StreakCard from '@/components/StreakCard.vue'
 import { useMissionText } from '@/features/missions/useMissionText'
 import { rankOf } from '@/features/parts/rarity'
 import { useFlash } from '@/features/run/useFlash'
@@ -146,6 +147,10 @@ function claimAll(): Promise<void> {
   return take(() => missions.claimAll(tab.value))
 }
 
+function claimStreak(): Promise<void> {
+  return take(() => missions.claimStreak())
+}
+
 async function claimBonus(): Promise<void> {
   if (busy.value || tab.value === 'main') {
     return
@@ -199,6 +204,9 @@ const collectedLine = computed(() => {
     <p v-else-if="!missions.available && missions.view && missions.view.available === false" class="text-muted" data-test="none">{{ t('missions.none') }}</p>
 
     <template v-else>
+      <!-- The streak of days: it is counted out of the set of the day, so it stays above the tabs. -->
+      <StreakCard :busy="busy" @claim="claimStreak" />
+
       <nav class="seg" :aria-label="t('missions.tabs')" role="tablist" data-test="mission-tabs">
         <button
           v-for="kind in TABS"

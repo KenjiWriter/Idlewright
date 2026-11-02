@@ -12,7 +12,7 @@ import { useMissionsStore } from '@/stores/missions'
 import { usePremiumStore } from '@/stores/premium'
 import { useRunStore } from '@/stores/run'
 import { respond, serveApi } from '@/test/fetchServer'
-import { missionsView } from '@/test/missionsFixtures'
+import { aStreak, missionsView } from '@/test/missionsFixtures'
 import { passOffer, premiumView, vipOffer } from '@/test/premiumFixtures'
 import { liveFields } from '@/test/runFixtures'
 
@@ -331,5 +331,18 @@ describe('GameHud', () => {
 
   it('has the plate of the missions as the thing that the tutorial points at when it introduces them', () => {
     expect(show().get('[data-test="hud-missions"]').attributes('data-tutorial')).toBe('missions')
+  })
+
+  describe('the streak', () => {
+    it('is the days of it at the foot of the plate of the missions, and nothing when there is none', () => {
+      const pinia = createPinia()
+      setActivePinia(pinia)
+      useMissionsStore().apply(missionsView({ streak: aStreak({ current: 5 }) }))
+      const wrapper = mount(GameHud, { global: { plugins: [pinia, i18n, aRouter()] } })
+
+      expect(wrapper.get('[data-test="hud-streak"]').text()).toBe('5')
+      expect(wrapper.get('[data-test="hud-streak"]').attributes('title')).toBe('Streak: 5 days')
+      expect(show().find('[data-test="hud-streak"]').exists()).toBe(false)
+    })
   })
 })

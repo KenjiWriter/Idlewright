@@ -5,7 +5,7 @@ import type { MissionsView } from '@/api/types'
 import { storeToken } from '@/auth/token'
 import { setLocale } from '@/i18n'
 import { respond, serveApi } from '@/test/fetchServer'
-import { aChain, aMainMission, aMission, aPart, aSet, missionsView } from '@/test/missionsFixtures'
+import { aChain, aMainMission, aMission, aPart, aSet, aStreak, missionsView } from '@/test/missionsFixtures'
 import { mountView } from '@/test/mountView'
 
 import MissionsView_ from './MissionsView.vue'
@@ -201,5 +201,43 @@ describe('MissionsView', () => {
     expect(wrapper.get('[data-test="tab-main-count"]').text()).toBe('1')
     expect(wrapper.get('[data-test="mission-40"]').attributes('data-status')).toBe('completed')
     expect(wrapper.get('[data-test="mission-41"] [data-test="mission-title"]').text()).toBe('Warming up')
+  })
+
+  it('shows the streak above the tabs, and takes the reward of the day with its button', async () => {
+    const reward = { cash_cents: 800, xp: 0, items: [] }
+    const ready = aStreak({ current: 4, goal: { needed: 3, done: 3, reached: true }, today: { state: 'ready', streak: 4, cycle_day: 4, reward } })
+    let after = false
+    const calls = serve(() => missionsView({ claimable: 1, streak: after ? aStreak({ current: 4, goal: { needed: 3, done: 3, reached: true }, today: { state: 'claimed', streak: 4, cycle_day: 4, reward } }) : ready }), {
+      'POST /api/v1/missions/streak/claim': () => {
+        after = true
+
+        return respond(200, {
+          data: missionsView({ claimable: 0, streak: aStreak({ current: 4, goal: { needed: 3, done: 3, reached: true }, today: { state: 'claimed', streak: 4, cycle_day: 4, reward } }) }),
+          repeated: false,
+          claimed: { missions: [], cash_cents: 800, xp: 0, car_xp: 0, crates: [], parts: [] },
+        })
+      },
+      'GET /api/v1/premium': () => respond(200, { data: { balance: 3, currency: null, price_currency: null, now_ms: 1, autorefill: null, vip: null, infinity: null } }),
+    })
+
+    const { wrapper } = await open()
+
+    expect(wrapper.get('[data-test="streak-days"]').text()).toBe('4 days')
+
+    await wrapper.get('[data-test="streak-claim"]').trigger('click')
+    await flushPromises()
+
+    expect(calls.filter((call) => call.method === 'POST')).toHaveLength(1)
+    expect(wrapper.find('[data-test="streak-claim"]').exists()).toBe(false)
+    expect(wrapper.get('[data-test="streak-claimed"]').text()).toContain('Taken')
+    expect(wrapper.get('[data-test="gave"]').text()).toContain('$8')
+  })
+
+  it('has no card of the streak when the game has none', async () => {
+    serve(() => missionsView({ streak: null }))
+
+    const { wrapper } = await open()
+
+    expect(wrapper.find('[data-test="streak"]').exists()).toBe(false)
   })
 })

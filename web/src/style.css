@@ -343,6 +343,14 @@ body {
     box-shadow: 0 0 0 2px var(--skin-well);
   }
 
+  /* The days of the streak, at the foot of the plate of the missions. */
+  .hud-streak {
+    @apply absolute -bottom-1.5 -left-1.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1 font-mono text-[10.5px] font-bold leading-none;
+    background: var(--color-cyan);
+    color: var(--color-cyan-bg);
+    box-shadow: 0 0 0 2px var(--skin-well);
+  }
+
   /* The count on a tab of the missions. */
   .mbadge {
     @apply ml-1.5 inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full px-1 font-mono text-[10.5px] font-bold leading-none;

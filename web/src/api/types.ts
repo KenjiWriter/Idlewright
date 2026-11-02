@@ -1247,6 +1247,29 @@ export interface MissionChain {
 /** What the server took for the driver when a period had ended: a mission, or the bonus of a set. */
 export type MissionCollected = { type: 'mission'; kind: MissionPeriodKind; period_key: string; mission: Mission } | { type: 'bonus'; kind: MissionPeriodKind; period_key: string; coins: number }
 
+/** What a day of the streak pays: cash and XP, and the crates. */
+export interface StreakReward {
+  cash_cents: number
+  xp: number
+  items: MissionItem[]
+}
+
+/** The streak of days: how long it is, the shields, the goal of today (a number of the missions of the day), what today and the next day pay, and the cycle of the rewards. */
+export interface MissionStreak {
+  current: number
+  best: number
+  shields: number
+  shield_cap: number
+  shield_every_days: number
+  goal: { needed: number; done: number; reached: boolean }
+  today: { state: 'ready' | 'claimed'; streak: number; cycle_day: number; reward: StreakReward | null } | null
+  next: StreakReward & { cycle_day: number; streak: number }
+  cycle: Array<StreakReward & { day: number }>
+  cycle_day: number
+  milestone: { day: number; items: MissionItem[] } | null
+  lost: { streak: number; day: string | null } | null
+}
+
 /** GET /api/v1/missions (`available: false` when the game has no missions). */
 export interface MissionsView {
   available: boolean
@@ -1254,6 +1277,8 @@ export interface MissionsView {
   locked?: string | null
   main_locked?: string | null
   claimable?: number
+  /** Null when the game has no streak, or the driver has no sets yet. */
+  streak?: MissionStreak | null
   periods?: Record<MissionPeriodKind, MissionSet>
   main?: MissionChain[]
   auto_collected?: MissionCollected[]
@@ -1284,4 +1309,15 @@ export interface AwayMissions {
   cash_cents: number
   xp: number
   coins: number
+  streak?: AwayStreak | null
+}
+
+/** What the streak did while the driver was away: the days that counted, the shields used, the streak that was lost (its length), and what the server took. */
+export interface AwayStreak {
+  current: number
+  counted: number
+  shields_used: number
+  lost: number | null
+  cash_cents: number
+  xp: number
 }

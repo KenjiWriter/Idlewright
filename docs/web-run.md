@@ -352,6 +352,17 @@ Ekran misji z projektu zatwierdzonego jako D1–D16 (opis serwera: `docs/api-run
 - **Czego nie sprawdziłem w przeglądarce:** powiadomienia „Misja wykonana” (jest w specyfikacjach), skrzynki i części otwieranej z misji na ekranie (jest w testach serwera i specyfikacjach), pozostałych języków niż polski, odbioru automatem po końcu okresu na ekranie, prawdziwego telefonu, klawiatury. Układ z płytką w pasku porównałem ze zrzutami tylko własnymi: nie ma wzoru z kanwy.
 - **Nagrody** (zmienione 2026-10-30 po uwadze właściciela, że XP i gotówka są za małe wobec tego, co misje każą zrobić): misja płaci część wartości pracy, którą każe wykonać (zestawy 10% w gotówce i 6% w XP, główne 15% i 9%), więc tygodniowe „Przejedź 120 okrążeń” płaci na Rdzaku GT-4 150 $ i 144 XP zamiast ok. 25 $ i 24 XP. Ekran niczego nie liczy (kwoty są z serwera), więc zmiany w aplikacji nie było; opis i liczby w `docs/api-runs.md` („Skalowanie nagród misji”), a dźwignia jest w Studiu (`missions.periods.*.cash_ppm`, `xp_ppm`, `missions.main.*`). **Poziom potwierdził właściciel (2026-10-30):** miesiąc robienia wszystkiego to teraz ok. +73% gotówki i +44% XP względem tego, co zarabiają same auta (przed zmianą +11% i +8%); wpływu na tempo gry nie mierzyłem.
 
+## Seria dni na ekranie misji (`/missions`, B2, 2026-11-02)
+
+Serwer decyduje o wszystkim (cel dzienny, tarcze, nagrody); aplikacja pokazuje blok `streak` z `GET /missions` i niczego nie liczy.
+
+- **Karta serii** (`StreakCard`, nad zakładkami misji, bo seria liczy się z zestawu dziennego): „Seria dni” z liczbą dni (w trzech formach polskiej liczby mnogiej), kapsuła **tarcz** („Tarcze: 1 z 2”, podpowiedź, że co 7 dni serii zdobywa się jedną) i **najlepsza seria**, gdy jest dłuższa od bieżącej; pasek **celu dnia** („Cel dnia: 2 z 3”, po osiągnięciu „Cel dnia zrobiony”); **siedem komórek cyklu** (zrobione, dzień, o który gracz walczy, i przyszłe; znak ▣ przy dniu ze skrzynką); gdy dzień się zaliczył, jego nagroda w kapsułach i przycisk **„Odbierz nagrodę dnia”** (po odbiorze „Odebrano” i „Jutro: …”); linia o następnym kamieniu milowym; po utracie serii zdanie „Seria się skończyła (było: N dni)”, bez karcenia.
+- **Pasek u góry:** na płytce Misji (obok zębatki) mały cyjanowy znaczek z liczbą dni serii u dołu po lewej (`hud-streak`, z podpowiedzią), obok bursztynowego licznika rzeczy do odebrania. Karta „Misje dnia” w garażu ma linię „Seria: 3 dni, cel 2 z 3”.
+- **Podsumowanie nieobecności** (`AccountAway`): w bloku misji linie o serii utrzymanej, o tarczach, które ją uratowały, o serii, która się skończyła, i o tym, co serwer odebrał za gracza.
+- **Odświeżanie** bez zmian: `useMissionsSync` co minutę; seria jest częścią tej samej odpowiedzi (jedno zapytanie).
+- **Pięć języków** (`missions.streak.*`, `missions.glance.streak`, `hud.streak`, `awayAccount.streak*`); **teksty fr, de i pt-BR są moje, bez native speakera**.
+- **Specyfikacje:** `StreakCard` 7, plus po 1–2 w `missions` (magazyn), `MissionsView`, `MissionsGlance`, `GameHud` i `AccountAway`.
+
 ## Jednostki gry w aplikacji (2026-10-30)
 
 Dystans, prędkość i zużycie paliwa są w aplikacji **w jednostkach gry**, a nie na sztywno w „km” i „km/h”. Serwer podaje wszystkie liczby w skali kanonicznej (metry, kilometry, km/h), a aplikacja przelicza je w jednym miejscu.

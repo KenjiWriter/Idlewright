@@ -659,7 +659,8 @@
     "refuel": "Faire le plein",
     "fuel": "Carburant : {percent} %",
     "missions": "Missions",
-    "missionsCount": "Missions : {count} à récupérer | Missions : {count} à récupérer"
+    "missionsCount": "Missions : {count} à récupérer | Missions : {count} à récupérer",
+    "streak": "Série : {count} jour | Série : {count} jours"
   },
   "onboarding": {
     "step": "Étape {step} sur {total}"
@@ -846,7 +847,22 @@
       },
       "part": "Pièce : {rarity}"
     },
-    "glance": {"title": "Missions du jour", "take": "{count} à récupérer | {count} à récupérer"},
+    "streak": {
+      "title": "Série de jours",
+      "days": "{count} jour | {count} jours",
+      "shields": "Boucliers : {count} sur {cap}",
+      "shieldHint": "Un bouclier sauve la série d’un jour manqué. Vous en gagnez un tous les {days} jours de série.",
+      "best": "Meilleure : {count}",
+      "goal": "Objectif du jour : {done} sur {needed}",
+      "goalReached": "Objectif du jour atteint",
+      "cycle": "Récompenses des jours du cycle",
+      "claim": "Récupérer la récompense du jour",
+      "next": "Atteignez l’objectif du jour pour obtenir : {reward}",
+      "tomorrow": "Demain : {reward}",
+      "milestone": "Prochaine étape : jour {day}",
+      "lost": "La série est terminée (elle comptait {count} jour). Atteignez l’objectif du jour pour en commencer une nouvelle. | La série est terminée (elle comptait {count} jours). Atteignez l’objectif du jour pour en commencer une nouvelle."
+    },
+    "glance": {"title": "Missions du jour", "take": "{count} à récupérer | {count} à récupérer", "streak": "Série : {count} jour, objectif {done} sur {needed} | Série : {count} jours, objectif {done} sur {needed}"},
     "toast": {
       "one": "Mission terminée : {title}",
       "many": "Missions terminées : {count}"
@@ -900,7 +916,11 @@
     "missionsTitle": "Missions",
     "missionsDone": "Missions terminées : {count}",
     "missionsTaken": "Récupérées pour vous à la fin de la période : {count} ({cash}, {xp} XP)",
-    "missionsCoins": "Bonus de la série complète : +{coins} RideCoin"
+    "missionsCoins": "Bonus de la série complète : +{coins} RideCoin",
+    "streakKept": "Série : {count} jour | Série : {count} jours",
+    "streakShield": "Boucliers utilisés pour sauver la série : {count}",
+    "streakLost": "La série est terminée (elle comptait {count} jour). | La série est terminée (elle comptait {count} jours).",
+    "streakTaken": "Récupéré pour vous : {cash}, {xp} XP"
   },
   "trackPicker": {
     "kind": { "sprint": "Sprint", "standard": "Standard", "endurance": "Endurance" },

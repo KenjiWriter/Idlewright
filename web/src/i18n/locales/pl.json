@@ -659,7 +659,8 @@
     "refuel": "Zatankuj",
     "fuel": "Paliwo: {percent}%",
     "missions": "Misje",
-    "missionsCount": "Misje: {count} do odebrania | Misje: {count} do odebrania | Misje: {count} do odebrania"
+    "missionsCount": "Misje: {count} do odebrania | Misje: {count} do odebrania | Misje: {count} do odebrania",
+    "streak": "Seria: {count} dzień | Seria: {count} dni | Seria: {count} dni"
   },
   "onboarding": {
     "step": "Krok {step} z {total}"
@@ -846,7 +847,22 @@
       },
       "part": "Część: {rarity}"
     },
-    "glance": {"title": "Misje dnia", "take": "Do odebrania: {count}"},
+    "streak": {
+      "title": "Seria dni",
+      "days": "{count} dzień | {count} dni | {count} dni",
+      "shields": "Tarcze: {count} z {cap}",
+      "shieldHint": "Tarcza ratuje serię przed jednym opuszczonym dniem. Zdobywasz ją co {days} dni serii.",
+      "best": "Najlepsza: {count}",
+      "goal": "Cel dnia: {done} z {needed}",
+      "goalReached": "Cel dnia zrobiony",
+      "cycle": "Nagrody dni cyklu",
+      "claim": "Odbierz nagrodę dnia",
+      "next": "Zrób cel dnia, a dostaniesz: {reward}",
+      "tomorrow": "Jutro: {reward}",
+      "milestone": "Następny kamień milowy: dzień {day}",
+      "lost": "Seria się skończyła (było: {count} dzień). Zrób cel dnia, żeby zacząć nową. | Seria się skończyła (było: {count} dni). Zrób cel dnia, żeby zacząć nową. | Seria się skończyła (było: {count} dni). Zrób cel dnia, żeby zacząć nową."
+    },
+    "glance": {"title": "Misje dnia", "take": "Do odebrania: {count}", "streak": "Seria: {count} dzień, cel {done} z {needed} | Seria: {count} dni, cel {done} z {needed} | Seria: {count} dni, cel {done} z {needed}"},
     "toast": {
       "one": "Misja wykonana: {title}",
       "many": "Wykonane misje: {count}"
@@ -900,7 +916,11 @@
     "missionsTitle": "Misje",
     "missionsDone": "Wykonane misje: {count}",
     "missionsTaken": "Odebrane za Ciebie po zakończeniu okresu: {count} ({cash}, {xp} XP)",
-    "missionsCoins": "Premia za komplet: +{coins} RideCoin"
+    "missionsCoins": "Premia za komplet: +{coins} RideCoin",
+    "streakKept": "Seria: {count} dzień | Seria: {count} dni | Seria: {count} dni",
+    "streakShield": "Tarcze, które uratowały serię: {count}",
+    "streakLost": "Seria się skończyła (było: {count} dzień). | Seria się skończyła (było: {count} dni). | Seria się skończyła (było: {count} dni).",
+    "streakTaken": "Odebrane za Ciebie: {cash}, {xp} XP"
   },
   "trackPicker": {
     "kind": { "sprint": "Sprint", "standard": "Standardowy", "endurance": "Dystans" },

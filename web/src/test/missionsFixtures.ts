@@ -1,4 +1,4 @@
-import type { Mission, MissionBonus, MissionChain, MissionSet, MissionsView, OwnedPart } from '@/api/types'
+import type { Mission, MissionBonus, MissionChain, MissionSet, MissionStreak, MissionsView, OwnedPart } from '@/api/types'
 
 /** A mission of a set of the day: three laps, a quarter of the way, paying $6 and 4 XP. */
 export function aMission(changes: Partial<Mission> = {}): Mission {
@@ -34,6 +34,27 @@ export function aSet(missions: Mission[], changes: Partial<MissionSet> = {}): Mi
     done: missions.filter((mission) => mission.status !== 'open').length,
     total: missions.length,
     bonus: { coins: 2, state: 'locked' } as MissionBonus,
+    ...changes,
+  }
+}
+
+/** The streak of days: three days in a row of a cycle of seven, the goal of today (two of three missions) not done yet, a shield, and a milestone ahead. */
+export function aStreak(changes: Partial<MissionStreak> = {}): MissionStreak {
+  const cycle = [1, 2, 3, 4, 5, 6, 7].map((day) => ({ day, cash_cents: day === 7 ? 3_000 : 800, xp: day === 2 ? 6 : 0, items: day === 7 ? [{ type: 'crate' as const, kind: 'slot' as const }] : [] }))
+
+  return {
+    current: 3,
+    best: 5,
+    shields: 1,
+    shield_cap: 2,
+    shield_every_days: 7,
+    goal: { needed: 3, done: 2, reached: false },
+    today: null,
+    next: { cycle_day: 4, streak: 4, cash_cents: 800, xp: 0, items: [] },
+    cycle,
+    cycle_day: 3,
+    milestone: { day: 14, items: [{ type: 'crate', kind: 'mixed' }] },
+    lost: null,
     ...changes,
   }
 }

@@ -659,7 +659,8 @@
     "refuel": "Tanken",
     "fuel": "Kraftstoff: {percent} %",
     "missions": "Missionen",
-    "missionsCount": "Missionen: {count} zum Abholen | Missionen: {count} zum Abholen"
+    "missionsCount": "Missionen: {count} zum Abholen | Missionen: {count} zum Abholen",
+    "streak": "Serie: {count} Tag | Serie: {count} Tage"
   },
   "onboarding": {
     "step": "Schritt {step} von {total}"
@@ -846,7 +847,22 @@
       },
       "part": "Teil: {rarity}"
     },
-    "glance": {"title": "Missionen des Tages", "take": "{count} zum Abholen | {count} zum Abholen"},
+    "streak": {
+      "title": "Serie von Tagen",
+      "days": "{count} Tag | {count} Tage",
+      "shields": "Schilde: {count} von {cap}",
+      "shieldHint": "Ein Schild rettet die Serie vor einem verpassten Tag. Du verdienst einen alle {days} Tage der Serie.",
+      "best": "Beste: {count}",
+      "goal": "Tagesziel: {done} von {needed}",
+      "goalReached": "Tagesziel geschafft",
+      "cycle": "Belohnungen der Tage des Zyklus",
+      "claim": "Belohnung des Tages abholen",
+      "next": "Schaffe das Tagesziel und erhalte: {reward}",
+      "tomorrow": "Morgen: {reward}",
+      "milestone": "Nächster Meilenstein: Tag {day}",
+      "lost": "Die Serie ist zu Ende (sie hatte {count} Tag). Schaffe das Tagesziel, um eine neue zu beginnen. | Die Serie ist zu Ende (sie hatte {count} Tage). Schaffe das Tagesziel, um eine neue zu beginnen."
+    },
+    "glance": {"title": "Missionen des Tages", "take": "{count} zum Abholen | {count} zum Abholen", "streak": "Serie: {count} Tag, Ziel {done} von {needed} | Serie: {count} Tage, Ziel {done} von {needed}"},
     "toast": {
       "one": "Mission geschafft: {title}",
       "many": "Missionen geschafft: {count}"
@@ -900,7 +916,11 @@
     "missionsTitle": "Missionen",
     "missionsDone": "Geschaffte Missionen: {count}",
     "missionsTaken": "Für dich abgeholt, als der Zeitraum endete: {count} ({cash}, {xp} XP)",
-    "missionsCoins": "Bonus für das ganze Set: +{coins} RideCoin"
+    "missionsCoins": "Bonus für das ganze Set: +{coins} RideCoin",
+    "streakKept": "Serie: {count} Tag | Serie: {count} Tage",
+    "streakShield": "Schilde, die die Serie gerettet haben: {count}",
+    "streakLost": "Die Serie ist zu Ende (sie hatte {count} Tag). | Die Serie ist zu Ende (sie hatte {count} Tage).",
+    "streakTaken": "Für dich abgeholt: {cash}, {xp} XP"
   },
   "trackPicker": {
     "kind": { "sprint": "Sprint", "standard": "Standard", "endurance": "Langstrecke" },

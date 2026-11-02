@@ -87,6 +87,14 @@ function police(journey: AwayJourney): string | null {
         {{ t('awayAccount.missionsTaken', { count: number(missions.collected), cash: money(missions.cash_cents), xp: number(missions.xp) }) }}
       </p>
       <p v-if="missions.coins > 0" class="text-[13px] text-amber" data-test="away-missions-coins">{{ t('awayAccount.missionsCoins', { coins: number(missions.coins) }) }}</p>
+      <template v-if="missions.streak">
+        <p v-if="missions.streak.lost" class="text-[13px] text-muted" data-test="away-streak-lost">{{ t('awayAccount.streakLost', { count: missions.streak.lost }, missions.streak.lost) }}</p>
+        <p v-else-if="missions.streak.current > 0" class="text-[13px] text-ink" data-test="away-streak">{{ t('awayAccount.streakKept', { count: missions.streak.current }, missions.streak.current) }}</p>
+        <p v-if="missions.streak.shields_used > 0" class="text-[13px] text-muted" data-test="away-streak-shield">{{ t('awayAccount.streakShield', { count: missions.streak.shields_used }) }}</p>
+        <p v-if="missions.streak.cash_cents > 0 || missions.streak.xp > 0" class="text-[13px] text-muted" data-test="away-streak-taken">
+          {{ t('awayAccount.streakTaken', { cash: money(missions.streak.cash_cents), xp: number(missions.streak.xp) }) }}
+        </p>
+      </template>
     </div>
 
     <div v-if="jobs.length > 0" class="flex flex-col gap-1.5" data-test="away-jobs">

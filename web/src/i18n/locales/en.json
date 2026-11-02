@@ -659,7 +659,8 @@
     "refuel": "Refuel",
     "fuel": "Fuel: {percent}%",
     "missions": "Missions",
-    "missionsCount": "Missions: {count} to take | Missions: {count} to take"
+    "missionsCount": "Missions: {count} to take | Missions: {count} to take",
+    "streak": "Streak: {count} day | Streak: {count} days"
   },
   "onboarding": {
     "step": "Step {step} of {total}"
@@ -846,7 +847,22 @@
       },
       "part": "Part: {rarity}"
     },
-    "glance": {"title": "Missions of the day", "take": "{count} to take | {count} to take"},
+    "streak": {
+      "title": "Streak of days",
+      "days": "{count} day | {count} days",
+      "shields": "Shields: {count} of {cap}",
+      "shieldHint": "A shield saves the streak from one missed day. You earn one every {days} days of the streak.",
+      "best": "Best: {count}",
+      "goal": "Goal of the day: {done} of {needed}",
+      "goalReached": "Goal of the day done",
+      "cycle": "Rewards of the days of the cycle",
+      "claim": "Take the reward of the day",
+      "next": "Do the goal of the day to get: {reward}",
+      "tomorrow": "Tomorrow: {reward}",
+      "milestone": "Next milestone: day {day}",
+      "lost": "The streak is over (it was {count} day). Do the goal of the day to start a new one. | The streak is over (it was {count} days). Do the goal of the day to start a new one."
+    },
+    "glance": {"title": "Missions of the day", "take": "{count} to take | {count} to take", "streak": "Streak: {count} day, goal {done} of {needed} | Streak: {count} days, goal {done} of {needed}"},
     "toast": {
       "one": "Mission done: {title}",
       "many": "Missions done: {count}"
@@ -900,7 +916,11 @@
     "missionsTitle": "Missions",
     "missionsDone": "Missions done: {count}",
     "missionsTaken": "Taken for you when the period ended: {count} ({cash}, {xp} XP)",
-    "missionsCoins": "Bonus for the whole set: +{coins} RideCoin"
+    "missionsCoins": "Bonus for the whole set: +{coins} RideCoin",
+    "streakKept": "Streak: {count} day | Streak: {count} days",
+    "streakShield": "Shields used to save the streak: {count}",
+    "streakLost": "The streak is over (it was {count} day). | The streak is over (it was {count} days).",
+    "streakTaken": "Taken for you: {cash}, {xp} XP"
   },
   "trackPicker": {
     "kind": { "sprint": "Sprint", "standard": "Standard", "endurance": "Endurance" },

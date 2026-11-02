@@ -27,6 +27,7 @@ const missions = useMissionsStore()
 /** The plate of the missions is there until the game says it has none, with the number of the ones that can be taken. */
 const showMissions = computed(() => missions.view?.available !== false)
 const missionsCount = computed(() => missions.claimable)
+const streakDays = computed(() => missions.streak?.current ?? 0)
 
 const progress = computed(() => levelOf(run.wallet?.xp ?? 0))
 const fill = computed(() => Math.min(100, Math.round((progress.value.into / progress.value.needed) * 100)))
@@ -91,6 +92,7 @@ const phaseName = computed(() => (te(`clock.phase.${time.value.phase}`) ? t(`clo
           <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
         </svg>
         <b v-if="missionsCount > 0" class="hud-badge" data-test="hud-missions-count">{{ missionsCount > 99 ? '99+' : missionsCount }}</b>
+        <b v-if="streakDays > 0" class="hud-streak" :title="t('hud.streak', { count: streakDays }, streakDays)" data-test="hud-streak">{{ streakDays }}</b>
       </RouterLink>
 
       <div class="lvl" data-test="level">

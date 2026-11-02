@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { storeToken } from '@/auth/token'
 import { respond, serveApi } from '@/test/fetchServer'
-import { aMainMission, aMission, aSet, missionsView } from '@/test/missionsFixtures'
+import { aMainMission, aMission, aSet, aStreak, missionsView } from '@/test/missionsFixtures'
 
 import { useMissionsStore } from './missions'
 
@@ -125,5 +125,32 @@ describe('the missions store', () => {
     await store.claimAll('daily')
 
     expect(calls[0]).toMatchObject({ method: 'POST', body: { kind: 'daily' } })
+  })
+
+  it('keeps the streak of days, and takes what the days that count paid with one request', async () => {
+    const view = missionsView({ streak: aStreak({ goal: { needed: 3, done: 3, reached: true }, today: { state: 'ready', streak: 4, cycle_day: 4, reward: { cash_cents: 800, xp: 0, items: [] } } }) })
+    const calls = serveApi(fetchMock, {
+      'GET /api/v1/missions': () => respond(200, { data: view }),
+      'POST /api/v1/missions/streak/claim': () => respond(200, { data: missionsView({ claimable: 0, streak: aStreak() }), repeated: false, claimed: { missions: [], cash_cents: 800, xp: 0, car_xp: 0, crates: [], parts: [] } }),
+    })
+    const store = useMissionsStore()
+
+    await store.load()
+    expect(store.streak?.goal.reached).toBe(true)
+
+    const claimed = await store.claimStreak()
+
+    expect(calls.at(-1)).toMatchObject({ method: 'POST', url: '/api/v1/missions/streak/claim' })
+    expect(claimed?.cash_cents).toBe(800)
+    expect(store.streak?.today).toBeNull()
+  })
+
+  it('has no streak when the game has none', async () => {
+    serveApi(fetchMock, { 'GET /api/v1/missions': () => respond(200, { data: missionsView({ streak: null }) }) })
+    const store = useMissionsStore()
+
+    await store.load()
+
+    expect(store.streak).toBeNull()
   })
 })
