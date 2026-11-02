@@ -61,7 +61,9 @@ describe('the world page', function () {
         $road = array_key_first($page->get('data.roads'));
         $track = array_key_first($page->get('data.tracks'));
 
+        // The track of the ships has no thread here: the length of a track that has one is the sum of its sections, whatever the box says.
         $page->set("data.roads.{$road}.km", 20)
+            ->set("data.tracks.{$track}.thread", null)
             ->set("data.tracks.{$track}.length", 1.4)
             ->set("data.tracks.{$track}.speed", 20)
             ->call('save')

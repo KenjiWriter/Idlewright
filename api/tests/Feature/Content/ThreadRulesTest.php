@@ -234,6 +234,14 @@ describe('the validator', function () {
 });
 
 describe('the form of the world', function () {
+    it('gives a track that has a thread the length its sections add up to, whatever the box of the length says', function () {
+        $rules = rulesWithThread();
+        $state = WorldForm::toState($rules);
+        $state['tracks'][0]['length'] = 1;
+
+        expect(WorldForm::apply($rules, $state)['tracks']['zlomowo-street']['length_m'])->toBe($rules['tracks']['zlomowo-street']['length_m']);
+    });
+
     it('keeps the thread of a track and where its lap comes from, so that saving the tracks does not lose them', function () {
         $rules = rulesWithThread();
         $made = WorldForm::apply($rules, WorldForm::toState($rules));

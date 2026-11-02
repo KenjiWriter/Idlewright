@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Content\Definitions;
 
+use App\Content\ThreadDocument;
 use App\Content\Units\Measures;
 
 /**
@@ -138,6 +139,15 @@ final class WorldForm
 
                 if ($number !== null) {
                     $track[$field] = $number;
+                }
+            }
+
+            // The length of a track that has a thread is what its sections add up to: the thread is the source, and the box of the form cannot say another.
+            if (isset($track['thread'])) {
+                try {
+                    $track['length_m'] = ThreadDocument::lengthM($track['thread'], (string) ($track['surface'] ?? 'asphalt'));
+                } catch (\InvalidArgumentException) {
+                    // A thread that cannot be driven keeps the length of the form; the validator says what is wrong with it.
                 }
             }
 
