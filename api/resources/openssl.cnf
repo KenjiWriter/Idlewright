@@ -1,0 +1,9 @@
+# The smallest configuration that OpenSSL needs to make a key: PHP on Windows has none of its own.
+openssl_conf = default_conf
+
+[default_conf]
+
+[req]
+distinguished_name = req_dn
+
+[req_dn]
