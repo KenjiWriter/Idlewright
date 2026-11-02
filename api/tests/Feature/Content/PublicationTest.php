@@ -19,6 +19,7 @@ use App\Models\Part;
 use App\Models\User;
 use App\Services\ContentDrafts;
 use App\Services\ContentPublisher;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 
@@ -48,7 +49,14 @@ function draftOf(string $key, Closure $change, ?Admin $admin = null): ContentDef
 }
 
 beforeEach(function () {
+    // The pack of the game is numbered 2026.10.0 (`ride.ruleset_version`), and the first pack asked for in a month is `.0`: it is `.1` only in October.
+    Carbon::setTestNow('2026-10-15 12:00:00');
+
     contentPacks()->import(repositoryContent(), activate: true, checkTables: false);
+});
+
+afterEach(function () {
+    Carbon::setTestNow();
 });
 
 describe('what a pack made now would change', function () {

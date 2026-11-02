@@ -10,6 +10,7 @@ use App\Models\ContentDefinition;
 use App\Models\ContentPublication;
 use App\Services\ContentDrafts;
 use App\Services\ContentPublisher;
+use Illuminate\Support\Carbon;
 use Livewire\Livewire;
 
 // The publications in the panel: a publisher asks for a pack of the drafts and sees how it went, and makes a pack that is ready live. The content of the
@@ -25,8 +26,15 @@ function aDraftOfTheCar(Admin $by): void
 }
 
 beforeEach(function () {
+    // The pack of the game is numbered 2026.10.0 (`ride.ruleset_version`), and the first pack asked for in a month is `.0`: it is `.1` only in October.
+    Carbon::setTestNow('2026-10-15 12:00:00');
+
     contentPacks()->import(repositoryContent(), activate: true, checkTables: false);
     app()->setLocale('pl');
+});
+
+afterEach(function () {
+    Carbon::setTestNow();
 });
 
 describe('the list', function () {
