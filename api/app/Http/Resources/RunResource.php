@@ -16,6 +16,7 @@ use App\Domain\Settlement\Settler;
 use App\Models\RaceRun;
 use App\Services\ContentImages;
 use App\Services\RunService;
+use App\Services\Gigs;
 use App\Services\Travel;
 use App\Support\I18nText;
 use Illuminate\Http\Request;
@@ -60,6 +61,8 @@ final class RunResource extends JsonResource
             'stop_reason' => $this->stop_reason,
             // The journey the car is on, when it stands on the road between two cities.
             'travel' => $this->stop_reason === RaceRun::STOP_TRAVEL ? $this->travel() : null,
+            // The gig the car is out on, when it is.
+            'gig' => $this->stop_reason === RaceRun::STOP_GIG ? $this->gig() : null,
             'laps_done' => $this->laps_done,
             'fuel_ml' => $this->fuel_ml,
             'tank_ml' => $vehicle !== null ? app(RunInputsFactory::class)->tankMl($this->car_slug, $this->car?->mountedSlugs() ?? []) : null,
@@ -125,6 +128,14 @@ final class RunResource extends JsonResource
             'start_ms' => $journey->start_ms,
             'arrive_ms' => $journey->arrive_ms,
         ];
+    }
+
+    private function gig(): ?array
+    {
+        $gigs = app(Gigs::class);
+        $gig = $gigs->activeOf($this->id);
+
+        return $gig === null ? null : $gigs->gigView($gig);
     }
 
     /**

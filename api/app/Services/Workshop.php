@@ -44,6 +44,7 @@ final class Workshop
         private readonly RunInputsFactory $inputs,
         private readonly Garage $garage,
         private readonly Travel $travel,
+        private readonly Gigs $gigs,
         private readonly TutorialScript $script,
         private readonly PartMerges $merges,
         private readonly WorkshopEquipment $equipment,
@@ -60,6 +61,7 @@ final class Workshop
         // Everything that is lazy about a car is brought up to date from here: an arrival that is due is carried out too, so that a
         // car that has just come to a city is there before anything settles it or queues a job on it.
         $this->travel->advance($userId, $nowMs);
+        $this->gigs->advance($userId, $nowMs);
 
         if (! $this->hasPendingJobs($userId)) {
             return;
@@ -100,6 +102,10 @@ final class Workshop
 
             if ($run?->stop_reason === RaceRun::STOP_TRAVEL) {
                 throw new RuleRefusedException('car_travelling');
+            }
+
+            if ($run?->stop_reason === RaceRun::STOP_GIG) {
+                throw new RuleRefusedException('car_on_gig');
             }
 
             $city = $run === null ? $this->rules->homeRegion() : $this->garage->cityOf($run);
@@ -208,7 +214,7 @@ final class Workshop
      *
      * @return WorkshopGear|null what the workshop has now, or null for a repeated request
      *
-     * @throws RuleRefusedException `equipment_not_found`, `equipment_max`, `car_travelling`
+     * @throws RuleRefusedException `equipment_not_found`, `equipment_max`, `car_travelling`, `car_on_gig`
      */
     public function buyGear(int $userId, string $item, string $requestId, ?int $nowMs = null): ?WorkshopGear
     {
@@ -231,6 +237,10 @@ final class Workshop
 
             if ($run?->stop_reason === RaceRun::STOP_TRAVEL) {
                 throw new RuleRefusedException('car_travelling');
+            }
+
+            if ($run?->stop_reason === RaceRun::STOP_GIG) {
+                throw new RuleRefusedException('car_on_gig');
             }
 
             $city = $run === null ? $this->rules->homeRegion() : $this->garage->cityOf($run);

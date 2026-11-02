@@ -72,7 +72,7 @@ final class CarSales
             return self::BLOCKED_LAST_ACTIVE;
         }
 
-        if ($run?->stop_reason === RaceRun::STOP_TRAVEL || WorkshopJob::query()->where('car_id', $car->id)->where('status', '!=', WorkshopJob::STATUS_DONE)->exists()) {
+        if (in_array($run?->stop_reason, [RaceRun::STOP_TRAVEL, RaceRun::STOP_GIG], true) || WorkshopJob::query()->where('car_id', $car->id)->where('status', '!=', WorkshopJob::STATUS_DONE)->exists()) {
             return self::BLOCKED_BUSY;
         }
 

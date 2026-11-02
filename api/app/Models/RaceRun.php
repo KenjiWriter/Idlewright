@@ -27,6 +27,9 @@ class RaceRun extends Model
     /** The car is on the road between two cities. */
     public const STOP_TRAVEL = 'travel';
 
+    /** The car is out on a gig of its driver (people or a load, there and back) and comes back to the same track. */
+    public const STOP_GIG = 'gig';
+
     /** The car stands in the garage and has not been sent out yet: the first car of a driver waits for the Start of the tournament screen. */
     public const STOP_PARKED = 'parked';
 
@@ -37,7 +40,7 @@ class RaceRun extends Model
     public const STOP_STORED = 'stored';
 
     /** The stops that a service puts on a car, not the road or the tank: nothing settles past them, and nothing but the service ends them. */
-    public const SERVICE_STOPS = [self::STOP_WORKSHOP, self::STOP_TRAVEL, self::STOP_PARKED, self::STOP_SOLD, self::STOP_STORED];
+    public const SERVICE_STOPS = [self::STOP_WORKSHOP, self::STOP_TRAVEL, self::STOP_GIG, self::STOP_PARKED, self::STOP_SOLD, self::STOP_STORED];
 
     protected $guarded = [];
 

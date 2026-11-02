@@ -453,6 +453,42 @@ final class RunService
     }
 
     /**
+     * The car leaves on a gig, with the run already locked and settled to this moment: the fuel of the trip leaves the tank and the car stands, stopped for the gig, until it
+     * is back. What it earned until now is paid by the settlement before this is called.
+     */
+    public function startGig(RaceRun $run, int $fuelMl): void
+    {
+        $run->forceFill([
+            'status' => RaceRun::STATUS_STOPPED,
+            'stop_reason' => RaceRun::STOP_GIG,
+            'fuel_ml' => $run->fuel_ml - $fuelMl,
+            'state_version' => $run->state_version + 1,
+        ])->save();
+    }
+
+    /**
+     * The car is back from a gig at `$atMs`, with the run already locked: the configuration is frozen again with the car as it is now (the same seed, so the planned
+     * breakdown does not move) and it drives its track from `$atMs`. `$fuelMl` is what goes back into the tank when the gig is taken back before it began.
+     */
+    public function finishGig(RaceRun $run, RunInputs $inputs, int $atMs, int $fuelMl = 0): void
+    {
+        $frozen = $this->freezer->freeze($inputs, $run->seed, $run->laps_done);
+        $resumes = $run->stop_reason === RaceRun::STOP_GIG;
+
+        $run->forceFill([
+            'config' => $frozen->config,
+            'break_after_laps' => $frozen->breakAfterLaps,
+            'recompute_after_laps' => $frozen->recomputeAfterLaps,
+            'ruleset_version' => $this->rulesetVersion(),
+            'fuel_ml' => $run->fuel_ml + $fuelMl,
+            'status' => $resumes ? RaceRun::STATUS_RUNNING : $run->status,
+            'stop_reason' => $resumes ? null : $run->stop_reason,
+            'cursor_ms' => $resumes ? max($run->cursor_ms, $atMs) : $run->cursor_ms,
+            'state_version' => $run->state_version + 1,
+        ])->save();
+    }
+
+    /**
      * Settles a run that is already locked (the wallet of its driver first, then the run).
      * Other services that change a run call this before they touch it.
      */

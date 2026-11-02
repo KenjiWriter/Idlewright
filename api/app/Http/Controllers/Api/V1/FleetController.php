@@ -14,6 +14,7 @@ use App\Services\CarSales;
 use App\Services\CityGarages;
 use App\Services\ContentImages;
 use App\Services\Garage;
+use App\Services\Gigs;
 use App\Services\Ledger;
 use App\Services\RunService;
 use App\Services\Slots;
@@ -35,6 +36,7 @@ final class FleetController extends Controller
         private readonly CityGarages $garages,
         private readonly Workshop $workshop,
         private readonly Travel $travel,
+        private readonly Gigs $gigs,
         private readonly CarSales $sales,
         private readonly RunService $runs,
         private readonly Ledger $ledger,
@@ -210,6 +212,7 @@ final class FleetController extends Controller
         $run = $this->garage->runOf($car);
         $city = $run === null ? $this->rules->homeRegion() : $this->garage->cityOf($run);
         $journey = $run === null ? null : $this->travel->activeOf($run->id);
+        $gig = $run === null ? null : $this->gigs->activeOf($run->id);
 
         return [
             'id' => $car->id,
@@ -244,6 +247,14 @@ final class FleetController extends Controller
                 'to' => $journey->to_region,
                 'to_name' => $this->rules->cityName($journey->to_region),
                 'arrive_ms' => $journey->arrive_ms,
+            ],
+            // The gig the car is out on, when it is: it is back at `finish_ms` and is paid then.
+            'gig' => $gig === null ? null : [
+                'id' => $gig->id,
+                'kind' => $gig->kind,
+                'to_name' => $gig->to_region === null ? $this->rules->cityName($gig->region) : $this->rules->cityName($gig->to_region),
+                'finish_ms' => $gig->finish_ms,
+                'reward_cents' => $gig->reward_cents,
             ],
         ];
     }
