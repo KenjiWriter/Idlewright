@@ -43,6 +43,7 @@ final class Missions
         private readonly MissionProgress $progress,
         private readonly MissionScale $scale,
         private readonly MissionDraw $draw,
+        private readonly Gigs $gigs,
         private readonly RewardPayer $payer,
         private readonly Premium $premium,
         private readonly Ledger $ledger,
@@ -422,7 +423,7 @@ final class Missions
             return;
         }
 
-        $set = $this->draw->set($userId, $kind, $period['key'], $this->rules->playerLevelAt($this->ledger->xp($userId)), $tankful);
+        $set = $this->draw->set($userId, $kind, $period['key'], $this->rules->playerLevelAt($this->ledger->xp($userId)), $tankful, $this->gigs->lockedBy($userId) === null);
 
         if ($set === []) {
             return;

@@ -24,16 +24,17 @@ final class MissionDraw
 
     /**
      * @param  array{laps: int, lap_cash_cents: int, gross_cents: int, net_cents: int, xp: int, fuel_cents: int}  $tankful
+     * @param  bool  $gigsOpen  whether the driver can take gigs yet: a mission that asks for them is not drawn for one who cannot (they would have nothing to do about it)
      * @return list<array{slot: int, key: string, objective: string, target: int, reward: array{cash_cents: int, xp: int, car_xp: int, items: list<array<string, string>>}}>
      */
-    public function set(int $userId, string $period, string $periodKey, int $level, array $tankful): array
+    public function set(int $userId, string $period, string $periodKey, int $level, array $tankful, bool $gigsOpen = true): array
     {
         $chosen = [];
 
         foreach ($this->catalog->slots($period) as $index => $slot) {
             $fitting = array_filter(
                 $slot['templates'],
-                static fn (array $template): bool => $level >= ($template['min_player_level'] ?? 1) && $level <= ($template['max_player_level'] ?? PHP_INT_MAX),
+                static fn (array $template): bool => $level >= ($template['min_player_level'] ?? 1) && $level <= ($template['max_player_level'] ?? PHP_INT_MAX) && ($gigsOpen || $template['objective'] !== 'gig'),
             );
 
             if ($fitting === []) {

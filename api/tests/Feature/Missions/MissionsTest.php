@@ -222,6 +222,7 @@ describe('the progress', function () {
 
     it('counts the gigs that ended in the window, and not the ones that were taken back, nor those of yesterday', function () {
         $driver = missionDriver();
+        TutorialProgress::query()->create(['user_id' => $driver->id, 'step_key' => 'away', 'state' => TutorialProgress::STATE_DONE]);
         theMissionsAre(daily: [['key' => 'gigs', 'templates' => ['t-gigs' => missionTemplate('gig', ['count' => 2])]]]);
         missionsOf($driver);
 
@@ -240,6 +241,25 @@ describe('the progress', function () {
 
         $mission = collect(missionsOf($driver)->json('data.periods.daily.missions'))->firstWhere('key', 't-gigs');
         expect($mission['progress'])->toBe(2)->and($mission['status'])->toBe('completed');
+    });
+
+    it('draws no mission that asks for gigs for a driver who cannot take them yet, and draws it for one who can', function () {
+        $pool = [
+            ['key' => 'drive', 'templates' => ['t-laps' => missionTemplate('laps', ['tanks_ppm' => 200_000])]],
+            ['key' => 'gigs', 'templates' => ['t-gigs' => missionTemplate('gig', ['count' => 2])]],
+        ];
+
+        $locked = missionDriver();
+        theMissionsAre(daily: $pool);
+        $lockedSet = missionsOf($locked)->json('data.periods.daily.missions');
+
+        $open = missionDriver();
+        TutorialProgress::query()->create(['user_id' => $open->id, 'step_key' => 'away', 'state' => TutorialProgress::STATE_DONE]);
+        $openSet = missionsOf($open)->json('data.periods.daily.missions');
+
+        // The slot of the gigs has nothing else to draw, so it is left out for the one who has no gigs yet.
+        expect(array_column($lockedSet, 'key'))->toBe(['t-laps'])
+            ->and(array_column($openSet, 'key'))->toBe(['t-laps', 't-gigs']);
     });
 
     it('counts the jobs of the workshop that the mechanic finished in the window, and not the ones that the tutorial arranged', function () {

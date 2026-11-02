@@ -238,13 +238,13 @@ describe('the pack', function () {
             ->and(app(DefinitionUsage::class)->removedInUse('missions', $before, $before))->toBe([]);
     });
 
-    it('ships three chains of eight missions, in five languages, that pay a part of what each is worth', function () {
+    it('ships four chains of eight missions, in five languages, that pay a part of what each is worth', function () {
         $catalog = MissionCatalog::fromSource(repositoryContent());
         $draw = app(MissionDraw::class);
         $tank = app(MissionScale::class)->tankOf(new RaceRun(['car_slug' => 'rdzak-gt-4', 'track_slug' => 'zlomowo-street']));
         $share = repositoryDocument('rules/starter')['missions']['main'];
 
-        expect(array_column($catalog->chains(), 'key'))->toBe(['driver', 'mechanic', 'collector']);
+        expect(array_column($catalog->chains(), 'key'))->toBe(['driver', 'mechanic', 'collector', 'courier']);
 
         foreach ($catalog->chains() as $chain) {
             expect($chain['missions'])->toHaveCount(8);

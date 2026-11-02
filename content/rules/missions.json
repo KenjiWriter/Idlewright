@@ -129,6 +129,12 @@
             ],
             "weight": 1,
             "reward_share": 1
+          },
+          "daily-gigs": {
+            "objective": "gig",
+            "count": 3,
+            "weight": 2,
+            "reward_share": 1
           }
         }
       }
@@ -235,6 +241,18 @@
             ],
             "weight": 1,
             "reward_share": 1
+          },
+          "weekly-gigs": {
+            "objective": "gig",
+            "count": 7,
+            "items": [
+              {
+                "type": "crate",
+                "kind": "slot"
+              }
+            ],
+            "weight": 2,
+            "reward_share": 1
           }
         }
       }
@@ -322,6 +340,18 @@
           "monthly-crate": {
             "objective": "crate",
             "count": 12,
+            "items": [
+              {
+                "type": "crate",
+                "kind": "premium"
+              }
+            ],
+            "weight": 2,
+            "reward_share": 1
+          },
+          "monthly-gigs": {
+            "objective": "gig",
+            "count": 40,
             "items": [
               {
                 "type": "crate",
@@ -958,6 +988,216 @@
               {
                 "type": "part",
                 "rarity": "epic"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "key": "courier",
+      "title": {
+        "en": "Courier",
+        "pl": "Kurier",
+        "fr": "Coursier",
+        "de": "Kurier",
+        "pt-BR": "Entregador"
+      },
+      "missions": [
+        {
+          "key": "courier-gigs-1",
+          "title": {
+            "en": "First gig",
+            "pl": "Pierwszy kurs",
+            "fr": "Première course",
+            "de": "Erster Auftrag",
+            "pt-BR": "Primeira corrida"
+          },
+          "text": {
+            "en": "Finish your first gig.",
+            "pl": "Zakończ swoje pierwsze zlecenie.",
+            "fr": "Terminez votre première course.",
+            "de": "Beende deinen ersten Auftrag.",
+            "pt-BR": "Conclua sua primeira corrida."
+          },
+          "objective": "gig",
+          "count": 1,
+          "reward": {}
+        },
+        {
+          "key": "courier-gigs-5",
+          "title": {
+            "en": "5 gigs",
+            "pl": "5 kursów",
+            "fr": "5 courses",
+            "de": "5 Aufträge",
+            "pt-BR": "5 corridas"
+          },
+          "text": {
+            "en": "Finish 5 gigs in all.",
+            "pl": "Zakończ razem 5 zleceń.",
+            "fr": "Terminez 5 courses au total.",
+            "de": "Beende insgesamt 5 Aufträge.",
+            "pt-BR": "Conclua 5 corridas no total."
+          },
+          "objective": "gig",
+          "count": 5,
+          "reward": {
+            "items": [
+              {
+                "type": "crate",
+                "kind": "slot"
+              }
+            ]
+          }
+        },
+        {
+          "key": "courier-gigs-15",
+          "title": {
+            "en": "15 gigs",
+            "pl": "15 kursów",
+            "fr": "15 courses",
+            "de": "15 Aufträge",
+            "pt-BR": "15 corridas"
+          },
+          "text": {
+            "en": "Finish 15 gigs in all.",
+            "pl": "Zakończ razem 15 zleceń.",
+            "fr": "Terminez 15 courses au total.",
+            "de": "Beende insgesamt 15 Aufträge.",
+            "pt-BR": "Conclua 15 corridas no total."
+          },
+          "objective": "gig",
+          "count": 15,
+          "reward": {}
+        },
+        {
+          "key": "courier-gigs-40",
+          "title": {
+            "en": "40 gigs",
+            "pl": "40 kursów",
+            "fr": "40 courses",
+            "de": "40 Aufträge",
+            "pt-BR": "40 corridas"
+          },
+          "text": {
+            "en": "Finish 40 gigs in all.",
+            "pl": "Zakończ razem 40 zleceń.",
+            "fr": "Terminez 40 courses au total.",
+            "de": "Beende insgesamt 40 Aufträge.",
+            "pt-BR": "Conclua 40 corridas no total."
+          },
+          "objective": "gig",
+          "count": 40,
+          "reward": {
+            "items": [
+              {
+                "type": "crate",
+                "kind": "slot"
+              }
+            ]
+          }
+        },
+        {
+          "key": "courier-gigs-90",
+          "title": {
+            "en": "90 gigs",
+            "pl": "90 kursów",
+            "fr": "90 courses",
+            "de": "90 Aufträge",
+            "pt-BR": "90 corridas"
+          },
+          "text": {
+            "en": "Finish 90 gigs in all.",
+            "pl": "Zakończ razem 90 zleceń.",
+            "fr": "Terminez 90 courses au total.",
+            "de": "Beende insgesamt 90 Aufträge.",
+            "pt-BR": "Conclua 90 corridas no total."
+          },
+          "objective": "gig",
+          "count": 90,
+          "reward": {
+            "car_xp_laps": 50
+          }
+        },
+        {
+          "key": "courier-gigs-200",
+          "title": {
+            "en": "200 gigs",
+            "pl": "200 kursów",
+            "fr": "200 courses",
+            "de": "200 Aufträge",
+            "pt-BR": "200 corridas"
+          },
+          "text": {
+            "en": "Finish 200 gigs in all.",
+            "pl": "Zakończ razem 200 zleceń.",
+            "fr": "Terminez 200 courses au total.",
+            "de": "Beende insgesamt 200 Aufträge.",
+            "pt-BR": "Conclua 200 corridas no total."
+          },
+          "objective": "gig",
+          "count": 200,
+          "reward": {
+            "items": [
+              {
+                "type": "crate",
+                "kind": "mixed"
+              }
+            ]
+          }
+        },
+        {
+          "key": "courier-gigs-400",
+          "title": {
+            "en": "400 gigs",
+            "pl": "400 kursów",
+            "fr": "400 courses",
+            "de": "400 Aufträge",
+            "pt-BR": "400 corridas"
+          },
+          "text": {
+            "en": "Finish 400 gigs in all.",
+            "pl": "Zakończ razem 400 zleceń.",
+            "fr": "Terminez 400 courses au total.",
+            "de": "Beende insgesamt 400 Aufträge.",
+            "pt-BR": "Conclua 400 corridas no total."
+          },
+          "objective": "gig",
+          "count": 400,
+          "reward": {
+            "items": [
+              {
+                "type": "crate",
+                "kind": "mixed"
+              }
+            ]
+          }
+        },
+        {
+          "key": "courier-gigs-800",
+          "title": {
+            "en": "800 gigs",
+            "pl": "800 kursów",
+            "fr": "800 courses",
+            "de": "800 Aufträge",
+            "pt-BR": "800 corridas"
+          },
+          "text": {
+            "en": "Finish 800 gigs in all.",
+            "pl": "Zakończ razem 800 zleceń.",
+            "fr": "Terminez 800 courses au total.",
+            "de": "Beende insgesamt 800 Aufträge.",
+            "pt-BR": "Conclua 800 corridas no total."
+          },
+          "objective": "gig",
+          "count": 800,
+          "reward": {
+            "car_xp_laps": 150,
+            "items": [
+              {
+                "type": "part",
+                "rarity": "rare"
               }
             ]
           }

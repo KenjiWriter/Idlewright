@@ -1233,6 +1233,20 @@ final class PackValidator
         }
 
         $missions = $source->document('rules/missions');
+        $asksGigs = false;
+
+        foreach ([...$missions['periodic']['daily'] ?? [], ...$missions['periodic']['weekly'] ?? [], ...$missions['periodic']['monthly'] ?? []] as $slot) {
+            $asksGigs = $asksGigs || in_array('gig', array_column($slot['templates'], 'objective'), true);
+        }
+
+        foreach ($missions['chains'] ?? [] as $chain) {
+            $asksGigs = $asksGigs || in_array('gig', array_column($chain['missions'], 'objective'), true);
+        }
+
+        if ($asksGigs && (! $source->has('rules/gigs') || ! ($source->document('rules/gigs')['enabled'] ?? false))) {
+            $result->addWarning($file, '', 'The missions ask for gigs, and the pack has none that are switched on: a driver cannot do them.');
+        }
+
         $effort = $missions['effort'] ?? [];
         $levels = (int) ($rules['player']['max_level'] ?? 30);
         $kinds = array_keys($rules['shop']['crates']['kinds'] ?? []);

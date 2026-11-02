@@ -21,7 +21,7 @@ describe('the report', function () {
             ->and($report['month']['xp_percent'])->toBe(44)
             ->and((int) round($report['month']['coins']))->toBe(119)
             ->and($report['vip'])->toBe(['coins' => 150, 'month_percent' => 80])
-            ->and($report['main'])->toMatchArray(['cash_ppm' => 150_000, 'xp_ppm' => 90_000, 'missions' => 24])
+            ->and($report['main'])->toMatchArray(['cash_ppm' => 150_000, 'xp_ppm' => 90_000, 'missions' => 32])
             ->and($report['main']['cash_cents'])->toBeGreaterThan(3_000_000)
             ->and(array_column($report['checks'], 'ok'))->toBe([true, true]);
     });
