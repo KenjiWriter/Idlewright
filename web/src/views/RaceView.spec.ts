@@ -377,8 +377,8 @@ describe('RaceView', () => {
   it('draws the line of the track with the car on it when the server has a thread for the track, for the weather of the lap', async () => {
     const { wrapper, calls } = await show(aRun(), { 'GET /api/v1/runs/current/profile': () => respond(200, { data: aProfile() }) })
 
-    expect(wrapper.get('[data-test="track-card"]').exists()).toBe(true)
-    expect(wrapper.get('[data-test="track-map"]').exists()).toBe(true)
+    expect(wrapper.find('[data-test="track-card"]').exists()).toBe(true)
+    expect(wrapper.find('[data-test="track-map"]').exists()).toBe(true)
     expect(wrapper.findAll('[data-test="track-rival"]').length).toBe(0)
     expect(calls.filter((call) => call.url.includes('/profile')).map((call) => call.url)).toEqual(['/api/v1/runs/current/profile?weather=dry'])
   })
@@ -393,7 +393,7 @@ describe('RaceView', () => {
     const without = await show(aRun(), { 'GET /api/v1/runs/current/profile': () => respond(200, { data: null }) })
 
     expect(without.wrapper.find('[data-test="track-card"]').exists()).toBe(false)
-    expect(without.wrapper.get('[data-test="lap"]').exists()).toBe(true)
+    expect(without.wrapper.find('[data-test="lap"]').exists()).toBe(true)
 
     const failing = await show(aRun(), { 'GET /api/v1/runs/current/profile': () => respond(500, { message: 'broken' }) })
 
