@@ -5,7 +5,7 @@ import { storeToken } from '@/auth/token'
 import { setGame } from '@/game'
 import { setLocale } from '@/i18n'
 import { respond, serveApi } from '@/test/fetchServer'
-import { NOTHING_TO_REPAIR, NOW, aCar, aGarage, aGear, aJob, aMergeOffer, aMergeResult, aMountedPart, aPart, aRepairStep, aService, anUpgradeStep } from '@/test/garageFixtures'
+import { NOTHING_TO_REPAIR, NOW, aCar, aGarage, aGear, aJob, aMergeOffer, aMergeResult, aMountedPart, aPart, aRepairStep, aService, aTransmuteOffer, anUpgradeStep } from '@/test/garageFixtures'
 import { setModel } from '@/model'
 import { mountView } from '@/test/mountView'
 import { useRunStore } from '@/stores/run'
@@ -2010,6 +2010,97 @@ describe('WorkshopView', () => {
       expect(wrapper.find('[data-test="take-off-info-11"]').exists()).toBe(false)
     })
   })
+
+  describe('transmuting parts', () => {
+    const gripAffix = { key: 'grip', name: 'Grip', effect: 'stat', stat: 'grip', surfaces: null, value_ppm: 35_000, percent: 3.5 } as const
+    const base = (overrides: Parameters<typeof aPart>[0] = {}) =>
+      aPart({ id: 41, slug: 'street-tires-t2', name: 'Street tires T2', slot: 'tires', tier: 2, transmute: aTransmuteOffer(), ...overrides })
+    const after = () => aPart({ id: 41, slug: 'street-tires-t2', name: 'Street tires T2', slot: 'tires', tier: 2, rarity: 'uncommon', rarity_rank: 2, affixes: [gripAffix] })
+
+    it('offers it only on the parts that can be transmuted', async () => {
+      const best = aPart({ id: 42, name: 'Epic exhaust', rarity: 'epic', rarity_rank: 4, transmute: null })
+      serve({ 'GET /api/v1/garage': () => respond(200, aGarage({ inventory: [base(), best] })), 'GET /api/v1/runs/current': noRun })
+
+      const { wrapper } = await mountView(WorkshopView, '/workshop')
+      await flushPromises()
+
+      expect(wrapper.get('[data-test="transmute-open-41"]').text()).toBe('Raise rarity')
+      expect(wrapper.find('[data-test="transmute-open-42"]').exists()).toBe(false)
+      expect(wrapper.find('[data-test="transmute-41"]').exists()).toBe(false)
+    })
+
+    it('shows what the part will be, for how much, and does it when it is confirmed', async () => {
+      const calls = serve({
+        'GET /api/v1/garage': () => respond(200, aGarage({ inventory: [base()] })),
+        'GET /api/v1/parts/41/transmute': () => respond(200, { data: { to: 'uncommon', coins: 3, cash_cents: 3_800, after: after() } }),
+        'POST /api/v1/parts/41/transmute': () => respond(200, { repeated: false, coins: 3, cash_cents: 3_800, data: after() }),
+        'GET /api/v1/runs/current': noRun,
+      })
+
+      const { wrapper } = await mountView(WorkshopView, '/workshop')
+      await flushPromises()
+      await wrapper.get('[data-test="transmute-open-41"]').trigger('click')
+      await flushPromises()
+
+      expect(wrapper.findAll('[data-test="transmute-steps"] [data-test="rarity"]').map((mark) => mark.text())).toEqual(['Common', 'Uncommon'])
+      expect(wrapper.get('[data-test="transmute-sure"]').text()).toBe('Certain, no draw')
+      expect(wrapper.get('[data-test="transmute-coins"]').text()).toBe('3')
+      expect(wrapper.get('[data-test="transmute-cash"]').text()).toBe('$38.00')
+      // The card is what the server says the part will be, with the affixes it will have: the result is known before it is paid.
+      expect(wrapper.get('[data-test="transmute-after"] [data-test="part-affixes"]').text()).toBe('✦ Grip +3.5%')
+      expect(wrapper.get('[data-test="transmute-note"]').text()).toContain('cannot be merged any more')
+      expect(calls.some((call) => call.method === 'POST')).toBe(false)
+
+      await wrapper.get('[data-test="transmute-confirm"]').trigger('click')
+      await flushPromises()
+
+      const done = calls.find((call) => call.method === 'POST' && call.url === '/api/v1/parts/41/transmute')
+
+      expect(done?.body).toEqual({ request_id: expect.any(String) })
+      expect(wrapper.find('[data-test="transmute-41"]').exists()).toBe(false)
+      expect(wrapper.get('[data-test="transmute-done"]').text()).toBe('Street tires T2 now has the rarity Uncommon.')
+    })
+
+    it('says why it cannot be done and offers no confirmation to press', async () => {
+      serve({
+        'GET /api/v1/garage': () => respond(200, aGarage({ inventory: [base({ transmute: aTransmuteOffer({ blocked: 'limit' }) })] })),
+        'GET /api/v1/parts/41/transmute': () => respond(200, { data: { to: 'uncommon', coins: 3, cash_cents: 3_800, after: after() } }),
+        'GET /api/v1/runs/current': noRun,
+      })
+
+      const { wrapper } = await mountView(WorkshopView, '/workshop')
+      await flushPromises()
+      await wrapper.get('[data-test="transmute-open-41"]').trigger('click')
+      await flushPromises()
+
+      expect(wrapper.get('[data-test="transmute-blocked"]').text()).toBe('The limit of transmutations for today is reached.')
+      expect(wrapper.get('[data-test="transmute-confirm"]').attributes('disabled')).toBeDefined()
+
+      await wrapper.get('[data-test="transmute-close"]').trigger('click')
+
+      expect(wrapper.find('[data-test="transmute-41"]').exists()).toBe(false)
+    })
+
+    it('says what the server refused with and leaves the card open', async () => {
+      serve({
+        'GET /api/v1/garage': () => respond(200, aGarage({ inventory: [base()] })),
+        'GET /api/v1/parts/41/transmute': () => respond(200, { data: { to: 'uncommon', coins: 3, cash_cents: 3_800, after: after() } }),
+        'POST /api/v1/parts/41/transmute': () => respond(422, { message: 'You do not have enough RideCoin.', code: 'insufficient_premium' }),
+        'GET /api/v1/runs/current': noRun,
+      })
+
+      const { wrapper } = await mountView(WorkshopView, '/workshop')
+      await flushPromises()
+      await wrapper.get('[data-test="transmute-open-41"]').trigger('click')
+      await flushPromises()
+      await wrapper.get('[data-test="transmute-confirm"]').trigger('click')
+      await flushPromises()
+
+      expect(wrapper.get('[data-test="transmute-error"]').text()).toBe('You do not have enough RideCoin.')
+      expect(wrapper.find('[data-test="transmute-41"]').exists()).toBe(true)
+      expect(wrapper.find('[data-test="transmute-done"]').exists()).toBe(false)
+    })
+  })
 })
 
 describe('WorkshopView in a game with another model', () => {
@@ -2079,4 +2170,5 @@ describe('WorkshopView in a game with another model', () => {
 
     expect(wrapper.findAll('[data-test^="stat-"]').map((row) => row.attributes('data-test'))).toEqual(['stat-grip', 'stat-accel'])
   })
+
 })

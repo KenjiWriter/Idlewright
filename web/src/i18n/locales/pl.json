@@ -528,6 +528,22 @@
     "cancelledRefund": "Zlecenie anulowane. {price} wraca do Twojego portfela.",
     "merge": "Łączenie: {part} + {other} → {to}",
     "mergeOpen": "Połącz",
+    "transmute": {
+      "open": "Podnieś rzadkość",
+      "title": "Podniesienie rzadkości",
+      "sure": "Pewne, bez losowania",
+      "cost": "Cena",
+      "after": "Część po zmianie",
+      "note": "Model i ulepszenie części zostają; od razu dostaje lepszą rzadkość i pasujące do niej dodatki. Przetransmutowanej części nie da się już łączyć.",
+      "blocked": {
+        "busy": "Część czeka w zleceniu w warsztacie.",
+        "level": "Twój poziom kierowcy jest jeszcze za niski na transmutację.",
+        "limit": "Dzisiejszy limit transmutacji jest wyczerpany."
+      },
+      "confirm": "Transmutuj",
+      "close": "Zamknij",
+      "done": "{part} ma teraz rzadkość: {rarity}."
+    },
     "mergeTitle": "Łączenie części",
     "mergeChoose": "Połącz z:",
     "mergeNeedPartner": "Potrzebna jest druga część tego samego slotu, tieru i rzadkości: {slot}, {tier}, {rarity}.",

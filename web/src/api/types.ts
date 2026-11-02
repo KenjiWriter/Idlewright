@@ -424,6 +424,30 @@ export interface MergeOffer {
   with: number[]
 }
 
+/**
+ * What transmuting this part would be (the inventory of the garage only): it becomes `to`, for `coins` and `cash_cents`, at once. `blocked` says why it cannot be done now (it waits in a
+ * job, the level of the driver is not there yet, or the guard of a day is reached). Null when it cannot be transmuted at all (it has the best rarity that is made).
+ */
+export interface TransmuteOffer {
+  to: PartRarity
+  coins: number
+  cash_cents: number
+  blocked: 'busy' | 'level' | 'limit' | null
+}
+
+/** GET /api/v1/parts/{id}/transmute: what it costs and the part as it would be, with the affixes it would have. */
+export interface TransmutePreview {
+  data: { to: PartRarity; coins: number; cash_cents: number; after: OwnedPart }
+}
+
+/** POST /api/v1/parts/{id}/transmute: what it cost, and the part as it is now. `repeated` says that the request was done before and nothing was charged. */
+export interface TransmuteResponse {
+  repeated: boolean
+  coins: number
+  cash_cents: number
+  data: OwnedPart
+}
+
 /** What putting a worn part right costs and takes, and what stops it: the part is not worn (`fine`), it is worn out and has to be replaced (`worn_out`), or it has no price (`unavailable`). */
 export interface RepairNext {
   cost_cents: number | null
@@ -454,6 +478,8 @@ export interface OwnedPart extends PartInfo {
   repair_next?: RepairNext
   /** What merging it would do: null when it cannot be merged now (it is legendary, or waits in a job). Only the parts of the inventory of the garage have it. */
   merge?: MergeOffer | null
+  /** What transmuting it would be: null when it cannot be at all. Only the parts of the inventory of the garage have it. */
+  transmute?: TransmuteOffer | null
   /** What putting it on would cost and take, with the taking off of the part that sits in its slot: the parts of the inventory of the garage have it. */
   mount_next?: SlotJobNext | null
 }

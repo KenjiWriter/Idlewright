@@ -528,6 +528,22 @@
     "cancelledRefund": "Job cancelled. {price} is back in your wallet.",
     "merge": "Merging: {part} + {other} → {to}",
     "mergeOpen": "Merge",
+    "transmute": {
+      "open": "Raise rarity",
+      "title": "Raise the rarity",
+      "sure": "Certain, no draw",
+      "cost": "Price",
+      "after": "The part afterwards",
+      "note": "The model and the upgrade of the part stay; it gets the better rarity and the affixes that go with it, at once. A transmuted part cannot be merged any more.",
+      "blocked": {
+        "busy": "The part waits in a job of the workshop.",
+        "level": "Your driver level is too low for transmuting yet.",
+        "limit": "The limit of transmutations for today is reached."
+      },
+      "confirm": "Transmute",
+      "close": "Close",
+      "done": "{part} now has the rarity {rarity}."
+    },
     "mergeTitle": "Merge parts",
     "mergeChoose": "Merge with:",
     "mergeNeedPartner": "You need a second part of the same slot, tier and rarity: {slot}, {tier}, {rarity}.",

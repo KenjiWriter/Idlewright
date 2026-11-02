@@ -12,6 +12,7 @@ import JobCancel from '@/components/JobCancel.vue'
 import PartCompare from '@/components/PartCompare.vue'
 import PartCondition from '@/components/PartCondition.vue'
 import PartMerge from '@/components/PartMerge.vue'
+import PartTransmute from '@/components/PartTransmute.vue'
 import PartAffixes from '@/components/PartAffixes.vue'
 import MediaPicture from '@/components/MediaPicture.vue'
 import PartStats from '@/components/PartStats.vue'
@@ -40,6 +41,7 @@ import { formatDuration } from '@/i18n/format'
 import { useFormat } from '@/i18n/useFormat'
 import { useModel } from '@/model'
 import { useGarageStore } from '@/stores/garage'
+import { usePremiumStore } from '@/stores/premium'
 import { useRunStore } from '@/stores/run'
 import { useTutorialStore } from '@/stores/tutorial'
 
@@ -121,6 +123,9 @@ const servicing = computed(() => jobs.value.some((job) => job.kind === 'service'
 const merges = computed(() => store.garage?.merges ?? [])
 /** The part of the inventory whose chooser of a merge is open. */
 const merging = ref<number | null>(null)
+/** The part of the inventory whose card of a transmutation is open. */
+const transmuting = ref<number | null>(null)
+const { message: transmutedText, show: showTransmuted } = useFlash()
 const cut = computed(() => Math.round((store.garage?.workshop.mechanic.time_cut_ppm ?? 0) / 10_000))
 
 /** How good the car is as a whole, for the card of its specification. */
@@ -342,6 +347,23 @@ async function act(kind: JobKind, part: OwnedPart | null, other?: OwnedPart['id'
   } finally {
     busy.value = false
   }
+}
+
+/** A part was transmuted: the garage and the bars at the top (the cash and the coins) are asked for again, and the driver is told what the part is now. */
+async function transmuted(part: OwnedPart): Promise<void> {
+  transmuting.value = null
+
+  try {
+    await store.loadGarage()
+  } catch (failure) {
+    if (endSessionIfUnauthorized(failure)) {
+      return
+    }
+  }
+
+  void run.refresh().catch(() => undefined)
+  void usePremiumStore().load().catch(() => undefined)
+  showTransmuted(t('workshop.transmute.done', { part: part.name, rarity: t(`rarity.${part.rarity}`) }))
 }
 
 /** The jobs that go with this one when it is cancelled: the putting on of the part that was to take the place of the one it takes off. */
@@ -632,6 +654,9 @@ async function finish(jobId: number): Promise<void> {
           </button>
         </div>
 
+        <!-- What a transmutation made of the part, above the list that it left. -->
+        <p v-if="transmutedText" class="card card-cy text-sm" role="status" data-test="transmute-done">{{ transmutedText }}</p>
+
         <p v-if="inventory.length === 0" class="sub" data-test="inventory-empty">{{ t('workshop.inventoryEmpty') }}</p>
 
         <div v-else-if="shownParts.length === 0" class="card flex flex-wrap items-center justify-between gap-2.5 !p-3" data-test="inventory-none">
@@ -706,7 +731,20 @@ async function finish(jobId: number): Promise<void> {
               >
                 {{ t('workshop.mergeOpen') }}
               </button>
+              <!-- Making it one rarity better for cash and coins, at once and with no draw. -->
+              <button
+                v-if="part.transmute"
+                type="button"
+                class="btn btn-secondary btn-sm"
+                :disabled="busy || busyPartIds.has(part.id)"
+                :aria-expanded="transmuting === part.id"
+                :data-test="`transmute-open-${part.id}`"
+                @click="transmuting = transmuting === part.id ? null : part.id"
+              >
+                {{ t('workshop.transmute.open') }}
+              </button>
             </div>
+            <PartTransmute v-if="part.transmute && transmuting === part.id" :part="part" :offer="part.transmute" :disabled="busy" @done="transmuted" @close="transmuting = null" />
             <PartMerge
               v-if="part.merge && merging === part.id"
               :part="part"

@@ -528,6 +528,22 @@
     "cancelledRefund": "Auftrag abgebrochen. {price} sind wieder in deinem Geldbeutel.",
     "merge": "Verschmelzen: {part} + {other} → {to}",
     "mergeOpen": "Verschmelzen",
+    "transmute": {
+      "open": "Seltenheit erhöhen",
+      "title": "Seltenheit erhöhen",
+      "sure": "Sicher, ohne Zufall",
+      "cost": "Preis",
+      "after": "Das Teil danach",
+      "note": "Modell und Upgrade des Teils bleiben; es bekommt sofort die bessere Seltenheit und die passenden Affixe. Ein transmutiertes Teil lässt sich nicht mehr verschmelzen.",
+      "blocked": {
+        "busy": "Das Teil wartet in einem Auftrag der Werkstatt.",
+        "level": "Dein Fahrerlevel ist noch zu niedrig für die Transmutation.",
+        "limit": "Das Limit für Transmutationen von heute ist erreicht."
+      },
+      "confirm": "Transmutieren",
+      "close": "Schließen",
+      "done": "{part} hat jetzt die Seltenheit {rarity}."
+    },
     "mergeTitle": "Teile verschmelzen",
     "mergeChoose": "Verschmelzen mit:",
     "mergeNeedPartner": "Du brauchst ein zweites Teil mit demselben Slot, derselben Stufe und derselben Seltenheit: {slot}, {tier}, {rarity}.",

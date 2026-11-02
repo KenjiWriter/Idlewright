@@ -528,6 +528,22 @@
     "cancelledRefund": "Travail annulé. {price} sont de retour dans votre portefeuille.",
     "merge": "Fusion : {part} + {other} → {to}",
     "mergeOpen": "Fusionner",
+    "transmute": {
+      "open": "Améliorer la rareté",
+      "title": "Amélioration de la rareté",
+      "sure": "Certain, sans tirage",
+      "cost": "Prix",
+      "after": "La pièce après",
+      "note": "Le modèle et l’amélioration de la pièce restent ; elle reçoit tout de suite la meilleure rareté et les affixes qui vont avec. Une pièce transmutée ne peut plus être fusionnée.",
+      "blocked": {
+        "busy": "La pièce attend dans une tâche de l’atelier.",
+        "level": "Votre niveau de pilote est encore trop bas pour la transmutation.",
+        "limit": "La limite de transmutations du jour est atteinte."
+      },
+      "confirm": "Transmuter",
+      "close": "Fermer",
+      "done": "{part} a maintenant la rareté {rarity}."
+    },
     "mergeTitle": "Fusion de pièces",
     "mergeChoose": "Fusionner avec :",
     "mergeNeedPartner": "Il faut une deuxième pièce du même emplacement, du même palier et de la même rareté : {slot}, {tier}, {rarity}.",

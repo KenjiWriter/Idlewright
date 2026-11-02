@@ -1,4 +1,4 @@
-import type { EquipmentItemKey, GarageCar, GarageResponse, MergeOffer, MergeResult, MountedPart, OpenedCrate, OwnedPart, RepairNext, ServiceState, ShopCrates, ShopOffer, UpgradeNext, WorkshopGear, WorkshopJob } from '@/api/types'
+import type { EquipmentItemKey, GarageCar, GarageResponse, MergeOffer, MergeResult, MountedPart, OpenedCrate, OwnedPart, RepairNext, ServiceState, ShopCrates, ShopOffer, TransmuteOffer, UpgradeNext, WorkshopGear, WorkshopJob } from '@/api/types'
 
 /** The time of the server in the fixtures. */
 export const NOW = 1_792_692_000_000
@@ -42,6 +42,11 @@ export const NOTHING_TO_REPAIR: RepairNext = { cost_cents: null, duration_ms: nu
 /** The service of a car that has driven 1 580 km since the last one: 3 420 km to go, $45.60 and 14 min 42 s. */
 export function aService(overrides: Partial<ServiceState> = {}): ServiceState {
   return { every_km: 5_000, since_km: 1_580, due_in_km: 3_420, overdue_km: 0, penalty_percent: 0, cost_cents: 4_560, duration_ms: 882_000, ...overrides }
+}
+
+/** What transmuting a part of the inventory would be: common to uncommon for 3 RideCoin and $38.00, free to do. */
+export function aTransmuteOffer(overrides: Partial<TransmuteOffer> = {}): TransmuteOffer {
+  return { to: 'uncommon', coins: 3, cash_cents: 3_800, blocked: null, ...overrides }
 }
 
 /** What merging a part of the inventory would do: common to uncommon with the 80% and the 1 point of the workshop, $57.00 (a tenth of the model) and 7 min 50 s, with `with` the other parts it can go with. */
