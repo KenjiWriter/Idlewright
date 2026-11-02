@@ -23,6 +23,7 @@ Schedule::command('queue:prune-failed --hours=168')->dailyAt('03:45')->withoutOv
 
 // Push messages: what happened to the drivers who are away is looked for every minute, in every game that has push.
 Schedule::command('push:send-due')->everyMinute()->withoutOverlapping();
+Schedule::command('push:prune')->dailyAt('04:10')->withoutOverlapping();
 
 // Pages of payment that nobody paid on, and the old events of the payment providers, go after a month and thirteen months; an event that came before its payment is worked again
 // every ten minutes for three days; the purchases themselves go when the years the shop has to keep them for are over.

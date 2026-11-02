@@ -15,6 +15,9 @@ use App\Models\MergeAttempt;
 use App\Models\Part;
 use App\Models\PaymentAttempt;
 use App\Models\Purchase;
+use App\Models\PushEvent;
+use App\Models\PushPreference;
+use App\Models\PushSubscription;
 use App\Models\RaceRun;
 use App\Models\Settlement;
 use App\Models\StorageOpening;
@@ -150,6 +153,12 @@ final class AccountExport
             'streak' => UserStreak::query()->where('user_id', $user->id)->get()->map(fn (UserStreak $streak): array => $streak->makeHidden(['user_id'])->toArray())->first(),
             'streak_days' => StreakDay::query()->where('user_id', $user->id)->orderBy('id')->get()
                 ->map(fn (StreakDay $day): array => $day->makeHidden(['user_id'])->toArray())->all(),
+            // The devices that get notifications (never the address or the keys of a device: they are secrets of the push service and of the browser), what the driver chose to be told of, and the messages that were sent.
+            'push_devices' => PushSubscription::query()->where('user_id', $user->id)->orderBy('id')->get()
+                ->map(fn (PushSubscription $device): array => ['browser' => $device->ua_family, 'locale' => $device->locale, 'timezone' => $device->timezone, 'subscribed_at' => $this->day($device->created_at), 'last_delivery_at' => $this->day($device->last_ok_at), 'switched_off_at' => $this->day($device->disabled_at)])->all(),
+            'push_preferences' => PushPreference::query()->find($user->id)?->kinds,
+            'push_messages' => PushEvent::query()->where('user_id', $user->id)->whereIn('state', [PushEvent::STATE_SENT, PushEvent::STATE_SKIPPED])->orderBy('id')->get()
+                ->map(fn (PushEvent $event): array => ['kind' => $event->kind, 'state' => $event->state, 'reason' => $event->reason, 'sent_at' => $this->day($event->sent_at)])->all(),
             'visits' => UserVisit::query()->where('user_id', $user->id)->orderBy('id')->get()
                 ->map(fn (UserVisit $visit): array => ['at' => $this->day($visit->at), 'gap_minutes' => $visit->gap_minutes])->all(),
             'purchases' => Purchase::query()->where('user_id', $user->id)->orderBy('id')->get()

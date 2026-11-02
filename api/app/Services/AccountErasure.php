@@ -16,6 +16,9 @@ use App\Models\MergeAttempt;
 use App\Models\Part;
 use App\Models\PaymentAttempt;
 use App\Models\Purchase;
+use App\Models\PushEvent;
+use App\Models\PushPreference;
+use App\Models\PushSubscription;
 use App\Models\RaceRun;
 use App\Models\Settlement;
 use App\Models\SettlementEvent;
@@ -80,6 +83,8 @@ final class AccountErasure
             'missions' => UserMission::query()->where('user_id', $user->id)->count(),
             'mission sets' => UserMissionPeriod::query()->where('user_id', $user->id)->count(),
             'streak days' => StreakDay::query()->where('user_id', $user->id)->count(),
+            'push devices' => PushSubscription::query()->where('user_id', $user->id)->count(),
+            'push messages' => PushEvent::query()->where('user_id', $user->id)->count(),
             'runs' => $runs->count(),
             'settlements' => $settlements->count(),
             'settlement events' => SettlementEvent::query()->whereIn('settlement_id', $settlements)->count(),
@@ -113,6 +118,9 @@ final class AccountErasure
             SettlementEvent::query()->whereIn('settlement_id', $settlements)->delete();
             LedgerEntry::query()->where('user_id', $user->id)->delete();
             UserVisit::query()->where('user_id', $user->id)->delete();
+            PushEvent::query()->where('user_id', $user->id)->delete();
+            PushSubscription::query()->where('user_id', $user->id)->delete();
+            PushPreference::query()->where('user_id', $user->id)->delete();
             Settlement::query()->whereIn('race_run_id', $runs)->delete();
             Travel::query()->where('user_id', $user->id)->delete();
             RaceRun::query()->withoutGlobalScopes()->where('user_id', $user->id)->delete();

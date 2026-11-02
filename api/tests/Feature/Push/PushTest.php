@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 use App\Jobs\SendPush;
 use App\Models\Game;
+use App\Models\PushEvent;
+use App\Models\PushPreference;
 use App\Models\PushSubscription;
 use App\Models\User;
 use App\Push\Base64Url;
@@ -11,6 +13,8 @@ use App\Push\P256;
 use App\Push\PushKeys;
 use App\Push\PushOutcome;
 use App\Push\PushSender;
+use App\Services\AccountErasure;
+use App\Services\AccountExport;
 use App\Services\Push;
 use App\Services\PushSubscriptions;
 use Illuminate\Http\Client\ConnectionException;
@@ -373,5 +377,49 @@ describe('/push/preferences', function () {
         $this->getJson('/api/v1/push/preferences', bearerFor($other))->assertJsonPath('data.kinds.car_stopped', true);
         $this->patchJson('/api/v1/push/preferences', ['kinds' => ['car_stopped' => 'maybe']], bearerFor($driver))->assertStatus(422)->assertJsonValidationErrors(['kinds.car_stopped']);
         $this->patchJson('/api/v1/push/preferences', [], bearerFor($driver))->assertStatus(422);
+    });
+});
+
+describe('the data of a driver', function () {
+    it('is in the copy of the account without the address and the keys of the device, and is gone with the account', function () {
+        $driver = pushDriver();
+        subscribe($driver, aBrowser())->assertOk();
+        $this->patchJson('/api/v1/push/preferences', ['kinds' => ['job_done' => true]], bearerFor($driver))->assertOk();
+        PushEvent::query()->create(['user_id' => $driver->id, 'kind' => 'car_stopped', 'ref_type' => 'race_run', 'ref_id' => 1, 'due_ms' => 5, 'state' => 'sent', 'sent_at' => now()]);
+        PushEvent::query()->create(['user_id' => $driver->id, 'kind' => 'car_stopped', 'ref_type' => 'race_run', 'ref_id' => 2, 'due_ms' => 9, 'state' => 'planned']);
+
+        $game = (new AccountExport)->for($driver)['game'];
+
+        expect($game['push_devices'])->toHaveCount(1)->and($game['push_devices'][0])->toHaveKeys(['browser', 'locale', 'timezone', 'subscribed_at', 'last_delivery_at', 'switched_off_at'])
+            ->and($game['push_devices'][0]['locale'])->toBe('fr')->and($game['push_devices'][0]['timezone'])->toBe('Europe/Warsaw')
+            ->and(json_encode($game))->not->toContain('googleapis')->and(json_encode($game))->not->toContain('endpoint')
+            ->and($game['push_preferences'])->toBe(['job_done' => true])
+            ->and($game['push_messages'])->toHaveCount(1)->and($game['push_messages'][0]['kind'])->toBe('car_stopped');
+
+        $removed = app(AccountErasure::class)->erase($driver);
+
+        expect($removed['push devices'])->toBe(1)->and($removed['push messages'])->toBe(2)
+            ->and(PushSubscription::query()->withoutGlobalScopes()->count())->toBe(0)
+            ->and(PushEvent::query()->withoutGlobalScopes()->count())->toBe(0)
+            ->and(PushPreference::query()->count())->toBe(0);
+    });
+
+    it('is cleaned up: a device that was switched off more than 30 days ago, and the notes of messages older than that', function () {
+        $driver = pushDriver();
+        subscribe($driver, aBrowser('https://fcm.googleapis.com/fcm/send/old'))->assertOk();
+        subscribe($driver, aBrowser('https://fcm.googleapis.com/fcm/send/recent'))->assertOk();
+        subscribe($driver, aBrowser('https://fcm.googleapis.com/fcm/send/alive'))->assertOk();
+        subscriptionOf('https://fcm.googleapis.com/fcm/send/old')->forceFill(['disabled_at' => now()->subDays(31)])->save();
+        subscriptionOf('https://fcm.googleapis.com/fcm/send/recent')->forceFill(['disabled_at' => now()->subDays(29)])->save();
+
+        foreach ([['sent', 31, 1], ['skipped', 29, 2], ['planned', 31, 3]] as [$state, $days, $ref]) {
+            $event = PushEvent::query()->create(['user_id' => $driver->id, 'kind' => 'car_stopped', 'ref_type' => 'race_run', 'ref_id' => $ref, 'due_ms' => $ref, 'state' => $state]);
+            PushEvent::query()->whereKey($event->id)->update(['updated_at' => now()->subDays($days)]);
+        }
+
+        $this->artisan('push:prune')->expectsOutputToContain('1 devices and 1 notes deleted')->assertSuccessful();
+
+        expect(PushSubscription::query()->count())->toBe(2)
+            ->and(PushEvent::query()->pluck('state')->sort()->values()->all())->toBe(['planned', 'skipped']);
     });
 });
