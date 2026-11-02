@@ -9,6 +9,7 @@ use App\Exceptions\RuleRefusedException;
 use App\Models\LedgerEntry;
 use App\Models\RaceRun;
 use App\Models\Wallet;
+use App\Payments\Payments;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
@@ -88,10 +89,10 @@ final class Entitlements
         ];
     }
 
-    /** Whether a payment provider is connected: until one is (stage P3), the pass can be given by the people who run the game, but not bought in the game. */
+    /** Whether the game in play takes real money now (a provider is ready and its payments are on): until it does, the pass can be given by the people who run the game, but not bought in the game. */
     public static function paymentsConnected(): bool
     {
-        return config('ride.premium.provider') !== null;
+        return app(Payments::class)->available();
     }
 
     /**
@@ -194,6 +195,21 @@ final class Entitlements
     public function extendInfinity(Wallet $wallet, int $days): void
     {
         $wallet->forceFill(['infinity_until' => self::extended($wallet->infinity_until, $days)])->save();
+    }
+
+    /**
+     * A pass that was paid for and is taken back loses the days that purchase gave, counted from the end of the pass the driver has (so a second pass that is taken back leaves
+     * the days of the first), and never more than ends it now. Called inside the transaction of the refund, with the wallet locked.
+     */
+    public function shortenInfinity(Wallet $wallet, int $days): void
+    {
+        if ($wallet->infinity_until === null || ! $wallet->infinity_until->isFuture()) {
+            return;
+        }
+
+        $shorter = $wallet->infinity_until->copy()->subDays($days);
+
+        $wallet->forceFill(['infinity_until' => $shorter->isFuture() ? $shorter : now()->startOfSecond()])->save();
     }
 
     /** A pass that was paid for and is taken back ends now. Called inside the transaction of the refund, with the wallet locked. */
