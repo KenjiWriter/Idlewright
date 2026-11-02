@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Content\ContentSource;
 use App\Content\GigCatalog;
 use App\Content\PackValidator;
+use App\Content\Rules;
 use App\Models\CityGarage;
 use App\Models\Gig;
 use App\Models\LedgerEntry;
@@ -55,9 +56,9 @@ function gigDriver(bool $tutorialDone = true): array
 {
     [$driver, $race] = driverWithRun(['seed' => str_repeat('0', 32)]);
     (new Ledger)->ensureWallet($driver->id);
-    (new Ledger)->grantXp($driver->id, app(App\Content\Rules::class)->playerXpToReach(3));
+    (new Ledger)->grantXp($driver->id, app(Rules::class)->playerXpToReach(3));
 
-    foreach (array_keys(app(App\Content\Rules::class)->regions()) as $region) {
+    foreach (array_keys(app(Rules::class)->regions()) as $region) {
         CityGarage::query()->firstOrCreate(['user_id' => $driver->id, 'region' => $region], ['capacity' => 3]);
     }
 
@@ -361,5 +362,36 @@ describe('the gigs as content', function () {
         }]);
 
         expect(gigErrors($content))->toContain('rules/gigs.json /templates/too-big/amount', 'rules/gigs.json /templates/no-kind/kind', 'rules/gigs.json /bands');
+    });
+});
+
+describe('the report', function () {
+    it('measures the pay of an hour of a gig against the rung of the ladder and against the laps of the same car, for every car that can take one', function () {
+        $this->artisan('gigs:report', ['--json' => true])->assertExitCode(0);
+
+        $rows = collect(Artisan::call('gigs:report', ['--json' => true]) === 0 ? json_decode(Artisan::output(), true)['rows'] : []);
+        $taxi = $rows->firstWhere(fn (array $row): bool => $row['car'] === 'rdzak-gt-4' && $row['template'] === 'taxi-city');
+
+        // The Rdzak GT-4 is a car of level 3 (690 dollars an hour); it drives faster than the roads allow, so it pays the plain share of the rung.
+        expect($rows->count())->toBeGreaterThan(50)
+            ->and($taxi['anchor'])->toEqual(690)
+            ->and($taxi['r1'])->toBeGreaterThan(0.55)->toBeLessThan(0.75)
+            ->and($taxi['r2'])->toBeLessThan(1.0)
+            // A van is asked for by the deliveries, and a small hatchback is not.
+            ->and($rows->contains(fn (array $row): bool => $row['car'] === 'rdzak-gt-4' && $row['kind'] === 'delivery'))->toBeFalse()
+            ->and($rows->contains(fn (array $row): bool => $row['car'] === 'furgon-z-1' && $row['template'] === 'delivery-city'))->toBeTrue();
+    });
+
+    it('fails with --strict when a gig pays more than the rung of the ladder allows', function () {
+        gigRules(function (array $gigs): array {
+            foreach ($gigs['bands'] as $index => $band) {
+                $gigs['bands'][$index]['ratio_ppm'] = 2_000_000;
+            }
+
+            return $gigs;
+        });
+
+        $this->artisan('gigs:report', ['--strict' => true])->assertExitCode(1);
+        $this->artisan('gigs:report')->assertExitCode(0);
     });
 });
