@@ -15,6 +15,7 @@ use App\Models\Car;
 use App\Models\CityGarage;
 use App\Models\LedgerEntry;
 use App\Models\Part;
+use App\Models\PushSubscription;
 use App\Models\RaceRun;
 use App\Models\Settlement;
 use App\Models\SettlementEvent;
@@ -22,9 +23,13 @@ use App\Models\TutorialProgress;
 use App\Models\User;
 use App\Models\Wallet;
 use App\Models\WorkshopJob;
+use App\Push\Base64Url;
 use App\Push\P256;
+use App\Push\PushKeys;
+use App\Push\PushMessage;
 use App\Services\ContentPacks;
 use App\Services\Ledger;
+use App\Services\Push;
 use App\Services\RunService;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -565,4 +570,52 @@ function receivePush(string $body, string $browserPrivate, string $browserPoint,
     $plain = openssl_decrypt(substr($record, 0, -16), 'aes-128-gcm', $key, OPENSSL_RAW_DATA, $nonce, substr($record, -16));
 
     return $plain === false ? null : substr($plain, 0, -1);
+}
+
+// Web push: a driver of a game that has its keys, the browser that subscribes, and the rules of push changed for a test.
+const PUSH_ENDPOINT = 'https://fcm.googleapis.com/fcm/send/device-1';
+
+/** A driver of the default game, and a game that has its keys (the rules of the starter switch push on). */
+function pushDriver(): User
+{
+    app(Push::class)->game()->forceFill(['push_public_key' => null, 'push_private_key' => null])->save();
+    PushKeys::create(app(Push::class)->game());
+
+    return User::factory()->guest()->create();
+}
+
+/** What a browser gives when it subscribes: the address, and the keys of which it keeps the private one. */
+function aBrowser(string $endpoint = PUSH_ENDPOINT): array
+{
+    $keys = P256::generate();
+    $auth = random_bytes(16);
+
+    return [
+        'private' => $keys['private'],
+        'point' => $keys['public'],
+        'auth' => $auth,
+        'body' => ['endpoint' => $endpoint, 'keys' => ['p256dh' => Base64Url::encode($keys['public']), 'auth' => Base64Url::encode($auth)], 'timezone' => 'Europe/Warsaw', 'locale' => 'fr'],
+    ];
+}
+
+function subscribe(User $driver, array $browser, ?array $override = null): TestResponse
+{
+    return test()->putJson('/api/v1/push/subscription', $override ?? $browser['body'], bearerFor($driver));
+}
+
+function subscriptionOf(string $endpoint = PUSH_ENDPOINT): PushSubscription
+{
+    return PushSubscription::query()->withoutGlobalScopes()->where('endpoint_hash', PushSubscription::hashOf($endpoint))->firstOrFail();
+}
+
+function thePushRulesAre(array $change): void
+{
+    $data = json_decode((string) file_get_contents(config('ride.content_path').'/rules/starter.json'), true, 512, JSON_THROW_ON_ERROR);
+    $data['push'] = [...$data['push'], ...$change];
+    app()->singleton(Rules::class, fn () => Rules::fromArray($data));
+}
+
+function aMessage(): PushMessage
+{
+    return new PushMessage('test', 'Rdzak', 'Skończyło się paliwo.', '/garage', 'test', 600, 'normal', 'pl');
 }

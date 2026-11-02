@@ -282,6 +282,7 @@ return [
             'transmute' => 'What it changes: what a part costs to make one rarity better with cash and coins (the coins grow with the tier, the cash is a multiple of the price of the model), from which level a driver can do it and how many parts a day. The cash is set against what merging costs, so that merging stays worth it.',
             'competition' => 'What it changes: how the strength of a car (PI) is counted and the classes the competition is made of, how fast the Respekt of a driver moves, and how a match is played.',
             'push' => 'What it changes: whether the game sends push messages at all, and how long the push service keeps a message that cannot be delivered at once (a message that is too old is no longer true: a car that stopped long ago is not news).',
+            'push' => 'What it changes: whether the game sends push messages at all, how long the push service keeps a message that cannot be delivered at once, what a driver is told of when they have not chosen, and what keeps the messages from being noise: how many a day, the gap between them, the time after a look at the game when none is sent, and the quiet hours.',
             'streaks' => 'Streak of days',
             'slots' => 'Cars on the road',
             'streaks' => 'What it changes: how many missions of the day make the goal that keeps the streak, how often a shield is earned and how many are kept, and what the days of the streak pay (a part of a tank of the best car, and crates). It pays no coins and is on top of the earnings of the cars.',

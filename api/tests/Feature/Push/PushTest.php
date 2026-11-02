@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Content\Rules;
 use App\Jobs\SendPush;
 use App\Models\Game;
 use App\Models\PushSubscription;
@@ -10,7 +9,6 @@ use App\Models\User;
 use App\Push\Base64Url;
 use App\Push\P256;
 use App\Push\PushKeys;
-use App\Push\PushMessage;
 use App\Push\PushOutcome;
 use App\Push\PushSender;
 use App\Services\Push;
@@ -20,57 +18,9 @@ use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
-use Illuminate\Testing\TestResponse;
 
 // Web push: the keys of a game, the subscription of a device (only addresses of the push services of browsers are taken, and they are kept encrypted), a message that only that
 // browser can read, and what the job does with the answer of the push service.
-
-const PUSH_ENDPOINT = 'https://fcm.googleapis.com/fcm/send/device-1';
-
-/** A driver of the default game, and a game that has its keys (the rules of the starter switch push on). */
-function pushDriver(): User
-{
-    app(Push::class)->game()->forceFill(['push_public_key' => null, 'push_private_key' => null])->save();
-    PushKeys::create(app(Push::class)->game());
-
-    return User::factory()->guest()->create();
-}
-
-/** What a browser gives when it subscribes: the address, and the keys of which it keeps the private one. */
-function aBrowser(string $endpoint = PUSH_ENDPOINT): array
-{
-    $keys = P256::generate();
-    $auth = random_bytes(16);
-
-    return [
-        'private' => $keys['private'],
-        'point' => $keys['public'],
-        'auth' => $auth,
-        'body' => ['endpoint' => $endpoint, 'keys' => ['p256dh' => Base64Url::encode($keys['public']), 'auth' => Base64Url::encode($auth)], 'timezone' => 'Europe/Warsaw', 'locale' => 'fr'],
-    ];
-}
-
-function subscribe(User $driver, array $browser, ?array $override = null): TestResponse
-{
-    return test()->putJson('/api/v1/push/subscription', $override ?? $browser['body'], bearerFor($driver));
-}
-
-function subscriptionOf(string $endpoint = PUSH_ENDPOINT): PushSubscription
-{
-    return PushSubscription::query()->withoutGlobalScopes()->where('endpoint_hash', PushSubscription::hashOf($endpoint))->firstOrFail();
-}
-
-function thePushRulesAre(array $change): void
-{
-    $data = json_decode((string) file_get_contents(config('ride.content_path').'/rules/starter.json'), true, 512, JSON_THROW_ON_ERROR);
-    $data['push'] = [...$data['push'], ...$change];
-    app()->singleton(Rules::class, fn () => Rules::fromArray($data));
-}
-
-function aMessage(): PushMessage
-{
-    return new PushMessage('test', 'Rdzak', 'Skończyło się paliwo.', '/garage', 'test', 600, 'normal', 'pl');
-}
 
 describe('the keys of a game', function () {
     it('are made once, kept encrypted, and replaced only when asked, which deletes the subscriptions they served', function () {
@@ -397,5 +347,31 @@ describe('the job that sends', function () {
 
         Http::assertNothingSent();
         expect(subscriptionOf()->failures)->toBe(1);
+    });
+});
+
+describe('/push/preferences', function () {
+    it('gives the kinds with what the game switches on, changes only the kinds that are given, and keeps the choice', function () {
+        $driver = pushDriver();
+
+        $this->getJson('/api/v1/push/preferences', bearerFor($driver))->assertOk()->assertJsonPath('data.kinds', ['car_stopped' => true, 'car_arrived' => true, 'job_done' => false]);
+
+        $this->patchJson('/api/v1/push/preferences', ['kinds' => ['car_arrived' => false]], bearerFor($driver))->assertOk()
+            ->assertJsonPath('data.kinds', ['car_stopped' => true, 'car_arrived' => false, 'job_done' => false]);
+        $this->patchJson('/api/v1/push/preferences', ['kinds' => ['job_done' => true]], bearerFor($driver))->assertOk()
+            ->assertJsonPath('data.kinds', ['car_stopped' => true, 'car_arrived' => false, 'job_done' => true]);
+
+        $this->getJson('/api/v1/push/preferences', bearerFor($driver))->assertJsonPath('data.kinds.car_arrived', false);
+    });
+
+    it('is the driver’s own, and refuses what is not a kind on or off', function () {
+        $driver = pushDriver();
+        $other = User::factory()->guest()->create();
+
+        $this->patchJson('/api/v1/push/preferences', ['kinds' => ['car_stopped' => false]], bearerFor($driver))->assertOk();
+
+        $this->getJson('/api/v1/push/preferences', bearerFor($other))->assertJsonPath('data.kinds.car_stopped', true);
+        $this->patchJson('/api/v1/push/preferences', ['kinds' => ['car_stopped' => 'maybe']], bearerFor($driver))->assertStatus(422)->assertJsonValidationErrors(['kinds.car_stopped']);
+        $this->patchJson('/api/v1/push/preferences', [], bearerFor($driver))->assertStatus(422);
     });
 });

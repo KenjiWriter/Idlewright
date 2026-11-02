@@ -127,5 +127,36 @@ return [
             'range' => '60 – 86400 s.',
             'tip' => 'Court pour ce qui vieillit vite (un travail terminé), plus long pour ce qui attend (une voiture arrêtée).',
         ],
+        '/push/per_day' => [
+            'label' => 'Messages push par jour pour un joueur',
+            'help' => 'Le nombre maximal de messages push envoyés à un joueur sur les dernières 24 heures. Ce qui arrive au-delà n’est pas annoncé : le joueur le voit en ouvrant le jeu. Le message d’essai n’est pas compté. Cela évite que les notifications ne deviennent du bruit.',
+            'example' => '4 : le cinquième événement du jour n’est pas annoncé.',
+            'range' => '1 – 50 (messages).',
+            'tip' => 'Plus de quelques messages par jour poussent les joueurs à couper les notifications.',
+        ],
+        '/push/min_gap_ms' => [
+            'label' => 'Écart entre deux messages push',
+            'help' => 'Le temps minimal entre deux messages à un même joueur. Ce qui arrive pendant l’écart attend sa fin et est annoncé en un seul message, avec le reste.',
+            'example' => '1800 s : une demi-heure.',
+            'range' => '0 – 86400 s.',
+        ],
+        '/push/seen_ms' => [
+            'label' => 'Joueur dans le jeu : pas de push pendant',
+            'help' => 'Un joueur qui était dans le jeu il y a si peu de temps ne reçoit pas de push : il le voit à l’écran. Cela contente aussi les navigateurs, qui veulent que chaque push soit montré.',
+            'example' => '180 s : trois minutes après le dernier coup d’œil.',
+            'range' => '0 – 3600 s.',
+        ],
+        '/push/quiet_from_min' => [
+            'label' => 'Début des heures calmes (minute de la journée)',
+            'help' => 'À partir de cette heure (dans le fuseau de l’appareil du joueur), aucun message push n’est envoyé ; ce qui arrive entre-temps est annoncé en un seul message à la fin des heures calmes. La valeur est la minute de la journée : 22 h est 1320.',
+            'example' => '1320 : 22 h.',
+            'range' => '0 – 1439 (minutes après minuit).',
+        ],
+        '/push/quiet_to_min' => [
+            'label' => 'Fin des heures calmes (minute de la journée)',
+            'help' => 'L’heure où les heures calmes se terminent, comptée comme ci-dessus : 8 h est 480. Le même nombre que le début veut dire qu’il n’y a pas d’heures calmes.',
+            'example' => '480 : 8 h.',
+            'range' => '0 – 1439 (minutes après minuit).',
+        ],
     ],
 ];

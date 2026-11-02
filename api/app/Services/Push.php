@@ -12,6 +12,7 @@ use App\Models\PushSubscription;
 use App\Models\User;
 use App\Push\PushMessage;
 use App\Support\Locale;
+use Closure;
 
 /**
  * Telling a driver by web push: whether the game can at all (the rules switch it on and the game has its keys), and the messages to the devices of a driver, which the queue
@@ -38,9 +39,13 @@ final class Push
     /**
      * Sends the message to every device of the driver that is subscribed and not switched off, through the queue. Returns how many devices it was queued for.
      *
-     * @param  array<string, scalar>  $replace
+     * `$kind` is what the message is about (it decides how long the push service keeps it), `$text` the key of the words under `lang/{locale}/push.php` (the kind when it is not
+     * given), `$replace` the values of the words or a function of the language of a device that gives them (a car has a name in each language), and `$count` the number that the
+     * words are in the plural for.
+     *
+     * @param  array<string, scalar>|Closure(string): array<string, scalar>  $replace
      */
-    public function notify(User $user, string $kind, string $url, array $replace = [], ?string $tag = null): int
+    public function notify(User $user, string $kind, string $url, array|Closure $replace = [], ?string $tag = null, ?string $text = null, ?int $count = null): int
     {
         if ($this->publicKey() === null) {
             return 0;
@@ -49,7 +54,10 @@ final class Push
         $queued = 0;
 
         foreach (PushSubscription::query()->where('user_id', $user->id)->whereNull('disabled_at')->get() as $subscription) {
-            SendPush::dispatch($subscription->id, $this->message($kind, $subscription->locale ?? $user->locale, $url, $replace, $tag ?? $kind)->toArray());
+            $locale = Locale::normalize($subscription->locale ?? $user->locale) ?? Locale::default();
+            $values = $replace instanceof Closure ? $replace($locale) : $replace;
+
+            SendPush::dispatch($subscription->id, $this->message($kind, $locale, $url, $values, $tag ?? $kind, $text ?? $kind, $count)->toArray());
             $queued++;
         }
 
@@ -57,20 +65,21 @@ final class Push
     }
 
     /**
-     * The message of a kind in a language: the texts are in `lang/{locale}/push.php` under the kind (`title` and `body`), with the name of the game for `:game`.
+     * The message of a kind in a language: the words are in `lang/{locale}/push.php` under the key `$text` (`title` and `body`), with the name of the game for `:game`.
      *
      * @param  array<string, scalar>  $replace
      */
-    public function message(string $kind, ?string $locale, string $url, array $replace, string $tag): PushMessage
+    public function message(string $kind, ?string $locale, string $url, array $replace, string $tag, ?string $text = null, ?int $count = null): PushMessage
     {
         $locale = Locale::normalize($locale) ?? Locale::default();
         $laravel = str_replace('-', '_', $locale);
+        $text ??= $kind;
         $replace += ['game' => $this->game()->name];
 
         return new PushMessage(
             kind: $kind,
-            title: trans("push.{$kind}.title", $replace, $laravel),
-            body: trans("push.{$kind}.body", $replace, $laravel),
+            title: trans("push.{$text}.title", $replace, $laravel),
+            body: $count === null ? trans("push.{$text}.body", $replace, $laravel) : trans_choice("push.{$text}.body", $count, $replace + ['count' => $count], $laravel),
             url: $url,
             tag: $tag,
             ttl: $this->rules->pushTtlSeconds($kind),

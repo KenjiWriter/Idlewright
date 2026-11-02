@@ -792,9 +792,25 @@
           },
           "required": ["car_stopped", "car_arrived", "job_done", "test"],
           "additionalProperties": false
-        }
+        },
+        "default_kinds": {
+          "description": "What a driver is told of when they have not chosen: a car stopped, a car arrived, a job is done. A driver switches each of them on or off.",
+          "type": "object",
+          "properties": {
+            "car_stopped": { "type": "boolean" },
+            "car_arrived": { "type": "boolean" },
+            "job_done": { "type": "boolean" }
+          },
+          "required": ["car_stopped", "car_arrived", "job_done"],
+          "additionalProperties": false
+        },
+        "per_day": { "description": "The most push messages a driver is sent in the last 24 hours. What happens over it is not told: the driver sees it when they look in. The test message is not counted.", "type": "integer", "minimum": 1, "maximum": 50 },
+        "min_gap_ms": { "description": "The least time between two push messages to one driver, in milliseconds. What happens in the gap waits for its end and is told in one message with the rest.", "type": "integer", "minimum": 0, "maximum": 86400000 },
+        "seen_ms": { "description": "A driver who was in the game this recently (milliseconds) is not sent a push: they see it on the screen.", "type": "integer", "minimum": 0, "maximum": 3600000 },
+        "quiet_from_min": { "description": "The minute of the day (in the time zone of the device of the driver; 1320 is 22:00) from which no push messages are sent. What happens meanwhile is told in one message when the quiet hours end.", "type": "integer", "minimum": 0, "maximum": 1439 },
+        "quiet_to_min": { "description": "The minute of the day when the quiet hours end (480 is 08:00). The same number as `quiet_from_min` means no quiet hours.", "type": "integer", "minimum": 0, "maximum": 1439 }
       },
-      "required": ["enabled", "ttl_ms"],
+      "required": ["enabled", "ttl_ms", "default_kinds", "per_day", "min_gap_ms", "seen_ms", "quiet_from_min", "quiet_to_min"],
       "additionalProperties": false
     },
     "slots": {

@@ -6,7 +6,9 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Exceptions\RuleRefusedException;
 use App\Http\Controllers\Controller;
+use App\Models\PushEvent;
 use App\Services\Push;
+use App\Services\PushPreferences;
 use App\Services\PushSubscriptions;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -17,7 +19,7 @@ use Illuminate\Http\Request;
  */
 final class PushController extends Controller
 {
-    public function __construct(private readonly Push $push, private readonly PushSubscriptions $subscriptions) {}
+    public function __construct(private readonly Push $push, private readonly PushSubscriptions $subscriptions, private readonly PushPreferences $preferences) {}
 
     /** Whether the game can send push messages, the public key a browser subscribes with, and how many devices of the driver are subscribed. */
     public function config(Request $request): JsonResponse
@@ -63,6 +65,26 @@ final class PushController extends Controller
         $removed = $this->subscriptions->remove($user, $data['endpoint']);
 
         return response()->json(['data' => ['removed' => $removed, 'devices' => $this->subscriptions->devices($user)]])->header('Cache-Control', 'no-store');
+    }
+
+    /** What the driver is told of: each kind of message with whether it is on (the default of the game for a kind the driver has not chosen). */
+    public function preferences(Request $request): JsonResponse
+    {
+        return response()->json(['data' => ['kinds' => $this->preferences->kindsOf($request->user())]])->header('Cache-Control', 'no-store');
+    }
+
+    /** Switches kinds of messages on or off; the kinds that are not given stay as they were. */
+    public function updatePreferences(Request $request): JsonResponse
+    {
+        $rules = ['kinds' => ['required', 'array', 'min:1']];
+
+        foreach (PushEvent::KINDS as $kind) {
+            $rules["kinds.{$kind}"] = ['sometimes', 'boolean'];
+        }
+
+        $data = $request->validate($rules);
+
+        return response()->json(['data' => ['kinds' => $this->preferences->save($request->user(), $data['kinds'])]])->header('Cache-Control', 'no-store');
     }
 
     /** A message to the devices of the driver, to see that it arrives. It goes through the queue like every other one. */

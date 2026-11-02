@@ -282,6 +282,7 @@ return [
             'transmute' => 'Co to zmieni: ile kosztuje przeróbka części na rzadkość wyżej w gotówce i monetach (monety rosną z tierem, gotówka to wielokrotność ceny modelu), od jakiego poziomu gracz może ją zrobić i ile części na dobę. Gotówkę ustawia się względem kosztu scalania, żeby scalanie zostało opłacalne.',
             'competition' => 'Co to zmieni: jak liczy się siła auta (PI) i z jakich klas jest zbudowana rywalizacja, jak szybko rusza się Respekt kierowcy i jak długo trwa mecz.',
             'push' => 'Co to zmieni: czy gra w ogóle wysyła powiadomienia push i jak długo usługa powiadomień trzyma wiadomość, której nie może dostarczyć od razu (zbyt stara wiadomość nie jest już prawdą: auto, które stanęło dawno temu, nie jest nowiną).',
+            'push' => 'Co to zmieni: czy gra w ogóle wysyła powiadomienia push, jak długo usługa powiadomień trzyma wiadomość, której nie może dostarczyć od razu, o czym gracz jest powiadamiany, gdy sam nie wybrał, i co chroni przed hałasem: ile wiadomości dziennie, odstęp między nimi, czas po wejściu do gry, w którym nic nie przychodzi, i godziny ciszy.',
             'streaks' => 'Seria dni',
             'slots' => 'Auta na drodze',
             'streaks' => 'Co to zmieni: ile misji dnia daje cel, który utrzymuje serię, jak często zdobywa się tarczę i ile się ich trzyma oraz ile płacą dni serii (część baku najlepszego auta i skrzynki). Nie płaci monet i jest ponad zarobkiem aut.',

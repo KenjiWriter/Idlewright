@@ -779,8 +779,12 @@ final class RunService
         return DB::transaction(function () use ($runId, $userId, $nowMs, $work): mixed {
             $this->ledger->lockWallet((int) $userId);
             $run = RaceRun::query()->whereKey($runId)->lockForUpdate()->firstOrFail();
+            $result = $work($run, $nowMs ?? self::nowMs());
 
-            return $work($run, $nowMs ?? self::nowMs());
+            // Whatever was done to the car, the moment it will stop may have changed: the moment to look at it is planned again (for a driver who can be told).
+            app(PushPlanner::class)->planRun($runId);
+
+            return $result;
         }, Ledger::DEADLOCK_ATTEMPTS);
     }
 

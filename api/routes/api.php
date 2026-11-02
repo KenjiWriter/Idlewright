@@ -92,6 +92,8 @@ Route::prefix('v1')->group(function (): void {
         Route::get('/push/config', [PushController::class, 'config']);
         Route::put('/push/subscription', [PushController::class, 'save'])->middleware('throttle:push-subscription');
         Route::delete('/push/subscription', [PushController::class, 'destroy'])->middleware('throttle:push-subscription');
+        Route::get('/push/preferences', [PushController::class, 'preferences']);
+        Route::patch('/push/preferences', [PushController::class, 'updatePreferences']);
         Route::post('/push/test', [PushController::class, 'test'])->middleware('throttle:push-test');
         // A copy of the data of the account, and, in the same place, having the account deleted.
         Route::get('/account/export', [AccountDataController::class, 'export'])->middleware('throttle:account-data');

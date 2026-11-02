@@ -722,16 +722,26 @@ final class Rules
     }
 
     /**
-     * Web push as the rules give it: the switch and how long the push service keeps a message of each kind (in milliseconds). Null when the rules do not mention it, which is
-     * the same as off.
+     * Web push as the rules give it: the switch, how long the push service keeps a message of each kind (milliseconds), what a driver is told of when they have not chosen,
+     * and the limits that keep the messages from being noise (how many a day, the gap between them, how long after a look at the game none is sent, the quiet hours as minutes
+     * of the day). Null when the rules do not mention it, which is the same as off.
      *
-     * @return array{enabled: bool, ttl_ms: array<string, int>}|null
+     * @return array{enabled: bool, ttl_ms: array<string, int>, default_kinds: array<string, bool>, per_day: int, min_gap_ms: int, seen_ms: int, quiet_from_min: int, quiet_to_min: int}|null
      */
     public function push(): ?array
     {
         $push = $this->data['push'] ?? null;
 
-        return $push === null ? null : ['enabled' => (bool) $push['enabled'], 'ttl_ms' => array_map('intval', $push['ttl_ms'])];
+        return $push === null ? null : [
+            'enabled' => (bool) $push['enabled'],
+            'ttl_ms' => array_map('intval', $push['ttl_ms']),
+            'default_kinds' => array_map('boolval', $push['default_kinds']),
+            'per_day' => (int) $push['per_day'],
+            'min_gap_ms' => (int) $push['min_gap_ms'],
+            'seen_ms' => (int) $push['seen_ms'],
+            'quiet_from_min' => (int) $push['quiet_from_min'],
+            'quiet_to_min' => (int) $push['quiet_to_min'],
+        ];
     }
 
     /** Whether the game sends push messages: it is in the rules and switched on. */

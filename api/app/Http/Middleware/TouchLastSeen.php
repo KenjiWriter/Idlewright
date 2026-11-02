@@ -7,6 +7,7 @@ namespace App\Http\Middleware;
 use App\Models\User;
 use App\Models\UserVisit;
 use App\Services\AwaySummary;
+use App\Services\PushSeen;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,6 +23,11 @@ final class TouchLastSeen
     public function handle(Request $request, Closure $next): Response
     {
         $user = $request->user();
+
+        // The coarse moment of the account is written once in ten minutes; the push messages need the exact one (see `PushSeen`).
+        if ($user instanceof User) {
+            PushSeen::touch($user->id, now()->getTimestampMs());
+        }
 
         if ($user instanceof User && ($user->last_seen_at === null || $user->last_seen_at->lt(now()->subMinutes(self::INTERVAL_MINUTES)))) {
             $now = now();

@@ -127,5 +127,36 @@ return [
             'range' => '60 – 86400 s.',
             'tip' => 'Kurz für das, was schnell veraltet (ein Auftrag ist fertig), länger für das, was wartet (ein Auto steht).',
         ],
+        '/push/per_day' => [
+            'label' => 'Push-Nachrichten pro Tag für einen Spieler',
+            'help' => 'Die meisten Push-Nachrichten, die ein Spieler in den letzten 24 Stunden bekommt. Was darüber hinaus passiert, wird nicht gemeldet: Der Spieler sieht es, wenn er ins Spiel schaut. Die Testnachricht zählt nicht. So werden Benachrichtigungen nicht zum Lärm.',
+            'example' => '4: Die fünfte Sache des Tages wird nicht gemeldet.',
+            'range' => '1 – 50 (Nachrichten).',
+            'tip' => 'Mehr als ein paar am Tag bringen Spieler dazu, Benachrichtigungen abzuschalten.',
+        ],
+        '/push/min_gap_ms' => [
+            'label' => 'Abstand zwischen zwei Push-Nachrichten',
+            'help' => 'Die kürzeste Zeit zwischen zwei Nachrichten an einen Spieler. Was im Abstand passiert, wartet auf sein Ende und wird in einer Nachricht mit dem Rest gemeldet.',
+            'example' => '1800 s: eine halbe Stunde.',
+            'range' => '0 – 86400 s.',
+        ],
+        '/push/seen_ms' => [
+            'label' => 'Spieler ist im Spiel: kein Push für',
+            'help' => 'Ein Spieler, der erst so kurz im Spiel war, bekommt keinen Push: Er sieht es auf dem Bildschirm. Das beruhigt auch die Browser, die wollen, dass jeder Push angezeigt wird.',
+            'example' => '180 s: drei Minuten nach dem letzten Blick.',
+            'range' => '0 – 3600 s.',
+        ],
+        '/push/quiet_from_min' => [
+            'label' => 'Beginn der Ruhezeit (Minute des Tages)',
+            'help' => 'Ab dieser Tageszeit (in der Zeitzone des Geräts des Spielers) werden keine Push-Nachrichten gesendet; was in der Zwischenzeit passiert, wird am Ende der Ruhezeit in einer Nachricht gemeldet. Der Wert ist die Minute des Tages: 22:00 Uhr ist 1320.',
+            'example' => '1320: 22:00 Uhr.',
+            'range' => '0 – 1439 (Minuten nach Mitternacht).',
+        ],
+        '/push/quiet_to_min' => [
+            'label' => 'Ende der Ruhezeit (Minute des Tages)',
+            'help' => 'Die Tageszeit, zu der die Ruhezeit endet, gezählt wie oben: 8:00 Uhr ist 480. Dieselbe Zahl wie der Beginn bedeutet keine Ruhezeit.',
+            'example' => '480: 8:00 Uhr.',
+            'range' => '0 – 1439 (Minuten nach Mitternacht).',
+        ],
     ],
 ];

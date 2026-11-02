@@ -127,5 +127,36 @@ return [
             'range' => '60 – 86400 s.',
             'tip' => 'Curto para o que envelhece rápido (um trabalho pronto), mais longo para o que espera (um carro que parou).',
         ],
+        '/push/per_day' => [
+            'label' => 'Mensagens push por dia para um jogador',
+            'help' => 'O máximo de mensagens push que um jogador recebe nas últimas 24 horas. O que acontece além disso não é avisado: o jogador vê quando entrar no jogo. A mensagem de teste não conta. Assim as notificações não viram barulho.',
+            'example' => '4: a quinta coisa do dia não é avisada.',
+            'range' => '1 – 50 (mensagens).',
+            'tip' => 'Mais do que algumas por dia levam os jogadores a desligar as notificações.',
+        ],
+        '/push/min_gap_ms' => [
+            'label' => 'Intervalo entre duas mensagens push',
+            'help' => 'O menor tempo entre duas mensagens para um mesmo jogador. O que acontece no intervalo espera o fim dele e é avisado em uma só mensagem, junto com o resto.',
+            'example' => '1800 s: meia hora.',
+            'range' => '0 – 86400 s.',
+        ],
+        '/push/seen_ms' => [
+            'label' => 'Jogador está no jogo: sem push por',
+            'help' => 'Um jogador que estava no jogo há tão pouco tempo não recebe push: ele vê na tela. Isso também deixa os navegadores contentes, que querem que todo push seja mostrado.',
+            'example' => '180 s: três minutos depois da última olhada.',
+            'range' => '0 – 3600 s.',
+        ],
+        '/push/quiet_from_min' => [
+            'label' => 'Início do horário de silêncio (minuto do dia)',
+            'help' => 'A partir desta hora do dia (no fuso do aparelho do jogador) nenhuma mensagem push é enviada; o que acontece nesse meio-tempo é avisado em uma só mensagem quando o silêncio termina. O valor é o minuto do dia: 22:00 é 1320.',
+            'example' => '1320: 22:00.',
+            'range' => '0 – 1439 (minutos depois da meia-noite).',
+        ],
+        '/push/quiet_to_min' => [
+            'label' => 'Fim do horário de silêncio (minuto do dia)',
+            'help' => 'A hora do dia em que o silêncio termina, contada como acima: 8:00 é 480. O mesmo número do início significa que não há horário de silêncio.',
+            'example' => '480: 8:00.',
+            'range' => '0 – 1439 (minutos depois da meia-noite).',
+        ],
     ],
 ];

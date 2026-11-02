@@ -127,5 +127,36 @@ return [
             'range' => '60 – 86400 s.',
             'tip' => 'Short for what ages quickly (a job is done), longer for what waits (a car that stopped).',
         ],
+        '/push/per_day' => [
+            'label' => 'Push messages a driver gets in a day',
+            'help' => 'The most push messages a driver is sent in the last 24 hours. What happens over it is not told: the driver sees it when they look in. The test message is not counted. It keeps notifications from turning into noise.',
+            'example' => '4: the fifth thing that happens in a day is not told.',
+            'range' => '1 – 50 (messages).',
+            'tip' => 'More than a few a day make drivers switch notifications off.',
+        ],
+        '/push/min_gap_ms' => [
+            'label' => 'Gap between two push messages',
+            'help' => 'The least time between two messages to one driver. What happens in the gap waits for its end and is told in one message, with the rest that has come.',
+            'example' => '1800 s: half an hour.',
+            'range' => '0 – 86400 s.',
+        ],
+        '/push/seen_ms' => [
+            'label' => 'Driver is in the game: no push for',
+            'help' => 'A driver who was in the game this recently is not sent a push: they see it on the screen. It also keeps browsers content, which want every push to be shown.',
+            'example' => '180 s: three minutes after the last look.',
+            'range' => '0 – 3600 s.',
+        ],
+        '/push/quiet_from_min' => [
+            'label' => 'Start of the quiet hours (minute of the day)',
+            'help' => 'From this time of the day (in the time zone of the device of the driver) no push messages are sent; what happens meanwhile is told in one message when the quiet hours end. The value is the minute of the day: 22:00 is 1320.',
+            'example' => '1320: 22:00.',
+            'range' => '0 – 1439 (minutes after midnight).',
+        ],
+        '/push/quiet_to_min' => [
+            'label' => 'End of the quiet hours (minute of the day)',
+            'help' => 'The time of the day when the quiet hours end, counted as above: 08:00 is 480. The same number as the start means there are no quiet hours.',
+            'example' => '480: 08:00.',
+            'range' => '0 – 1439 (minutes after midnight).',
+        ],
     ],
 ];

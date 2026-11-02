@@ -826,7 +826,13 @@
   },
   "push": {
     "enabled": true,
-    "ttl_ms": { "car_stopped": 14400000, "car_arrived": 7200000, "job_done": 3600000, "test": 600000 }
+    "ttl_ms": { "car_stopped": 14400000, "car_arrived": 7200000, "job_done": 3600000, "test": 600000 },
+    "default_kinds": { "car_stopped": true, "car_arrived": true, "job_done": false },
+    "per_day": 4,
+    "min_gap_ms": 1800000,
+    "seen_ms": 180000,
+    "quiet_from_min": 1320,
+    "quiet_to_min": 480
   },
   "slots": {
     "enabled": true,

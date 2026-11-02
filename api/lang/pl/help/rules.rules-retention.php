@@ -127,5 +127,36 @@ return [
             'range' => '60 – 86400 s.',
             'tip' => 'Krótko dla tego, co szybko się starzeje (zlecenie gotowe), dłużej dla tego, co czeka (auto, które stanęło).',
         ],
+        '/push/per_day' => [
+            'label' => 'Wiadomości push dziennie dla gracza',
+            'help' => 'Najwięcej wiadomości push, jakie gracz dostaje w ciągu ostatnich 24 godzin. O tym, co dzieje się ponad to, gracz nie jest powiadamiany: zobaczy to, gdy wejdzie do gry. Wiadomość próbna się nie liczy. Dzięki temu powiadomienia nie zamieniają się w hałas.',
+            'example' => '4: piąta rzecz tego dnia nie jest ogłaszana.',
+            'range' => '1 – 50 (wiadomości).',
+            'tip' => 'Więcej niż kilka dziennie skłania graczy do wyłączenia powiadomień.',
+        ],
+        '/push/min_gap_ms' => [
+            'label' => 'Odstęp między dwiema wiadomościami push',
+            'help' => 'Najkrótszy czas między dwiema wiadomościami do jednego gracza. To, co dzieje się w odstępie, czeka na jego koniec i jest ogłaszane jedną wiadomością razem z resztą.',
+            'example' => '1800 s: pół godziny.',
+            'range' => '0 – 86400 s.',
+        ],
+        '/push/seen_ms' => [
+            'label' => 'Gracz jest w grze: bez push przez',
+            'help' => 'Gracz, który był w grze tak niedawno, nie dostaje wiadomości push: widzi to na ekranie. To też uspokaja przeglądarki, które chcą, żeby każda wiadomość push była pokazana.',
+            'example' => '180 s: trzy minuty po ostatnim spojrzeniu.',
+            'range' => '0 – 3600 s.',
+        ],
+        '/push/quiet_from_min' => [
+            'label' => 'Początek godzin ciszy (minuta doby)',
+            'help' => 'Od tej pory doby (w strefie czasowej urządzenia gracza) nie są wysyłane wiadomości push; to, co dzieje się w tym czasie, jest ogłaszane jedną wiadomością po końcu godzin ciszy. Wartość to minuta doby: 22:00 to 1320.',
+            'example' => '1320: 22:00.',
+            'range' => '0 – 1439 (minuty po północy).',
+        ],
+        '/push/quiet_to_min' => [
+            'label' => 'Koniec godzin ciszy (minuta doby)',
+            'help' => 'Pora doby, o której kończą się godziny ciszy, liczona jak wyżej: 8:00 to 480. Ta sama liczba co początek oznacza brak godzin ciszy.',
+            'example' => '480: 8:00.',
+            'range' => '0 – 1439 (minuty po północy).',
+        ],
     ],
 ];
