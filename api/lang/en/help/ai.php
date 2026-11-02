@@ -40,5 +40,10 @@ return [
             'help' => 'On: the names and descriptions of the cars and parts, and the texts of the sections of the rules you chose, go into the instruction in every language (a few thousand tokens more). Without it the assistant cannot see the texts, so it cannot change or translate any.',
             'tip' => 'Turn it on when you want to rename or translate.',
         ],
+        'design' => [
+            'label' => 'Design this game from scratch',
+            'help' => 'On: the assistant does not change single numbers but works the design of the whole game out with you in stages (words, cars, parts, numbers, tracks and products), and each stage ends in one block. The texts are in the instruction whatever the switch “Include the texts” says.',
+            'tip' => 'Use it in a new game that the wizard made from the template. The instruction is longer then.',
+        ],
     ],
 ];

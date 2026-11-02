@@ -40,5 +40,10 @@ return [
             'help' => 'Activé : les noms et descriptions des voitures et des pièces, et les textes des sections des règles choisies, vont dans l’instruction dans toutes les langues (quelques milliers de jetons de plus). Sans cela l’assistant ne voit pas les textes, il ne peut donc en changer ni en traduire aucun.',
             'tip' => 'Activez-le pour renommer ou traduire.',
         ],
+        'design' => [
+            'label' => 'Concevoir ce jeu de zéro',
+            'help' => 'Activé : l’assistant ne change pas des chiffres isolés, il conçoit avec vous tout le jeu par étapes (mots, voitures, pièces, chiffres, circuits et produits), et chaque étape se termine par un seul bloc. Les textes sont dans l’instruction quel que soit le réglage « Inclure les textes ».',
+            'tip' => 'À utiliser dans un nouveau jeu que l’assistant de création a fait à partir du modèle. L’instruction est alors plus longue.',
+        ],
     ],
 ];

@@ -1126,6 +1126,8 @@ return [
             'not_text' => 'Pas un texte en plusieurs langues',
             'text_markup' => 'Un texte sans balises ni liens',
             'slug_taken' => 'Ce slug est pris (ou l’a été)',
+            'not_a_collection' => 'Pas une collection où ajouter une entrée',
+            'key_taken' => 'Une entrée de ce nom existe déjà',
         ],
         'refused' => [
             'not_ok' => 'La réponse a des erreurs, rien n’a donc été gardé.',

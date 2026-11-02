@@ -1161,6 +1161,8 @@ return [
             'not_text' => 'To nie jest tekst w kilku językach',
             'text_markup' => 'Tekst bez znaczników i linków',
             'slug_taken' => 'Ten slug jest zajęty (był użyty)',
+            'not_a_collection' => 'To nie jest zbiór, do którego da się dodać wpis',
+            'key_taken' => 'Wpis o tej nazwie już jest',
         ],
         'refused' => [
             'not_ok' => 'Odpowiedź ma błędy, więc nic nie zapisano.',

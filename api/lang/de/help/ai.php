@@ -40,5 +40,10 @@ return [
             'help' => 'Ein: Die Namen und Beschreibungen der Autos und Teile sowie die Texte der gewählten Abschnitte der Regeln kommen in allen Sprachen in die Anweisung (einige tausend Tokens mehr). Ohne das sieht der Assistent die Texte nicht und kann keinen ändern oder übersetzen.',
             'tip' => 'Schalte es ein, wenn du umbenennen oder übersetzen willst.',
         ],
+        'design' => [
+            'label' => 'Dieses Spiel von Grund auf entwerfen',
+            'help' => 'Ein: Der Assistent ändert keine einzelnen Zahlen, sondern entwirft mit dir das ganze Spiel in Etappen (Wörter, Autos, Teile, Zahlen, Strecken und Produkte), und jede Etappe endet in einem Block. Die Texte sind in der Anweisung, was auch der Schalter „Texte einbeziehen“ sagt.',
+            'tip' => 'Nutze es in einem neuen Spiel, das der Assistent aus der Vorlage gemacht hat. Die Anweisung ist dann länger.',
+        ],
     ],
 ];

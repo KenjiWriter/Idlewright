@@ -1161,6 +1161,8 @@ return [
             'not_text' => 'Not a text in several languages',
             'text_markup' => 'A text has no markup and no links',
             'slug_taken' => 'The slug is taken (or was used)',
+            'not_a_collection' => 'Not a collection an entry can be added to',
+            'key_taken' => 'An entry of that name is there already',
         ],
         'refused' => [
             'not_ok' => 'The answer has errors, so nothing was kept.',

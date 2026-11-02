@@ -1126,6 +1126,8 @@ return [
             'not_text' => 'Kein Text in mehreren Sprachen',
             'text_markup' => 'Ein Text ohne Auszeichnung und Links',
             'slug_taken' => 'Der Slug ist vergeben (oder war es)',
+            'not_a_collection' => 'Keine Sammlung, der ein Eintrag hinzugefügt werden kann',
+            'key_taken' => 'Ein Eintrag mit diesem Namen gibt es schon',
         ],
         'refused' => [
             'not_ok' => 'Die Antwort hat Fehler, deshalb wurde nichts gespeichert.',

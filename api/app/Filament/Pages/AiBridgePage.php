@@ -103,6 +103,7 @@ class AiBridgePage extends Page implements HasSchemas
             'include' => ['vehicles', 'parts', 'rules'],
             'simple' => true,
             'texts' => false,
+            'design' => false,
             'sections' => [],
             'locale' => in_array($locale, BriefSelection::LOCALES, true) ? $locale : 'pl',
         ]);
@@ -122,6 +123,7 @@ class AiBridgePage extends Page implements HasSchemas
                 ->columnSpanFull(),
             Toggle::make('simple')->helpKey('ai.simple')->live(),
             Toggle::make('texts')->helpKey('ai.texts')->live(),
+            Toggle::make('design')->helpKey('ai.design')->live(),
             Select::make('locale')
                 ->helpKey('ai.locale')
                 ->options(['pl' => 'Polski', 'en' => 'English', 'fr' => 'Français', 'de' => 'Deutsch', 'pt-BR' => 'Português (Brasil)'])

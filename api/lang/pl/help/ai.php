@@ -40,5 +40,10 @@ return [
             'help' => 'Włączone: do instrukcji trafiają nazwy i opisy aut i części oraz teksty wybranych sekcji reguł, we wszystkich językach (to kilka tysięcy tokenów więcej). Bez tego asystent nie widzi tekstów, więc nie zmieni ani nie przetłumaczy żadnego.',
             'tip' => 'Włącz, gdy chcesz zmieniać nazwy albo tłumaczyć.',
         ],
+        'design' => [
+            'label' => 'Zaprojektuj tę grę od nowa',
+            'help' => 'Włączone: asystent nie zmienia pojedynczych liczb, tylko prowadzi z Tobą projekt całej gry etapami (słowa, auta, części, liczby, tory i produkty), a każdy etap kończy jednym blokiem. Teksty są w instrukcji bez względu na przełącznik „Dołącz teksty”.',
+            'tip' => 'Użyj w nowej grze założonej z szablonu kreatorem. Instrukcja jest wtedy dłuższa.',
+        ],
     ],
 ];

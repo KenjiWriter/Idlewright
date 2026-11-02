@@ -40,5 +40,10 @@ return [
             'help' => 'Ligado: os nomes e as descrições dos carros e das peças, e os textos das seções das regras escolhidas, entram na instrução em todos os idiomas (alguns milhares de tokens a mais). Sem isso o assistente não vê os textos e não pode mudar nem traduzir nenhum.',
             'tip' => 'Ligue quando quiser renomear ou traduzir.',
         ],
+        'design' => [
+            'label' => 'Projetar este jogo do zero',
+            'help' => 'Ligado: o assistente não muda números soltos, e sim projeta com você o jogo inteiro em etapas (palavras, carros, peças, números, pistas e produtos), e cada etapa termina em um bloco. Os textos entram na instrução seja qual for a chave “Incluir os textos”.',
+            'tip' => 'Use em um jogo novo que o assistente de criação fez a partir do modelo. A instrução fica mais longa.',
+        ],
     ],
 ];
