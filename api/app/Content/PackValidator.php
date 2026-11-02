@@ -336,6 +336,7 @@ final class PackValidator
         $this->checkParts($source, $result);
         $this->checkTutorial($source, $parts, $vehicles, $regions, $result);
         $this->checkMissions($source, $rules, $result);
+        $this->checkPremium($rules, $result);
         $this->checkWithdrawn($source, $parts, $vehicles, $result);
         $this->checkAffixes($rules, $result);
     }
@@ -868,6 +869,42 @@ final class PackValidator
 
         if ($listing !== null && ! in_array($listing, $vehicles, true)) {
             $result->addError($file, '/script/exchange_listing/vehicle', "The listing of the tutorial is {$listing}, which is not a car of the pack.");
+        }
+    }
+
+    /**
+     * The paid features hold together: a pack of refills that gives more charges than a driver may keep can never be bought, and a pack of coins that gives fewer coins for
+     * its price than the first pack (which is the price of a coin that the others are measured by) has no bonus, so that it only costs more.
+     *
+     * @param  array<string, mixed>  $rules
+     */
+    private function checkPremium(array $rules, PackValidationResult $result): void
+    {
+        $premium = $rules['premium'] ?? null;
+
+        if (! is_array($premium)) {
+            return;
+        }
+
+        $cap = $premium['autorefill']['stock_cap'] ?? null;
+
+        foreach ((array) ($premium['autorefill']['packs'] ?? []) as $slug => $pack) {
+            if (is_int($cap) && ($pack['charges'] ?? 0) > $cap) {
+                $result->addError('rules/starter.json', "/premium/autorefill/packs/{$slug}/charges", "The pack gives {$pack['charges']} charges and a driver may keep {$cap}: it could never be bought.");
+            }
+        }
+
+        $products = (array) ($premium['products'] ?? []);
+        $first = $products === [] ? null : $products[array_key_first($products)];
+
+        if ($first === null || ! is_numeric($first['coins'] ?? null) || ! is_numeric($first['price_minor'] ?? null)) {
+            return;
+        }
+
+        foreach (array_slice($products, 1, null, true) as $slug => $product) {
+            if (is_numeric($product['coins'] ?? null) && is_numeric($product['price_minor'] ?? null) && $product['coins'] * $first['price_minor'] < $product['price_minor'] * $first['coins']) {
+                $result->addWarning('rules/starter.json', "/premium/products/{$slug}", 'The pack gives fewer coins for its price than the first pack, so it has no bonus (the first pack is the reference price of a coin).');
+            }
         }
     }
 
