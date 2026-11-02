@@ -16,13 +16,14 @@
       "maxLength": 64
     },
     "base": {
-      "description": "What the instruction was made from: the number of the pack that is live and the snapshot of the content. Copy both from the instruction.",
+      "description": "What the instruction was made from: the number of the pack that is live, the snapshot of the content and the code of the instruction. Copy all three from the BASE line of the data.",
       "type": "object",
       "properties": {
         "pack": { "type": "string", "maxLength": 32 },
-        "snapshot": { "type": "string", "pattern": "^[0-9a-f]{8}$" }
+        "snapshot": { "type": "string", "pattern": "^[0-9a-f]{8}$" },
+        "brief": { "description": "The code of the instruction this block answers.", "type": "string", "pattern": "^[0-9a-z]{6,12}$" }
       },
-      "required": ["pack", "snapshot"],
+      "required": ["pack", "snapshot", "brief"],
       "additionalProperties": false
     },
     "summary": {
@@ -47,6 +48,12 @@
   "required": ["format", "game", "base", "summary", "ops"],
   "additionalProperties": false,
   "$defs": {
+    "slug": {
+      "description": "The name of a car or a part: lower case words joined by dashes.",
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "maxLength": 64
+    },
     "id": {
       "description": "A name for the operation, so that an error can point at it.",
       "type": "string",
@@ -77,7 +84,7 @@
           "type": "object",
           "properties": {
             "kind": { "enum": ["part", "vehicle"] },
-            "slug": { "$ref": "common.schema.json#/$defs/slug" }
+            "slug": { "$ref": "#/$defs/slug" }
           },
           "required": ["kind", "slug"],
           "additionalProperties": false
