@@ -999,6 +999,25 @@
       },
       "region": "zlomowo",
       "surface": "asphalt",
+      "thread": {
+        "mode": "circuit",
+        "sections": [
+          { "type": "straight", "length_m": 160 },
+          { "type": "corner", "radius_m": 70, "angle_deg": 90, "turn": "right" },
+          { "type": "straight", "length_m": 347 },
+          { "type": "corner", "radius_m": 40, "angle_deg": 90, "turn": "left" },
+          { "type": "straight", "length_m": 15 },
+          { "type": "corner", "radius_m": 90, "angle_deg": 90, "turn": "right" },
+          { "type": "straight", "length_m": 475 },
+          { "type": "corner", "radius_m": 28, "angle_deg": 180, "turn": "right" },
+          { "type": "straight", "length_m": 318 },
+          { "type": "corner", "radius_m": 80, "angle_deg": 45, "turn": "left" },
+          { "type": "straight", "length_m": 462 },
+          { "type": "corner", "radius_m": 80, "angle_deg": 45, "turn": "right" },
+          { "type": "straight", "length_m": 209 },
+          { "type": "corner", "radius_m": 55, "angle_deg": 90, "turn": "right" }
+        ]
+      },
       "lit": true,
       "min_player_level": 1,
       "length_m": 2600,
@@ -1019,6 +1038,22 @@
       "region": "kruszyn",
       "surface": "gravel",
       "reference_tires": "offroad-tires-t2",
+      "thread": {
+        "mode": "circuit",
+        "sections": [
+          { "type": "straight", "length_m": 369, "rough": 40 },
+          { "type": "corner", "radius_m": 40, "angle_deg": 90, "turn": "right", "rough": 30 },
+          { "type": "straight", "length_m": 550, "rough": 60 },
+          { "type": "corner", "radius_m": 25, "angle_deg": 180, "turn": "right", "rough": 50 },
+          { "type": "straight", "length_m": 236, "rough": 30 },
+          { "type": "corner", "radius_m": 60, "angle_deg": 90, "turn": "left", "rough": 20 },
+          { "type": "straight", "length_m": 478, "rough": 50 },
+          { "type": "corner", "radius_m": 45, "angle_deg": 90, "turn": "right", "rough": 40 },
+          { "type": "straight", "length_m": 216, "rough": 60 },
+          { "type": "corner", "radius_m": 35, "angle_deg": 90, "turn": "right", "rough": 30 },
+          { "type": "straight", "length_m": 189, "rough": 40 }
+        ]
+      },
       "lit": false,
       "min_player_level": 3,
       "length_m": 2400,
@@ -1038,6 +1073,13 @@
       },
       "region": "suchy-pas",
       "surface": "asphalt",
+      "thread": {
+        "mode": "run",
+        "return_ms": 6900,
+        "sections": [
+          { "type": "straight", "length_m": 1600 }
+        ]
+      },
       "lit": false,
       "min_player_level": 5,
       "length_m": 1600,
@@ -1057,6 +1099,29 @@
       },
       "region": "wilcza-przelecz",
       "surface": "asphalt",
+      "thread": {
+        "mode": "circuit",
+        "sections": [
+          { "type": "straight", "length_m": 265 },
+          { "type": "corner", "radius_m": 28, "angle_deg": 160, "turn": "right" },
+          { "type": "straight", "length_m": 129 },
+          { "type": "corner", "radius_m": 30, "angle_deg": 170, "turn": "left" },
+          { "type": "straight", "length_m": 309 },
+          { "type": "corner", "radius_m": 28, "angle_deg": 160, "turn": "right" },
+          { "type": "straight", "length_m": 107 },
+          { "type": "corner", "radius_m": 32, "angle_deg": 150, "turn": "right" },
+          { "type": "straight", "length_m": 347 },
+          { "type": "corner", "radius_m": 34, "angle_deg": 120, "turn": "left" },
+          { "type": "straight", "length_m": 187 },
+          { "type": "corner", "radius_m": 45, "angle_deg": 100, "turn": "left" },
+          { "type": "straight", "length_m": 313 },
+          { "type": "corner", "radius_m": 30, "angle_deg": 170, "turn": "right" },
+          { "type": "straight", "length_m": 243 },
+          { "type": "corner", "radius_m": 38, "angle_deg": 130, "turn": "left" },
+          { "type": "straight", "length_m": 137 },
+          { "type": "corner", "radius_m": 50, "angle_deg": 240, "turn": "right" }
+        ]
+      },
       "lit": false,
       "min_player_level": 8,
       "length_m": 2900,
@@ -1076,6 +1141,26 @@
       },
       "region": "autodrom",
       "surface": "asphalt",
+      "thread": {
+        "mode": "circuit",
+        "sections": [
+          { "type": "straight", "length_m": 265 },
+          { "type": "corner", "radius_m": 60, "angle_deg": 120, "turn": "right" },
+          { "type": "straight", "length_m": 764 },
+          { "type": "corner", "radius_m": 100, "angle_deg": 60, "turn": "left" },
+          { "type": "straight", "length_m": 344 },
+          { "type": "corner", "radius_m": 35, "angle_deg": 180, "turn": "right" },
+          { "type": "straight", "length_m": 719 },
+          { "type": "corner", "radius_m": 200, "angle_deg": 60, "turn": "right" },
+          { "type": "straight", "length_m": 28 },
+          { "type": "corner", "radius_m": 150, "angle_deg": 60, "turn": "right" },
+          { "type": "straight", "length_m": 15 },
+          { "type": "corner", "radius_m": 70, "angle_deg": 90, "turn": "left" },
+          { "type": "straight", "length_m": 123 },
+          { "type": "corner", "radius_m": 70, "angle_deg": 90, "turn": "right" },
+          { "type": "straight", "length_m": 15 }
+        ]
+      },
       "lit": true,
       "min_player_level": 12,
       "length_m": 3200,
@@ -1096,6 +1181,15 @@
       "region": "zlomowo",
       "surface": "asphalt",
       "kind": "sprint",
+      "thread": {
+        "mode": "circuit",
+        "sections": [
+          { "type": "straight", "length_m": 116 },
+          { "type": "corner", "radius_m": 30, "angle_deg": 180, "turn": "right" },
+          { "type": "straight", "length_m": 116 },
+          { "type": "corner", "radius_m": 30, "angle_deg": 180, "turn": "right" }
+        ]
+      },
       "lit": true,
       "min_player_level": 1,
       "length_m": 420,
@@ -1116,6 +1210,23 @@
       "region": "zlomowo",
       "surface": "asphalt",
       "kind": "endurance",
+      "thread": {
+        "mode": "circuit",
+        "sections": [
+          { "type": "straight", "length_m": 3126 },
+          { "type": "corner", "radius_m": 180, "angle_deg": 90, "turn": "right" },
+          { "type": "straight", "length_m": 1610 },
+          { "type": "corner", "radius_m": 120, "angle_deg": 90, "turn": "right" },
+          { "type": "straight", "length_m": 735 },
+          { "type": "corner", "radius_m": 90, "angle_deg": 40, "turn": "left" },
+          { "type": "straight", "length_m": 15 },
+          { "type": "corner", "radius_m": 90, "angle_deg": 40, "turn": "right" },
+          { "type": "straight", "length_m": 2235 },
+          { "type": "corner", "radius_m": 150, "angle_deg": 90, "turn": "right" },
+          { "type": "straight", "length_m": 1752 },
+          { "type": "corner", "radius_m": 60, "angle_deg": 90, "turn": "right" }
+        ]
+      },
       "lit": true,
       "min_player_level": 4,
       "length_m": 10400,
@@ -1136,6 +1247,15 @@
       "region": "autodrom",
       "surface": "asphalt",
       "kind": "sprint",
+      "thread": {
+        "mode": "circuit",
+        "sections": [
+          { "type": "straight", "length_m": 119 },
+          { "type": "corner", "radius_m": 45, "angle_deg": 180, "turn": "right" },
+          { "type": "straight", "length_m": 119 },
+          { "type": "corner", "radius_m": 45, "angle_deg": 180, "turn": "right" }
+        ]
+      },
       "lit": true,
       "min_player_level": 12,
       "length_m": 520,
@@ -1156,6 +1276,27 @@
       "region": "autodrom",
       "surface": "asphalt",
       "kind": "endurance",
+      "thread": {
+        "mode": "circuit",
+        "sections": [
+          { "type": "straight", "length_m": 2798 },
+          { "type": "corner", "radius_m": 120, "angle_deg": 120, "turn": "right" },
+          { "type": "straight", "length_m": 998 },
+          { "type": "corner", "radius_m": 80, "angle_deg": 90, "turn": "left" },
+          { "type": "straight", "length_m": 2348 },
+          { "type": "corner", "radius_m": 60, "angle_deg": 180, "turn": "right" },
+          { "type": "straight", "length_m": 1137 },
+          { "type": "corner", "radius_m": 250, "angle_deg": 60, "turn": "left" },
+          { "type": "straight", "length_m": 1573 },
+          { "type": "corner", "radius_m": 150, "angle_deg": 90, "turn": "right" },
+          { "type": "straight", "length_m": 1282 },
+          { "type": "corner", "radius_m": 70, "angle_deg": 90, "turn": "left" },
+          { "type": "straight", "length_m": 973 },
+          { "type": "corner", "radius_m": 90, "angle_deg": 120, "turn": "right" },
+          { "type": "straight", "length_m": 1757 },
+          { "type": "corner", "radius_m": 110, "angle_deg": 90, "turn": "right" }
+        ]
+      },
       "lit": true,
       "min_player_level": 15,
       "length_m": 14400,
@@ -1177,6 +1318,15 @@
       "surface": "gravel",
       "kind": "sprint",
       "reference_tires": "offroad-tires-t2",
+      "thread": {
+        "mode": "circuit",
+        "sections": [
+          { "type": "straight", "length_m": 96, "rough": 40 },
+          { "type": "corner", "radius_m": 30, "angle_deg": 180, "turn": "right", "rough": 40 },
+          { "type": "straight", "length_m": 96, "rough": 40 },
+          { "type": "corner", "radius_m": 30, "angle_deg": 180, "turn": "right", "rough": 40 }
+        ]
+      },
       "lit": false,
       "min_player_level": 3,
       "length_m": 380,
@@ -1198,6 +1348,24 @@
       "surface": "gravel",
       "kind": "endurance",
       "reference_tires": "offroad-tires-t2",
+      "thread": {
+        "mode": "circuit",
+        "sections": [
+          { "type": "straight", "length_m": 1228, "rough": 40 },
+          { "type": "corner", "radius_m": 70, "angle_deg": 90, "turn": "right", "rough": 30 },
+          { "type": "straight", "length_m": 1239, "rough": 50 },
+          { "type": "corner", "radius_m": 45, "angle_deg": 90, "turn": "right", "rough": 40 },
+          { "type": "straight", "length_m": 1377, "rough": 60 },
+          { "type": "corner", "radius_m": 60, "angle_deg": 30, "turn": "left", "rough": 30 },
+          { "type": "straight", "length_m": 244, "rough": 40 },
+          { "type": "corner", "radius_m": 60, "angle_deg": 30, "turn": "right", "rough": 30 },
+          { "type": "straight", "length_m": 977, "rough": 50 },
+          { "type": "corner", "radius_m": 90, "angle_deg": 90, "turn": "right", "rough": 30 },
+          { "type": "straight", "length_m": 1367, "rough": 60 },
+          { "type": "corner", "radius_m": 35, "angle_deg": 90, "turn": "right", "rough": 40 },
+          { "type": "straight", "length_m": 1429, "rough": 40 }
+        ]
+      },
       "lit": false,
       "min_player_level": 6,
       "length_m": 8300,
@@ -1218,6 +1386,12 @@
       "region": "suchy-pas",
       "surface": "asphalt",
       "kind": "sprint",
+      "thread": {
+        "mode": "run",
+        "sections": [
+          { "type": "straight", "length_m": 500 }
+        ]
+      },
       "lit": false,
       "min_player_level": 5,
       "length_m": 500,
@@ -1238,6 +1412,19 @@
       "region": "suchy-pas",
       "surface": "asphalt",
       "kind": "endurance",
+      "thread": {
+        "mode": "circuit",
+        "sections": [
+          { "type": "straight", "length_m": 2489 },
+          { "type": "corner", "radius_m": 200, "angle_deg": 90, "turn": "right" },
+          { "type": "straight", "length_m": 1300 },
+          { "type": "corner", "radius_m": 120, "angle_deg": 90, "turn": "right" },
+          { "type": "straight", "length_m": 2400 },
+          { "type": "corner", "radius_m": 250, "angle_deg": 90, "turn": "right" },
+          { "type": "straight", "length_m": 1290 },
+          { "type": "corner", "radius_m": 80, "angle_deg": 90, "turn": "right" }
+        ]
+      },
       "lit": false,
       "min_player_level": 8,
       "length_m": 8500,
@@ -1258,6 +1445,15 @@
       "region": "wilcza-przelecz",
       "surface": "asphalt",
       "kind": "sprint",
+      "thread": {
+        "mode": "circuit",
+        "sections": [
+          { "type": "straight", "length_m": 177 },
+          { "type": "corner", "radius_m": 20, "angle_deg": 180, "turn": "right" },
+          { "type": "straight", "length_m": 177 },
+          { "type": "corner", "radius_m": 20, "angle_deg": 180, "turn": "right" }
+        ]
+      },
       "lit": false,
       "min_player_level": 8,
       "length_m": 480,
@@ -1278,6 +1474,27 @@
       "region": "wilcza-przelecz",
       "surface": "asphalt",
       "kind": "endurance",
+      "thread": {
+        "mode": "circuit",
+        "sections": [
+          { "type": "straight", "length_m": 1390 },
+          { "type": "corner", "radius_m": 45, "angle_deg": 150, "turn": "left" },
+          { "type": "straight", "length_m": 805 },
+          { "type": "corner", "radius_m": 35, "angle_deg": 160, "turn": "right" },
+          { "type": "straight", "length_m": 1743 },
+          { "type": "corner", "radius_m": 60, "angle_deg": 90, "turn": "right" },
+          { "type": "straight", "length_m": 2185 },
+          { "type": "corner", "radius_m": 30, "angle_deg": 170, "turn": "right" },
+          { "type": "straight", "length_m": 943 },
+          { "type": "corner", "radius_m": 80, "angle_deg": 100, "turn": "left" },
+          { "type": "straight", "length_m": 1598 },
+          { "type": "corner", "radius_m": 40, "angle_deg": 150, "turn": "right" },
+          { "type": "straight", "length_m": 934 },
+          { "type": "corner", "radius_m": 55, "angle_deg": 120, "turn": "left" },
+          { "type": "straight", "length_m": 1145 },
+          { "type": "corner", "radius_m": 35, "angle_deg": 160, "turn": "right" }
+        ]
+      },
       "lit": false,
       "min_player_level": 11,
       "length_m": 11600,
