@@ -838,8 +838,9 @@
       "reference_pi": 300,
       "stat_cap_ppm": 4000000,
       "weights_ppm": { "accel": 217000, "top_speed": 127000, "grip": 230000, "handling": 197000, "braking": 163000, "clearance": 66000 },
-      "class_max_pi": { "D": 249, "C": 399, "B": 549, "A": 699, "S": 849 },
-      "top_class": "X"
+      "max_pi": 999,
+      "class_max_pi": { "F": 199, "E": 299, "D": 399, "C": 499, "B": 599, "A": 699, "S": 799 },
+      "top_class": "SS"
     },
     "rating": {
       "start": 1000,

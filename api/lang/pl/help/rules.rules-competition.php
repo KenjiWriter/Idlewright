@@ -14,6 +14,12 @@ return [
             'example' => '400%: przyspieszenie cztery razy większe niż w aucie odniesienia liczy się jak cztery razy, nie więcej.',
             'range' => '100% – 10 000%.',
         ],
+        '/competition/pi/max_pi' => [
+            'label' => 'Najwyższe pokazywane PI',
+            'help' => 'Najwyższe PI, jakie auto może mieć: silniejsze auto nadal ma tyle. Na tym PI kończy się klasa najwyższa (auto pokazuje się jako klasa i PI, od F0 do SS999). Musi być powyżej progu ostatniej klasy z progiem.',
+            'example' => '999: najsilniejsze auto to SS 999.',
+            'range' => '1 – 100 000 (PI).',
+        ],
         '/competition/pi/weights_ppm/*' => [
             'label' => 'Waga statystyki w PI',
             'help' => 'Jak wiele liczy się ta statystyka w PI auta (waga w sumie 100%). Domyślnie wagi są średnią z tego, co wszystkie tory wymagają od auta, więc statystyki, na których tory polegają najbardziej (przyczepność, przyspieszenie), liczą się najmocniej. Wagi muszą dawać w sumie 100% i dotyczą statystyk modelu gry.',
@@ -23,7 +29,7 @@ return [
         '/competition/pi/class_max_pi/*' => [
             'label' => 'Górny próg klasy (PI)',
             'help' => 'Najwyższe PI, jakie ma jeszcze auto tej klasy. Auto jest w pierwszej klasie, której próg ma nie wyższy od jego PI; auta powyżej ostatniego progu są w klasie najwyższej. Progi muszą rosnąć od najsłabszej klasy. Turniej klasy przyjmuje tylko auta tej klasy, więc dobry tuning daje przewagę w klasie, a lepsze auto otwiera następną.',
-            'example' => '399: auto z PI 399 jest jeszcze w klasie C, a z PI 400 już w klasie B.',
+            'example' => '399: auto z PI 399 jest jeszcze w klasie D, a z PI 400 już w klasie C.',
             'range' => '1 – 1 000 000 (PI); rosnąco.',
         ],
         '/competition/rating/start' => [

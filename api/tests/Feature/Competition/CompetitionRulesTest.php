@@ -33,9 +33,12 @@ describe('the rules of the competition', function () {
             ->and($competition['pi']['reference_pi'])->toBe(300)
             ->and(array_sum($competition['pi']['weights_ppm']))->toBe(1_000_000)
             ->and($competition['match'])->toBe(['luck_sigma_ppm' => 20_000, 'runs' => 3])
-            ->and($rules->performanceClasses()->names())->toBe(['D', 'C', 'B', 'A', 'S', 'X'])
-            ->and($rules->performanceClasses()->of(399))->toBe('C')
-            ->and($rules->performanceClasses()->of(400))->toBe('B');
+            ->and($competition['pi']['max_pi'])->toBe(999)
+            ->and($rules->performanceClasses()->names())->toBe(['F', 'E', 'D', 'C', 'B', 'A', 'S', 'SS'])
+            ->and($rules->performanceClasses()->of(0))->toBe('F')
+            ->and($rules->performanceClasses()->of(399))->toBe('D')
+            ->and($rules->performanceClasses()->of(400))->toBe('C')
+            ->and($rules->performanceClasses()->of(999))->toBe('SS');
     });
 
     it('give Respekt the numbers it always had, so that the first game plays as before', function () {
@@ -85,6 +88,14 @@ describe('the rules of the competition', function () {
             }))->toBe(['rules/starter.json /competition/pi/top_class']);
     });
 
+    it('refuse a highest PI that is not above the limit of the last class with a limit', function () {
+        expect(competitionErrors(static function (array $rules): array {
+            $rules['competition']['pi']['max_pi'] = 700;
+
+            return $rules;
+        }))->toBe(['rules/starter.json /competition/pi/max_pi']);
+    });
+
     it('refuse a minimum Respekt above the start, divisions that do not begin one after the other, and a match of an even number of runs', function () {
         expect(competitionErrors(static function (array $rules): array {
             $rules['competition']['rating']['minimum'] = 1_200;
@@ -109,12 +120,13 @@ describe('the performance index of the cars of the pack', function () {
         $performance = app(CarPerformance::class);
 
         expect($performance->of('rdzak-gt-4'))->toBe(300)
-            ->and($performance->classOf(300))->toBe('C')
+            ->and($performance->classOf(300))->toBe('D')
             ->and($performance->of('furgon-z-1'))->toBeBetween(230, 240)
-            ->and($performance->classOf($performance->of('furgon-z-1')))->toBe('D')
+            ->and($performance->classOf($performance->of('furgon-z-1')))->toBe('E')
             ->and($performance->of('serwal-gt'))->toBeBetween(365, 380)
             ->and($performance->of('orzel-v12'))->toBeBetween(455, 465)
-            ->and($performance->classOf($performance->of('orzel-v12')))->toBe('B');
+            ->and($performance->classOf($performance->of('orzel-v12')))->toBe('C')
+            ->and($performance->maxPi())->toBe(999);
     });
 
     it('grows with the parts on the car, and does not count a lap time: the same car on any track has the same PI', function () {
@@ -150,7 +162,8 @@ describe('the commands', function () {
 
         expect($report['reference'])->toBe(['car' => 'rdzak-gt-4', 'pi' => 300])
             ->and($report['ceiling_pi'])->toBeBetween(900, 960)
-            ->and(array_column($report['classes'], 'class'))->toBe(['D', 'C', 'B', 'A', 'S', 'X'])
+            ->and(array_column($report['classes'], 'class'))->toBe(['F', 'E', 'D', 'C', 'B', 'A', 'S', 'SS'])
+            ->and($report['sets'])->toBe(['stock', 'T1', 'T2', 'T3', 'T4', 'T5', 'T7', 'T9', 'rare+4', 'epic+8', 'best+12'])
             ->and(count($report['cars']))->toBe(23)
             ->and(array_sum($report['cars_per_class']['stock']))->toBe(23);
     });

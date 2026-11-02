@@ -14,6 +14,12 @@ return [
             'example' => '400%: an acceleration four times that of the reference car counts four times, no more.',
             'range' => '100% – 10,000%.',
         ],
+        '/competition/pi/max_pi' => [
+            'label' => 'Highest PI shown',
+            'help' => 'The highest PI a car can have: a stronger car still has this much. The top class ends here (a car is shown as a class and a PI, from F0 to SS999). It has to be above the limit of the last class that has a limit.',
+            'example' => '999: the strongest car is SS 999.',
+            'range' => '1 – 100,000 (PI).',
+        ],
         '/competition/pi/weights_ppm/*' => [
             'label' => 'Weight of a statistic in the PI',
             'help' => 'How much this statistic counts for in the PI of a car (the weights add up to 100%). By default the weights are the mean of what all the tracks ask of a car, so the statistics that the tracks rely on most (grip, acceleration) count the most. The weights have to add up to 100% and are for the statistics of the model of the game.',
@@ -23,7 +29,7 @@ return [
         '/competition/pi/class_max_pi/*' => [
             'label' => 'Upper limit of a class (PI)',
             'help' => 'The highest PI that a car of this class can still have. A car is in the first class whose limit is not below its PI; cars above the last limit are in the top class. The limits have to grow from the weakest class. A tournament of a class takes the cars of that class only, so a good tune is an advantage in the class and a better car opens the next one.',
-            'example' => '399: a car with 399 PI is still in class C, one with 400 is in class B.',
+            'example' => '399: a car with 399 PI is still in class D, one with 400 is in class C.',
             'range' => '1 – 1,000,000 (PI); ascending.',
         ],
         '/competition/rating/start' => [

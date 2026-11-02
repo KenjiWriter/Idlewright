@@ -14,6 +14,12 @@ return [
             'example' => '400 % : une accélération quatre fois celle de la voiture de référence compte quatre fois, pas plus.',
             'range' => '100 % – 10 000 %.',
         ],
+        '/competition/pi/max_pi' => [
+            'label' => 'PI maximal affiché',
+            'help' => 'Le PI le plus élevé qu’une voiture peut avoir : une voiture plus forte a quand même cette valeur. La classe supérieure s’arrête ici (une voiture s’affiche avec sa classe et son PI, de F0 à SS999). Il doit dépasser la limite de la dernière classe qui a une limite.',
+            'example' => '999 : la voiture la plus forte est SS 999.',
+            'range' => '1 – 100 000 (PI).',
+        ],
         '/competition/pi/weights_ppm/*' => [
             'label' => 'Poids d’une statistique dans le PI',
             'help' => 'Combien cette statistique compte dans le PI d’une voiture (les poids font 100 % au total). Par défaut, les poids sont la moyenne de ce que tous les circuits demandent à une voiture, donc les statistiques sur lesquelles les circuits s’appuient le plus (adhérence, accélération) comptent le plus. Les poids doivent faire 100 % et portent sur les statistiques du modèle du jeu.',
@@ -23,7 +29,7 @@ return [
         '/competition/pi/class_max_pi/*' => [
             'label' => 'Limite haute d’une classe (PI)',
             'help' => 'Le PI le plus élevé que peut encore avoir une voiture de cette classe. Une voiture est dans la première classe dont la limite n’est pas inférieure à son PI ; au-dessus de la dernière limite, c’est la classe supérieure. Les limites doivent croître depuis la classe la plus faible. Un tournoi de classe n’accepte que les voitures de cette classe : un bon réglage donne l’avantage dans la classe, une meilleure voiture ouvre la suivante.',
-            'example' => '399 : une voiture à 399 PI est encore en classe C, à 400 elle est en classe B.',
+            'example' => '399 : une voiture à 399 PI est encore en classe D, à 400 elle est en classe C.',
             'range' => '1 – 1 000 000 (PI) ; croissant.',
         ],
         '/competition/rating/start' => [

@@ -586,7 +586,7 @@ final class Rules
      * The competition as the rules give it: the switch, how the performance index of a car is made and the classes cut out of it, the numbers of Respekt (the rating of
      * a driver) and how a match is played. Null when the rules do not mention it, which is the same as off.
      *
-     * @return array{enabled: bool, pi: array{reference_car: string, reference_pi: int, stat_cap_ppm: int, weights_ppm: array<string, int>, class_max_pi: array<string, int>, top_class: string}, rating: array{start: int, minimum: int, k_new: int, new_matches: int, k_established: int, k_top: int, top_from: int, club_from: int, regional_from: int, elite_from: int, season_keep_ppm: int}, match: array{luck_sigma_ppm: int, runs: int}}|null
+     * @return array{enabled: bool, pi: array{reference_car: string, reference_pi: int, stat_cap_ppm: int, max_pi: int, weights_ppm: array<string, int>, class_max_pi: array<string, int>, top_class: string}, rating: array{start: int, minimum: int, k_new: int, new_matches: int, k_established: int, k_top: int, top_from: int, club_from: int, regional_from: int, elite_from: int, season_keep_ppm: int}, match: array{luck_sigma_ppm: int, runs: int}}|null
      */
     public function competition(): ?array
     {
@@ -604,6 +604,7 @@ final class Rules
                 'reference_car' => (string) $pi['reference_car'],
                 'reference_pi' => (int) $pi['reference_pi'],
                 'stat_cap_ppm' => (int) $pi['stat_cap_ppm'],
+                'max_pi' => (int) $pi['max_pi'],
                 'weights_ppm' => array_map('intval', $pi['weights_ppm']),
                 'class_max_pi' => array_map('intval', $pi['class_max_pi']),
                 'top_class' => (string) $pi['top_class'],
@@ -633,7 +634,7 @@ final class Rules
         $pi = $this->competition()['pi'] ?? null;
 
         return $pi === null
-            ? new PerformanceClasses(['D' => 249, 'C' => 399, 'B' => 549, 'A' => 699, 'S' => 849], 'X')
+            ? new PerformanceClasses(['F' => 199, 'E' => 299, 'D' => 399, 'C' => 499, 'B' => 599, 'A' => 699, 'S' => 799], 'SS')
             : new PerformanceClasses($pi['class_max_pi'], $pi['top_class']);
     }
 

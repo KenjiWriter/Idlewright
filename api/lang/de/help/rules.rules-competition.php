@@ -14,6 +14,12 @@ return [
             'example' => '400 %: eine viermal so große Beschleunigung wie beim Referenzauto zählt viermal, nicht mehr.',
             'range' => '100 % – 10.000 %.',
         ],
+        '/competition/pi/max_pi' => [
+            'label' => 'Höchstes angezeigtes PI',
+            'help' => 'Das höchste PI, das ein Auto haben kann: ein stärkeres Auto hat trotzdem diesen Wert. Hier endet die oberste Klasse (ein Auto wird als Klasse und PI angezeigt, von F0 bis SS999). Es muss über der Grenze der letzten Klasse mit Grenze liegen.',
+            'example' => '999: das stärkste Auto ist SS 999.',
+            'range' => '1 – 100.000 (PI).',
+        ],
         '/competition/pi/weights_ppm/*' => [
             'label' => 'Gewicht einer Eigenschaft im PI',
             'help' => 'Wie viel diese Eigenschaft im PI eines Autos zählt (die Gewichte ergeben zusammen 100 %). Standardmäßig sind die Gewichte der Mittelwert dessen, was alle Strecken von einem Auto verlangen, also zählen die Eigenschaften, auf die die Strecken am meisten setzen (Grip, Beschleunigung), am meisten. Die Gewichte müssen 100 % ergeben und gelten für die Eigenschaften des Spielmodells.',
@@ -23,7 +29,7 @@ return [
         '/competition/pi/class_max_pi/*' => [
             'label' => 'Obergrenze einer Klasse (PI)',
             'help' => 'Das höchste PI, das ein Auto dieser Klasse noch haben darf. Ein Auto gehört zur ersten Klasse, deren Grenze nicht unter seinem PI liegt; Autos über der letzten Grenze sind in der obersten Klasse. Die Grenzen müssen von der schwächsten Klasse an wachsen. Ein Turnier einer Klasse nimmt nur Autos dieser Klasse, ein gutes Tuning ist also ein Vorteil in der Klasse und ein besseres Auto öffnet die nächste.',
-            'example' => '399: ein Auto mit 399 PI ist noch in Klasse C, eines mit 400 in Klasse B.',
+            'example' => '399: ein Auto mit 399 PI ist noch in Klasse D, eines mit 400 in Klasse C.',
             'range' => '1 – 1.000.000 (PI); aufsteigend.',
         ],
         '/competition/rating/start' => [

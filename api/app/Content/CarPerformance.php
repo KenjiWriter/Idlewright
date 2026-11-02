@@ -30,7 +30,7 @@ final class CarPerformance
     {
         $pi = $this->settings();
 
-        return PerformanceIndex::of(self::milli($this->inputs->stats($carSlug, $mounted)->stats), $this->referenceMilli(), $pi['weights_ppm'], $pi['stat_cap_ppm'], $pi['reference_pi']);
+        return min($pi['max_pi'], PerformanceIndex::of(self::milli($this->inputs->stats($carSlug, $mounted)->stats), $this->referenceMilli(), $pi['weights_ppm'], $pi['stat_cap_ppm'], $pi['reference_pi']));
     }
 
     /** The PI of a car of a driver, as it is now. */
@@ -56,13 +56,19 @@ final class CarPerformance
         return PerformanceIndex::of(self::milli($this->rules->statCeilings()), $this->referenceMilli(), $pi['weights_ppm'], $pi['stat_cap_ppm'], $pi['reference_pi']);
     }
 
+    /** The highest PI that is shown (999 in the first game): a car is never worth more. */
+    public function maxPi(): int
+    {
+        return $this->settings()['max_pi'];
+    }
+
     /** @return array<string, int> */
     private function referenceMilli(): array
     {
         return $this->reference ??= self::milli($this->inputs->stats($this->settings()['reference_car'])->stats);
     }
 
-    /** @return array{reference_car: string, reference_pi: int, stat_cap_ppm: int, weights_ppm: array<string, int>, class_max_pi: array<string, int>, top_class: string} */
+    /** @return array{reference_car: string, reference_pi: int, stat_cap_ppm: int, max_pi: int, weights_ppm: array<string, int>, class_max_pi: array<string, int>, top_class: string} */
     private function settings(): array
     {
         return $this->rules->competition()['pi'] ?? throw new InvalidArgumentException('The rules of this game have no competition, so cars have no performance index.');

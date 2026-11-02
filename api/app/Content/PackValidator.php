@@ -1029,6 +1029,10 @@ final class PackValidator
             $previous = $limit;
         }
 
+        if ($previous >= $pi['max_pi']) {
+            $result->addError($file, '/competition/pi/max_pi', "The highest PI shown ({$pi['max_pi']}) must be above the limit of the last class with a limit ({$previous}), or the top class would be empty.");
+        }
+
         if (array_key_exists($pi['top_class'], $pi['class_max_pi'])) {
             $result->addError($file, '/competition/pi/top_class', "The top class {$pi['top_class']} is also a class with a limit.");
         }

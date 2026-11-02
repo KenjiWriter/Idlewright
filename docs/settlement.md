@@ -163,4 +163,19 @@ Projekt (D1–D22) zatwierdził właściciel. **C0 to dane i czysta domena, jesz
 
 Reguły: sekcja `competition` w `rules/starter.json` (`pi`, `rating`, `match`; w Studio z pomocą w pięciu językach; walidator sprawdza auto odniesienia, wagi, progi klas, dywizje i nieparzystą liczbę biegów). Polecenie `php artisan competition:pi-report [--json]` pokazuje PI aut seryjnych i z najlepszymi częściami sklepu (dolna i górna granica, dopasowania części nie sprawdza) na tle klas.
 
-**Pomiar (seryjne auta paczki, Rdzak GT-4 = 300):** PI 235–460 (D: 2 auta, C: 19, B: 2, A–X: 0). Z najlepszymi częściami sklepu w rzadkości zwykłej 438–571, w legendarnej +12 744–809; sufit statystyk gry to 933. Części dominują nad nadwoziem (po tuningu auta różnią się o kilkadziesiąt PI), a klasy A–X zaczynają się dopiero z częściami: progi z płótna (249/399/549/699/849) czekają na zatwierdzenie właściciela po tym pomiarze.
+**Klasy F–SS (wymaganie właściciela, 2026-11-02):** auto ma punktację PI od 0 do 999 i klasę z ośmiu: F, E, D, C, B, A, S, SS (pokazuje się jako klasa i PI, np. „B 612”, od „F 0” do „SS 999”). Im szybsze auto, tym więcej punktów, im więcej punktów, tym wyższa klasa. Progi są **danymi** (`competition.pi.class_max_pi`, `max_pi`), a wpisane wartości to **propozycja do zatwierdzenia przez właściciela**: F do 199, E do 299, D do 399, C do 499, B do 599, A do 699, S do 799, SS od 800.
+
+**Pomiar (23 seryjne auta paczki, Rdzak GT-4 = 300, `competition:pi-report`):**
+
+| Zestaw części (najlepsze części sklepu, bez sprawdzania dopasowania) | PI najmniej / mediana / najwięcej | Gdzie leżą klasy |
+|---|---|---|
+| seryjne | 235 / 300 / 460 | E: 8 aut, D: 13, C: 2 |
+| tier ≤ 2 | 286 – 382 | D: 20, E: 3 |
+| tier ≤ 5, zwykła rzadkość | 325 – 429 | D: 15, C: 8 |
+| tier ≤ 7 | 373 – 550 | C: 16, B: 4, D: 3 |
+| tier ≤ 9 | 421 / 554 / 568 | B: 20, C: 3 |
+| te same, rzadka +4 | 550 / 634 / 656 | B–A |
+| epicka +8 | 644 / 689 / 719 | A, kilka w S |
+| legendarna +12 | 744 / 785 / 809 | S (20 aut), SS (3 auta) |
+
+Części dominują nad nadwoziem (po tuningu auta różnią się o kilkadziesiąt PI, stare Rdzaki z najlepszymi częściami są wyżej niż Orzeł V12), a sufit statystyk gry to PI 933. Przy progu SS od 850 z płótna SS byłaby nieosiągalna, dlatego propozycja to SS od 800: tylko pełny zestaw legendarny +12 na najlepszym aucie.

@@ -14,6 +14,12 @@ return [
             'example' => '400%: uma aceleração quatro vezes a do carro de referência conta quatro vezes, não mais.',
             'range' => '100% – 10.000%.',
         ],
+        '/competition/pi/max_pi' => [
+            'label' => 'Maior PI mostrado',
+            'help' => 'O maior PI que um carro pode ter: um carro mais forte ainda tem esse valor. A classe mais alta termina aqui (um carro aparece como classe e PI, de F0 a SS999). Tem de estar acima do limite da última classe que tem limite.',
+            'example' => '999: o carro mais forte é SS 999.',
+            'range' => '1 – 100.000 (PI).',
+        ],
         '/competition/pi/weights_ppm/*' => [
             'label' => 'Peso de uma estatística no PI',
             'help' => 'Quanto esta estatística conta no PI de um carro (os pesos somam 100%). Por padrão os pesos são a média do que todas as pistas pedem de um carro, então as estatísticas em que as pistas mais se apoiam (aderência, aceleração) contam mais. Os pesos têm de somar 100% e valem para as estatísticas do modelo do jogo.',
@@ -23,7 +29,7 @@ return [
         '/competition/pi/class_max_pi/*' => [
             'label' => 'Limite superior de uma classe (PI)',
             'help' => 'O maior PI que um carro desta classe ainda pode ter. Um carro está na primeira classe cujo limite não é menor que o seu PI; os carros acima do último limite estão na classe mais alta. Os limites têm de crescer a partir da classe mais fraca. Um torneio de uma classe aceita só carros dessa classe, então um bom acerto dá vantagem na classe e um carro melhor abre a seguinte.',
-            'example' => '399: um carro com 399 PI ainda está na classe C, com 400 está na classe B.',
+            'example' => '399: um carro com 399 PI ainda está na classe D, com 400 está na classe C.',
             'range' => '1 – 1.000.000 (PI); crescente.',
         ],
         '/competition/rating/start' => [
