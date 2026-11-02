@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Definitions\Pages;
 
+use App\Content\Bridge\Brief;
+use App\Content\Bridge\BriefRecorder;
 use App\Content\Definitions\DefinitionForm;
 use App\Content\Definitions\DefinitionRefused;
 use App\Filament\Concerns\ShowsChanges;
+use App\Filament\Pages\AiBridgePage;
 use App\Filament\Resources\Definitions\DefinitionResource;
 use App\Models\Admin;
 use App\Models\ContentDefinition;
@@ -16,6 +19,7 @@ use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
 use Filament\Schemas\Schema;
+use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
@@ -89,6 +93,20 @@ abstract class EditDefinition extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            Action::make('ai')
+                ->label(__('admin.ai.record_button'))
+                ->icon('heroicon-m-sparkles')
+                ->color('gray')
+                ->modalHeading(__('admin.ai.record_title'))
+                ->modalDescription(__('admin.ai.record_hint'))
+                ->modalWidth('3xl')
+                ->modalSubmitAction(false)
+                ->modalCancelActionLabel(__('admin.ai.close'))
+                ->modalContent(function (): View {
+                    $brief = $this->recordBrief();
+
+                    return view('filament.ai.record', ['text' => $brief->text, 'tokens' => $brief->tokens, 'bytes' => $brief->bytes, 'bridgeUrl' => AiBridgePage::getUrl()]);
+                }),
             Action::make('discard')
                 ->label(__('admin.definitions.discard'))
                 ->color('gray')
@@ -152,6 +170,16 @@ abstract class EditDefinition extends EditRecord
         $this->fillForm();
 
         Notification::make()->success()->title(__('admin.definitions.done'))->send();
+    }
+
+    /** The instruction for an AI about this one car or part, made and recorded when the window is opened. */
+    private function recordBrief(): Brief
+    {
+        $definition = $this->definition();
+        // The panel says pt_BR where the languages of the content say pt-BR.
+        $locale = str_replace('_', '-', app()->getLocale());
+
+        return app(BriefRecorder::class)->prepareRecord($definition->kind, $definition->slug, $locale, $this->admin());
     }
 
     private function definition(): ContentDefinition

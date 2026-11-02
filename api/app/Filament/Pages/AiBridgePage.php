@@ -97,7 +97,8 @@ class AiBridgePage extends Page implements HasSchemas
 
     public function mount(): void
     {
-        $locale = app()->getLocale();
+        // The panel says pt_BR where the languages of the content say pt-BR.
+        $locale = str_replace('_', '-', app()->getLocale());
 
         $this->form->fill([
             'include' => ['vehicles', 'parts', 'rules'],
