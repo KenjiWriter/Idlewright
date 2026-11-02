@@ -37,6 +37,9 @@ use Livewire\Livewire;
  */
 class AdminPanelProvider extends PanelProvider
 {
+    /** The name of the engine. The panel and the authenticator app show it, since one panel runs every game; each game keeps its own name for its players. */
+    public const ENGINE_NAME = 'Idlewright';
+
     public function boot(): void
     {
         // The language of the panel is that of the people who run it, not of a player's request: this runs for every request the panel answers, the ones of its
@@ -59,9 +62,9 @@ class AdminPanelProvider extends PanelProvider
             ->login()
             ->profile()
             ->multiFactorAuthentication([
-                AppAuthentication::make()->recoverable()->brandName((string) config('app.name')),
+                AppAuthentication::make()->recoverable()->brandName(self::ENGINE_NAME),
             ], isRequired: true)
-            ->brandName('RideIdle')
+            ->brandName(self::ENGINE_NAME)
             ->colors([
                 'primary' => Color::Amber,
             ])
