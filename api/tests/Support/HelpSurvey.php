@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Tests\Support;
 
 use App\Filament\Pages\BrandingPage;
+use App\Filament\Pages\MissionsPage;
 use App\Filament\Pages\ModelPage;
 use App\Filament\Pages\PremiumPage;
 use App\Filament\Pages\RulesJsonPage;
@@ -43,6 +44,7 @@ final class HelpSurvey
             'model' => ModelPage::class,
             'branding' => BrandingPage::class,
             'premium' => PremiumPage::class,
+            'missions' => MissionsPage::class,
             'vocabulary' => VocabularyPage::class,
             'rules_text' => RulesJsonPage::class,
             'studio' => StudioPage::class,
