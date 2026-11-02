@@ -164,6 +164,8 @@ return [
     | name under it). PUSH_HOSTS replaces the list (comma separated) for a service that is not here.
     */
     'push' => [
+        // The salt of the hash that puts an account in a group of the experiment (see PushArm): changing it moves accounts between the groups.
+        'arm_salt' => env('PUSH_ARM_SALT', 'push-ab-1'),
         'hosts' => array_filter(array_map('trim', explode(',', (string) env('PUSH_HOSTS', 'fcm.googleapis.com,android.googleapis.com,push.services.mozilla.com,push.apple.com,notify.windows.com')))),
     ],
 

@@ -25,7 +25,7 @@ class SendPush implements ShouldQueue
 
     public int $timeout = 30;
 
-    /** @param  array{kind: string, title: string, body: string, url: string, tag: string, ttl: int, urgency: string, lang: string}  $message */
+    /** @param  array{kind: string, title: string, body: string, url: string, tag: string, ttl: int, urgency: string, lang: string, nid?: string|null}  $message */
     public function __construct(public readonly int $subscriptionId, public readonly array $message) {}
 
     /** @return list<int> */

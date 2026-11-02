@@ -39,6 +39,7 @@ final class PushDispatcher
         private readonly Rules $rules,
         private readonly Push $push,
         private readonly PushPreferences $preferences,
+        private readonly PushArm $arm,
         private readonly RunService $runs,
         private readonly Catalog $catalog,
     ) {}
@@ -59,8 +60,8 @@ final class PushDispatcher
         foreach ($due as $userId => $events) {
             $user = User::query()->find($userId);
 
-            if ($user === null || ! PushSubscription::query()->where('user_id', $userId)->whereNull('disabled_at')->exists()) {
-                // Nobody to tell: the driver has no device any more.
+            if ($user === null || $this->arm->isHoldout((int) $userId) || ! PushSubscription::query()->where('user_id', $userId)->whereNull('disabled_at')->exists()) {
+                // Nobody to tell: the driver has no device any more, or is in the group that is never told.
                 PushEvent::query()->whereIn('id', $events->modelKeys())->delete();
 
                 continue;

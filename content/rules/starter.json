@@ -832,7 +832,8 @@
     "min_gap_ms": 1800000,
     "seen_ms": 180000,
     "quiet_from_min": 1320,
-    "quiet_to_min": 480
+    "quiet_to_min": 480,
+    "holdout_ppm": 200000
   },
   "slots": {
     "enabled": true,

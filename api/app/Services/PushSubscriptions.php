@@ -31,7 +31,7 @@ final class PushSubscriptions
      */
     public function save(User $user, array $data, ?string $userAgent): PushSubscription
     {
-        $public = $this->push->publicKey() ?? throw new RuleRefusedException('push_unavailable');
+        $public = $this->push->publicKeyFor($user) ?? throw new RuleRefusedException('push_unavailable');
 
         if (! $this->isPushService($data['endpoint'])) {
             throw new RuleRefusedException('push_endpoint');

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Models\PushDelivery;
 use App\Models\PushEvent;
 use App\Models\PushSubscription;
 use Illuminate\Console\Command;
@@ -27,6 +28,8 @@ final class PrunePush extends Command
 
         $devices = PushSubscription::query()->withoutGlobalScopes()->whereNotNull('disabled_at')->where('disabled_at', '<', $before)->delete();
         $events = PushEvent::query()->withoutGlobalScopes()->whereIn('state', [PushEvent::STATE_SENT, PushEvent::STATE_SKIPPED])->where('updated_at', '<', $before)->delete();
+
+        PushDelivery::query()->withoutGlobalScopes()->where('created_at', '<', $before)->delete();
 
         $this->info("Push: {$devices} devices and {$events} notes deleted.");
 

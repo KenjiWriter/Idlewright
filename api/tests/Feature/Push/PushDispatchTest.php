@@ -20,6 +20,8 @@ use Illuminate\Support\Facades\Queue;
 // Telling the drivers who are away what happened: a car that stopped (forecast, then looked at), a car that arrived, a job that is done. The test clock starts at 20:00 in Warsaw;
 // the car of the test has a lap of 75 s and uses 1.5 l a lap, so 6 l are 4 laps, which is the 300 s after which it stops.
 
+beforeEach(fn () => thePushRulesAre([]));
+
 afterEach(fn () => Carbon::setTestNow());
 
 /** A driver with a device and a car with `$litres` of fuel, looked at once (so the moment it stops is planned); `$run` changes the car. */

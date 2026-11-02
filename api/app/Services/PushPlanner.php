@@ -26,12 +26,12 @@ final class PushPlanner
     /** How far ahead a car is followed: a car that drives for longer is looked at again when the horizon is reached. */
     public const HORIZON_MS = 86_400_000;
 
-    public function __construct(private readonly Rules $rules, private readonly Settler $settler = new Settler) {}
+    public function __construct(private readonly Rules $rules, private readonly PushArm $arm, private readonly Settler $settler = new Settler) {}
 
     /** Whether any device of the driver can be told (the forecast is made only for them: most drivers have none). */
     public function wanted(int $userId): bool
     {
-        return $this->rules->pushOn() && PushSubscription::query()->where('user_id', $userId)->whereNull('disabled_at')->exists();
+        return $this->rules->pushOn() && ! $this->arm->isHoldout($userId) && PushSubscription::query()->where('user_id', $userId)->whereNull('disabled_at')->exists();
     }
 
     /** Makes the forecast for a car after it was looked at (called with the run locked). */

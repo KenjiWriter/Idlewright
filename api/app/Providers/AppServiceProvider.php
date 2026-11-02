@@ -110,6 +110,8 @@ class AppServiceProvider extends ServiceProvider
         // reaches the push service, so a driver gets three an hour.
         RateLimiter::for('push-subscription', fn (Request $request) => Limit::perHour(60)->by('user:'.$request->user()?->getAuthIdentifier()));
 
+        RateLimiter::for('push-seen', fn (Request $request) => Limit::perMinute(60)->by('ip:'.$request->ip()));
+
         RateLimiter::for('push-test', fn (Request $request) => Limit::perHour(3)->by('user:'.$request->user()?->getAuthIdentifier()));
 
         RateLimiter::for('account-erase', fn (Request $request) => Limit::perHour(5)->by('user:'.$request->user()?->getAuthIdentifier()));

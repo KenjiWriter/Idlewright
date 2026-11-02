@@ -19,13 +19,14 @@ final readonly class PushMessage
         public int $ttl,
         public string $urgency = 'normal',
         public string $lang = 'en',
+        public ?string $nid = null,
     ) {}
 
     /** What the service worker receives: the JSON of the notification. */
     public function content(): string
     {
         return json_encode(
-            ['kind' => $this->kind, 'title' => $this->title, 'body' => $this->body, 'url' => $this->url, 'tag' => $this->tag, 'lang' => $this->lang],
+            ['kind' => $this->kind, 'title' => $this->title, 'body' => $this->body, 'url' => $this->url, 'tag' => $this->tag, 'lang' => $this->lang, 'nid' => $this->nid],
             JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES,
         );
     }
@@ -36,7 +37,7 @@ final readonly class PushMessage
         return substr(Base64Url::encode(hash('sha256', $this->tag, true)), 0, 32);
     }
 
-    /** @return array{kind: string, title: string, body: string, url: string, tag: string, ttl: int, urgency: string, lang: string} for the queue */
+    /** @return array{kind: string, title: string, body: string, url: string, tag: string, ttl: int, urgency: string, lang: string, nid?: string|null} for the queue */
     public function toArray(): array
     {
         return [
@@ -48,12 +49,13 @@ final readonly class PushMessage
             'ttl' => $this->ttl,
             'urgency' => $this->urgency,
             'lang' => $this->lang,
+            'nid' => $this->nid,
         ];
     }
 
-    /** @param  array{kind: string, title: string, body: string, url: string, tag: string, ttl: int, urgency: string, lang: string}  $data */
+    /** @param  array{kind: string, title: string, body: string, url: string, tag: string, ttl: int, urgency: string, lang: string, nid?: string|null}  $data */
     public static function fromArray(array $data): self
     {
-        return new self($data['kind'], $data['title'], $data['body'], $data['url'], $data['tag'], $data['ttl'], $data['urgency'], $data['lang']);
+        return new self($data['kind'], $data['title'], $data['body'], $data['url'], $data['tag'], $data['ttl'], $data['urgency'], $data['lang'], $data['nid'] ?? null);
     }
 }

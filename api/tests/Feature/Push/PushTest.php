@@ -26,6 +26,8 @@ use Illuminate\Support\Facades\Queue;
 // Web push: the keys of a game, the subscription of a device (only addresses of the push services of browsers are taken, and they are kept encrypted), a message that only that
 // browser can read, and what the job does with the answer of the push service.
 
+beforeEach(fn () => thePushRulesAre([]));
+
 describe('the keys of a game', function () {
     it('are made once, kept encrypted, and replaced only when asked, which deletes the subscriptions they served', function () {
         $game = app(Push::class)->game();
@@ -289,7 +291,7 @@ describe('the job that sends', function () {
                 && $request->header('TTL')[0] === '600'
                 && $request->header('Urgency')[0] === 'normal'
                 && $request->header('Topic')[0] === aMessage()->topic() && strlen($request->header('Topic')[0]) <= 32
-                && json_decode((string) $plain, true) === ['kind' => 'test', 'title' => 'Rdzak', 'body' => 'Skończyło się paliwo.', 'url' => '/garage', 'tag' => 'test', 'lang' => 'pl'];
+                && json_decode((string) $plain, true) === ['kind' => 'test', 'title' => 'Rdzak', 'body' => 'Skończyło się paliwo.', 'url' => '/garage', 'tag' => 'test', 'lang' => 'pl', 'nid' => null];
         });
         $job->assertNotReleased();
         expect(subscriptionOf()->last_ok_at)->not->toBeNull()->and(subscriptionOf()->failures)->toBe(0);

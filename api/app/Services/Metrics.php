@@ -6,6 +6,8 @@ namespace App\Services;
 
 use App\Models\Gig;
 use App\Models\LedgerEntry;
+use App\Models\PushDelivery;
+use App\Models\PushSubscription;
 use App\Models\Travel;
 use App\Models\TutorialProgress;
 use App\Models\User;
@@ -77,6 +79,103 @@ final class Metrics
             'tutorial' => $this->tutorial($accounts),
             'missions' => $this->missions($now),
             'gigs' => $this->gigs($now),
+        ];
+    }
+
+    /**
+     * Whether the notifications make the drivers come back or not: the accounts made from `$from` to `$to` in the two groups of the experiment (told by push, and the holdout that is never
+     * told, see `PushArm`), the retention and the sessions of each, the difference of the retention with the interval that 95 of 100 such comparisons would hold, and, for the messages that
+     * were queued in the same time, how many were opened and how many were followed by a visit within an hour.
+     *
+     * The interval is the reason the report says the number of accounts: with few of them it is wide and says nothing, and the difference is only a direction. The drivers of the told group
+     * who have a device are counted too, and comparing only them with the holdout is a biased comparison (those who agree to be told are those who would have come back anyway).
+     *
+     * @return array{
+     *     arms: array<string, array{accounts: int, retention: array<string, array{eligible: int, returned: int, rate: float|null}>, sessions: array{drivers: int, sessions: int, per_driver: float|null, median_minutes: float|null}}>,
+     *     subscribed: array{accounts: int, retention: array<string, array{eligible: int, returned: int, rate: float|null}>},
+     *     difference: array<string, array{diff: float, low: float, high: float}|null>,
+     *     messages: array{sent: int, opened: int, opened_rate: float|null, returned_within_hour: int, returned_rate: float|null}
+     * }
+     */
+    public function byArm(CarbonImmutable $from, CarbonImmutable $to, ?CarbonImmutable $now = null): array
+    {
+        $now ??= CarbonImmutable::now();
+        $accounts = User::query()->where('created_at', '>=', $from)->where('created_at', '<', $to)->get(['id', 'created_at', 'claimed_at']);
+        $visits = $this->visitsOf($accounts->pluck('id')->all());
+        $arm = app(PushArm::class);
+        $groups = [PushArm::PUSH => collect(), PushArm::HOLDOUT => collect()];
+
+        foreach ($accounts as $account) {
+            $groups[$arm->of($account->id)]->push($account);
+        }
+
+        $arms = [];
+
+        foreach ($groups as $name => $group) {
+            $own = $visits->only($group->pluck('id')->all());
+            $arms[$name] = ['accounts' => $group->count(), 'retention' => $this->retention($group, $own, $now), 'sessions' => $this->sessions($own)];
+        }
+
+        $withDevice = PushSubscription::query()->withoutGlobalScopes()->whereIn('user_id', $groups[PushArm::PUSH]->pluck('id')->all())->distinct()->pluck('user_id')->all();
+        $subscribed = $groups[PushArm::PUSH]->whereIn('id', $withDevice);
+
+        $difference = [];
+
+        foreach (self::RETENTION_DAYS as $days) {
+            $difference["d{$days}"] = $this->difference($arms[PushArm::PUSH]['retention']["d{$days}"], $arms[PushArm::HOLDOUT]['retention']["d{$days}"]);
+        }
+
+        return [
+            'arms' => $arms,
+            'subscribed' => ['accounts' => $subscribed->count(), 'retention' => $this->retention($subscribed, $visits->only($subscribed->pluck('id')->all()), $now)],
+            'difference' => $difference,
+            'messages' => $this->messages($from, $to),
+        ];
+    }
+
+    /**
+     * The difference of two rates (told minus not told) with its interval of 95 of 100 (the normal approximation), or null when one of the groups has nobody to count.
+     *
+     * @param  array{eligible: int, returned: int, rate: float|null}  $told
+     * @param  array{eligible: int, returned: int, rate: float|null}  $held
+     * @return array{diff: float, low: float, high: float}|null
+     */
+    private function difference(array $told, array $held): ?array
+    {
+        if ($told['eligible'] === 0 || $held['eligible'] === 0) {
+            return null;
+        }
+
+        $p1 = $told['returned'] / $told['eligible'];
+        $p2 = $held['returned'] / $held['eligible'];
+        $error = sqrt($p1 * (1 - $p1) / $told['eligible'] + $p2 * (1 - $p2) / $held['eligible']);
+
+        return ['diff' => round($p1 - $p2, 4), 'low' => round($p1 - $p2 - 1.96 * $error, 4), 'high' => round($p1 - $p2 + 1.96 * $error, 4)];
+    }
+
+    /**
+     * The messages queued from `$from` to `$to`: how many, how many were opened, and how many were followed by a visit of the driver within an hour.
+     *
+     * @return array{sent: int, opened: int, opened_rate: float|null, returned_within_hour: int, returned_rate: float|null}
+     */
+    private function messages(CarbonImmutable $from, CarbonImmutable $to): array
+    {
+        $deliveries = PushDelivery::query()->withoutGlobalScopes()->where('created_at', '>=', $from)->where('created_at', '<', $to)->get(['user_id', 'created_at', 'opened_at']);
+        $visits = UserVisit::query()->whereIn('user_id', $deliveries->pluck('user_id')->unique()->all())->where('at', '>=', $from)->get(['user_id', 'at'])->groupBy('user_id');
+        $returned = $deliveries->filter(function (PushDelivery $delivery) use ($visits): bool {
+            $sent = CarbonImmutable::instance($delivery->created_at);
+
+            return ($visits->get($delivery->user_id) ?? collect())->contains(fn (UserVisit $visit): bool => $visit->at->greaterThan($sent) && $visit->at->lessThanOrEqualTo($sent->addHour()));
+        })->count();
+        $total = $deliveries->count();
+        $opened = $deliveries->whereNotNull('opened_at')->count();
+
+        return [
+            'sent' => $total,
+            'opened' => $opened,
+            'opened_rate' => $total === 0 ? null : round($opened / $total, 4),
+            'returned_within_hour' => $returned,
+            'returned_rate' => $total === 0 ? null : round($returned / $total, 4),
         ];
     }
 

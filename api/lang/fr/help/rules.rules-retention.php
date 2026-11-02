@@ -158,5 +158,12 @@ return [
             'example' => '480 : 8 h.',
             'range' => '0 – 1439 (minutes après minuit).',
         ],
+        '/push/holdout_ppm' => [
+            'label' => 'Comptes jamais prévenus par push (groupe témoin)',
+            'help' => 'La part des comptes à qui l’on n’envoie jamais de message push et à qui l’on ne demande rien : le groupe auquel les autres sont comparés, pour vérifier que les notifications ne font pas revenir les joueurs moins souvent (`metrics:report --by=arm`). Un compte est placé dans le groupe par un hachage de son numéro, donc il y reste. Un nombre plus élevé y met plus de comptes et un nombre plus bas en fait sortir, alors changez-le rarement.',
+            'example' => '20 % : un compte sur cinq ne reçoit jamais de notification.',
+            'range' => '0 – 100 % (une part des comptes).',
+            'tip' => 'Avec peu de joueurs, la comparaison ne montre qu’une direction : il faut environ mille comptes dans le groupe pour voir un écart de cinq points. 0 % prévient tout le monde.',
+        ],
     ],
 ];

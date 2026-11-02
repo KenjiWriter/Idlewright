@@ -6,12 +6,14 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Exceptions\RuleRefusedException;
 use App\Http\Controllers\Controller;
+use App\Models\PushDelivery;
 use App\Models\PushEvent;
 use App\Services\Push;
 use App\Services\PushPreferences;
 use App\Services\PushSubscriptions;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 /**
  * Web push: what the app needs to ask a browser to subscribe (`GET /push/config`), the subscription of a device (`PUT` and `DELETE /push/subscription`) and a message to the
@@ -24,7 +26,7 @@ final class PushController extends Controller
     /** Whether the game can send push messages, the public key a browser subscribes with, and how many devices of the driver are subscribed. */
     public function config(Request $request): JsonResponse
     {
-        $key = $this->push->publicKey();
+        $key = $this->push->publicKeyFor($request->user());
 
         return response()->json(['data' => [
             'enabled' => $key !== null,
@@ -87,12 +89,24 @@ final class PushController extends Controller
         return response()->json(['data' => ['kinds' => $this->preferences->save($request->user(), $data['kinds'])]])->header('Cache-Control', 'no-store');
     }
 
+    /**
+     * A notification was opened: the service worker says so with the number the message carried (it has no token of the driver). Nothing is said of whether the number was right.
+     */
+    public function seen(Request $request): Response
+    {
+        $nid = $request->validate(['nid' => ['required', 'string', 'max:40']])['nid'];
+
+        PushDelivery::query()->withoutGlobalScopes()->where('nid', $nid)->whereNull('opened_at')->update(['opened_at' => now()]);
+
+        return response()->noContent();
+    }
+
     /** A message to the devices of the driver, to see that it arrives. It goes through the queue like every other one. */
     public function test(Request $request): JsonResponse
     {
         $user = $request->user();
 
-        if ($this->push->publicKey() === null) {
+        if ($this->push->publicKeyFor($user) === null) {
             throw new RuleRefusedException('push_unavailable');
         }
 

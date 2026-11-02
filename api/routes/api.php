@@ -71,6 +71,8 @@ Route::prefix('v1')->group(function (): void {
 
     // A new guest driver. Limited per address to make mass account creation expensive.
     Route::post('/players', [PlayerController::class, 'store'])->middleware('throttle:guest-create');
+    // A notification was opened (the service worker has no token of the driver, so this is open; it only takes a secret number a message carried).
+    Route::post('/push/seen', [PushController::class, 'seen'])->middleware('throttle:push-seen');
 
     // Sign in on a new device with a recovery code.
     Route::post('/account/recover', [AccountRecoveryController::class, 'recover'])->middleware('throttle:recovery-attempts');

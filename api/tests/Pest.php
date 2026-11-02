@@ -611,7 +611,8 @@ function subscriptionOf(string $endpoint = PUSH_ENDPOINT): PushSubscription
 function thePushRulesAre(array $change): void
 {
     $data = json_decode((string) file_get_contents(config('ride.content_path').'/rules/starter.json'), true, 512, JSON_THROW_ON_ERROR);
-    $data['push'] = [...$data['push'], ...$change];
+    // Nobody is in the group that is never told, unless the test says so: the group is a hash of the number of the account, and a test must not depend on it.
+    $data['push'] = [...$data['push'], 'holdout_ppm' => 0, ...$change];
     app()->singleton(Rules::class, fn () => Rules::fromArray($data));
 }
 

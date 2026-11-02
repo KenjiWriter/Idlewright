@@ -158,5 +158,12 @@ return [
             'example' => '480: 8:00.',
             'range' => '0 – 1439 (minuty po północy).',
         ],
+        '/push/holdout_ppm' => [
+            'label' => 'Konta, które nigdy nie dostają push (grupa kontrolna)',
+            'help' => 'Część kont, którym nigdy nie wysyła się wiadomości push i których się o nie nie pyta: grupa, z którą porównuje się resztę, żeby sprawdzić, że powiadomienia nie sprawiają, że gracze wracają rzadziej (`metrics:report --by=arm`). Konto trafia do grupy po skrócie jego numeru, więc w niej zostaje. Wyższa liczba przenosi do grupy więcej kont, a niższa część z niej wyprowadza, więc zmieniaj ją rzadko.',
+            'example' => '20%: co piąte konto nigdy nie dostaje powiadomienia.',
+            'range' => '0 – 100% (część kont).',
+            'tip' => 'Przy niewielu graczach porównanie pokazuje tylko kierunek: żeby zobaczyć różnicę pięciu punktów, trzeba około tysiąca kont w grupie. 0% powiadamia wszystkich.',
+        ],
     ],
 ];

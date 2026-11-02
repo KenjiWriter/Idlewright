@@ -158,5 +158,12 @@ return [
             'example' => '480: 08:00.',
             'range' => '0 – 1439 (minutes after midnight).',
         ],
+        '/push/holdout_ppm' => [
+            'label' => 'Accounts that are never told by push (holdout)',
+            'help' => 'The part of the accounts that are never sent a push message and never asked: the group that the others are compared with, to see that the notifications do not make drivers come back less (`metrics:report --by=arm`). An account is put in the group by a hash of its id, so it stays there. A higher number moves more accounts into the group and a lower one moves some out, so change it rarely.',
+            'example' => '20%: one account in five never gets a notification.',
+            'range' => '0 – 100% (a part of the accounts).',
+            'tip' => 'With few drivers the comparison shows a direction only: it takes about a thousand accounts in the group to see a difference of five points. 0% tells everybody.',
+        ],
     ],
 ];
