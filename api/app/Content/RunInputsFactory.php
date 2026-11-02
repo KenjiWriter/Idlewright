@@ -65,13 +65,7 @@ final class RunInputsFactory
             throw new InvalidArgumentException("The track {$trackSlug} asks for statistics that cars do not have yet: ".implode(', ', $unsupported).'.');
         }
 
-        $tireKind = $this->tireKind($mounted);
-        $tiresSlot = $this->slotOf('tires');
-        $tiresEntry = $tiresSlot === null ? null : ($mounted[$tiresSlot] ?? null);
-        $tireAffixes = is_array($tiresEntry) ? (array) ($tiresEntry['affixes'] ?? []) : [];
-        $tireCondition = $this->rules->conditionStatPpm($this->rules->stagedConditionPpm(is_array($tiresEntry) ? (int) ($tiresEntry['wear'] ?? 0) : 0));
-        $surfaceLossPpm = $this->uniquePpm($mounted, 'tires', 'surface_loss');
-        $tractionPpm = $this->rules->drivetrain($vehicle['drivetrain'])['traction_ppm'];
+        [$tireKind, $tireAffixes, $tireCondition, $surfaceLossPpm, $tractionPpm] = $this->tireContext($vehicle, $mounted);
         $effects = [];
 
         foreach (array_keys($region['weather_ppm']) as $weather) {
@@ -108,6 +102,59 @@ final class RunInputsFactory
             wear: $plan,
             thread: $thread,
         );
+    }
+
+    /**
+     * The lap of a car on the thread of a track as it would be driven, whether or not the track takes its lap from the thread: what the picture of the lap is made
+     * from. Null for a track that has no thread.
+     *
+     * @param  array<string, string|array{slug: string, rarity: int, upgrade?: int, wear?: int, affixes?: array<string, int>}>  $mounted  the parts on the car, by slot
+     * @param  array{mileage_m: int, serviced_at_m: int}|null  $odometer
+     */
+    public function threadFor(string $carSlug, string $trackSlug, array $mounted = [], ?array $odometer = null): ?ThreadLap
+    {
+        if ($this->rules->thread($trackSlug) === null) {
+            return null;
+        }
+
+        $vehicle = $this->vehicle($carSlug);
+        $track = $this->rules->track($trackSlug) ?? throw new InvalidArgumentException("Unknown track {$trackSlug}.");
+        $region = $this->rules->region($track['region']) ?? throw new InvalidArgumentException("Unknown region {$track['region']}.");
+        $plan = $odometer === null ? null : $this->wearPlan($carSlug, $trackSlug, $mounted, $odometer);
+        $car = $this->stats($carSlug, $mounted, $plan?->servicePenaltyPpm() ?? 0);
+        [$tireKind, $tireAffixes, $tireCondition, $surfaceLossPpm, $tractionPpm] = $this->tireContext($vehicle, $mounted);
+
+        return $this->threadLap($trackSlug, $track, $car, $region, $tireKind, $tireAffixes, $tireCondition, $surfaceLossPpm, $tractionPpm);
+    }
+
+    /** The thread of the track of a run for the car it has now, as `forRun` makes the run. */
+    public function threadForRun(RaceRun $run): ?ThreadLap
+    {
+        return $run->car === null
+            ? $this->threadFor($run->car_slug, $run->track_slug)
+            : $this->threadFor($run->car->vehicle_slug, $run->track_slug, $run->car->mountedParts(), $run->car->odometer());
+    }
+
+    /**
+     * What the tires and the drive of a car make of a surface: the kind of the tires, their affixes and condition, what the adaptive compound of a legendary pair does
+     * not lose, and the traction of the drive on every surface.
+     *
+     * @param  array<string, mixed>  $vehicle
+     * @param  array<string, string|array{slug: string, rarity: int, upgrade?: int, wear?: int, affixes?: array<string, int>}>  $mounted
+     * @return array{0: string, 1: array<string, int>, 2: int, 3: int, 4: array<string, int>}
+     */
+    private function tireContext(array $vehicle, array $mounted): array
+    {
+        $tiresSlot = $this->slotOf('tires');
+        $tiresEntry = $tiresSlot === null ? null : ($mounted[$tiresSlot] ?? null);
+
+        return [
+            $this->tireKind($mounted),
+            is_array($tiresEntry) ? (array) ($tiresEntry['affixes'] ?? []) : [],
+            $this->rules->conditionStatPpm($this->rules->stagedConditionPpm(is_array($tiresEntry) ? (int) ($tiresEntry['wear'] ?? 0) : 0)),
+            $this->uniquePpm($mounted, 'tires', 'surface_loss'),
+            $this->rules->drivetrain($vehicle['drivetrain'])['traction_ppm'],
+        ];
     }
 
     /**

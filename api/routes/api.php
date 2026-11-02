@@ -26,6 +26,7 @@ use App\Http\Controllers\Api\V1\PaymentWebhookController;
 use App\Http\Controllers\Api\V1\PlayerController;
 use App\Http\Controllers\Api\V1\PremiumController;
 use App\Http\Controllers\Api\V1\RunController;
+use App\Http\Controllers\Api\V1\RunProfileController;
 use App\Http\Controllers\Api\V1\ShopController;
 use App\Http\Controllers\Api\V1\SocialAuthController;
 use App\Http\Controllers\Api\V1\StarterCarController;
@@ -154,6 +155,7 @@ Route::prefix('v1')->group(function (): void {
 
         Route::post('/runs', [RunController::class, 'store']);
         Route::get('/runs/current', [RunController::class, 'current']);
+        Route::get('/runs/current/profile', [RunProfileController::class, 'show']);
         Route::get('/runs/{run}', [RunController::class, 'show'])->whereNumber('run');
         Route::patch('/runs/{run}', [RunController::class, 'update'])->whereNumber('run');
         Route::post('/runs/{run}/start', [RunController::class, 'start'])->whereNumber('run');
