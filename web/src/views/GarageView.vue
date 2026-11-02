@@ -7,6 +7,8 @@ import type { CarStatKey } from '@/api/types'
 import AccountData from '@/components/AccountData.vue'
 import AccountAway from '@/components/AccountAway.vue'
 import AwaySummary from '@/components/AwaySummary.vue'
+import PushAsk from '@/components/PushAsk.vue'
+import PushSettings from '@/components/PushSettings.vue'
 import CarHotspots from '@/components/CarHotspots.vue'
 import CarStage from '@/components/CarStage.vue'
 import FuelGauge from '@/components/FuelGauge.vue'
@@ -223,6 +225,8 @@ async function useCode(): Promise<void> {
 
     <template v-else>
       <AwaySummary v-if="run.away" :summary="run.away" :now-ms="run.run.server_time_ms" @dismiss="run.dismissAway()" />
+      <!-- After a break the driver is asked whether they want to be told when a car stops: not on the first visit, and never behind the back of the browser. -->
+      <PushAsk v-if="run.away" />
       <AccountAway v-if="away.visible && away.summary" :summary="away.summary" @dismiss="away.dismiss().catch(() => undefined)" />
       <MissionsGlance />
 
@@ -324,6 +328,8 @@ async function useCode(): Promise<void> {
       <RecoveryPanel v-if="session.me?.is_guest" ref="recoveryPanel" />
 
       <LinkedAccounts />
+
+      <PushSettings />
 
       <AccountData />
     </div>

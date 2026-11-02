@@ -112,3 +112,14 @@ export async function disablePush(): Promise<void> {
   await subscription.unsubscribe()
   await api('/v1/push/subscription', { method: 'DELETE', body: JSON.stringify({ endpoint }) })
 }
+
+/** Whether this browser holds a subscription to the push messages of this site. */
+export async function hasSubscription(): Promise<boolean> {
+  if (pushSupport() !== 'ready') {
+    return false
+  }
+
+  const registration = await navigator.serviceWorker.ready
+
+  return (await registration.pushManager.getSubscription()) !== null
+}

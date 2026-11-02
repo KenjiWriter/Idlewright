@@ -7,6 +7,7 @@ import TutorialGoal from '@/components/TutorialGoal.vue'
 import TutorialOverlay from '@/components/TutorialOverlay.vue'
 import { useMissionsSync } from '@/features/missions/useMissionsSync'
 import { useTutorialReward } from '@/features/run/useTutorialReward'
+import { usePushStore } from '@/stores/push'
 import { useTutorialSync } from '@/features/tutorial/useTutorialSync'
 import { useGarageStore } from '@/stores/garage'
 import { useRunStore } from '@/stores/run'
@@ -22,6 +23,9 @@ const garage = useGarageStore()
 const tutorial = useTutorialStore()
 
 onMounted(() => {
+  // A browser that holds a subscription to the notifications tells the server about it again, once at the start of the app (it asks nothing of a driver who has not agreed).
+  void usePushStore().sync().catch(() => undefined)
+
   // The HUD shows the cash and the experience of the run. A screen that does not load the run itself asks for it once.
   if (props.loadRun && !run.loaded) {
     run.refresh().catch(() => undefined)

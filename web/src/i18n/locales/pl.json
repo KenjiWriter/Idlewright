@@ -491,6 +491,33 @@
       }
     }
   },
+  "push": {
+    "ask": {
+      "title": "Dać znać, gdy auto stanie?",
+      "body": "Możemy wysłać krótkie powiadomienie, gdy auto zostanie bez paliwa, się zepsuje albo dojedzie. Wyłączysz je w każdej chwili.",
+      "install": "Na iPhonie i iPadzie powiadomienia działają, gdy gra jest na ekranie głównym: otwórz menu Udostępnij i wybierz „Do ekranu początkowego”.",
+      "enable": "Włącz powiadomienia",
+      "later": "Nie teraz",
+      "ok": "OK",
+      "unavailable": "Nie można teraz włączyć powiadomień w tej przeglądarce."
+    },
+    "settings": {
+      "title": "Powiadomienia",
+      "install": "Na iPhonie i iPadzie najpierw dodaj grę do ekranu głównego (menu Udostępnij, „Do ekranu początkowego”): potem można włączyć powiadomienia.",
+      "denied": "Ta przeglądarka blokuje powiadomienia z gry. Zezwól na nie w ustawieniach witryny w przeglądarce i wróć tutaj.",
+      "off": "Powiadomienia są wyłączone na tym urządzeniu.",
+      "on": "Powiadomienia są włączone na tym urządzeniu.",
+      "enable": "Włącz na tym urządzeniu",
+      "disable": "Wyłącz na tym urządzeniu",
+      "test": "Wyślij próbne powiadomienie",
+      "testSent": "Próbne powiadomienie jest w drodze."
+    },
+    "kinds": {
+      "car_stopped": "Auto zostało bez paliwa albo się zepsuło",
+      "car_arrived": "Auto dojechało",
+      "job_done": "Zlecenie w warsztacie jest gotowe"
+    }
+  },
   "workshop": {
     "title": "Warsztat",
     "mechanic": "Mechanik poziomu {level}: zlecenia trwają o {cut}% krócej.",

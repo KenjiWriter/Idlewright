@@ -491,6 +491,33 @@
       }
     }
   },
+  "push": {
+    "ask": {
+      "title": "Tell you when a car stops?",
+      "body": "We can send a short notification when a car runs out of fuel, breaks down or arrives. You can switch it off at any time.",
+      "install": "On an iPhone or iPad, notifications work once the game is on your home screen: open the Share menu and choose “Add to Home Screen”.",
+      "enable": "Turn on notifications",
+      "later": "Not now",
+      "ok": "OK",
+      "unavailable": "Notifications cannot be turned on in this browser now."
+    },
+    "settings": {
+      "title": "Notifications",
+      "install": "On an iPhone or iPad, add the game to your home screen first (Share menu, “Add to Home Screen”): then notifications can be turned on.",
+      "denied": "This browser blocks notifications from the game. Allow them in the settings of the site in your browser, then come back here.",
+      "off": "Notifications are off on this device.",
+      "on": "Notifications are on on this device.",
+      "enable": "Turn on on this device",
+      "disable": "Turn off on this device",
+      "test": "Send a test notification",
+      "testSent": "A test notification is on its way."
+    },
+    "kinds": {
+      "car_stopped": "A car ran out of fuel or broke down",
+      "car_arrived": "A car arrived",
+      "job_done": "A job in the workshop is done"
+    }
+  },
   "workshop": {
     "title": "Workshop",
     "mechanic": "Mechanic of level {level}: jobs take {cut}% less time.",

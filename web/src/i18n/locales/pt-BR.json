@@ -491,6 +491,33 @@
       }
     }
   },
+  "push": {
+    "ask": {
+      "title": "Avisar quando um carro parar?",
+      "body": "Podemos enviar uma notificação curta quando um carro ficar sem combustível, quebrar ou chegar. Você pode desligar a qualquer momento.",
+      "install": "No iPhone e no iPad, as notificações funcionam depois que o jogo está na tela inicial: abra o menu Compartilhar e escolha “Adicionar à Tela de Início”.",
+      "enable": "Ativar notificações",
+      "later": "Agora não",
+      "ok": "OK",
+      "unavailable": "Não é possível ativar as notificações neste navegador agora."
+    },
+    "settings": {
+      "title": "Notificações",
+      "install": "No iPhone e no iPad, adicione primeiro o jogo à tela inicial (menu Compartilhar, “Adicionar à Tela de Início”): depois dá para ativar as notificações.",
+      "denied": "Este navegador bloqueia as notificações do jogo. Permita-as nas configurações do site no navegador e volte aqui.",
+      "off": "As notificações estão desativadas neste dispositivo.",
+      "on": "As notificações estão ativadas neste dispositivo.",
+      "enable": "Ativar neste dispositivo",
+      "disable": "Desativar neste dispositivo",
+      "test": "Enviar notificação de teste",
+      "testSent": "Uma notificação de teste está a caminho."
+    },
+    "kinds": {
+      "car_stopped": "Um carro ficou sem combustível ou quebrou",
+      "car_arrived": "Um carro chegou",
+      "job_done": "Um trabalho da oficina está pronto"
+    }
+  },
   "workshop": {
     "title": "Oficina",
     "mechanic": "Mecânico de nível {level}: os serviços levam {cut}% menos tempo.",

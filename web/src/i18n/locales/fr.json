@@ -491,6 +491,33 @@
       }
     }
   },
+  "push": {
+    "ask": {
+      "title": "Vous prévenir quand une voiture s’arrête ?",
+      "body": "Nous pouvons envoyer une courte notification quand une voiture n’a plus de carburant, tombe en panne ou arrive. Vous pouvez la désactiver à tout moment.",
+      "install": "Sur iPhone et iPad, les notifications fonctionnent une fois le jeu ajouté à l’écran d’accueil : ouvrez le menu Partager et choisissez « Sur l’écran d’accueil ».",
+      "enable": "Activer les notifications",
+      "later": "Pas maintenant",
+      "ok": "OK",
+      "unavailable": "Les notifications ne peuvent pas être activées dans ce navigateur pour le moment."
+    },
+    "settings": {
+      "title": "Notifications",
+      "install": "Sur iPhone et iPad, ajoutez d’abord le jeu à l’écran d’accueil (menu Partager, « Sur l’écran d’accueil ») : vous pourrez ensuite activer les notifications.",
+      "denied": "Ce navigateur bloque les notifications du jeu. Autorisez-les dans les réglages du site de votre navigateur, puis revenez ici.",
+      "off": "Les notifications sont désactivées sur cet appareil.",
+      "on": "Les notifications sont activées sur cet appareil.",
+      "enable": "Activer sur cet appareil",
+      "disable": "Désactiver sur cet appareil",
+      "test": "Envoyer une notification d’essai",
+      "testSent": "Une notification d’essai est en route."
+    },
+    "kinds": {
+      "car_stopped": "Une voiture n’a plus de carburant ou est en panne",
+      "car_arrived": "Une voiture est arrivée",
+      "job_done": "Un travail de l’atelier est terminé"
+    }
+  },
   "workshop": {
     "title": "Atelier",
     "mechanic": "Mécanicien de niveau {level} : les travaux durent {cut} % de moins.",

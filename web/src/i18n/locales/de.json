@@ -491,6 +491,33 @@
       }
     }
   },
+  "push": {
+    "ask": {
+      "title": "Bescheid sagen, wenn ein Auto stehen bleibt?",
+      "body": "Wir können eine kurze Benachrichtigung senden, wenn einem Auto der Sprit ausgeht, es eine Panne hat oder ankommt. Du kannst sie jederzeit ausschalten.",
+      "install": "Auf iPhone und iPad funktionieren Benachrichtigungen, sobald das Spiel auf dem Home-Bildschirm liegt: Öffne das Teilen-Menü und wähle „Zum Home-Bildschirm“.",
+      "enable": "Benachrichtigungen einschalten",
+      "later": "Jetzt nicht",
+      "ok": "OK",
+      "unavailable": "Benachrichtigungen lassen sich in diesem Browser gerade nicht einschalten."
+    },
+    "settings": {
+      "title": "Benachrichtigungen",
+      "install": "Füge das Spiel auf iPhone und iPad zuerst zum Home-Bildschirm hinzu (Teilen-Menü, „Zum Home-Bildschirm“): Danach lassen sich Benachrichtigungen einschalten.",
+      "denied": "Dieser Browser blockiert Benachrichtigungen des Spiels. Erlaube sie in den Einstellungen der Website im Browser und komm hierher zurück.",
+      "off": "Benachrichtigungen sind auf diesem Gerät aus.",
+      "on": "Benachrichtigungen sind auf diesem Gerät an.",
+      "enable": "Auf diesem Gerät einschalten",
+      "disable": "Auf diesem Gerät ausschalten",
+      "test": "Testbenachrichtigung senden",
+      "testSent": "Eine Testbenachrichtigung ist unterwegs."
+    },
+    "kinds": {
+      "car_stopped": "Einem Auto ist der Sprit ausgegangen oder es hat eine Panne",
+      "car_arrived": "Ein Auto ist angekommen",
+      "job_done": "Ein Auftrag in der Werkstatt ist erledigt"
+    }
+  },
   "workshop": {
     "title": "Werkstatt",
     "mechanic": "Mechaniker der Stufe {level}: Aufträge dauern {cut} % kürzer.",
