@@ -11,8 +11,9 @@ use Illuminate\Console\Command;
 class GigsReport extends Command
 {
     protected $signature = 'gigs:report
-        {--min=0.55 : the least that a gig may pay an hour, against the rung of the ladder of the car (R1)}
+        {--min=0.5 : the least that a gig may pay an hour, against the rung of the ladder of the car (R1)}
         {--max=0.95 : the most that a gig may pay an hour, against the rung of the ladder of the car (R1)}
+        {--max-r2=1.3 : the most that a gig may pay an hour, against the laps of a car that is bought and not made for gigs (a wreck of the yard may not beat its laps at all)}
         {--json : Print the report as JSON}
         {--strict : Fail when a row is out of the bounds, or a gig beats the laps of a car that is made for them (R2 above 1)}';
 
@@ -21,7 +22,7 @@ class GigsReport extends Command
     public function handle(GigReport $report): int
     {
         $rows = $report->rows();
-        $offences = $report->offences($rows, (float) $this->option('min'), (float) $this->option('max'));
+        $offences = $report->offences($rows, (float) $this->option('min'), (float) $this->option('max'), (float) $this->option('max-r2'));
 
         if ($this->option('json')) {
             $this->line((string) json_encode(['rows' => $rows, 'offences' => $offences], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));

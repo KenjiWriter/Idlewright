@@ -382,6 +382,10 @@ describe('the report', function () {
             ->and($rows->contains(fn (array $row): bool => $row['car'] === 'furgon-z-1' && $row['template'] === 'delivery-city'))->toBeTrue();
     });
 
+    it('finds no gig out of the bounds in the pack that ships, even with --strict', function () {
+        $this->artisan('gigs:report', ['--strict' => true])->assertExitCode(0);
+    });
+
     it('fails with --strict when a gig pays more than the rung of the ladder allows', function () {
         gigRules(function (array $gigs): array {
             foreach ($gigs['bands'] as $index => $band) {

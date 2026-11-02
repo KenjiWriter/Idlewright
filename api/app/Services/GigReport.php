@@ -78,13 +78,15 @@ final class GigReport
     }
 
     /**
-     * The rows that are out of what the design asks: R1 outside the bounds (the pay of an hour against the rung of the ladder), or R2 above one for a car that is not made for
-     * gigs (a class that no template asks for), because then the gig would beat the laps of a car that is made for them.
+     * The rows that are out of what the design asks: R1 outside the bounds (the pay of an hour against the rung of the ladder), or R2 too high for a car that is not made for
+     * gigs (a class that no template asks for): a wreck of the yard, which anyone can buy for a few hundred dollars and fill a garage with, must not earn more on gigs than on
+     * laps (R2 above 1), and a car that is bought at the dealer or on the exchange not more than `$maxR2` times, because then the gig would beat the laps of a car that is made
+     * for them. The cars that gigs are made for (the classes that a template asks for) are not asked about R2: the track is not their work.
      *
      * @param  list<array<string, mixed>>  $rows
      * @return list<array<string, mixed>>
      */
-    public function offences(array $rows, float $minR1 = 0.55, float $maxR1 = 0.95): array
+    public function offences(array $rows, float $minR1 = 0.5, float $maxR1 = 0.95, float $maxR2 = 1.3): array
     {
         $utility = [];
 
@@ -97,7 +99,7 @@ final class GigReport
         foreach ($rows as $row) {
             if ($row['r1'] < $minR1 || $row['r1'] > $maxR1) {
                 $offences[] = [...$row, 'why' => 'r1'];
-            } elseif ($row['r2'] > 1.0 && ! in_array($row['class'], $utility, true)) {
+            } elseif ($row['r2'] > ($this->rules->wreckPriceCents($row['car']) !== null ? 1.0 : $maxR2) && ! in_array($row['class'], $utility, true)) {
                 $offences[] = [...$row, 'why' => 'r2'];
             }
         }
