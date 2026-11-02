@@ -174,6 +174,33 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Misje: granice wartości nagród
+    |--------------------------------------------------------------------------
+    |
+    | Przedziały [od, do] dla miesiąca, w którym kierowca zagląda codziennie i robi
+    | wszystkie misje wszystkich zestawów (średnia z losowania dla poziomu
+    | `level`): ile z gotówki i ile z XP 30 baków to daje. Dolna granica pilnuje,
+    | żeby misje były warte zrobienia (ponad szósta część tego, co zarabiają auta),
+    | górna, żeby nie były całą grą (poniżej całości, a XP, które jest bramką gry,
+    | poniżej połowy). To te same granice, których od 2026-10-30 pilnuje test misji
+    | (`MissionsContentTest`), a nie osobna decyzja właściciela; zatwierdził on
+    | poziomy 10% / 6% wartości pracy dla zestawów i 15% / 9% dla misji głównych.
+    | `missions:budget --strict` pilnuje ich jako bramka publikacji (`PackGates`);
+    | te same liczby w panelu to `MissionBudget`. Zmiana granic to decyzja o
+    | ekonomii gry, nie o jednej paczce.
+    |
+    */
+
+    'missions' => [
+        'budget' => [
+            'level' => 12,
+            'cash_share' => [0.15, 1.0],
+            'xp_share' => [0.05, 0.5],
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Studio parametrów: tryb prosty
     |--------------------------------------------------------------------------
     |

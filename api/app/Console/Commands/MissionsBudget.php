@@ -5,17 +5,15 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Console\Commands\Concerns\RunsInAGame;
-use App\Content\MissionCatalog;
-use App\Content\Rules;
-use App\Models\RaceRun;
-use App\Services\MissionDraw;
-use App\Services\MissionScale;
+use App\Services\MissionBudget;
 use Illuminate\Console\Command;
 
 /**
  * What the missions of the game ask and pay, for a car on a track: for every template the goal it asks, what it is worth (in tanks of the car) and what it pays in cash and
  * XP, what a set pays on average (a set draws one template of every slot, by weight), what a month of doing everything comes to, and the coins of a month next to the
- * prices of the game. The tool for tuning the numbers of the rules, and for seeing what a change does before it is published.
+ * prices of the game. The tool for tuning the numbers of the rules, and for seeing what a change does before it is published. With `--strict` it is a gate: it fails when a
+ * month of the sets is outside the share of the cash or the XP of 30 tanks that `ride.missions.budget` allows, which stops a publication; `--json` gives the same numbers to
+ * the panel. The numbers are `MissionBudget`'s, and the panel's too.
  */
 final class MissionsBudget extends Command
 {
@@ -24,105 +22,120 @@ final class MissionsBudget extends Command
     protected $signature = 'missions:budget
         {--car=rdzak-gt-4 : The slug of the car whose tank is the measure}
         {--track=zlomowo-street : The slug of the track it drives}
-        {--level=1 : The level of the driver, which decides what templates fit}
+        {--level= : The level of the driver, which decides what templates fit (1, or the level of the limits with --strict)}
+        {--strict : Fail when a month of the sets is outside the limits of the configuration}
+        {--json : Print the numbers as JSON}
         {--game= : The slug of the game (the default game when left out)}';
 
     protected $description = 'Show what the missions ask and pay, for a car on a track';
 
-    public function handle(MissionCatalog $catalog, Rules $rules, MissionScale $scale, MissionDraw $draw): int
+    public function handle(MissionBudget $budget): int
     {
-        $settings = $rules->missions();
+        $strict = (bool) $this->option('strict');
+        $level = $this->option('level') !== null ? (int) $this->option('level') : ($strict ? (int) config('ride.missions.budget.level', 12) : 1);
+        $report = $budget->report((string) $this->option('car'), (string) $this->option('track'), $level);
 
-        if ($settings === null) {
+        if ($report === null) {
+            if ($strict) {
+                $this->info('The rules of this game have no missions: there is nothing to judge.');
+
+                return self::SUCCESS;
+            }
+
+            if ($this->option('json')) {
+                $this->line('null');
+
+                return self::SUCCESS;
+            }
+
             $this->error('The rules of this game have no missions.');
 
             return self::FAILURE;
         }
 
-        $run = new RaceRun(['car_slug' => (string) $this->option('car'), 'track_slug' => (string) $this->option('track')]);
-        $tank = $scale->tankOf($run);
+        $failed = array_values(array_filter($report['checks'], static fn (array $check): bool => ! $check['ok']));
 
-        if ($tank === null) {
+        if ($this->option('json')) {
+            $this->line((string) json_encode($report, JSON_THROW_ON_ERROR));
+
+            return $strict && $failed !== [] ? self::FAILURE : self::SUCCESS;
+        }
+
+        // A gate judges the shares, which are the same for every car; a game that has not the reference car of the command is not failed for it.
+        if ($report['tank'] === null && ! $strict) {
             $this->error('That car cannot drive that track on its tank.');
 
             return self::FAILURE;
         }
 
-        $level = (int) $this->option('level');
+        if ($report['tank'] !== null) {
+            $this->amounts($report);
+        }
+
+        $this->limits($report['checks']);
+
+        return $strict && $failed !== [] ? self::FAILURE : self::SUCCESS;
+    }
+
+    /** @param  array<string, mixed>  $report */
+    private function amounts(array $report): void
+    {
+        $tank = $report['tank'];
         $dollars = static fn (int|float $cents): string => '$'.number_format($cents / 100, 2);
 
-        $this->info(sprintf('A tank of the %s on %s: %d laps, %s gross, %s after the fuel, %d XP; filling it costs %s. The missions are %s.', $this->option('car'), $this->option('track'), $tank['laps'], $dollars($tank['gross_cents']), $dollars($tank['net_cents']), $tank['xp'], $dollars($tank['fuel_cents']), $settings['enabled'] ? 'on' : 'OFF'));
+        $this->info(sprintf('A tank of the %s on %s: %d laps, %s gross, %s after the fuel, %d XP; filling it costs %s. The missions are %s.', $report['car'], $report['track'], $tank['laps'], $dollars($tank['gross_cents']), $dollars($tank['net_cents']), $tank['xp'], $dollars($tank['fuel_cents']), $report['enabled'] ? 'on' : 'OFF'));
 
-        $cash = [];
-        $xp = [];
-        $worth = [];
-
-        foreach (MissionCatalog::PERIODS as $period) {
-            $rows = [];
-            $cash[$period] = 0.0;
-            $xp[$period] = 0.0;
-            $worth[$period] = 0.0;
-
-            foreach ($catalog->slots($period) as $slot) {
-                $fitting = array_filter($slot['templates'], static fn (array $template): bool => $level >= ($template['min_player_level'] ?? 1) && $level <= ($template['max_player_level'] ?? PHP_INT_MAX));
-                $weights = array_sum(array_column($fitting, 'weight')) ?: 1;
-
-                foreach ($slot['templates'] as $key => $template) {
-                    $fits = isset($fitting[$key]);
-                    $reward = $draw->templateReward($period, $template, $tank);
-                    $worthOf = $draw->templateWorth($template, $tank) * (int) $template['reward_share'];
-                    $items = implode(', ', array_map(static fn (array $item): string => $item['type'] === 'crate' ? "crate {$item['kind']}" : "part {$item['rarity']}", $template['items'] ?? []));
-
-                    if ($fits) {
-                        $chance = $template['weight'] / $weights;
-                        $cash[$period] += $chance * $reward['cash_cents'];
-                        $xp[$period] += $chance * $reward['xp'];
-                        $worth[$period] += $chance * $worthOf;
-                    }
-
-                    $rows[] = [$slot['key'], $key, $fits ? $this->goal($template, $draw->target($template, $tank)) : '(does not fit)', $template['weight'], number_format($worthOf, 2).' tanks', $dollars($reward['cash_cents']), $reward['xp'], $items];
-                }
-            }
+        foreach ($report['periods'] as $period => $row) {
+            $rows = array_map(static fn (array $template): array => [
+                $template['slot'],
+                $template['template'],
+                $template['fits'] ? ($template['money'] ? $template['objective'].' $'.number_format($template['asks'] / 100, 0) : $template['objective'].' '.$template['asks']) : '(does not fit)',
+                $template['weight'],
+                number_format($template['worth'], 2).' tanks',
+                $dollars($template['cash_cents']),
+                $template['xp'],
+                $template['items'],
+            ], $row['templates']);
 
             $this->newLine();
-            $this->line(sprintf('%s: %d missions, on average worth %.1f tanks of work, and the set pays about %s and %d XP, and %d coins for the whole set.', strtoupper($period), count($catalog->slots($period)), $worth[$period], $dollars($cash[$period]), (int) round($xp[$period]), $settings['periods'][$period]['bonus_coins']));
+            $this->line(sprintf('%s: %d missions, on average worth %.1f tanks of work, and the set pays about %s and %d XP, and %d coins for the whole set.', strtoupper($period), $row['missions'], $row['worth'], $dollars($row['cash_cents']), (int) round($row['xp']), $row['coins']));
             $this->table(['slot', 'template', 'goal', 'weight', 'worth', 'cash', 'XP', 'items'], $rows);
         }
 
-        $this->newLine();
-        $this->line(sprintf('The main missions pay %d%% of what they are worth in cash and %d%% in XP (see missions:budget --help for the rest; the chains are in rules/missions).', $settings['main']['cash_ppm'] / 10_000, $settings['main']['xp_ppm'] / 10_000));
-
-        // A month of 30 days of doing everything: 30 days, 30 / 7 weeks and one month.
-        $weeks = 30 / 7;
-        $monthCash = 30 * $cash['daily'] + $weeks * $cash['weekly'] + $cash['monthly'];
-        $monthXp = 30 * $xp['daily'] + $weeks * $xp['weekly'] + $xp['monthly'];
-        $monthCoins = 30 * $settings['periods']['daily']['bonus_coins'] + $weeks * $settings['periods']['weekly']['bonus_coins'] + $settings['periods']['monthly']['bonus_coins'];
-        $day = max(1, $tank['net_cents']);
+        $main = $report['main'];
 
         $this->newLine();
-        $this->line(sprintf('A month of doing everything: %s (%d%% of the %s that 30 tanks earn), %d XP (%d%% of the %d of 30 tanks), %d coins.', $dollars($monthCash), (int) round(100 * $monthCash / (30 * $day)), $dollars(30 * $day), (int) round($monthXp), (int) round(100 * $monthXp / max(1, 30 * $tank['xp'])), 30 * $tank['xp'], (int) round($monthCoins)));
+        $this->line(sprintf('The main missions (%d) pay %d%% of what they are worth in cash and %d%% in XP: %.1f tanks of work in all, %s and %d XP.', $main['missions'], $main['cash_ppm'] / 10_000, $main['xp_ppm'] / 10_000, $main['worth'], $dollars($main['cash_cents']), $main['xp']));
 
-        $vip = $rules->vip();
-        $products = $rules->premiumProducts();
-        $smallest = $products === [] ? null : $products[array_key_first($products)];
+        $month = $report['month'];
 
-        if ($vip !== null) {
-            $this->line(sprintf('The VIP account costs %d coins: a month of doing everything is %d%% of it.', $vip['coins'], (int) round(100 * $monthCoins / max(1, $vip['coins']))));
+        $this->newLine();
+        $this->line(sprintf('A month of doing everything: %s (%d%% of the %s that 30 tanks earn), %d XP (%d%% of the %d of 30 tanks), %d coins.', $dollars($month['cash_cents']), $month['cash_percent'], $dollars($month['cash_of_tanks_cents']), (int) round($month['xp']), $month['xp_percent'], $month['xp_of_tanks'], (int) round($month['coins'])));
+
+        if ($report['vip'] !== null) {
+            $this->line(sprintf('The VIP account costs %d coins: a month of doing everything is %d%% of it.', $report['vip']['coins'], $report['vip']['month_percent']));
         }
 
-        if ($smallest !== null) {
-            $this->line(sprintf('At the price of the smallest pack (%d coins for %.2f %s) a month of doing everything is worth %.2f %s; speeding up at %d minutes a coin, it is %.1f hours of timers.', $smallest['coins'], $smallest['price_minor'] / 100, $rules->premiumPriceCurrency(), $monthCoins * $smallest['price_minor'] / $smallest['coins'] / 100, $rules->premiumPriceCurrency(), $rules->speedupMinutesPerCoin() ?? 5, $monthCoins * ($rules->speedupMinutesPerCoin() ?? 5) / 60));
-        }
+        if ($report['pack'] !== null) {
+            $pack = $report['pack'];
 
-        return self::SUCCESS;
+            $this->line(sprintf('At the price of the smallest pack (%d coins for %.2f %s) a month of doing everything is worth %.2f %s; speeding up at %d minutes a coin, it is %.1f hours of timers.', $pack['coins'], $pack['price_minor'] / 100, $pack['currency'], $pack['worth'], $pack['currency'], $pack['minutes_per_coin'], $pack['speedup_hours']));
+        }
     }
 
-    /** @param  array<string, mixed>  $template */
-    private function goal(array $template, int $target): string
+    /**
+     * The limits and where the numbers stand against them.
+     *
+     * @param  list<array{name: string, value: float, min: float, max: float, ok: bool}>  $checks
+     */
+    private function limits(array $checks): void
     {
-        return match ($template['objective']) {
-            'cash_earned', 'fuel_spent' => '$'.number_format($target / 100, 0),
-            default => $template['objective'].' '.$target,
-        };
+        $this->newLine();
+
+        foreach ($checks as $check) {
+            $line = sprintf('%s %s: %s (limits %s to %s)', $check['ok'] ? 'ok  ' : 'FAIL', $check['name'], round($check['value'], 4), $check['min'], $check['max']);
+
+            $check['ok'] ? $this->line($line) : $this->error($line);
+        }
     }
 }

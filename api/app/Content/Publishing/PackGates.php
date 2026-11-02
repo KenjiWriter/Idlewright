@@ -13,9 +13,9 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
 /**
- * The gates of the simulators on the content of a pack: the tracks (every tire asks for its surface, the terrain counts, and no car wins more than two tracks) and
- * the economy (the pace of three kinds of players up the ladder of the cars is the one of the design, the numbers of the rules are the anchors', and so are the
- * ladder and the fleet of the game). The simulators read the content as the game does, so the pack is written as the `content/` tree in a folder of its own, the game
+ * The gates of the simulators on the content of a pack: the tracks (every tire asks for its surface, the terrain counts, and no car wins more than two tracks), the
+ * economy (the pace of three kinds of players up the ladder of the cars is the one of the design, the numbers of the rules are the anchors', and so are the
+ * ladder and the fleet of the game) and the value of the rewards of the missions (a month of them is the share of the cash and the XP that the owner approved). The simulators read the content as the game does, so the pack is written as the `content/` tree in a folder of its own, the game
  * is pointed at that folder for as long as they run, and everything is put back after.
  */
 final class PackGates
@@ -24,6 +24,7 @@ final class PackGates
     private const GATES = [
         'tracks:simulate --strict' => ['tracks:simulate', ['--strict' => true]],
         'economy:simulate --strict --strict-game' => ['economy:simulate', ['--strict' => true, '--strict-game' => true]],
+        'missions:budget --strict' => ['missions:budget', ['--strict' => true]],
     ];
 
     /** How much of what a gate said is kept when it did not pass. */
@@ -78,6 +79,21 @@ final class PackGates
                     $report['game_ladder']['rows'] ?? [],
                 ),
             ];
+        });
+    }
+
+    /**
+     * What the missions of the content of a pack ask and pay, for a car on a track, as `missions:budget` works it out (the panel shows the same numbers): the report of
+     * the service, and null when the content has no missions.
+     *
+     * @return array<string, mixed>|null
+     */
+    public function missionsBudget(PackContent $content, string $car, string $track, int $level = 1): ?array
+    {
+        return $this->inContentOf($content, function () use ($car, $track, $level): ?array {
+            Artisan::call('missions:budget', ['--json' => true, '--car' => $car, '--track' => $track, '--level' => $level]);
+
+            return json_decode(trim(Artisan::output()), true);
         });
     }
 
