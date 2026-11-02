@@ -110,7 +110,9 @@ final class Ledger
             $current = (int) $wallet->{$column};
             $balance = $current + $delta;
 
-            if ($balance < 0 && ! ($allowDebt && $delta < 0)) {
+            // Only a posting that takes away can be refused for a balance below zero: one that gives can only make it better, and a driver in debt (a payment was taken back
+            // after the coins were spent) is paid into, however small the payment is.
+            if ($delta < 0 && $balance < 0 && ! $allowDebt) {
                 throw match ($currency) {
                     self::CASH => new InsufficientFundsException($current, -$delta),
                     self::REFILL => new RuleRefusedException('insufficient_refills', ['available' => $current, 'required' => -$delta]),

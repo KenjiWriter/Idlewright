@@ -102,6 +102,19 @@ it('lets a payment that is taken back leave a debt, and a later purchase pays it
         ->and(coinsLedger()->isConsistent($user->id, Ledger::PREMIUM))->toBeTrue();
 });
 
+it('pays into a debt with a purchase that is smaller than the debt, and a gift too, because a posting that gives can only make the balance better', function () {
+    $user = coinsDriver();
+    coinsLedger()->postPremium($user->id, 50, 'purchase', 'purchase:1');
+    coinsLedger()->postPremium($user->id, -50, 'speedup', 'speedup:1');
+    coinsLedger()->postPremium($user->id, -200, 'refund', 'refund:1', allowDebt: true);
+
+    coinsLedger()->postPremium($user->id, 50, 'purchase', 'purchase:2');
+    expect(coinsLedger()->premiumBalance($user->id))->toBe(-150);
+
+    coinsLedger()->postPremium($user->id, 10, 'gift', 'gift:1');
+    expect(coinsLedger()->premiumBalance($user->id))->toBe(-140)->and(coinsLedger()->isConsistent($user->id, Ledger::PREMIUM))->toBeTrue();
+});
+
 it('refuses a posting that changes nothing', function () {
     coinsLedger()->postPremium(coinsDriver()->id, 0, 'gift', 'gift:0');
 })->throws(InvalidArgumentException::class);
