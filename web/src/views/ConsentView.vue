@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
@@ -28,6 +28,13 @@ const terms = ref(false)
 const age = ref(false)
 const busy = ref(false)
 const error = ref<string | null>(null)
+
+// What was said about a box that was not ticked is old as soon as the driver ticks one.
+watch([terms, age], ([termsTicked, ageTicked]) => {
+  if (termsTicked || ageTicked) {
+    error.value = null
+  }
+})
 
 const consent = computed(() => session.me?.consent ?? null)
 /** What changed since the version the driver accepted, in their language: none when the one who changed the texts wrote nothing about it. */

@@ -113,6 +113,16 @@ describe('ConsentView', () => {
     expect(made(calls, 'POST', '/api/v1/account/consent')).toHaveLength(0)
   })
 
+  it('forgets the complaint about a missing box once the driver ticks one', async () => {
+    const { wrapper } = await open()
+    await wrapper.get('form').trigger('submit')
+    expect(wrapper.find('[data-test="error"]').exists()).toBe(true)
+
+    await wrapper.get('[data-test="terms"]').setValue(true)
+
+    expect(wrapper.find('[data-test="error"]').exists()).toBe(false)
+  })
+
   it('accepts the version that was shown and goes to the garage', async () => {
     const { wrapper, calls, router } = await open(profile(), {
       'POST /api/v1/account/consent': () => respond(200, { data: profile('2026-11-01', false) }),
