@@ -203,6 +203,17 @@ Klucze zakładasz u dostawców w swoich kontach i wpisujesz do `.env` (opis zmie
 
 Po zmianie `.env` zastosuj ją poleceniem z kroku 3. **Przepływ z prawdziwymi dostawcami nie był jeszcze sprawdzony** (`docs/konto.md`); pierwsze sprawdzenie to ten moment.
 
+## Powiadomienia push (A1)
+
+Powiadomienia przeglądarki (auto stanęło, auto dojechało) wymagają **HTTPS** (inaczej przeglądarka nie da service workerowi push), działającej kolejki (`rideidle-queue`, ta sama co dla maili) i **wychodzących połączeń HTTPS z serwera** do usług push Google, Mozilli, Apple i Microsoftu (zapora `ufw` domyślnie wychodzące przepuszcza). Co robisz:
+
+1. Po wdrożeniu raz dla każdej gry: `php8.4 artisan push:keys --game=SLUG` (bez `--game` pierwsza gra). Polecenie wypisuje klucz publiczny; **powtórzone nic nie zmienia, a `--force` wymienia klucze i kasuje wszystkie subskrypcje gry** (gracze włączają powiadomienia od nowa).
+2. **Klucz prywatny jest w bazie, zaszyfrowany `APP_KEY`.** Kopia bazy bez `APP_KEY` nie odtworzy kluczy, więc `APP_KEY` trzymaj razem z kopiami (`/var/www/rideidle/shared/.env` albo menedżer haseł). Skrypt kopii (`rideidle-backup`) tego pliku nie obejmuje.
+3. Adres, na który serwer wysyła, podaje przeglądarka, więc serwer przyjmuje tylko adresy usług push z listy (`config/ride.php`, `push.hosts`); dla usługi spoza listy ustaw `PUSH_HOSTS` w `.env` (hosty po przecinku, lista zastępuje domyślną).
+4. Wyłącznik awaryjny gry to reguła `push.enabled` (Studio).
+
+Tego nie sprawdziłem poza testami z fałszywą usługą push: dostarczenia do prawdziwego Chrome (Android), Firefoksa i Safari na iPhonie (tylko aplikacja dodana do ekranu głównego). Lista kroków jest w `docs/api-runs.md`, „Powiadomienia push”.
+
 ## Panel administracyjny (osobny host, opcjonalnie)
 
 Panel (`/admin`, Filament) służy do patrzenia na paczki treści i ich uruchamiania; z czasem będzie miejscem edycji treści (`docs/api-runs.md`, „Panel administracyjny”). **Ma host osobny od gry** (`admin.raceidle.cerasusdigital.pl`), żeby jego ciasteczka nie mieszały się z grą i żeby dało się go wyłączyć po nazwie. Produkcyjny nginx przepuszcza do PHP tylko `/api/*` i `/up`, więc dopóki nie zrobisz poniższego, panelu nie da się osiągnąć.
