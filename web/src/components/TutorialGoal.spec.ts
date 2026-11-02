@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { storeToken } from '@/auth/token'
 import { setLocale } from '@/i18n'
 import { useTutorialStore } from '@/stores/tutorial'
+import { respond, serveApi } from '@/test/fetchServer'
 import { mountView } from '@/test/mountView'
 import { aGoal, aStep, aTutorial } from '@/test/tutorialFixtures'
 
@@ -73,6 +74,33 @@ describe('TutorialGoal', () => {
     const { wrapper } = await show(aTutorial(null, { goal: aGoal({ optional: true, target: 'profile' }) }))
 
     expect(wrapper.get('[data-test="goal-optional"]').text()).toBe('Optional')
+  })
+
+  it('leaves an optional step for later from the bar, once the phone is put away, and goes on to the next goal', async () => {
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+    const calls = serveApi(fetchMock, {
+      'POST /api/v1/tutorial/decline': () => respond(200, aTutorial(null, { goal: aGoal({ key: 'network', title: 'Look at the network', target: 'network' }), done: 20 })),
+    })
+    const step = aStep({ key: 'profile', acknowledged: true, optional: true, decline: 'Not now', target: 'profile' })
+    const { wrapper } = await show(aTutorial(step, { goal: aGoal({ key: 'profile', optional: true, target: 'profile', title: 'Secure the profile' }) }))
+
+    expect(wrapper.get('[data-test="goal-decline"]').text()).toBe('Not now')
+
+    await wrapper.get('[data-test="goal-decline"]').trigger('click')
+    await flushPromises()
+
+    expect(calls.map((call) => `${call.method} ${call.url}`)).toEqual(['POST /api/v1/tutorial/decline'])
+    expect(wrapper.get('[data-test="goal-title"]').text()).toBe('Goal Look at the network')
+    expect(wrapper.find('[data-test="goal-decline"]').exists()).toBe(false)
+  })
+
+  it('has no button to leave a step that must be done, or an optional one that has not started', async () => {
+    const must = await show(aTutorial(aStep({ acknowledged: true, optional: false, decline: null })))
+    expect(must.wrapper.find('[data-test="goal-decline"]').exists()).toBe(false)
+
+    const waiting = await show(aTutorial(null, { goal: aGoal({ optional: true, waiting: 'Waits until you have $450' }) }))
+    expect(waiting.wrapper.find('[data-test="goal-decline"]').exists()).toBe(false)
   })
 
   it('gives way to the phone while it is out, and is gone with the tutorial', async () => {
