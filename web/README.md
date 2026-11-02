@@ -1,5 +1,14 @@
-# Vue 3 + TypeScript + Vite
+# RideIdle: web
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+Vue 3, TypeScript i Vite: aplikacja gracza (PWA).
 
-Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
+- Opis projektu i uruchomienie całości: [README projektu](../README.md).
+- Ekrany, wygląd i PWA: [`docs/web-run.md`](../docs/web-run.md).
+
+```sh
+npm install
+npm run dev          # http://localhost:5173, /api idzie do DEV_API_TARGET (domyślnie port 8000)
+npm test             # Vitest
+npm run typecheck    # vue-tsc
+npm run build
+```
