@@ -1163,6 +1163,29 @@ final class Rules
         return Ppm::mul($priceCents, $this->data['workshop']['merge']['scrap_ppm_of_price']);
     }
 
+    /** The level of the driver at which the bonuses of parts open (`tuning.unlock_level`). */
+    public function tuningUnlockLevel(): int
+    {
+        return (int) ($this->tuning()['unlock_level'] ?? 1);
+    }
+
+    /**
+     * What a try of tuning costs: a share of the price of the model (`cost_random_ppm`) for a draw and for another try at the bonus that a place holds, a larger one
+     * (`cost_pick_ppm`) for picking another bonus, and never less than `cost_min_cents`.
+     */
+    public function tuningCostCents(int $priceCents, bool $picked): int
+    {
+        $tuning = $this->tuning();
+
+        return max((int) ($tuning['cost_min_cents'] ?? 0), Ppm::mul($priceCents, (int) ($tuning[$picked ? 'cost_pick_ppm' : 'cost_random_ppm'] ?? 0)));
+    }
+
+    /** How long a try of tuning takes the mechanic: a share of what putting the part on takes (`time_ppm_of_mount`), less with the equipment of the workshop. */
+    public function tuningJobMs(string $slot, int $tier, ?WorkshopGear $gear = null): int
+    {
+        return max(1, Ppm::mul($this->workshopJobMs($slot, $tier, gear: $gear), (int) ($this->tuning()['time_ppm_of_mount'] ?? Ppm::ONE)));
+    }
+
     /**
      * The statistics of a part of a rarity at +N and in a condition: what the part adds to a car is multiplied (grip, handling, braking, clearance), and so is the
      * power of an engine (`power_kw`); of a multiplier of the power only the gain is (1.02 at x1.6 is 1.032). A limit, like the one of a gearbox, and the mass

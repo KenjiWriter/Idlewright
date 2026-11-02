@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-/** Putting a part on a car, taking it off, upgrading, merging or repairing parts, or servicing the car, with the time the mechanic starts and finishes. */
+/** Putting a part on a car, taking it off, upgrading, merging, repairing or tuning parts, or servicing the car, with the time the mechanic starts and finishes. */
 class WorkshopJob extends Model
 {
     /** @use HasFactory<WorkshopJobFactory> */
@@ -31,6 +31,9 @@ class WorkshopJob extends Model
     /** The service of the car: the interval of its service starts again when the mechanic is done. Paid when it is queued, and the car stands. */
     public const KIND_SERVICE = 'service';
 
+    /** One try at one place of a part for a bonus (`tuning` of the rules): paid when it is queued, and the car stands only when the part is on it. */
+    public const KIND_TUNE = 'tune';
+
     /** Waiting for the mechanic. */
     public const STATUS_QUEUED = 'queued';
 
@@ -51,6 +54,7 @@ class WorkshopJob extends Model
             'merge_part_id' => 'integer',
             'cost_cents' => 'integer',
             'upgrade_to' => 'integer',
+            'tune_place' => 'integer',
             'start_ms' => 'integer',
             'finish_ms' => 'integer',
             'scripted' => 'boolean',

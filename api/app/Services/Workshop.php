@@ -50,6 +50,7 @@ final class Workshop
         private readonly WorkshopEquipment $equipment,
         private readonly PartRequirements $requirements,
         private readonly Premium $premium,
+        private readonly PartTuning $tuning,
     ) {}
 
     /**
@@ -86,14 +87,18 @@ final class Workshop
      * A repair puts a worn part right (the price and the time follow from its condition): a part on the car makes the car stand, a part of the inventory does
      * not. A service is a job on the car and no part (`$partId` is null): the car stands, and the interval of its service starts again.
      *
-     * @param  string  $kind  WorkshopJob::KIND_MOUNT, KIND_UNMOUNT, KIND_UPGRADE, KIND_MERGE, KIND_REPAIR or KIND_SERVICE
+     * A tune is one try at one place of a part (`$place`, from 1) for a bonus: `$bonus` is the key of the one to put there, or null for a draw (and, at a place that
+     * holds a bonus, for another try at that one). It is paid when it is queued, waits for the mechanic like the rest, and the car stands for it only when the part is on
+     * it (see `PartTuning`). Several tries may wait at once at different places of one part, but not at the same place.
+     *
+     * @param  string  $kind  WorkshopJob::KIND_MOUNT, KIND_UNMOUNT, KIND_UPGRADE, KIND_MERGE, KIND_REPAIR, KIND_SERVICE or KIND_TUNE
      * @return list<WorkshopJob>
      *
      * @throws RuleRefusedException
      */
-    public function queue(int $userId, string $kind, ?int $partId, ?int $nowMs = null, ?int $withPartId = null): array
+    public function queue(int $userId, string $kind, ?int $partId, ?int $nowMs = null, ?int $withPartId = null, ?int $place = null, ?string $bonus = null): array
     {
-        return $this->locked($userId, $nowMs, function (Collection $runs, int $now) use ($userId, $kind, $partId, $withPartId): array {
+        return $this->locked($userId, $nowMs, function (Collection $runs, int $now) use ($userId, $kind, $partId, $withPartId, $place, $bonus): array {
             // What is due comes first, so the parts and the cars are as they are now.
             $this->advanceLocked($userId, $runs, $now);
 
@@ -123,8 +128,8 @@ final class Workshop
                     : Part::query()->where('user_id', $userId)->lockForUpdate()->find($withPartId) ?? throw new RuleRefusedException('part_not_found');
             }
 
-            // A part that is in a job is spoken for: so is the one that a merge is to use up.
-            $busy = $pending->flatMap(static fn (WorkshopJob $job): array => [$job->part_id, $job->merge_part_id])->filter()->all();
+            // A part that is in a job is spoken for: so is the one that a merge is to use up. Tries at the places of a part may wait together (one at a place, see `PartTuning`).
+            $busy = $pending->reject(static fn (WorkshopJob $job): bool => $kind === WorkshopJob::KIND_TUNE && $job->kind === WorkshopJob::KIND_TUNE)->flatMap(static fn (WorkshopJob $job): array => [$job->part_id, $job->merge_part_id])->filter()->all();
 
             if (($part !== null && in_array($part->id, $busy, true)) || ($partner !== null && in_array($partner->id, $busy, true))) {
                 throw new RuleRefusedException('part_busy');
@@ -137,6 +142,7 @@ final class Workshop
                 WorkshopJob::KIND_UPGRADE => $this->planUpgrade($car, $part, $gear),
                 WorkshopJob::KIND_MERGE => $this->planMerge($part, $partner),
                 WorkshopJob::KIND_REPAIR => $this->planRepair($car, $part, $gear),
+                WorkshopJob::KIND_TUNE => $this->planTune($car, $part, $place, $bonus, $pending),
                 WorkshopJob::KIND_SERVICE => [[WorkshopJob::KIND_SERVICE, null]],
                 default => $this->planUnmount($car, $part),
             };
@@ -161,14 +167,15 @@ final class Workshop
                     WorkshopJob::KIND_UPGRADE => $this->upgradeQuote($jobPart, $car, $gear, $arranged),
                     WorkshopJob::KIND_MERGE => $this->script->arrange(['cost_cents' => $this->rules->mergeCostCents($definition['price_cents']), 'duration_ms' => $this->rules->mergeJobMs($jobPart->slot, $definition['tier'], $gear)], $arranged[WorkshopJob::KIND_MERGE] ?? null),
                     WorkshopJob::KIND_REPAIR => $this->repairQuote($jobPart, $gear),
+                    WorkshopJob::KIND_TUNE => $this->tuning->quote($jobPart, (int) $place, $bonus, $gear),
                     WorkshopJob::KIND_SERVICE => $this->serviceQuote($car, $gear, $arranged),
                     default => $this->slotJobQuote($jobKind, $jobPart, $gear, $firstMountMs, $arranged[$jobKind] ?? null),
                 };
                 $duration = $quote['duration_ms'];
 
-                // The parts of a merge are not on the car, nor is a part of the inventory that is repaired, so the car is not in the job: it does not stand
+                // The parts of a merge are not on the car, nor is a part of the inventory that is repaired or tuned, so the car is not in the job: it does not stand
                 // while the mechanic is at it.
-                $carId = $jobKind === WorkshopJob::KIND_MERGE || ($jobKind === WorkshopJob::KIND_REPAIR && ! $jobPart->isMounted()) ? null : $car->id;
+                $carId = $jobKind === WorkshopJob::KIND_MERGE || (in_array($jobKind, [WorkshopJob::KIND_REPAIR, WorkshopJob::KIND_TUNE], true) && ! $jobPart->isMounted()) ? null : $car->id;
                 $start = WorkshopSchedule::startFor($placed, $gear->workers(), max($now, $carId === null ? 0 : $carFreeAt[$carId] ?? 0), $duration);
                 $placed[] = ['start_ms' => $start, 'finish_ms' => $start + $duration];
 
@@ -185,6 +192,8 @@ final class Workshop
                     'kind' => $jobKind,
                     'cost_cents' => $quote['cost_cents'] ?? 0,
                     'upgrade_to' => $quote['to'] ?? null,
+                    'tune_place' => $jobKind === WorkshopJob::KIND_TUNE ? $place : null,
+                    'tune_key' => $jobKind === WorkshopJob::KIND_TUNE ? $bonus : null,
                     'status' => WorkshopJob::STATUS_QUEUED,
                     'scripted' => $jobKind === WorkshopJob::KIND_MERGE && isset($arranged[WorkshopJob::KIND_MERGE]),
                     'start_ms' => $start,
@@ -267,7 +276,7 @@ final class Workshop
     /**
      * Cancels a job that waits for the mechanic or that the mechanic is at, and the jobs that cannot happen without it: the
      * part that was to take the place of the one whose taking off is cancelled. A job costs only time, so nothing is given back,
-     * except for a job that has not started and was paid (an upgrade, a merge, a repair, a service, or the fee of the vulcanizer), which is paid back whole
+     * except for a job that has not started and was paid (an upgrade, a merge, a repair, a tune, a service, or the fee of the vulcanizer), which is paid back whole
      * (one at work loses its price and its work); the work done on the job at work is lost, and its part stays where it was. The jobs that
      * wait in the queue of that city move up to the first moment a mechanic is free for them, or to now when one is.
      * A car that has no job at work after that drives again from now.
@@ -646,6 +655,25 @@ final class Workshop
     }
 
     /**
+     * A try of tuning at a place of a part: on the car the workshop works on, or in the inventory. What the driver and the part allow is for `PartTuning::check`.
+     *
+     * @param  Collection<int, WorkshopJob>  $pending  the jobs of the driver that are not done
+     * @return list<array{0: string, 1: Part}>
+     *
+     * @throws RuleRefusedException
+     */
+    private function planTune(Car $car, Part $part, ?int $place, ?string $bonus, Collection $pending): array
+    {
+        if ($part->isMounted() && $part->car_id !== $car->id) {
+            throw new RuleRefusedException('part_not_mounted');
+        }
+
+        $this->tuning->check($part, $place, $bonus, $this->rules->playerLevelAt($this->ledger->xp((int) $part->user_id)), $pending);
+
+        return [[WorkshopJob::KIND_TUNE, $part]];
+    }
+
+    /**
      * Two parts of the inventory that are made into one: the same slot, tier and rarity, neither on a car, and not the highest rarity.
      *
      * @return list<array{0: string, 1: Part}>
@@ -899,11 +927,17 @@ final class Workshop
         }
     }
 
-    /** The part goes onto the car, or comes off it, or has its next level of upgrade, or the draw of the merge is made, or the part or the car is put right. */
+    /** The part goes onto the car, or comes off it, or has its next level of upgrade, or the draw of the merge or of the tuning is made, or the part or the car is put right. */
     private function apply(WorkshopJob $job): void
     {
         if ($job->kind === WorkshopJob::KIND_MERGE) {
             $this->merges->resolve($job);
+
+            return;
+        }
+
+        if ($job->kind === WorkshopJob::KIND_TUNE) {
+            $this->tuning->resolve($job);
 
             return;
         }
