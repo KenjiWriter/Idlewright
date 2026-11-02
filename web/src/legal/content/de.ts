@@ -163,8 +163,17 @@ const texts: LegalTexts = {
         id: 'storage',
         heading: 'Was in deinem Browser bleibt',
         paragraphs: [
-          'RideIdle verwendet keine Cookies. Es speichert einige Dinge im lokalen Speicher deines Browsers: das Gerätetoken, die gewählte Sprache, eine Markierung des zuletzt angezeigten Zustands deiner Fahrt, die Information, dass das Fenster, das dich bittet, deine Garage zu sichern, verschoben wurde, und, für einige Minuten während einer Anmeldung über einen Anbieter, ein einmaliger geheimer Wert. Das Spiel braucht sie zum Funktionieren, und sie werden nicht verwendet, um dich zu verfolgen.',
+          'RideIdle verwendet keine Cookies. Es speichert einige Dinge im lokalen Speicher deines Browsers: das Gerätetoken, die gewählte Sprache, eine Markierung des zuletzt angezeigten Zustands deiner Fahrt, die Information, dass das Fenster, das dich bittet, deine Garage zu sichern, verschoben wurde, die Information, dass die Frage nach Benachrichtigungen verschoben wurde, und, für einige Minuten während einer Anmeldung über einen Anbieter, ein einmaliger geheimer Wert. Das Spiel braucht sie zum Funktionieren, und sie werden nicht verwendet, um dich zu verfolgen.',
           'Wenn du die Daten deines Browsers löschst, wirst du abgemeldet. Ein Gastkonto ohne Wiederherstellungscode lässt sich nicht mehr öffnen.',
+        ],
+      },
+      {
+        id: 'notifications',
+        heading: 'Benachrichtigungen',
+        paragraphs: [
+          'Wenn du Benachrichtigungen einschaltest, kann das Spiel eine kurze Nachricht an dein Gerät senden, wenn ein Auto stehen bleibt oder ankommt oder ein Auftrag in deiner Werkstatt erledigt ist. In deiner Garage wählst du, worüber du informiert wirst, und du kannst sie jederzeit ausschalten, dort oder in den Einstellungen deines Browsers. Wir schalten sie nie für dich ein.',
+          'Dafür speichern wir pro Gerät die Adresse des Benachrichtigungsdienstes deines Browsers und die Schlüssel, mit denen nur dein Browser eine Nachricht lesen kann, die Zeitzone und Sprache des Geräts, die Art des Browsers (zum Beispiel Chrome oder Firefox) und wann zuletzt eine Nachricht angekommen ist. Diese Daten sind in unserer Datenbank verschlüsselt und werden gelöscht, wenn du Benachrichtigungen ausschaltest, wenn der Benachrichtigungsdienst meldet, dass das Gerät nicht mehr existiert, wenn du dein Konto löschst oder wenn Nachrichten an das Gerät seit mehr als 30 Tagen scheitern. Wir halten auch fest, welche Nachrichten wir dir gesendet haben, um ihre Zahl niedrig zu halten, und löschen diesen Vermerk nach 30 Tagen.',
+          'Die Nachrichten sind verschlüsselt, daher transportiert der Benachrichtigungsdienst deines Browsers (betrieben von Google, Apple, Mozilla oder Microsoft, je nach Browser) sie, ohne sie lesen zu können; er sieht die Adresse deines Geräts, die Zeit und die Größe der Nachricht. Grundlage: deine Einwilligung (Artikel 6 Absatz 1 Buchstabe a DSGVO), die du durch das Einschalten der Benachrichtigungen erteilst und jederzeit widerrufen kannst.',
         ],
       },
       {

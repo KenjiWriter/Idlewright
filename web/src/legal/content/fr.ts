@@ -163,8 +163,17 @@ const texts: LegalTexts = {
         id: 'storage',
         heading: 'Ce qui reste dans votre navigateur',
         paragraphs: [
-          'RideIdle n’utilise pas de cookies. Il enregistre quelques éléments dans le stockage local de votre navigateur : le jeton d’appareil, la langue choisie, un repère du dernier état de votre course que vous avez vu, le fait que vous avez reporté la fenêtre qui vous invite à sauvegarder votre garage et, pendant quelques minutes lors d’une connexion avec un fournisseur, un secret à usage unique. Ces éléments sont nécessaires au jeu et ne servent pas à vous suivre.',
+          'RideIdle n’utilise pas de cookies. Il enregistre quelques éléments dans le stockage local de votre navigateur : le jeton d’appareil, la langue choisie, un repère du dernier état de votre course que vous avez vu, le fait que vous avez reporté la fenêtre qui vous invite à sauvegarder votre garage, le fait que vous avez reporté la question sur les notifications et, pendant quelques minutes lors d’une connexion avec un fournisseur, un secret à usage unique. Ces éléments sont nécessaires au jeu et ne servent pas à vous suivre.',
           'Si vous effacez les données de votre navigateur, votre session se ferme. Un compte invité sans code de récupération ne peut plus être rouvert.',
+        ],
+      },
+      {
+        id: 'notifications',
+        heading: 'Notifications',
+        paragraphs: [
+          'Si vous activez les notifications, le jeu peut envoyer un court message à votre appareil quand une voiture s’arrête ou arrive, ou quand un travail de votre atelier est terminé. Dans votre garage, vous choisissez ce dont vous voulez être prévenu et vous pouvez les désactiver à tout moment, là ou dans les réglages de votre navigateur. Nous ne les activons jamais à votre place.',
+          'Pour cela, nous conservons, pour chaque appareil, l’adresse du service de notifications de votre navigateur et les clés avec lesquelles seul votre navigateur peut lire un message, le fuseau horaire et la langue de l’appareil, le type de navigateur (par exemple Chrome ou Firefox) et le moment où un message est arrivé pour la dernière fois. Ces données sont chiffrées dans notre base et supprimées quand vous désactivez les notifications, quand le service de notifications indique que l’appareil n’existe plus, quand vous supprimez votre compte ou lorsque les messages qui lui sont destinés échouent depuis plus de 30 jours. Nous notons aussi quels messages nous vous avons envoyés, pour en limiter le nombre, et nous supprimons cette trace après 30 jours.',
+          'Les messages sont chiffrés : le service de notifications de votre navigateur (exploité par Google, Apple, Mozilla ou Microsoft, selon votre navigateur) les transporte sans pouvoir les lire ; il voit l’adresse de votre appareil, l’heure et la taille du message. Base légale : votre consentement (article 6, paragraphe 1, point a, du RGPD), que vous donnez en activant les notifications et que vous pouvez retirer à tout moment.',
         ],
       },
       {

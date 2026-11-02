@@ -163,8 +163,17 @@ const texts: LegalTexts = {
         id: 'storage',
         heading: 'Co zostaje w Twojej przeglądarce',
         paragraphs: [
-          'RideIdle nie używa plików cookie. Zapisuje kilka rzeczy w pamięci lokalnej (local storage) przeglądarki: token urządzenia, wybrany język, znacznik ostatniego stanu biegu, który został wyświetlony, informację, że okno z prośbą o zapisanie garażu zostało odłożone, oraz, przez kilka minut podczas logowania przez dostawcę, jednorazowy sekret. Gra potrzebuje ich do działania i nie służą do śledzenia Cię.',
+          'RideIdle nie używa plików cookie. Zapisuje kilka rzeczy w pamięci lokalnej (local storage) przeglądarki: token urządzenia, wybrany język, znacznik ostatniego stanu biegu, który został wyświetlony, informację, że okno z prośbą o zapisanie garażu zostało odłożone, informację, że pytanie o powiadomienia zostało odłożone, oraz, przez kilka minut podczas logowania przez dostawcę, jednorazowy sekret. Gra potrzebuje ich do działania i nie służą do śledzenia Cię.',
           'Jeśli wyczyścisz dane przeglądarki, nastąpi wylogowanie. Konta gościa bez kodu odzyskiwania nie da się już otworzyć.',
+        ],
+      },
+      {
+        id: 'notifications',
+        heading: 'Powiadomienia',
+        paragraphs: [
+          'Jeśli włączysz powiadomienia, gra może wysłać na Twoje urządzenie krótką wiadomość, gdy auto stanie albo dojedzie, albo gdy zlecenie w Twoim warsztacie będzie gotowe. W garażu wybierasz, o czym chcesz być powiadamiany, i możesz je wyłączyć w każdej chwili, tam albo w ustawieniach przeglądarki. Nigdy nie włączamy ich za Ciebie.',
+          'W tym celu przechowujemy dla każdego urządzenia adres usługi powiadomień Twojej przeglądarki oraz klucze, którymi tylko Twoja przeglądarka odczyta wiadomość, strefę czasową i język urządzenia, rodzaj przeglądarki (na przykład Chrome albo Firefox) i czas, w którym ostatnio dotarła wiadomość. Te dane są w naszej bazie zaszyfrowane i usuwane, gdy wyłączysz powiadomienia, gdy usługa powiadomień zgłosi, że urządzenia już nie ma, gdy usuniesz konto albo gdy wiadomości do niego nie docierają od ponad 30 dni. Zapisujemy też, jakie wiadomości Ci wysłaliśmy, aby ograniczać ich liczbę, i usuwamy ten zapis po 30 dniach.',
+          'Wiadomości są szyfrowane, więc usługa powiadomień Twojej przeglądarki (prowadzona przez Google, Apple, Mozillę albo Microsoft, zależnie od przeglądarki) przenosi je, nie mogąc ich przeczytać; widzi adres Twojego urządzenia, czas i rozmiar wiadomości. Podstawa: Twoja zgoda (art. 6 ust. 1 lit. a RODO), którą wyrażasz, włączając powiadomienia, i którą możesz w każdej chwili cofnąć.',
         ],
       },
       {

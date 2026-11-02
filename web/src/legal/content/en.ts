@@ -163,8 +163,17 @@ const texts: LegalTexts = {
         id: 'storage',
         heading: 'What stays in your browser',
         paragraphs: [
-          'RideIdle does not use cookies. It saves a few things in the local storage of your browser: the device token, the language you chose, a marker of the last state of your run that you have seen, whether you postponed the window that asks you to save your garage, and, for a few minutes while you sign in with a provider, a one-time secret. The game needs them to work, and they are not used to track you.',
+          'RideIdle does not use cookies. It saves a few things in the local storage of your browser: the device token, the language you chose, a marker of the last state of your run that you have seen, whether you postponed the window that asks you to save your garage, whether you postponed the question about notifications, and, for a few minutes while you sign in with a provider, a one-time secret. The game needs them to work, and they are not used to track you.',
           'If you clear your browser data, you are signed out. A guest account that has no recovery code cannot be opened again.',
+        ],
+      },
+      {
+        id: 'notifications',
+        heading: 'Notifications',
+        paragraphs: [
+          'If you turn on notifications, the game can send a short message to your device when a car stops or arrives, or when a job in your workshop is done. In your garage you choose what you are told of, and you can turn them off at any time, there or in the settings of your browser. We never turn them on for you.',
+          'To do this we keep, for each device, the address of the push service of your browser and the keys that only your browser can read a message with, the time zone and language of the device, the kind of browser (for example Chrome or Firefox) and when a message last arrived. These data are encrypted in our database and deleted when you turn notifications off, when the push service says the device is gone, when you delete your account, or when messages to it have failed for more than 30 days. We also note which messages we sent you, to keep their number down, and we forget that note after 30 days.',
+          'The messages are encrypted, so the push service of your browser (run by Google, Apple, Mozilla or Microsoft, depending on your browser) carries them without being able to read them; it sees the address of your device, the time and the size of the message. Basis: your consent (Article 6(1)(a) of the GDPR), which you give by turning notifications on and can withdraw at any time.',
         ],
       },
       {

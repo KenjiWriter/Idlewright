@@ -163,8 +163,17 @@ const texts: LegalTexts = {
         id: 'storage',
         heading: 'O que fica no seu navegador',
         paragraphs: [
-          'O RideIdle não usa cookies. Ele guarda algumas coisas no armazenamento local do seu navegador: o token do aparelho, o idioma escolhido, um marcador do último estado da sua corrida que você já viu, a informação de que você adiou a janela que pede para salvar sua garagem e, por alguns minutos durante um login com Google, Facebook ou Apple, um segredo de uso único. O jogo precisa desses dados para funcionar, e eles não são usados para rastrear você.',
+          'O RideIdle não usa cookies. Ele guarda algumas coisas no armazenamento local do seu navegador: o token do aparelho, o idioma escolhido, um marcador do último estado da sua corrida que você já viu, a informação de que você adiou a janela que pede para salvar sua garagem, a informação de que você adiou a pergunta sobre as notificações e, por alguns minutos durante um login com Google, Facebook ou Apple, um segredo de uso único. O jogo precisa desses dados para funcionar, e eles não são usados para rastrear você.',
           'Se você limpar os dados do navegador, sua sessão será encerrada. Uma conta de convidado sem código de recuperação não pode mais ser aberta.',
+        ],
+      },
+      {
+        id: 'notifications',
+        heading: 'Notificações',
+        paragraphs: [
+          'Se você ativar as notificações, o jogo pode enviar uma mensagem curta ao seu dispositivo quando um carro parar ou chegar, ou quando um trabalho da sua oficina terminar. Na garagem você escolhe sobre o que quer ser avisado e pode desativá-las a qualquer momento, lá ou nas configurações do navegador. Nunca as ativamos por você.',
+          'Para isso guardamos, por dispositivo, o endereço do serviço de notificações do seu navegador e as chaves com as quais só o seu navegador consegue ler uma mensagem, o fuso horário e o idioma do dispositivo, o tipo de navegador (por exemplo Chrome ou Firefox) e quando uma mensagem chegou pela última vez. Esses dados ficam criptografados no nosso banco e são apagados quando você desativa as notificações, quando o serviço de notificações informa que o dispositivo não existe mais, quando você exclui a conta ou quando as mensagens para ele falham há mais de 30 dias. Também anotamos quais mensagens enviamos a você, para limitar o número delas, e apagamos esse registro depois de 30 dias.',
+          'As mensagens são criptografadas, então o serviço de notificações do seu navegador (operado por Google, Apple, Mozilla ou Microsoft, conforme o navegador) as transporta sem poder lê-las; ele vê o endereço do seu dispositivo, a hora e o tamanho da mensagem. Base legal: o seu consentimento (artigo 6(1)(a) do GDPR), que você dá ao ativar as notificações e pode retirar a qualquer momento.',
         ],
       },
       {
