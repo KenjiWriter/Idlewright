@@ -6,6 +6,7 @@ use App\Content\BotProfiles;
 use App\Content\Branding\Branding;
 use App\Content\Catalog;
 use App\Content\ContentSource;
+use App\Content\GigCatalog;
 use App\Content\MissionCatalog;
 use App\Content\Rules;
 use App\Content\TutorialSteps;
@@ -48,6 +49,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(RunService::class, fn ($app) => new RunService(ledger: $app->make(Ledger::class), script: $app->make(TutorialScript::class)));
         $this->app->scoped(TutorialSteps::class, fn () => TutorialSteps::fromConfig());
         $this->app->scoped(MissionCatalog::class, fn () => MissionCatalog::fromConfig());
+        $this->app->scoped(GigCatalog::class, fn () => GigCatalog::fromConfig());
         $this->app->scoped(Vocabulary::class, fn () => Vocabulary::fromConfig());
         $this->app->scoped(Branding::class, fn () => Branding::fromConfig());
         // The provider that takes no money remembers its pages for as long as the process lives, so what a test starts it can finish.
@@ -72,6 +74,7 @@ class AppServiceProvider extends ServiceProvider
 
         // The missions are counted out of the facts of the game whenever they are looked at, and the bar of the game looks every minute or so.
         RateLimiter::for('missions', fn (Request $request) => Limit::perMinute(30)->by((string) $request->user()?->getAuthIdentifier()));
+        RateLimiter::for('gigs', fn (Request $request) => Limit::perMinute(30)->by((string) $request->user()?->getAuthIdentifier()));
 
         // A page of payment is made at the provider, which has its own limits and its own fraud checks: a driver and an address are kept from asking for many.
         RateLimiter::for('payments-checkout', fn (Request $request) => [

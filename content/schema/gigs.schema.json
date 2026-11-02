@@ -1,0 +1,149 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rideidle.local/schema/gigs.schema.json",
+  "title": "Gigs (content/rules/gigs.json, schema v0)",
+  "description": "The side jobs of the game as data: the numbers of the board of a city (how often it changes, how many offers it has in each phase of the day, how rare the good ones are), what a gig pays and how long it may be at each level of the driver, and the templates that the offers are drawn from. A gig is a round trip of a car with passengers or a load: the car leaves its track for the time it takes, and is paid when it is back. Provisional, like the rules.",
+  "type": "object",
+  "properties": {
+    "schema": { "const": 0 },
+    "version": { "type": "string", "pattern": "^[0-9]{4}\\.[0-9]{1,2}\\.[0-9]+$" },
+    "enabled": { "description": "Whether the game has gigs. Off means no board and no new gigs; a gig that is on the road is finished.", "type": "boolean" },
+    "unlock_after_step": { "description": "The step of the tutorial after which the board opens (a driver who left the tutorial has it at once).", "type": "string", "minLength": 1, "maxLength": 64 },
+    "timezone": { "description": "The time zone in which the day of the daily limit starts.", "type": "string", "minLength": 1, "maxLength": 64 },
+    "reset_hour": { "description": "The hour (in that time zone) at which the day of the daily limit starts.", "type": "integer", "minimum": 0, "maximum": 23 },
+    "wave_ms": { "description": "How long the offers of a city stay the same: the board is made again, from the seed, once a wave. 1 350 000 is the 22,5 minutes of a piece of weather.", "type": "integer", "minimum": 60000, "maximum": 3600000 },
+    "cancel_window_ms": { "description": "How long after taking a gig the driver may take it back, with the fuel returned and nothing lost but the laps of those seconds.", "type": "integer", "minimum": 0, "maximum": 600000 },
+    "slots": {
+      "description": "How many offers a city has in a wave that begins in each phase of the day.",
+      "type": "object",
+      "properties": {
+        "dawn": { "type": "integer", "minimum": 0, "maximum": 12 },
+        "day": { "type": "integer", "minimum": 0, "maximum": 12 },
+        "dusk": { "type": "integer", "minimum": 0, "maximum": 12 },
+        "night": { "type": "integer", "minimum": 0, "maximum": 12 }
+      },
+      "required": ["dawn", "day", "dusk", "night"],
+      "additionalProperties": false
+    },
+    "rarities": {
+      "description": "How good an offer is: its weight in the draw (a weight of 5 against 70 is about one in fifteen) and what it multiplies the pay by. The first is the ordinary one.",
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "properties": {
+          "key": { "type": "string", "pattern": "^[a-z]+$" },
+          "weight": { "type": "integer", "minimum": 0, "maximum": 1000 },
+          "pay_ppm": { "type": "integer", "minimum": 100000, "maximum": 5000000 }
+        },
+        "required": ["key", "weight", "pay_ppm"],
+        "additionalProperties": false
+      }
+    },
+    "pay": {
+      "type": "object",
+      "properties": {
+        "ref_speed_kmh": { "description": "The speed at which the time of a gig is counted for its pay (the reference time): a gig of 70 km pays for an hour at 70.", "type": "integer", "minimum": 10, "maximum": 300 },
+        "speed_cap_kmh": { "description": "The fastest a car drives on a gig (the roads have limits), so that a fast car finishes sooner but not without end.", "type": "integer", "minimum": 10, "maximum": 300 },
+        "xp_per_hour": { "description": "The experience of the driver for an hour of the reference time of a gig.", "type": "integer", "minimum": 0, "maximum": 3600 },
+        "car_xp_per_hour": { "description": "The experience of the car for an hour of the reference time of a gig.", "type": "integer", "minimum": 0, "maximum": 3600 },
+        "anchors": {
+          "description": "What an hour of driving pays after the fuel at the rung of the ladder of cars that a level opens, in cents (the anchors of the economy: 600 * 1.15 ^ rung dollars). A gig pays by the rung of the car that does it, which is the one its own level opens.",
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "properties": {
+              "from_level": { "type": "integer", "minimum": 1, "maximum": 100 },
+              "cents_per_hour": { "type": "integer", "minimum": 1, "maximum": 100000000 }
+            },
+            "required": ["from_level", "cents_per_hour"],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": ["ref_speed_kmh", "speed_cap_kmh", "xp_per_hour", "car_xp_per_hour", "anchors"],
+      "additionalProperties": false
+    },
+    "bands": {
+      "description": "What the level of the driver changes: the part of the anchor that a gig pays, the longest gig (in minutes of the reference time) the board offers, and how many gigs a driver may take in a day. They rise with the level because the window in which a car drives on one tank grows, and a gig is worth less against it.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "from_level": { "type": "integer", "minimum": 1, "maximum": 100 },
+          "ratio_ppm": { "type": "integer", "minimum": 100000, "maximum": 2000000 },
+          "max_ref_minutes": { "type": "integer", "minimum": 1, "maximum": 1440 },
+          "daily_limit": { "type": "integer", "minimum": 1, "maximum": 200 }
+        },
+        "required": ["from_level", "ratio_ppm", "max_ref_minutes", "daily_limit"],
+        "additionalProperties": false
+      }
+    },
+    "kinds": {
+      "description": "The kinds of gig, with their names in the languages of the game.",
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "pattern": "^[a-z][a-z0-9-]*$" },
+      "additionalProperties": { "type": "object", "properties": { "name": { "$ref": "common.schema.json#/$defs/i18n" } }, "required": ["name"], "additionalProperties": false }
+    },
+    "templates": {
+      "description": "What the offers are drawn from. Each has a kind, what it asks of the car (a number of seats or a load, and maybe a class), how long a trip may be, and how likely it is in each phase of the day.",
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": { "pattern": "^[a-z][a-z0-9-]*$" },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "kind": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+          "title": { "$ref": "common.schema.json#/$defs/i18n" },
+          "capacity": { "description": "What the car is asked for: `seats` for people, `cargo_kg` for a load.", "enum": ["seats", "cargo_kg"] },
+          "amount": {
+            "description": "How many people or how many kilograms an offer carries.",
+            "type": "object",
+            "properties": { "min": { "type": "integer", "minimum": 1 }, "max": { "type": "integer", "minimum": 1 } },
+            "required": ["min", "max"],
+            "additionalProperties": false
+          },
+          "class_in": { "description": "If set, only a car of one of these classes can take the gig (the delivery vehicles).", "type": "array", "items": { "type": "string", "pattern": "^[a-z_]+$" }, "minItems": 1, "uniqueItems": true },
+          "mode": { "description": "`local` is a trip in the city (its length is in `local_km`); `intercity` is to another city that the driver's level has opened, and back.", "enum": ["local", "intercity"] },
+          "local_km": {
+            "description": "For a local gig: the length of the whole trip, in km.",
+            "type": "object",
+            "properties": { "min": { "type": "integer", "minimum": 1 }, "max": { "type": "integer", "minimum": 1 } },
+            "required": ["min", "max"],
+            "additionalProperties": false
+          },
+          "pay_ppm": { "description": "What this template multiplies the pay by (1 000 000 is the plain pay).", "type": "integer", "minimum": 100000, "maximum": 5000000 },
+          "phase_pay_ppm": {
+            "description": "A multiplier of the pay for the phase of the day the offer appeared in (dusk fever for taxis, the night rate). A phase that is not here pays plain.",
+            "type": "object",
+            "propertyNames": { "enum": ["dawn", "day", "dusk", "night"] },
+            "additionalProperties": { "type": "integer", "minimum": 100000, "maximum": 5000000 }
+          },
+          "phases": {
+            "description": "The weight of the template in the draw of an offer that appears in each phase of the day (0 is never).",
+            "type": "object",
+            "properties": {
+              "dawn": { "type": "integer", "minimum": 0, "maximum": 1000 },
+              "day": { "type": "integer", "minimum": 0, "maximum": 1000 },
+              "dusk": { "type": "integer", "minimum": 0, "maximum": 1000 },
+              "night": { "type": "integer", "minimum": 0, "maximum": 1000 }
+            },
+            "required": ["dawn", "day", "dusk", "night"],
+            "additionalProperties": false
+          },
+          "window_waves": { "description": "How many waves an offer of this template stays on the board.", "type": "integer", "minimum": 1, "maximum": 48 },
+          "deadline_ppm": { "description": "If set, the car must finish within this part of the reference time (1 000 000 is exactly the time at the reference speed): a slow car cannot take an express.", "type": "integer", "minimum": 500000, "maximum": 5000000 },
+          "min_player_level": { "type": "integer", "minimum": 1, "maximum": 100 }
+        },
+        "required": ["kind", "title", "capacity", "amount", "mode", "pay_ppm", "phases", "window_waves", "min_player_level"],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": ["schema", "version", "enabled", "unlock_after_step", "timezone", "reset_hour", "wave_ms", "cancel_window_ms", "slots", "rarities", "pay", "bands", "kinds", "templates"],
+  "additionalProperties": false
+}

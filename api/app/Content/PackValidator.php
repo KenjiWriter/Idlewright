@@ -54,6 +54,7 @@ final class PackValidator
         'model' => 'model.schema.json',
         'branding' => 'branding.schema.json',
         'missions' => 'missions.schema.json',
+        'gigs' => 'gigs.schema.json',
     ];
 
     /**
@@ -153,13 +154,13 @@ final class PackValidator
 
         $this->warnAboutMissingPictures($pictures, $result);
 
-        foreach (['starter' => 'rules.schema.json', 'tutorial' => 'tutorial.schema.json', 'economy' => 'economy.schema.json', 'vocabulary' => 'vocabulary.schema.json', 'model' => 'model.schema.json', 'branding' => 'branding.schema.json', 'missions' => 'missions.schema.json'] as $name => $schemaFile) {
+        foreach (['starter' => 'rules.schema.json', 'tutorial' => 'tutorial.schema.json', 'economy' => 'economy.schema.json', 'vocabulary' => 'vocabulary.schema.json', 'model' => 'model.schema.json', 'branding' => 'branding.schema.json', 'missions' => 'missions.schema.json', 'gigs' => 'gigs.schema.json'] as $name => $schemaFile) {
             if (! $source->has("rules/{$name}")) {
                 // A pack with no vocabulary is a pack that does not change the words of the app, one with no model is a game of the cars of the first pack, and one
                 // with no branding is the app as it looks.
                 match ($name) {
                     'economy' => $result->addWarning("rules/{$name}.json", '', 'The anchors of the economy are missing: the simulators cannot be run on this content.'),
-                    'vocabulary', 'model', 'branding', 'missions' => null,
+                    'vocabulary', 'model', 'branding', 'missions', 'gigs' => null,
                     default => $result->addError("rules/{$name}.json", '', 'The document is missing.'),
                 };
 
@@ -336,6 +337,7 @@ final class PackValidator
         $this->checkParts($source, $result);
         $this->checkTutorial($source, $parts, $vehicles, $regions, $result);
         $this->checkMissions($source, $rules, $result);
+        $this->checkGigs($source, $vehicles, $result);
         $this->checkPremium($rules, $result);
         $this->checkStreaks($rules, $result);
         $this->checkWithdrawn($source, $parts, $vehicles, $result);
@@ -1021,6 +1023,106 @@ final class PackValidator
     }
 
     /**
+     * What the schema cannot say about the gigs: the kind of every template is a kind of the document, a trip in the city has a length and one between cities has not, the
+     * smallest offer of a template is one that some car of the pack can take, every phase that has offers has a template to draw them from, the levels and the rungs of the
+     * pay are in order, the step of the tutorial exists, and every band of levels has a trip in the city that fits its longest gig.
+     *
+     * @param  list<string>  $vehicles  the slugs of the cars of the pack
+     */
+    private function checkGigs(ContentSource $source, array $vehicles, PackValidationResult $result): void
+    {
+        if (! $source->has('rules/gigs')) {
+            return;
+        }
+
+        $file = 'rules/gigs.json';
+        $gigs = $source->document('rules/gigs');
+
+        if (! in_array($gigs['timezone'], DateTimeZone::listIdentifiers(), true)) {
+            $result->addError($file, '/timezone', "{$gigs['timezone']} is not a time zone.");
+        }
+
+        if ($source->has('rules/tutorial') && ! in_array($gigs['unlock_after_step'], array_column($source->document('rules/tutorial')['steps'] ?? [], 'key'), true)) {
+            $result->addError($file, '/unlock_after_step', "The tutorial has no step {$gigs['unlock_after_step']}.");
+        }
+
+        foreach (['/bands' => $gigs['bands'], '/pay/anchors' => $gigs['pay']['anchors']] as $path => $rows) {
+            $levels = array_column($rows, 'from_level');
+            $sorted = $levels;
+            sort($sorted);
+
+            if ($levels !== $sorted || count(array_unique($levels)) !== count($levels) || ($levels[0] ?? 1) !== 1) {
+                $result->addError($file, $path, 'The rows have to start at level 1 and go up, each at a higher level than the one before.');
+            }
+        }
+
+        if (array_sum(array_column($gigs['rarities'], 'weight')) <= 0 || ($gigs['rarities'][0]['weight'] ?? 0) <= 0 || count(array_unique(array_column($gigs['rarities'], 'key'))) !== count($gigs['rarities'])) {
+            $result->addError($file, '/rarities', 'The first rarity (the ordinary one) needs a weight, and the keys of the rarities are different.');
+        }
+
+        $cars = [];
+
+        foreach ($vehicles as $slug) {
+            $cars[] = $source->document("vehicles/{$slug}");
+        }
+
+        $classes = array_unique(array_column($cars, 'class'));
+        $weighted = array_fill_keys(GigCatalog::PHASES, false);
+
+        foreach ($gigs['templates'] as $key => $template) {
+            $where = "/templates/{$key}";
+
+            if (! isset($gigs['kinds'][$template['kind']])) {
+                $result->addError($file, "{$where}/kind", "The kind {$template['kind']} is not one of the kinds of the document.");
+            }
+
+            if ($template['mode'] === 'local' && ! isset($template['local_km'])) {
+                $result->addError($file, "{$where}/local_km", 'A trip in the city needs its length.');
+            }
+
+            if ($template['mode'] === 'intercity' && isset($template['local_km'])) {
+                $result->addWarning($file, "{$where}/local_km", 'A trip between cities is as long as the road, so its local length is not used.');
+            }
+
+            foreach (['amount' => $template['amount'], 'local_km' => $template['local_km'] ?? null] as $field => $range) {
+                if ($range !== null && $range['min'] > $range['max']) {
+                    $result->addError($file, "{$where}/{$field}", 'The smallest is more than the biggest.');
+                }
+            }
+
+            foreach ($template['class_in'] ?? [] as $position => $class) {
+                if (! in_array($class, $classes, true)) {
+                    $result->addWarning($file, "{$where}/class_in/{$position}", "No car of the pack is of the class {$class}.");
+                }
+            }
+
+            $fits = array_filter($cars, static fn (array $car): bool => ($car[$template['capacity']] ?? 0) >= $template['amount']['min'] && (! isset($template['class_in']) || in_array($car['class'], $template['class_in'], true)));
+
+            if ($fits === []) {
+                $result->addError($file, "{$where}/amount", 'No car of the pack can take even the smallest offer of this template.');
+            }
+
+            foreach (GigCatalog::PHASES as $phase) {
+                $weighted[$phase] = $weighted[$phase] || $template['phases'][$phase] > 0;
+            }
+        }
+
+        foreach ($weighted as $phase => $has) {
+            if (! $has && $gigs['slots'][$phase] > 0) {
+                $result->addError($file, "/slots/{$phase}", "The board has offers in the {$phase}, and no template has a weight in it.");
+            }
+        }
+
+        foreach ($gigs['bands'] as $index => $band) {
+            $fitting = array_filter($gigs['templates'], static fn (array $template): bool => $template['mode'] === 'local' && $template['min_player_level'] <= $band['from_level'] && $template['local_km']['min'] * 60 <= $band['max_ref_minutes'] * $gigs['pay']['ref_speed_kmh']);
+
+            if ($fitting === []) {
+                $result->addWarning($file, "/bands/{$index}", "No trip in the city fits the longest gig of level {$band['from_level']}: a driver of that level has no gig in a city with no other city open.");
+            }
+        }
+    }
+
+    /**
      * What the schema cannot say about the missions: the numbers of the rules and the pools of the document agree, a goal is the kind of goal its template says it
      * is (a part of a tank, or a number of times), the keys of the templates are the keys of one template, the crates they give are crates of the game, and every
      * level of the game can draw a mission for every slot, so that a set is never short of one.
@@ -1326,6 +1428,16 @@ final class PackValidator
                     $texts["/chains/{$chainIndex}/missions/{$index}/title"] = $mission['title'] ?? null;
                     $texts["/chains/{$chainIndex}/missions/{$index}/text"] = $mission['text'] ?? null;
                 }
+            }
+        }
+
+        if ($name === 'gigs') {
+            foreach ($data['kinds'] ?? [] as $key => $kind) {
+                $texts["/kinds/{$key}/name"] = $kind['name'] ?? null;
+            }
+
+            foreach ($data['templates'] ?? [] as $key => $template) {
+                $texts["/templates/{$key}/title"] = $template['title'] ?? null;
             }
         }
 

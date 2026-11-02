@@ -1,0 +1,416 @@
+{
+  "schema": 0,
+  "version": "2026.11.0",
+  "enabled": true,
+  "unlock_after_step": "away",
+  "timezone": "Europe/Warsaw",
+  "reset_hour": 4,
+  "wave_ms": 1350000,
+  "cancel_window_ms": 60000,
+  "slots": {
+    "dawn": 4,
+    "day": 4,
+    "dusk": 5,
+    "night": 3
+  },
+  "rarities": [
+    {
+      "key": "ordinary",
+      "weight": 700,
+      "pay_ppm": 1000000
+    },
+    {
+      "key": "good",
+      "weight": 250,
+      "pay_ppm": 1150000
+    },
+    {
+      "key": "great",
+      "weight": 50,
+      "pay_ppm": 1350000
+    }
+  ],
+  "pay": {
+    "ref_speed_kmh": 70,
+    "speed_cap_kmh": 80,
+    "xp_per_hour": 225,
+    "car_xp_per_hour": 120,
+    "anchors": [
+      {
+        "from_level": 1,
+        "cents_per_hour": 60000
+      },
+      {
+        "from_level": 3,
+        "cents_per_hour": 69000
+      },
+      {
+        "from_level": 6,
+        "cents_per_hour": 79350
+      },
+      {
+        "from_level": 9,
+        "cents_per_hour": 91252
+      },
+      {
+        "from_level": 12,
+        "cents_per_hour": 104940
+      },
+      {
+        "from_level": 15,
+        "cents_per_hour": 120681
+      },
+      {
+        "from_level": 18,
+        "cents_per_hour": 138784
+      },
+      {
+        "from_level": 22,
+        "cents_per_hour": 159601
+      },
+      {
+        "from_level": 27,
+        "cents_per_hour": 183541
+      }
+    ]
+  },
+  "bands": [
+    {
+      "from_level": 1,
+      "ratio_ppm": 620000,
+      "max_ref_minutes": 12,
+      "daily_limit": 6
+    },
+    {
+      "from_level": 3,
+      "ratio_ppm": 620000,
+      "max_ref_minutes": 27,
+      "daily_limit": 6
+    },
+    {
+      "from_level": 6,
+      "ratio_ppm": 700000,
+      "max_ref_minutes": 48,
+      "daily_limit": 8
+    },
+    {
+      "from_level": 9,
+      "ratio_ppm": 700000,
+      "max_ref_minutes": 72,
+      "daily_limit": 8
+    },
+    {
+      "from_level": 12,
+      "ratio_ppm": 740000,
+      "max_ref_minutes": 120,
+      "daily_limit": 10
+    }
+  ],
+  "kinds": {
+    "taxi": {
+      "name": {
+        "en": "Taxi",
+        "pl": "Taxi",
+        "fr": "Taxi",
+        "de": "Taxi",
+        "pt-BR": "Táxi"
+      }
+    },
+    "freight": {
+      "name": {
+        "en": "Freight",
+        "pl": "Towary",
+        "fr": "Marchandises",
+        "de": "Fracht",
+        "pt-BR": "Cargas"
+      }
+    },
+    "delivery": {
+      "name": {
+        "en": "Delivery",
+        "pl": "Dostawa",
+        "fr": "Livraison",
+        "de": "Lieferung",
+        "pt-BR": "Entrega"
+      }
+    },
+    "express": {
+      "name": {
+        "en": "Express",
+        "pl": "Ekspres",
+        "fr": "Express",
+        "de": "Express",
+        "pt-BR": "Expresso"
+      }
+    },
+    "bulk": {
+      "name": {
+        "en": "Wholesale",
+        "pl": "Hurtowe",
+        "fr": "Gros",
+        "de": "Großauftrag",
+        "pt-BR": "Atacado"
+      }
+    }
+  },
+  "templates": {
+    "taxi-city": {
+      "kind": "taxi",
+      "title": {
+        "en": "Ride across town",
+        "pl": "Kurs taxi po mieście",
+        "fr": "Course en ville",
+        "de": "Stadtfahrt",
+        "pt-BR": "Corrida pela cidade"
+      },
+      "capacity": "seats",
+      "amount": {
+        "min": 1,
+        "max": 4
+      },
+      "mode": "local",
+      "local_km": {
+        "min": 8,
+        "max": 14
+      },
+      "pay_ppm": 900000,
+      "phase_pay_ppm": {
+        "dusk": 1400000,
+        "night": 1250000
+      },
+      "phases": {
+        "dawn": 10,
+        "day": 10,
+        "dusk": 14,
+        "night": 8
+      },
+      "window_waves": 1,
+      "min_player_level": 1
+    },
+    "taxi-trip": {
+      "kind": "taxi",
+      "title": {
+        "en": "Ride to another city",
+        "pl": "Kurs taxi do innego miasta",
+        "fr": "Course vers une autre ville",
+        "de": "Fahrt in eine andere Stadt",
+        "pt-BR": "Corrida para outra cidade"
+      },
+      "capacity": "seats",
+      "amount": {
+        "min": 1,
+        "max": 5
+      },
+      "mode": "intercity",
+      "pay_ppm": 900000,
+      "phase_pay_ppm": {
+        "dusk": 1400000,
+        "night": 1250000
+      },
+      "phases": {
+        "dawn": 8,
+        "day": 10,
+        "dusk": 14,
+        "night": 6
+      },
+      "window_waves": 1,
+      "min_player_level": 3
+    },
+    "parcels-city": {
+      "kind": "freight",
+      "title": {
+        "en": "Parcels across town",
+        "pl": "Paczki po mieście",
+        "fr": "Colis en ville",
+        "de": "Pakete in der Stadt",
+        "pt-BR": "Encomendas pela cidade"
+      },
+      "capacity": "cargo_kg",
+      "amount": {
+        "min": 20,
+        "max": 120
+      },
+      "mode": "local",
+      "local_km": {
+        "min": 6,
+        "max": 14
+      },
+      "pay_ppm": 1000000,
+      "phases": {
+        "dawn": 10,
+        "day": 10,
+        "dusk": 4,
+        "night": 4
+      },
+      "window_waves": 2,
+      "min_player_level": 1
+    },
+    "freight-city": {
+      "kind": "freight",
+      "title": {
+        "en": "Load across town",
+        "pl": "Przewóz towaru po mieście",
+        "fr": "Transport en ville",
+        "de": "Ladung in der Stadt",
+        "pt-BR": "Carga pela cidade"
+      },
+      "capacity": "cargo_kg",
+      "amount": {
+        "min": 150,
+        "max": 520
+      },
+      "mode": "local",
+      "local_km": {
+        "min": 8,
+        "max": 16
+      },
+      "pay_ppm": 1000000,
+      "phases": {
+        "dawn": 8,
+        "day": 10,
+        "dusk": 3,
+        "night": 3
+      },
+      "window_waves": 2,
+      "min_player_level": 3
+    },
+    "freight-trip": {
+      "kind": "freight",
+      "title": {
+        "en": "Load to another city",
+        "pl": "Przewóz towaru do innego miasta",
+        "fr": "Transport vers une autre ville",
+        "de": "Ladung in eine andere Stadt",
+        "pt-BR": "Carga para outra cidade"
+      },
+      "capacity": "cargo_kg",
+      "amount": {
+        "min": 100,
+        "max": 900
+      },
+      "mode": "intercity",
+      "pay_ppm": 1000000,
+      "phases": {
+        "dawn": 8,
+        "day": 10,
+        "dusk": 4,
+        "night": 3
+      },
+      "window_waves": 2,
+      "min_player_level": 3
+    },
+    "delivery-city": {
+      "kind": "delivery",
+      "title": {
+        "en": "Deliveries across town",
+        "pl": "Dostawy po mieście",
+        "fr": "Livraisons en ville",
+        "de": "Lieferungen in der Stadt",
+        "pt-BR": "Entregas pela cidade"
+      },
+      "capacity": "cargo_kg",
+      "amount": {
+        "min": 150,
+        "max": 900
+      },
+      "class_in": [
+        "van",
+        "pickup"
+      ],
+      "mode": "local",
+      "local_km": {
+        "min": 10,
+        "max": 20
+      },
+      "pay_ppm": 1050000,
+      "phases": {
+        "dawn": 8,
+        "day": 10,
+        "dusk": 2,
+        "night": 2
+      },
+      "window_waves": 2,
+      "min_player_level": 3
+    },
+    "delivery-trip": {
+      "kind": "delivery",
+      "title": {
+        "en": "Deliveries to another city",
+        "pl": "Dostawy do innego miasta",
+        "fr": "Livraisons vers une autre ville",
+        "de": "Lieferungen in eine andere Stadt",
+        "pt-BR": "Entregas para outra cidade"
+      },
+      "capacity": "cargo_kg",
+      "amount": {
+        "min": 200,
+        "max": 900
+      },
+      "class_in": [
+        "van",
+        "pickup"
+      ],
+      "mode": "intercity",
+      "pay_ppm": 1050000,
+      "phases": {
+        "dawn": 6,
+        "day": 10,
+        "dusk": 2,
+        "night": 2
+      },
+      "window_waves": 3,
+      "min_player_level": 6
+    },
+    "express-trip": {
+      "kind": "express",
+      "title": {
+        "en": "Express parcel",
+        "pl": "Ekspres do innego miasta",
+        "fr": "Colis express",
+        "de": "Expresspaket",
+        "pt-BR": "Encomenda expressa"
+      },
+      "capacity": "cargo_kg",
+      "amount": {
+        "min": 10,
+        "max": 60
+      },
+      "mode": "intercity",
+      "pay_ppm": 1000000,
+      "phases": {
+        "dawn": 0,
+        "day": 10,
+        "dusk": 10,
+        "night": 0
+      },
+      "window_waves": 1,
+      "deadline_ppm": 1000000,
+      "min_player_level": 6
+    },
+    "bulk-trip": {
+      "kind": "bulk",
+      "title": {
+        "en": "Wholesale load",
+        "pl": "Zlecenie hurtowe",
+        "fr": "Chargement en gros",
+        "de": "Großladung",
+        "pt-BR": "Carga de atacado"
+      },
+      "capacity": "cargo_kg",
+      "amount": {
+        "min": 1000,
+        "max": 1800
+      },
+      "mode": "intercity",
+      "pay_ppm": 1100000,
+      "phases": {
+        "dawn": 2,
+        "day": 6,
+        "dusk": 0,
+        "night": 0
+      },
+      "window_waves": 4,
+      "min_player_level": 9
+    }
+  }
+}
