@@ -44,6 +44,7 @@ export const routes: RouteRecordRaw[] = [
   // The technical state of the car is a part of the garage too: the navigation keeps "Garage" lit.
   { path: '/garage/condition', name: 'condition', component: () => import('@/views/ConditionView.vue'), meta: { requiresAuth: true, game: true } },
   { path: '/workshop', name: 'workshop', component: () => import('@/views/WorkshopView.vue'), meta: { requiresAuth: true, game: true } },
+  { path: '/gigs', name: 'gigs', component: () => import('@/views/GigsView.vue'), meta: { requiresAuth: true, game: true } },
   { path: '/shop', name: 'shop', component: () => import('@/views/ShopView.vue'), meta: { requiresAuth: true, game: true } },
   { path: '/exchange', name: 'exchange', component: () => import('@/views/ExchangeView.vue'), meta: { requiresAuth: true, game: true } },
   { path: '/dealer', name: 'dealer', component: () => import('@/views/DealerView.vue'), meta: { requiresAuth: true, game: true } },

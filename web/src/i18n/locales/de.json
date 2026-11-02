@@ -128,7 +128,8 @@
       "workshop": "In der Werkstatt",
       "travel": "Unterwegs",
       "parked": "Wartet auf den Start",
-      "stored": "Eingelagert"
+      "stored": "Eingelagert",
+      "gig": "Auf einem Auftrag"
     },
     "stat": {
       "cash": "Geld",
@@ -144,6 +145,7 @@
       "travel": "Das Auto ist nach {city} unterwegs und kommt in {time} an. Unterwegs verdient es nichts.",
       "parked": "Das Auto wartet in der Garage. Es verdient nichts, bis du es mit Start losschickst.",
       "stored": "Das Auto ist eingelagert. Es fährt nicht, verbraucht keinen Treibstoff und verschleißt nicht, bis du es auf die Straße bringst.",
+      "gig": "Das Auto ist auf einem Auftrag nach {city} und in {time} zurück. Bis dahin fährt es keine Runden.",
       "breakdownPart": "Betroffen war: {part}."
     },
     "fuel": {
@@ -908,6 +910,50 @@
       "car_bought": "Kaufe {n} Auto | Kaufe {n} Autos"
     }
   },
+  "gigs": {
+    "title": "Aufträge",
+    "sub": "{city} · {phase} · die Tafel wechselt in {time}",
+    "phase": {
+      "dawn": "Morgengrauen",
+      "day": "Tag",
+      "dusk": "Dämmerung",
+      "night": "Nacht"
+    },
+    "car": "Auto: {seats} Plätze, {cargo} kg, fährt {speed}",
+    "loadError": "Die Auftragstafel konnte nicht geladen werden.",
+    "locked": {
+      "tutorial": "Die Tafel öffnet sich, wenn du im Tutorial weiter bist.",
+      "disabled": "Dieses Spiel hat keine Aufträge."
+    },
+    "empty": "Im Moment keine Angebote für dieses Auto. Die Tafel wechselt in {time}.",
+    "limit": "Heute: {used} von {limit} Aufträgen",
+    "taken": "Das Auto ist unterwegs: {title}.",
+    "active": "Auf einem Auftrag: {route}. Zurück in {time}, zahlt {pay}.",
+    "cancel": "Zurücknehmen",
+    "cancelled": "Der Auftrag wurde zurückgenommen, der Kraftstoff ist im Tank.",
+    "people": "{count} Person | {count} Personen",
+    "load": "{count} kg",
+    "local": "In der Stadt, {km}",
+    "route": "{from} → {to} und zurück, {km}",
+    "duration": "Fahrt {time}",
+    "until": "an der Tafel {time}",
+    "fuel": "Kraftstoff {liters}",
+    "take": "Annehmen",
+    "rarity": {
+      "good": "Gut",
+      "great": "Großartig"
+    },
+    "blocked": {
+      "seats": "Braucht {need} Plätze, das Auto hat {have}",
+      "cargo_kg": "Braucht Platz für {need} kg, das Auto hat {have}",
+      "class": "Nur für: {need}",
+      "gig_deadline": "Zu langsam für die Frist",
+      "gig_no_fuel": "Braucht {required} l Kraftstoff",
+      "gig_busy": "Das Auto ist schon unterwegs",
+      "car_cannot_travel": "Das Auto kann jetzt nicht losfahren",
+      "gig_daily_limit": "Tageslimit erreicht"
+    }
+  },
   "awayAccount": {
     "title": "Der Rest des Kontos",
     "cars": "Andere Autos: +{earned}",
@@ -915,6 +961,8 @@
     "jobs": "In der Werkstatt erledigt",
     "journeys": "Reisen",
     "arrived": "Angekommen in {city}",
+    "gigs": "Aufträge: {count} · +{pay}",
+    "gig": "{kind} · {city} · +{pay}",
     "waiting": {
       "fuel_empty": "kein Kraftstoff",
       "breakdown": "Panne"
@@ -1073,6 +1121,7 @@
     "fuel": "{fuel} / {tank} l",
     "laps": "Runden: {count}",
     "onTheRoad": "Unterwegs: {from} → {to}, Ankunft in {time}",
+    "onGig": "{city}: auf einem Auftrag nach {to}, zurück in {time}",
     "free": "Freie Plätze: {count}",
     "garagesToBuy": "Garagen zu kaufen",
     "garageIn": "Garage in {city}",
@@ -1130,6 +1179,7 @@
   },
   "market": {
     "tabs": "Dienste der Stadt",
+    "tabGigs": "Aufträge",
     "tabShop": "Shop",
     "tabExchange": "Börse",
     "tabDealer": "Händler",

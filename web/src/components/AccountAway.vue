@@ -20,6 +20,7 @@ const { money, number } = useFormat()
 const cars = computed(() => (props.summary.cars ?? []).filter((car) => !car.played))
 const jobs = computed(() => props.summary.jobs ?? [])
 const journeys = computed(() => props.summary.journeys ?? [])
+const gigs = computed(() => props.summary.gigs ?? [])
 const earned = computed(() => cars.value.reduce((sum, car) => sum + car.earned_cents, 0))
 /** The tank filled for the driver and the bonus of the VIP account, for the cars that were not played. */
 const refills = computed(() => cars.value.reduce((sum, car) => sum + (car.refills ?? 0), 0))
@@ -101,6 +102,13 @@ function police(journey: AwayJourney): string | null {
       <p class="kick !mb-0">{{ t('awayAccount.jobs') }}</p>
       <ul class="flex flex-col gap-1">
         <li v-for="(job, index) in jobs" :key="index" class="text-[13px] text-ink">{{ t(`awayAccount.job.${job.kind}`) }}{{ job.part ? `: ${job.part}` : '' }}</li>
+      </ul>
+    </div>
+
+    <div v-if="gigs.length > 0" class="flex flex-col gap-1.5" data-test="away-gigs">
+      <p class="kick !mb-0">{{ t('awayAccount.gigs', { count: number(gigs.length), pay: money(summary.gigs_cents ?? 0) }) }}</p>
+      <ul class="flex flex-col gap-1">
+        <li v-for="(gig, index) in gigs" :key="index" class="text-[13px] text-ink" :data-test="`away-gig-${index}`">{{ t('awayAccount.gig', { kind: gig.kind_name, city: gig.to, pay: money(gig.reward_cents) }) }}</li>
       </ul>
     </div>
 

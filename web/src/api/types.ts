@@ -50,7 +50,7 @@ export interface RecoveryCodeResponse extends MeResponse {
 export type RunStatus = 'running' | 'stopped'
 
 /** Why a run stopped: the tank is empty, the car broke down, it stands in the workshop while a job is done, it is on the road to another city, or it waits in the garage for the Start. */
-export type StopReason = 'fuel_empty' | 'breakdown' | 'workshop' | 'travel' | 'parked' | 'stored'
+export type StopReason = 'fuel_empty' | 'breakdown' | 'workshop' | 'travel' | 'gig' | 'parked' | 'stored'
 
 /** One racer of the field of a run: a bot (with a name) or the driver (the screen writes the car). `lap_ms` is the lap in the dry. */
 export interface FieldRow {
@@ -100,6 +100,8 @@ export interface Run {
   field: RunField | null
   /** The journey the car is on, while it stands on the road between two cities. */
   travel: RunTravel | null
+  /** The gig the car is out on, when it stands for one. */
+  gig?: GigActive | null
   /** The clock of the game: a day is `day_ms` of the clock of the server, and each phase of it begins at an hour of the game. */
   clock: { day_ms: number; phases: { key: string; from_hour: number }[] }
   /** The weather of the region now, when this segment of 22.5 minutes ends, what comes next, and a forecast of this segment and the four after it. */
@@ -723,6 +725,9 @@ export interface AwayAccount {
   cars?: AwayCar[]
   jobs?: AwayJob[]
   journeys?: AwayJourney[]
+  /** The gigs that ended in the break, with what each paid; `gigs_cents` is all of it (apart from the laps). */
+  gigs?: AwayGig[]
+  gigs_cents?: number
   missions?: AwayMissions | null
 }
 
@@ -1082,6 +1087,8 @@ export interface FleetCar {
   run: { id: number; status: RunStatus; stop_reason: StopReason | null; laps_done: number; fuel_ml: number; tank_ml: number; track: string } | null
   /** The journey the car is on, if it is. */
   travel: { to: string; to_name: string; arrive_ms: number } | null
+  /** The gig the car is out on, if it is: it is back at `finish_ms` and is paid then. */
+  gig?: { id: number; kind: string; to_name: string; finish_ms: number; reward_cents: number } | null
   /** What a sale of the car pays now, in cents. */
   sale_cents: number
   /** Why the car cannot be sold now: it is the last one the driver has, the only one on the road, or it is on the road to a city or has work in the workshop. */
@@ -1207,6 +1214,102 @@ export interface StorageFind {
   condition: { percent: number; defects: number }
   value_cents: number
   sale_cents: number
+}
+
+/** A gig a car is out on, or has finished: a round trip with people or a load. Times are ms of the server clock. */
+export interface GigActive {
+  id: number
+  offer: string
+  template: string
+  title: string
+  kind: string
+  kind_name: string
+  region: string
+  region_name: string
+  /** The city the trip goes to, null for a trip in the city. */
+  to: string | null
+  to_name: string | null
+  /** The whole trip, there and back, in km. */
+  km: number
+  capacity: string
+  amount: number
+  rarity: string
+  phase: string
+  start_ms: number
+  finish_ms: number
+  /** Until when the driver can take the gig back. */
+  cancel_until_ms: number
+  reward_cents: number
+  bonus_cents: number
+  xp: number
+  status: 'active' | 'done' | 'cancelled'
+}
+
+/** Why a car cannot take an offer, with the numbers the words need. */
+export interface GigBlocked {
+  code: string
+  details: Record<string, string | number>
+}
+
+/** One offer of the board of a city, as it would be for the car that was asked about. */
+export interface GigOffer {
+  key: string
+  template: string
+  title: string
+  kind: string
+  kind_name: string
+  region: string
+  to: string | null
+  to_name: string | null
+  km: number
+  capacity: string
+  amount: number
+  class_in: string[] | null
+  rarity: string
+  phase: string
+  until_ms: number
+  duration_ms: number
+  fuel_ml: number
+  reward_cents: number
+  bonus_cents: number
+  xp: number
+  eligible: boolean
+  blocked: GigBlocked | null
+}
+
+/** GET /api/v1/gigs, and the answer of the calls that take a gig or take it back. */
+export interface GigsResponse {
+  data: {
+    enabled: boolean
+    /** Why there is no board: `disabled` (the game has no gigs) or `tutorial`. */
+    locked: 'disabled' | 'tutorial' | null
+    city: string
+    city_name: string
+    now_ms: number
+    phase: 'dawn' | 'day' | 'dusk' | 'night'
+    next_phase_ms: number
+    wave: { number: number; ends_ms: number }
+    cancel_window_ms: number
+    car: { id: number; seats: number; cargo_kg: number; class: string | null; speed_kmh: number } | null
+    offers: GigOffer[]
+    active: GigActive | null
+    limits: { daily_used: number; daily_limit: number; resets_ms: number } | null
+  }
+  now_ms: number
+  wallet: { cash_cents: number; xp: number }
+  /** The gig that was taken, in the answer of POST /api/v1/gigs. */
+  gig?: GigActive
+  repeated?: boolean
+}
+
+/** A gig that ended while the driver was away. */
+export interface AwayGig {
+  kind: string
+  kind_name: string
+  to: string
+  finished_ms: number
+  reward_cents: number
+  bonus_cents: number
 }
 
 /** GET /api/v1/market, and the answer of the calls that buy or inspect a car. The market is the one of the city where the car the driver plays stands. */

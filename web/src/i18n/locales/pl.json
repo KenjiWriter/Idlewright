@@ -128,7 +128,8 @@
       "workshop": "W warsztacie",
       "travel": "W drodze",
       "parked": "Czeka na start",
-      "stored": "W magazynie"
+      "stored": "W magazynie",
+      "gig": "Na zleceniu"
     },
     "stat": {
       "cash": "Gotówka",
@@ -144,6 +145,7 @@
       "travel": "Auto jedzie do miasta {city}, dojazd za {time}. W drodze nic nie zarabia.",
       "parked": "Auto czeka w garażu. Nic nie zarabia, dopóki nie wyślesz go przyciskiem Start.",
       "stored": "Auto stoi w magazynie. Nie jeździ, nie pali paliwa i nic się nie zużywa, dopóki nie wyprowadzisz go na drogę.",
+      "gig": "Auto jest na zleceniu do miasta {city}, wróci za {time}. Do powrotu nie jeździ okrążeń.",
       "breakdownPart": "Zepsuło się: {part}."
     },
     "fuel": {
@@ -908,6 +910,50 @@
       "car_bought": "Kup {n} auto | Kup {n} auta | Kup {n} aut"
     }
   },
+  "gigs": {
+    "title": "Kursy",
+    "sub": "{city} · {phase} · tablica zmieni się za {time}",
+    "phase": {
+      "dawn": "świt",
+      "day": "dzień",
+      "dusk": "zmierzch",
+      "night": "noc"
+    },
+    "car": "Auto: {seats} miejsc, {cargo} kg, jedzie {speed}",
+    "loadError": "Nie udało się wczytać tablicy zleceń.",
+    "locked": {
+      "tutorial": "Tablica otworzy się, gdy zajdziesz dalej w samouczku.",
+      "disabled": "Ta gra nie ma zleceń."
+    },
+    "empty": "Dla tego auta nie ma teraz ofert. Tablica zmieni się za {time}.",
+    "limit": "Dziś: {used} z {limit} zleceń",
+    "taken": "Auto wyjechało: {title}.",
+    "active": "Na zleceniu: {route}. Wróci za {time}, wypłata {pay}.",
+    "cancel": "Wycofaj",
+    "cancelled": "Zlecenie wycofane, paliwo wróciło do baku.",
+    "people": "{count} osoba | {count} osoby | {count} osób",
+    "load": "{count} kg",
+    "local": "Po mieście, {km}",
+    "route": "{from} → {to} i z powrotem, {km}",
+    "duration": "jazda {time}",
+    "until": "na tablicy {time}",
+    "fuel": "paliwo {liters}",
+    "take": "Weź",
+    "rarity": {
+      "good": "Dobre",
+      "great": "Świetne"
+    },
+    "blocked": {
+      "seats": "Potrzeba {need} miejsc, auto ma {have}",
+      "cargo_kg": "Potrzeba miejsca na {need} kg, auto ma {have}",
+      "class": "Tylko dla: {need}",
+      "gig_deadline": "Za wolne na termin",
+      "gig_no_fuel": "Potrzeba {required} l paliwa",
+      "gig_busy": "Auto jest już na zleceniu",
+      "car_cannot_travel": "Auto nie może teraz wyjechać",
+      "gig_daily_limit": "Limit dobowy wykorzystany"
+    }
+  },
   "awayAccount": {
     "title": "Reszta konta",
     "cars": "Pozostałe auta: +{earned}",
@@ -915,6 +961,8 @@
     "jobs": "Zrobione w warsztacie",
     "journeys": "Podróże",
     "arrived": "Dojazd do: {city}",
+    "gigs": "Zlecenia: {count} · +{pay}",
+    "gig": "{kind} · {city} · +{pay}",
     "waiting": {
       "fuel_empty": "brak paliwa",
       "breakdown": "awaria"
@@ -1073,6 +1121,7 @@
     "fuel": "{fuel} / {tank} l",
     "laps": "Okrążenia: {count}",
     "onTheRoad": "W drodze: {from} → {to}, dojedzie za {time}",
+    "onGig": "{city}: na zleceniu do {to}, wróci za {time}",
     "free": "Wolne miejsca: {count}",
     "garagesToBuy": "Garaże do kupienia",
     "garageIn": "Garaż w mieście {city}",
@@ -1130,6 +1179,7 @@
   },
   "market": {
     "tabs": "Usługi miasta",
+    "tabGigs": "Kursy",
     "tabShop": "Sklep",
     "tabExchange": "Giełda",
     "tabDealer": "Dealer",

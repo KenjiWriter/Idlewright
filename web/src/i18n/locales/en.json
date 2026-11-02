@@ -128,7 +128,8 @@
       "workshop": "In the workshop",
       "travel": "On the road",
       "parked": "Waiting to start",
-      "stored": "In storage"
+      "stored": "In storage",
+      "gig": "On a gig"
     },
     "stat": {
       "cash": "Cash",
@@ -144,6 +145,7 @@
       "travel": "The car is on its way to {city}, arriving in {time}. It earns nothing on the road.",
       "parked": "The car is waiting in the garage. It earns nothing until you send it out with Start.",
       "stored": "The car is in storage. It does not drive, burns no fuel and wears nothing until you put it on the road.",
+      "gig": "The car is out on a gig to {city}, back in {time}. It earns no laps until it is back.",
       "breakdownPart": "It was the {part}."
     },
     "fuel": {
@@ -908,6 +910,50 @@
       "car_bought": "Buy {n} car | Buy {n} cars"
     }
   },
+  "gigs": {
+    "title": "Gigs",
+    "sub": "{city} · {phase} · the board changes in {time}",
+    "phase": {
+      "dawn": "dawn",
+      "day": "day",
+      "dusk": "dusk",
+      "night": "night"
+    },
+    "car": "Car: {seats} seats, {cargo} kg, drives {speed}",
+    "loadError": "The board of gigs could not be loaded.",
+    "locked": {
+      "tutorial": "The board opens when you get further in the tutorial.",
+      "disabled": "This game has no gigs."
+    },
+    "empty": "No offers for this car right now. The board changes in {time}.",
+    "limit": "Today: {used} of {limit} gigs",
+    "taken": "The car is out: {title}.",
+    "active": "On a gig: {route}. Back in {time}, pays {pay}.",
+    "cancel": "Take it back",
+    "cancelled": "The gig was taken back, the fuel is in the tank.",
+    "people": "{count} person | {count} people",
+    "load": "{count} kg",
+    "local": "In the city, {km}",
+    "route": "{from} → {to} and back, {km}",
+    "duration": "drive {time}",
+    "until": "on the board {time}",
+    "fuel": "fuel {liters}",
+    "take": "Take",
+    "rarity": {
+      "good": "Good",
+      "great": "Great"
+    },
+    "blocked": {
+      "seats": "Needs {need} seats, the car has {have}",
+      "cargo_kg": "Needs room for {need} kg, the car has {have}",
+      "class": "Only for: {need}",
+      "gig_deadline": "Too slow for the deadline",
+      "gig_no_fuel": "Needs {required} l of fuel",
+      "gig_busy": "The car is out already",
+      "car_cannot_travel": "The car cannot leave now",
+      "gig_daily_limit": "Daily limit reached"
+    }
+  },
   "awayAccount": {
     "title": "The rest of your account",
     "cars": "Other cars: +{earned}",
@@ -915,6 +961,8 @@
     "jobs": "Done in the workshop",
     "journeys": "Journeys",
     "arrived": "Arrived in {city}",
+    "gigs": "Gigs: {count} · +{pay}",
+    "gig": "{kind} · {city} · +{pay}",
     "waiting": {
       "fuel_empty": "out of fuel",
       "breakdown": "broken down"
@@ -1073,6 +1121,7 @@
     "fuel": "{fuel} / {tank} l",
     "laps": "Laps: {count}",
     "onTheRoad": "On the road: {from} → {to}, arrives in {time}",
+    "onGig": "{city}: on a gig to {to}, back in {time}",
     "free": "Free places: {count}",
     "garagesToBuy": "Garages to buy",
     "garageIn": "Garage in {city}",
@@ -1130,6 +1179,7 @@
   },
   "market": {
     "tabs": "City services",
+    "tabGigs": "Gigs",
     "tabShop": "Shop",
     "tabExchange": "Exchange",
     "tabDealer": "Dealer",

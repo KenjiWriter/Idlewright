@@ -141,4 +141,24 @@ describe('AccountAway', () => {
     expect(lost.get('[data-test="away-streak-lost"]').text()).toBe('The streak is over (it was 6 days).')
     expect(lost.find('[data-test="away-streak"]').exists()).toBe(false)
   })
+
+  it('tells the gigs that ended in the break, with what each paid and the sum', () => {
+    const wrapper = mountAway(
+      aSummary({
+        gigs: [
+          { kind: 'taxi', kind_name: 'Taxi', to: 'Kruszyn', finished_ms: 0, reward_cents: 41_800, bonus_cents: 0 },
+          { kind: 'freight', kind_name: 'Freight', to: 'Złomowo', finished_ms: 0, reward_cents: 6_111, bonus_cents: 0 },
+        ],
+        gigs_cents: 47_911,
+      }),
+    )
+
+    expect(wrapper.get('[data-test="away-gigs"] .kick').text()).toBe('Gigs: 2 · +$479')
+    expect(wrapper.get('[data-test="away-gig-0"]').text()).toBe('Taxi · Kruszyn · +$418')
+    expect(wrapper.get('[data-test="away-gig-1"]').text()).toBe('Freight · Złomowo · +$61')
+  })
+
+  it('shows no gigs when there were none', () => {
+    expect(mountAway(aSummary()).find('[data-test="away-gigs"]').exists()).toBe(false)
+  })
 })

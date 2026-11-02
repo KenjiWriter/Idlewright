@@ -128,7 +128,8 @@
       "workshop": "À l’atelier",
       "travel": "En route",
       "parked": "Attend le départ",
-      "stored": "En réserve"
+      "stored": "En réserve",
+      "gig": "En course"
     },
     "stat": {
       "cash": "Argent",
@@ -144,6 +145,7 @@
       "travel": "La voiture roule vers {city}, arrivée dans {time}. Elle ne gagne rien en route.",
       "parked": "La voiture attend dans le garage. Elle ne rapporte rien tant que tu ne l’envoies pas avec Démarrer.",
       "stored": "La voiture est en réserve. Elle ne roule pas, ne brûle pas de carburant et ne s’use pas tant que vous ne la mettez pas sur la route.",
+      "gig": "La voiture est en course vers {city}, de retour dans {time}. Elle ne fait pas de tours avant son retour.",
       "breakdownPart": "Pièce en cause : {part}."
     },
     "fuel": {
@@ -908,6 +910,50 @@
       "car_bought": "Achetez {n} voiture | Achetez {n} voitures"
     }
   },
+  "gigs": {
+    "title": "Courses",
+    "sub": "{city} · {phase} · le tableau change dans {time}",
+    "phase": {
+      "dawn": "aube",
+      "day": "jour",
+      "dusk": "crépuscule",
+      "night": "nuit"
+    },
+    "car": "Voiture : {seats} places, {cargo} kg, roule à {speed}",
+    "loadError": "Le tableau des courses n’a pas pu être chargé.",
+    "locked": {
+      "tutorial": "Le tableau s’ouvre quand tu avances dans le tutoriel.",
+      "disabled": "Ce jeu n’a pas de courses."
+    },
+    "empty": "Aucune offre pour cette voiture pour le moment. Le tableau change dans {time}.",
+    "limit": "Aujourd’hui : {used} courses sur {limit}",
+    "taken": "La voiture est partie : {title}.",
+    "active": "En course : {route}. De retour dans {time}, paie {pay}.",
+    "cancel": "Reprendre",
+    "cancelled": "La course a été reprise, le carburant est dans le réservoir.",
+    "people": "{count} personne | {count} personnes",
+    "load": "{count} kg",
+    "local": "En ville, {km}",
+    "route": "{from} → {to} et retour, {km}",
+    "duration": "trajet {time}",
+    "until": "sur le tableau {time}",
+    "fuel": "carburant {liters}",
+    "take": "Prendre",
+    "rarity": {
+      "good": "Bonne",
+      "great": "Excellente"
+    },
+    "blocked": {
+      "seats": "Il faut {need} places, la voiture en a {have}",
+      "cargo_kg": "Il faut de la place pour {need} kg, la voiture a {have}",
+      "class": "Seulement pour : {need}",
+      "gig_deadline": "Trop lente pour le délai",
+      "gig_no_fuel": "Il faut {required} l de carburant",
+      "gig_busy": "La voiture est déjà en course",
+      "car_cannot_travel": "La voiture ne peut pas partir maintenant",
+      "gig_daily_limit": "Limite du jour atteinte"
+    }
+  },
   "awayAccount": {
     "title": "Le reste du compte",
     "cars": "Autres voitures : +{earned}",
@@ -915,6 +961,8 @@
     "jobs": "Fait à l’atelier",
     "journeys": "Voyages",
     "arrived": "Arrivée à {city}",
+    "gigs": "Courses : {count} · +{pay}",
+    "gig": "{kind} · {city} · +{pay}",
     "waiting": {
       "fuel_empty": "à court de carburant",
       "breakdown": "en panne"
@@ -1073,6 +1121,7 @@
     "fuel": "{fuel} / {tank} l",
     "laps": "Tours : {count}",
     "onTheRoad": "En route · {from} → {to}, arrivée dans {time}",
+    "onGig": "{city} : en course vers {to}, de retour dans {time}",
     "free": "Places libres : {count}",
     "garagesToBuy": "Garages à acheter",
     "garageIn": "Garage à {city}",
@@ -1130,6 +1179,7 @@
   },
   "market": {
     "tabs": "Services de la ville",
+    "tabGigs": "Courses",
     "tabShop": "Boutique",
     "tabExchange": "Bourse",
     "tabDealer": "Concessionnaire",

@@ -108,13 +108,17 @@ function statusKey(car: FleetCar): string {
 function chipClass(car: FleetCar): string {
   const reason = car.run?.stop_reason ?? null
 
-  return car.run?.status !== 'stopped' ? 'chip-cy' : reason === 'workshop' || reason === 'travel' || reason === 'parked' || reason === 'stored' ? 'chip-am' : 'chip-bad'
+  return car.run?.status !== 'stopped' ? 'chip-cy' : reason === 'workshop' || reason === 'travel' || reason === 'gig' || reason === 'parked' || reason === 'stored' ? 'chip-am' : 'chip-bad'
 }
 
 /** Where the car is, and what it is doing there. */
 function whereText(car: FleetCar): string {
   if (car.travel) {
     return t('fleet.onTheRoad', { from: car.city.name, to: car.travel.to_name, time: formatDuration(Math.max(0, car.travel.arrive_ms - now.value)) })
+  }
+
+  if (car.gig) {
+    return t('fleet.onGig', { city: car.city.name, to: car.gig.to_name, time: formatDuration(Math.max(0, car.gig.finish_ms - now.value)) })
   }
 
   return car.run ? `${car.city.name} · ${car.run.track}` : car.city.name

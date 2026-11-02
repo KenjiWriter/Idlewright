@@ -40,12 +40,15 @@ const brokenName = computed(() => (store.brokenPart === null ? null : te(`slot.$
     <p v-if="stopped && run.stop_reason === 'travel' && run.travel" class="card card-hi text-sm" role="status" data-test="banner">
       {{ t('run.banner.travel', { city: run.travel.to_name, time: formatDuration(leftMs) }) }}
     </p>
+    <p v-else-if="stopped && run.stop_reason === 'gig' && run.gig" class="card card-hi text-sm" role="status" data-test="banner">
+      {{ t('run.banner.gig', { city: run.gig.to_name ?? run.gig.region_name, time: formatDuration(Math.max(0, run.gig.finish_ms - now)) }) }}
+    </p>
     <!-- A car that waits in the garage: on the tournament screen the Start says it, and elsewhere the way to it is here. -->
     <div v-else-if="stopped && run.stop_reason === 'parked' && route.name !== 'race'" class="card card-hi flex flex-col gap-2.5 text-sm" role="status" data-test="banner">
       <p>{{ t('run.banner.parked') }}</p>
       <RouterLink :to="{ name: 'race' }" class="btn btn-primary btn-sm no-underline" data-test="to-race">{{ t('run.goToRace') }}</RouterLink>
     </div>
-    <p v-else-if="stopped && run.stop_reason && run.stop_reason !== 'parked'" class="card card-hi text-sm" role="status" data-test="banner">
+    <p v-else-if="stopped && run.stop_reason && run.stop_reason !== 'parked' && run.stop_reason !== 'gig'" class="card card-hi text-sm" role="status" data-test="banner">
       {{ t(`run.banner.${run.stop_reason}`) }}
       <span v-if="run.stop_reason === 'breakdown' && brokenName" data-test="broken-part">{{ t('run.banner.breakdownPart', { part: brokenName }) }}</span>
     </p>

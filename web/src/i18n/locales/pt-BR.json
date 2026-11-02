@@ -128,7 +128,8 @@
       "workshop": "Na oficina",
       "travel": "Na estrada",
       "parked": "Aguardando a largada",
-      "stored": "Na guarda"
+      "stored": "Na guarda",
+      "gig": "Em corrida"
     },
     "stat": {
       "cash": "Dinheiro",
@@ -144,6 +145,7 @@
       "travel": "O carro está a caminho de {city}, chegando em {time}. Na estrada ele não ganha nada.",
       "parked": "O carro está esperando na garagem. Ele não ganha nada até você enviá-lo com Iniciar.",
       "stored": "O carro está guardado. Ele não anda, não gasta combustível e não se desgasta até você colocá-lo na estrada.",
+      "gig": "O carro está em uma corrida para {city} e volta em {time}. Até voltar, não faz voltas.",
       "breakdownPart": "A peça com defeito: {part}."
     },
     "fuel": {
@@ -908,6 +910,50 @@
       "car_bought": "Compre {n} carro | Compre {n} carros"
     }
   },
+  "gigs": {
+    "title": "Corridas",
+    "sub": "{city} · {phase} · o quadro muda em {time}",
+    "phase": {
+      "dawn": "amanhecer",
+      "day": "dia",
+      "dusk": "entardecer",
+      "night": "noite"
+    },
+    "car": "Carro: {seats} lugares, {cargo} kg, anda {speed}",
+    "loadError": "Não foi possível carregar o quadro de corridas.",
+    "locked": {
+      "tutorial": "O quadro abre quando você avançar no tutorial.",
+      "disabled": "Este jogo não tem corridas."
+    },
+    "empty": "Nenhuma oferta para este carro agora. O quadro muda em {time}.",
+    "limit": "Hoje: {used} de {limit} corridas",
+    "taken": "O carro saiu: {title}.",
+    "active": "Em corrida: {route}. Volta em {time}, paga {pay}.",
+    "cancel": "Desistir",
+    "cancelled": "A corrida foi cancelada, o combustível voltou ao tanque.",
+    "people": "{count} pessoa | {count} pessoas",
+    "load": "{count} kg",
+    "local": "Na cidade, {km}",
+    "route": "{from} → {to} e volta, {km}",
+    "duration": "viagem {time}",
+    "until": "no quadro {time}",
+    "fuel": "combustível {liters}",
+    "take": "Pegar",
+    "rarity": {
+      "good": "Boa",
+      "great": "Ótima"
+    },
+    "blocked": {
+      "seats": "Precisa de {need} lugares, o carro tem {have}",
+      "cargo_kg": "Precisa de espaço para {need} kg, o carro tem {have}",
+      "class": "Só para: {need}",
+      "gig_deadline": "Lento demais para o prazo",
+      "gig_no_fuel": "Precisa de {required} l de combustível",
+      "gig_busy": "O carro já está em uma corrida",
+      "car_cannot_travel": "O carro não pode sair agora",
+      "gig_daily_limit": "Limite do dia atingido"
+    }
+  },
   "awayAccount": {
     "title": "O resto da conta",
     "cars": "Outros carros: +{earned}",
@@ -915,6 +961,8 @@
     "jobs": "Feito na oficina",
     "journeys": "Viagens",
     "arrived": "Chegou a {city}",
+    "gigs": "Corridas: {count} · +{pay}",
+    "gig": "{kind} · {city} · +{pay}",
     "waiting": {
       "fuel_empty": "sem combustível",
       "breakdown": "quebrado"
@@ -1073,6 +1121,7 @@
     "fuel": "{fuel} / {tank} l",
     "laps": "Voltas: {count}",
     "onTheRoad": "Na estrada: {from} → {to}, chega em {time}",
+    "onGig": "{city}: em corrida para {to}, volta em {time}",
     "free": "Vagas livres: {count}",
     "garagesToBuy": "Garagens à venda",
     "garageIn": "Garagem em {city}",
@@ -1130,6 +1179,7 @@
   },
   "market": {
     "tabs": "Serviços da cidade",
+    "tabGigs": "Corridas",
     "tabShop": "Loja",
     "tabExchange": "Bolsa",
     "tabDealer": "Concessionária",
