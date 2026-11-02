@@ -42,7 +42,7 @@ beforeEach(function () {
     app()->setLocale('pl');
 });
 
-it('is for any admin to open, and starts from the first track with nothing drawn', function () {
+it('is for any admin to open, and starts from the first track with its thread', function () {
     signedInAdmin(Admin::ROLE_EDITOR);
 
     $this->get('/admin/thread')->assertOk()->assertSee('zlomowo-street');
@@ -50,7 +50,9 @@ it('is for any admin to open, and starts from the first track with nothing drawn
     $state = Livewire::test(ThreadPage::class)->instance()->data;
 
     expect($state['track'])->toBe('zlomowo-street')
-        ->and($state['sections'])->toBe([])
+        ->and($state['sections'])->toHaveCount(14)
+        ->and(array_values($state['sections'])[0])->toMatchArray(['type' => 'straight'])
+        ->and($state['mode'])->toBe('circuit')
         ->and($state['lap_from'])->toBe('stats');
 });
 
@@ -60,6 +62,7 @@ it('keeps the thread of a track as a draft, with the length the sections add up 
     Livewire::test(ThreadPage::class)
         ->fillForm(threadState(function (array $state): array {
             $state['track'] = 'suchy-pas-short-strip';
+            $state['mode'] = 'circuit';
             $state['sections'] = threadSections();
 
             return $state;

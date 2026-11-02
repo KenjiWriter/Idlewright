@@ -285,6 +285,7 @@ return [
             'travel' => 'O que muda: a velocidade e o combustível de uma viagem e a viagem acelerada com a polícia e as multas.',
             'tracks' => 'O que muda: a velocidade de uma pista (com a extensão, faz a volta de referência, o combustível e o prêmio de uma volta), o que uma hora rende e os pesos das estatísticas de uma pista. Muda diretamente o que uma hora rende.',
             'track_model' => 'O que muda: o combustível de uma volta em todas as pistas de um tipo de uma vez (a carga do motor por segundo) e o que o botão “Sugerir velocidade” propõe; o calculador não muda nenhuma pista que já existe.',
+            'dynamics' => 'O que muda: como a volta é feita no traçado de uma pista (aceleração, velocidade nas curvas, frenagem, velocidade máxima no cascalho e na lama, velocidade em terreno irregular) em toda pista cuja volta vem do traçado; as pistas cuja volta vem da fórmula não se movem.',
             'units' => 'O que muda: em que o jogo conta e mostra distância e velocidade (os formulários do painel e o aplicativo). Os números das regras ficam em metros, quilômetros e km/h, então nenhum tempo, combustível ou ganho muda.',
         ],
         'live' => 'pacote ativo: :value',

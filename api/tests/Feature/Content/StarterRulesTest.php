@@ -114,6 +114,12 @@ function rulesSchemaErrors(array $rules): array
         }, (array) $data->market->exchange->defects));
     }
 
+    foreach ((array) ($data->tracks ?? []) as $track) {
+        if (isset($track->thread->sections) && is_object($track->thread->sections)) {
+            $track->thread->sections = array_values((array) $track->thread->sections);
+        }
+    }
+
     $outcome = $validator->validate($data, 'https://rideidle.local/schema/rules.schema.json');
 
     return $outcome->isValid() ? [] : (new ErrorFormatter)->formatKeyed($outcome->error());

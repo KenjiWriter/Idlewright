@@ -90,7 +90,10 @@ it('says nothing of a track that has no thread, or one that cannot be driven, an
     $broken = previewRules();
     unset($broken['tracks']['zlomowo-street']['thread']['sections'][1]['radius_m']);
 
-    expect(threadPreview()->of(previewRules(), 'suchy-pas-drag', ['rdzak-gt-4']))->toBeNull()
+    $without = previewRules();
+    unset($without['tracks']['zlomowo-yard-dash']['thread']);
+
+    expect(threadPreview()->of($without, 'zlomowo-yard-dash', ['rdzak-gt-4']))->toBeNull()
         ->and(threadPreview()->of($broken, 'zlomowo-street', ['rdzak-gt-4']))->toBeNull()
         ->and(threadPreview()->of(previewRules(), 'zlomowo-street', ['rdzak-gt-4', 'no-such-car'])['cars'])->toHaveCount(1);
 });

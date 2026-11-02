@@ -285,6 +285,7 @@ return [
             'travel' => 'Ce que cela change : la vitesse et le carburant d’un voyage, et la conduite accélérée avec la police et les amendes.',
             'tracks' => 'Ce que cela change : la vitesse d’un circuit (avec sa longueur, elle fait le tour de référence, le carburant et le gain d’un tour), ce que donne une heure, et les poids des statistiques d’un circuit. Cela change directement ce que rapporte une heure.',
             'track_model' => 'Ce que cela change : le carburant d’un tour sur tous les circuits d’un type à la fois (la charge du moteur par seconde) et ce que propose le bouton « Suggérer une vitesse » ; le calculateur ne change aucun circuit existant.',
+            'dynamics' => 'Ce que cela change : la manière de rouler un tour sur le tracé d’un circuit (accélération, vitesse en virage, freinage, vitesse maximale sur gravier et dans la boue, vitesse sur terrain accidenté) sur tout circuit dont le tour vient de son tracé ; les circuits dont le tour vient de la formule ne bougent pas.',
             'units' => 'Ce que cela change : dans quoi le jeu compte et affiche la distance et la vitesse (les formulaires du panneau et l’application). Les nombres des règles restent en mètres, kilomètres et km/h : aucun temps, aucun carburant ni aucun gain ne change.',
         ],
         'live' => 'pack en ligne : :value',

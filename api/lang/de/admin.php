@@ -285,6 +285,7 @@ return [
             'travel' => 'Das ändert sich: Tempo und Spritverbrauch einer Reise sowie die beschleunigte Fahrt mit Polizei und Bußgeldern.',
             'tracks' => 'Das ändert sich: das Tempo einer Strecke (mit ihrer Länge ergibt es die Referenzrunde, den Kraftstoff und den Verdienst einer Runde), was eine Stunde bringt, und die Gewichte der Statistiken einer Strecke. Es ändert direkt, was eine Stunde einbringt.',
             'track_model' => 'Das ändert sich: der Kraftstoff einer Runde auf allen Strecken einer Art auf einmal (die Last des Motors je Sekunde) und was die Schaltfläche „Tempo vorschlagen“ vorschlägt; der Rechner ändert keine bestehende Strecke.',
+            'dynamics' => 'Das ändert sich: wie eine Runde auf dem Streckenverlauf gefahren wird (Beschleunigung, Kurvengeschwindigkeit, Bremsen, Höchstgeschwindigkeit auf Schotter und im Schlamm, Tempo auf rauem Untergrund) auf jeder Strecke, deren Runde vom Streckenverlauf kommt; Strecken, deren Runde von der Formel kommt, bewegen sich nicht.',
             'units' => 'Das ändert sich: in was das Spiel Entfernung und Tempo zählt und zeigt (die Formulare des Panels und die App). Die Zahlen in den Regeln bleiben in Metern, Kilometern und km/h, es ändern sich also weder Zeiten noch Kraftstoff noch Gewinne.',
         ],
         'live' => 'Live-Paket: :value',

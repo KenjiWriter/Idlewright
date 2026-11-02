@@ -30,6 +30,9 @@ it('requires a token', function () {
 });
 
 it('has nothing to draw for a track that has no thread', function () {
+    $data = json_decode((string) file_get_contents(config('ride.content_path').'/rules/starter.json'), true);
+    unset($data['tracks']['zlomowo-street']['thread']);
+    app()->instance(Rules::class, Rules::fromArray($data));
     [$driver] = driverWithRun();
 
     getRun($driver, 'current/profile')->assertOk()->assertExactJson(['data' => null]);

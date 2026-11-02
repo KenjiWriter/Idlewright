@@ -194,6 +194,7 @@ describe('the validator', function () {
         'sections that do not add up to the length' => [fn (array $rules): array => rulesWithThread(track: ['length_m' => 2_000], rules: $rules), '/tracks/zlomowo-street/thread/sections', 'add up to 2599 m'],
         'a lap on a thread without a thread' => [function (array $rules): array {
             $rules['tracks']['zlomowo-street']['lap_from'] = 'thread';
+            unset($rules['tracks']['zlomowo-street']['thread']);
 
             return $rules;
         }, '/tracks/zlomowo-street/lap_from', 'has none'],
@@ -240,7 +241,7 @@ describe('the form of the world', function () {
         expect($made)->toEqual($rules)
             ->and($made['tracks']['zlomowo-street']['thread'])->toBe(streetThread())
             ->and($made['tracks']['zlomowo-street']['lap_from'])->toBe('thread')
-            ->and(array_key_exists('thread', $made['tracks']['suchy-pas-drag']))->toBeFalse()
+            ->and(array_key_exists('thread', $made['tracks']['suchy-pas-drag']))->toBeTrue()
             ->and(array_key_exists('lap_from', $made['tracks']['suchy-pas-drag']))->toBeFalse();
     });
 });
