@@ -36,6 +36,8 @@ describe('the form of the world', function () {
     it('turns what a person writes in the units of the game into the metres and the km/h of the document', function () {
         $rules = shipRules();
         $state = WorldForm::toState($rules);
+        // The street has no thread here: the length of a track that has one is the sum of its sections, whatever the box says.
+        $state['tracks'][0]['thread'] = null;
         $state['tracks'][0]['length'] = '1,4';
         $state['tracks'][0]['speed'] = '20';
 
@@ -51,6 +53,7 @@ describe('the form of the world', function () {
 
         expect($state['tracks'][0])->toMatchArray(['length' => 2_600, 'speed' => 124.8, 'pay_per_hour' => 744, 'xp_per_hour' => 960]);
 
+        $state['tracks'][0]['thread'] = null;
         $state['tracks'][0]['length'] = '3100';
         $state['tracks'][0]['speed'] = '130.5';
 
@@ -60,6 +63,7 @@ describe('the form of the world', function () {
     it('leaves what is not a number for the schema to refuse, whatever the unit', function () {
         $rules = shipRules();
         $state = WorldForm::toState($rules);
+        $state['tracks'][0]['thread'] = null;
         $state['tracks'][0]['length'] = 'long';
         $state['tracks'][0]['speed'] = 'fast';
 
