@@ -975,6 +975,15 @@
     "speed": { "name": { "pl": "kilometr na godzinę", "en": "kilometre per hour", "fr": "kilomètre par heure", "de": "Kilometer pro Stunde", "pt-BR": "quilômetro por hora" }, "short": { "pl": "km/h", "en": "km/h", "fr": "km/h", "de": "km/h", "pt-BR": "km/h" }, "kmh": 1, "decimals": 0 },
     "fuel_economy": { "per": 100 }
   },
+  "dynamics": {
+    "power_ppm": 600000,
+    "lateral_g_ppm": 950000,
+    "brake_g_ppm": 1000000,
+    "launch_g_ppm": 950000,
+    "agility": { "min_ppm": 250000, "max_ppm": 750000, "radius_m": 190 },
+    "top_speed_ppm": { "asphalt_dry": 1000000, "asphalt_wet": 1000000, "gravel_dry": 850000, "mud": 600000, "snow": 700000 },
+    "rough": { "speed_kmh": 90, "exponent_ppm": 500000 }
+  },
   "track_model": {
     "fuel_ml_per_s": { "sprint": 12, "standard": 20, "endurance": 32 },
     "advisor": { "free_speed_kmh": { "asphalt": 180, "gravel": 130 }, "corner_loss_kmh": 10, "climb_loss_kmh": 5, "traffic_loss_kmh": 5 }
