@@ -1,0 +1,154 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rideidle.local/schema/changes.schema.json",
+  "title": "A block of changes that an AI proposes for the content of one game (ride-changes/1)",
+  "description": "What a person pastes into the panel after talking to an AI. The server expands the selectors, does the arithmetic and checks every number against the schemas of the content; the block says what to change, not what the new numbers are.",
+  "type": "object",
+  "properties": {
+    "format": {
+      "description": "The version of this format.",
+      "const": "ride-changes/1"
+    },
+    "game": {
+      "description": "The slug of the game the block is for, as the instruction names it. A block for another game is refused.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "base": {
+      "description": "What the instruction was made from: the number of the pack that is live and the snapshot of the content. Copy both from the instruction.",
+      "type": "object",
+      "properties": {
+        "pack": { "type": "string", "maxLength": 32 },
+        "snapshot": { "type": "string", "pattern": "^[0-9a-f]{8}$" }
+      },
+      "required": ["pack", "snapshot"],
+      "additionalProperties": false
+    },
+    "summary": {
+      "description": "One sentence, in the language of the person, saying what the block does.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 300
+    },
+    "ops": {
+      "description": "The operations, applied in this order to a working copy of the content.",
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 200,
+      "items": {
+        "oneOf": [
+          { "$ref": "#/$defs/set" },
+          { "$ref": "#/$defs/scale" }
+        ]
+      }
+    }
+  },
+  "required": ["format", "game", "base", "summary", "ops"],
+  "additionalProperties": false,
+  "$defs": {
+    "id": {
+      "description": "A name for the operation, so that an error can point at it.",
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]{1,32}$"
+    },
+    "pointer": {
+      "description": "Where the number is in the document: a JSON pointer (RFC 6901) with no escapes. In a scale of the rules a * stands for exactly one name (a track, a rung, a product).",
+      "type": "string",
+      "pattern": "^(/[A-Za-z0-9_*-]+)+$",
+      "maxLength": 200
+    },
+    "unit": {
+      "description": "What the value is counted in, as the instruction says for that number. It must be the unit of the number; this is how a mistake between a percent and a millionth is caught.",
+      "enum": ["plain", "percent", "seconds", "dollars", "liters"]
+    },
+    "target": {
+      "description": "One document: a document of the rules, or one car or part.",
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "rules": { "enum": ["starter", "tutorial", "vocabulary", "model", "branding", "missions"] }
+          },
+          "required": ["rules"],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": { "enum": ["part", "vehicle"] },
+            "slug": { "$ref": "common.schema.json#/$defs/slug" }
+          },
+          "required": ["kind", "slug"],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "condition": {
+      "description": "A value the field must equal, or a test: one of in, gte, lte, gt, lt.",
+      "oneOf": [
+        { "type": ["string", "number", "boolean"] },
+        {
+          "type": "object",
+          "properties": {
+            "in": { "type": "array", "minItems": 1, "maxItems": 20, "items": { "type": ["string", "number", "boolean"] } },
+            "gte": { "type": "number" },
+            "lte": { "type": "number" },
+            "gt": { "type": "number" },
+            "lt": { "type": "number" }
+          },
+          "minProperties": 1,
+          "additionalProperties": false
+        }
+      ]
+    },
+    "select": {
+      "description": "Every car or part of a kind that has the fields it asks for: the server turns it into the list of those and shows the list.",
+      "type": "object",
+      "properties": {
+        "kind": { "enum": ["part", "vehicle"] },
+        "where": {
+          "description": "Field => condition, every one of them true. A field is a name at the top of the document (slot, tier) or a name inside an object (engine/layout).",
+          "type": "object",
+          "propertyNames": { "pattern": "^[a-z_]+(/[a-z_]+)?$" },
+          "additionalProperties": { "$ref": "#/$defs/condition" },
+          "maxProperties": 6
+        }
+      },
+      "required": ["kind", "where"],
+      "additionalProperties": false
+    },
+    "set": {
+      "description": "Sets one number to a value.",
+      "type": "object",
+      "properties": {
+        "op": { "const": "set" },
+        "id": { "$ref": "#/$defs/id" },
+        "target": { "$ref": "#/$defs/target" },
+        "path": { "$ref": "#/$defs/pointer" },
+        "value": { "description": "The number in the unit of the number, as the instruction shows it (a percent as 12.5, dollars as 21500).", "type": "number" },
+        "unit": { "$ref": "#/$defs/unit" }
+      },
+      "required": ["op", "target", "path", "value", "unit"],
+      "additionalProperties": false
+    },
+    "scale": {
+      "description": "Changes numbers by a percent of what they are now, in one go: +12 makes a number 12% greater, -5 makes it 5% less. The server does the arithmetic and the rounding.",
+      "type": "object",
+      "properties": {
+        "op": { "const": "scale" },
+        "id": { "$ref": "#/$defs/id" },
+        "target": { "$ref": "#/$defs/target" },
+        "select": { "$ref": "#/$defs/select" },
+        "path": { "$ref": "#/$defs/pointer" },
+        "percent": { "description": "At most two decimals.", "type": "number", "exclusiveMinimum": -100, "maximum": 1000 }
+      },
+      "required": ["op", "path", "percent"],
+      "oneOf": [
+        { "required": ["target"], "not": { "required": ["select"] } },
+        { "required": ["select"], "not": { "required": ["target"] } }
+      ],
+      "additionalProperties": false
+    }
+  }
+}
