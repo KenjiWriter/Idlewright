@@ -61,6 +61,7 @@ final class PremiumFields
                 ->helpKey('premium.products')
                 ->minItems(1)
                 ->collapsible()
+                ->collapsed()
                 ->reorderableWithButtons()
                 ->addActionLabel(__('admin.premium.product_add'))
                 ->itemLabel(fn (array $state): ?string => self::itemLabel($state))
