@@ -26,6 +26,7 @@ class Part extends Model
             'car_id' => 'integer',
             'rarity' => 'integer',
             'affixes' => 'array',
+            'tuning' => 'array',
             'upgrade_level' => 'integer',
             'wear_ppb' => 'integer',
         ];

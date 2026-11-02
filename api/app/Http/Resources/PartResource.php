@@ -6,6 +6,7 @@ namespace App\Http\Resources;
 
 use App\Content\Catalog;
 use App\Content\Rules;
+use App\Domain\Market\Tuning;
 use App\Domain\Run\Rarity;
 use App\Models\Part;
 use App\Services\ContentImages;
@@ -44,6 +45,43 @@ final class PartResource extends JsonResource
                     'percent' => round($amount / 10_000, 1),
                 ];
             }
+        }
+
+        return $listed;
+    }
+
+    /**
+     * The places for bonuses of a part for the client, as many as the part has: what the place holds (the bonus, its name and what it does in the language of the
+     * driver, where it works, and how much) or null for an empty place. A bonus that the pack does not know any more shows as an empty place.
+     *
+     * @param  list<array{key: string, ppm: int, tries?: int, fails?: int}|null>  $places  what the part holds, by place
+     * @return list<array<string, mixed>|null>
+     */
+    private static function tuning(array $places, int $slots): array
+    {
+        $definitions = app(Rules::class)->tuning()['definitions'] ?? [];
+        $listed = [];
+
+        for ($place = 0; $place < $slots; $place++) {
+            $held = $places[$place] ?? null;
+            $definition = $held === null ? null : ($definitions[$held['key']] ?? null);
+
+            $listed[] = $definition === null ? null : [
+                'place' => $place + 1,
+                'key' => $held['key'],
+                'name' => I18nText::from($definition['name'])->for(),
+                'description' => I18nText::from($definition['description'])->for(),
+                'effect' => $definition['effect'],
+                'stat' => $definition['stat'] ?? null,
+                'context' => [
+                    'kinds' => $definition['context']['kinds'] ?? null,
+                    'surfaces' => $definition['context']['surfaces'] ?? null,
+                    'weathers' => $definition['context']['weathers'] ?? null,
+                ],
+                'value_ppm' => $held['ppm'],
+                'percent' => round($held['ppm'] / 10_000, 1),
+                'tries' => (int) ($held['tries'] ?? 0),
+            ];
         }
 
         return $listed;
@@ -92,6 +130,7 @@ final class PartResource extends JsonResource
     public function toArray(Request $request): array
     {
         $definition = app(Catalog::class)->part($this->resource->part_slug);
+        $slots = (new Tuning(app(Rules::class)->tuning()))->slotsFor($definition['tuning_slots'] ?? null);
 
         return [
             'id' => $this->resource->id,
@@ -104,6 +143,9 @@ final class PartResource extends JsonResource
             'condition_loss_percent' => 100 - (int) round(app(Rules::class)->conditionStatPpm($this->resource->conditionPpm()) / 10_000),
             'mounted' => $this->resource->isMounted(),
             'car_id' => $this->resource->car_id,
+            // How many places for bonuses the part has (its model may say, else the rules do), and what they hold: a list with one entry for each place.
+            'tuning_slots' => $slots,
+            'tuning' => self::tuning((array) ($this->resource->tuning ?? []), $slots),
         ];
     }
 
