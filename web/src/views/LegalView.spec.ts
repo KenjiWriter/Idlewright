@@ -88,7 +88,7 @@ describe('LegalView', () => {
       const { wrapper } = await open('privacy')
 
       expect(wrapper.get('[data-test="title"]').text()).toBe('Privacy policy')
-      expect(wrapper.findAll('[data-test="section"]')).toHaveLength(12)
+      expect(wrapper.findAll('[data-test="section"]')).toHaveLength(13)
       expect(wrapper.get('[data-test="other"]').text()).toBe('Terms of service')
       expect(wrapper.get('[data-test="other"]').attributes('href')).toBe('/terms')
     })

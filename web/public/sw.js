@@ -10,7 +10,7 @@
  *   network and kept. The cache is trimmed to the newest files, and never emptied on an update: a page that is still open may ask for a file of the release
  *   it came with.
  * - The API (/api/) and everything that is not a GET of this site is not touched: nothing a driver does or sees (the token, the cash, the garage) is ever
- *   written to a cache here.
+ *   written to a cache here. The one thing the worker sends to the API is that a notification was opened (a secret number, see `opened`).
  * - A push message (a car stopped, a car arrived) is shown as a notification, in the words the server wrote in the language of the driver, so no text is kept here; a tap
  *   opens the page of this site that the message names. A message that cannot be read is still shown, because the browsers take back the permission of a site that
  *   receives a message and shows nothing.
@@ -67,7 +67,10 @@ self.addEventListener('push', (event) => {
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close()
-  event.waitUntil(open(event.notification.data && event.notification.data.url))
+
+  const data = event.notification.data || {}
+
+  event.waitUntil(Promise.all([open(data.url), opened(data.nid)]))
 })
 
 /** The browser renews a subscription now and then: it is made again with the same options, and the app tells the server about the new one when it starts. */
@@ -98,8 +101,20 @@ function show(data) {
     // A newer message of the same thing alerts again; the one that it replaces is not shown a second time.
     renotify: text(message.tag) !== '',
     lang: text(message.lang) || undefined,
-    data: { url: text(message.url) || '/' },
+    data: { url: text(message.url) || '/', nid: text(message.nid) },
   })
+}
+
+/**
+ * Tells the server that a notification was opened, with the secret number the message carried and nothing else (the worker has no token of the driver, and the server needs no
+ * more than how many messages are opened). It is the one request this worker makes to the API, and a failure of it is of no consequence.
+ */
+function opened(nid) {
+  if (!nid) {
+    return Promise.resolve()
+  }
+
+  return fetch('/api/v1/push/seen', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nid }), keepalive: true }).catch(() => undefined)
 }
 
 /** Opens the page of this site that a notification names: in the window that is open when there is one, else in a new one. An address of another site is never opened. */

@@ -56,7 +56,7 @@ interface PushEvent {
   waitUntil?: (work: Promise<unknown>) => void
   respondWith?: (answer: Promise<Response>) => void
   data?: { json: () => unknown } | null
-  notification?: { close: () => void; data?: { url?: unknown } }
+  notification?: { close: () => void; data?: { url?: unknown; nid?: unknown } }
   oldSubscription?: { options: object } | null
 }
 
@@ -262,10 +262,10 @@ describe('the service worker', () => {
     }
 
     /** What the worker does when a notification is tapped. */
-    async function tap(boots: ReturnType<typeof boot>, url: unknown): Promise<{ closed: boolean }> {
+    async function tap(boots: ReturnType<typeof boot>, url: unknown, nid?: string): Promise<{ closed: boolean }> {
       const work: Promise<unknown>[] = []
       const seen = { closed: false }
-      boots.listeners.notificationclick({ notification: { close: () => void (seen.closed = true), data: { url } }, waitUntil: (given) => void work.push(given) })
+      boots.listeners.notificationclick({ notification: { close: () => void (seen.closed = true), data: { url, nid } }, waitUntil: (given) => void work.push(given) })
       await Promise.all(work)
 
       return seen
@@ -274,7 +274,7 @@ describe('the service worker', () => {
     it('shows the notification that the server wrote, in the language of the driver, with the tag that lets a newer message take its place', async () => {
       const w = worker()
 
-      await receive(w, { json: () => ({ kind: 'car_stopped', title: 'Rdzak GT-4 stoi', body: 'Skończyło się paliwo.', url: '/garage', tag: 'car-12', lang: 'pl' }) })
+      await receive(w, { json: () => ({ kind: 'car_stopped', title: 'Rdzak GT-4 stoi', body: 'Skończyło się paliwo.', url: '/garage', tag: 'car-12', lang: 'pl', nid: 'n123' }) })
 
       expect(w.self.registration.showNotification).toHaveBeenCalledExactlyOnceWith('Rdzak GT-4 stoi', {
         body: 'Skończyło się paliwo.',
@@ -282,7 +282,7 @@ describe('the service worker', () => {
         tag: 'car-12',
         renotify: true,
         lang: 'pl',
-        data: { url: '/garage' },
+        data: { url: '/garage', nid: 'n123' },
       })
     })
 
@@ -299,7 +299,7 @@ describe('the service worker', () => {
       await receive(odd, { json: () => ({ title: 5, body: null, url: {}, tag: [] }) })
 
       for (const w of [unreadable, empty, odd]) {
-        expect(w.self.registration.showNotification).toHaveBeenCalledExactlyOnceWith('RideIdle', { body: '', icon: '/icons/icon-192.png', tag: undefined, renotify: false, lang: undefined, data: { url: '/' } })
+        expect(w.self.registration.showNotification).toHaveBeenCalledExactlyOnceWith('RideIdle', { body: '', icon: '/icons/icon-192.png', tag: undefined, renotify: false, lang: undefined, data: { url: '/', nid: '' } })
       }
     })
 
@@ -359,6 +359,31 @@ describe('the service worker', () => {
 
       w.listeners.pushsubscriptionchange({ oldSubscription: null, waitUntil: (given) => void work.push(given) })
       expect(w.self.registration.pushManager.subscribe).toHaveBeenCalledOnce()
+    })
+
+    it('tells the server that a notification was opened, with the number the message carried and nothing else, and does not mind when it fails', async () => {
+      const w = worker()
+      await tap(w, '/garage', 'n123')
+
+      expect(w.fetchMock).toHaveBeenCalledExactlyOnceWith('/api/v1/push/seen', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nid: 'n123' }),
+        keepalive: true,
+      })
+
+      const offline = boot(async () => Promise.reject(new TypeError('Failed to fetch')))
+      await tap(offline, '/garage', 'n456')
+
+      expect(offline.self.clients.openWindow).toHaveBeenCalledExactlyOnceWith(`${ORIGIN}/garage`)
+    })
+
+    it('says nothing to the server about a message that had no number', async () => {
+      const w = worker()
+      await tap(w, '/garage')
+      await tap(w, '/garage', '')
+
+      expect(w.fetchMock).not.toHaveBeenCalled()
     })
 
     it('still leaves the API alone, and the pages and files as they were', async () => {
