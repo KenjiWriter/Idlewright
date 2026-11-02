@@ -80,6 +80,7 @@
                 <div>
                     <x-filament::button wire:click="apply" :disabled="($result['warnings'] > 0 && ! $acknowledged) || ($result['applied_before'] && ! $repeat)" icon="heroicon-m-pencil-square" data-ai-apply>{{ __('admin.ai.apply') }}</x-filament::button>
                     <span style="font-size:.8125rem;color:rgb(113 113 122)">{{ __('admin.ai.apply_hint') }}</span>
+                    <x-filament::button color="gray" wire:click="mountAction('balance')" icon="heroicon-m-chart-bar" data-ai-balance>{{ __('admin.ai.balance') }}</x-filament::button>
                 </div>
             </div>
         @endif

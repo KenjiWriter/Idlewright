@@ -6,6 +6,7 @@ namespace App\Filament\Pages;
 
 use App\Content\Bridge\AnswerRecorder;
 use App\Content\Bridge\ApplyRefused;
+use App\Content\Bridge\BalancePreview;
 use App\Content\Bridge\BridgeIssue;
 use App\Content\Bridge\BriefBuilder;
 use App\Content\Bridge\BriefRecorder;
@@ -160,6 +161,24 @@ class AiBridgePage extends Page implements HasSchemas
         ]);
     }
 
+    /**
+     * What the checked answer would do to the balance of the game, in a window: the gates and the simulators of the economy run on the content with the answer put over it,
+     * beside the same for the content that is live. Nothing is kept, and the answer is checked again first, because what was shown may be old.
+     */
+    public function balanceAction(): Action
+    {
+        return Action::make('balance')
+            ->label(__('admin.ai.balance'))
+            ->icon('heroicon-m-chart-bar')
+            ->color('gray')
+            ->modalHeading(__('admin.ai.balance_title'))
+            ->modalDescription(__('admin.ai.balance_hint'))
+            ->modalWidth('7xl')
+            ->modalSubmitAction(false)
+            ->modalCancelActionLabel(__('admin.ai.close'))
+            ->modalContent(fn () => view('filament.studio.preview', ['report' => $this->balanceReport()]));
+    }
+
     /** Re-counts the instruction when a choice is changed. */
     public function updatedData(): void
     {
@@ -263,6 +282,18 @@ class AiBridgePage extends Page implements HasSchemas
         }
 
         Notification::make()->success()->title(__('admin.ai.undone'))->send();
+    }
+
+    /** @return array<string, mixed> */
+    private function balanceReport(): array
+    {
+        $check = app(ChangeChecker::class)->check(trim($this->answer));
+
+        if (! $check->ok()) {
+            return ['errors' => [['file' => '', 'pointer' => '', 'message' => __('admin.ai.refused.not_ok')]], 'gates' => [], 'now' => [], 'live' => null, 'changes' => 0];
+        }
+
+        return app(BalancePreview::class)->of($check);
     }
 
     private function refused(ApplyRefused $refused): void
