@@ -7,8 +7,10 @@ Tor może mieć **nitkę**: uporządkowany łańcuch odcinków (prosta, zakręt)
 | Etap | Co | Gdzie |
 |---|---|---|
 | T1 | Rdzeń symulacji: odcinki, stałe modelu, ruch auta, symulator okrążenia | `api/app/Domain/Run/` (`Section`, `Thread`, `Dynamics`, `CarOnSurface`, `Motion`, `LapSimulator`, `SectionRun`, `LapResult`) |
-| T2 | Dokument (`thread`, `lap_from`, `dynamics`), walidator po ludzku, `ThreadLap` w zamrażarce, zużycie części po nawierzchniach odcinków, przejście przez formularz świata | `content/schema/rules.schema.json`, `api/app/Content/ThreadDocument.php`, `api/app/Domain/Run/ThreadLap.php` |
-| T3–T5 | Edytor w panelu, ekran wyścigu, nitki 15 torów i przestawianie torów | jeszcze nie |
+| T2 | Dokument (`thread`, `lap_from`, `dynamics`), walidator po ludzku, `ThreadLap` w zamrażarce, zużycie części po nawierzchniach odcinków, przejście przez formularz świata; stałe `dynamics` w `starter.json` i w Studiu (pomoc w 5 językach) | `content/schema/rules.schema.json`, `api/app/Content/ThreadDocument.php`, `api/app/Domain/Run/ThreadLap.php` |
+| T3 | Strona „Nitka toru” w panelu: lista odcinków, gotowe kawałki, lustro i odwrócenie, rysunek z góry (kolor = prędkość auta wzorcowego), podział czasu okrążenia, tabela aut „ze wzoru i po nitce”, zapis do szkicu | `api/app/Filament/Pages/ThreadPage.php`, `api/app/Content/ThreadPreview.php`, `ThreadForm.php`, `api/app/Domain/Run/ThreadPath.php`, `api/resources/views/filament/forms/thread-preview.blade.php` |
+| T4 | `GET /v1/runs/current/profile` i linia toru z autem na ekranie wyścigu (auto jako czysta funkcja czasu, boty jako duchy) | `api/app/Services/RunProfile.php`, `web/src/components/TrackMap.vue`, `web/src/features/run/trackPosition.ts` |
+| T5 | Nitki wszystkich 15 torów w `starter.json` (jako rysunek: wszystkie zostają na `lap_from: stats`), pomoc Studia dla ich liczb | `content/rules/starter.json` |
 
 ## Skąd bierze się czas okrążenia (`lap_from`)
 
@@ -67,6 +69,25 @@ Statystyki auta (`accel` w kW/t, `top_speed`, `grip`, `handling`, `braking`, `cl
 
 `api/tests/Unit/Run/LapSimulatorTest.php` i `ThreadTest.php` przypinają liczby prototypu, na którym liczono propozycję (trzy auta na ulicy, dragu i serpentynach, deszcz, mieszana nawierzchnia, limit, nierówny odcinek), formuły zamknięte kontra całkowanie krokowe, niezmienniki (stan ustalony pętli, start od zera, lepsze auto nigdy nie wolniejsze, żwir/śnieg/błoto trzymają prędkość maksymalną, limit prędkości) i budżet czasu. `api/tests/Feature/Content/ThreadRulesTest.php`: auto wzorcowe jedzie dokładnie czas bazowy (także po zmianie stałych), inne auta według modelu (ulica, ok.: Bizon 73 006 ms, Orzeł 67 832 ms, Rdzak w deszczu 78 887 ms; test sprawdza przedział ±1 ms), tor bez `lap_from: thread` jedzie jak dotąd, zużycie części po udziałach nawierzchni, walidator, formularz świata nie gubi nitki.
 
+## Panel: strona „Nitka toru”
+
+Jeden tor naraz (lista rozwijana), z polami: skąd bierze się czas okrążenia (`lap_from`), jak się jedzie (pętla albo przejazd z czasem powrotu), lista odcinków (rodzaj, długość albo promień i kąt, kierunek, nawierzchnia, limit prędkości, nierówność) ze zmianą kolejności strzałkami, gotowe kawałki (agrafka, ciasny zakręt, szeroki łuk, szykana), „odbij lustrzanie” i „odwróć kierunek jazdy”. Obok formularza (odświeżane po każdej zmianie): linia toru z góry, **narysowana tak, jak ją tworzą odcinki** (jeśli się nie zamyka, czerwona przerywana linia pokazuje szczelinę do startu), pokolorowana prędkością auta wzorcowego (ciepło = wolno, zielono = szybko), numery odcinków, podział czasu okrążenia (przyspieszanie, na limicie, hamowanie, zakręty, powrót) i tabela aut katalogu: okrążenie **ze wzoru** (dzisiejsze) i **po nitce** (które byłoby, gdyby tor jechał po nitce), różnica w procentach (zielone do 5%, żółte do 10%, czerwone dalej), średnia i szczytowa prędkość. Zapis kładzie nitkę do szkicu reguł świata; **długość toru zapisuje się jako suma odcinków**, a walidator mówi po ludzku, co jest nie tak.
+
+Nie zbudowałem przycisku „Zamknij pętlę” z propozycji (rozwiązanie dwóch prostych i kąta ostatniego zakrętu): szczelina jest pokazana, zamknięcie robi się ręką. Nie ma też osobnego przycisku „ustaw prędkość z nitki”: schemat wymaga dla toru `speed_kmh` albo `base_lap_ms`, więc prędkość ustawia się w formularzu świata.
+
+## Ekran wyścigu
+
+`GET /v1/runs/current/profile?weather=…` (`RunProfile`) daje linię nitki toru biegu (pętlę wygiętą tak, żeby się zamykała, około 180 punktów), dla każdego punktu odległość, prędkość auta **takiego, jakie jest teraz**, w pogodzie z zapytania, i ułamek czasu okrążenia, a do tego odcinki. Odpowiedź jest zawsze świeża (`no-store`), liczy się w poniżej milisekundy i **nigdy w czasie jazdy**: ekran pyta o nią przy wejściu i gdy zmieni się tor, auto, pogoda albo czas okrążenia. Auto na ekranie to **czysta funkcja** profilu i ułamka okrążenia (`trackSpot`): czas profilu jest rozciągnięty na **zamrożony** `lap_ms`, więc auto jest tam, gdzie mówi rozliczenie, co do milisekundy, także gdy model zmienił się po zamrożeniu. Boty jadą jako duchy swoje suche okrążenia z tabeli botów na zegarze serwera liczonym od jednego momentu (u wszystkich graczy w tych samych miejscach). Ekran rysuje linię, auto, boty, prędkość i nazwę odcinka („Zakręt R70, 90°”); osoba, która poprosiła system o mniej ruchu, dostaje ruch raz na sekundę.
+
+Dla toru na `stats` rysunek pokazuje prędkości modelu, a animacja trwa dokładnie tyle, co okrążenie toru (stąd tempo ≠ 1 z propozycji: prędkościomierz pokazuje prędkość modelu).
+
+## Nitki piętnastu torów
+
+Narysowałem je ja, wszystkie jako **rysunek** (`lap_from` zostaje `stats`, czasy okrążeń, tabela botów i bramki się nie ruszają). Pętle zamykają się geometrycznie (szczelina do 3 m po zaokrągleniach; proste dobiera rozwiązanie najmniejszych kwadratów, kierunki zakrętów tak, żeby zakręty dawały pełny obrót), tory krótkie to owale, Drag Suchy Pas i Krótki pas to przejazdy (`mode: run`, drag z `return_ms` 6,9 s: razem z fizycznym przejazdem wzorca daje dzisiejsze 45 s). Kamieniołom, żwirowy sprint i maraton mają nierówność odcinków. **Które tory przestawić na `lap_from: thread`, decyduje właściciel** (tabela „tempa” z propozycji: tempo bliskie 1 mają Autodrom, Obwodnica, Długi dystans, Maraton, Krótki pas i Przejazd przez przełęcz); strona „Nitka toru” pokazuje przed przestawieniem, jak zmieniłoby się okrążenie każdego z aut.
+
 ## Czego jeszcze nie ma
 
-Edytor w panelu i stałe `dynamics` w Studiu z pomocą w 5 językach (T3), ekran wyścigu z animacją po nitce i wyjaśnieniem „co twoje auto robi tu dobrze i źle” (T4), nitki dla 15 torów i przestawianie torów po jednym z bramkami (T5), wzniesienia (poza V1).
+- Przycisk „Zamknij pętlę” (szczelina jest pokazana).
+- Na ekranie wyboru toru miniatura nitki i objaśnienie „co twoje auto robi tu dobrze i źle” (różnica czasu auta względem wzorca w grupach: przyspieszanie, prędkość maksymalna, zakręty, hamowanie, teren): dane są w `ThreadPreview`/`LapResult::split`, ekranu jeszcze nie ma.
+- Wzniesienia (poza pierwszą wersją).
+- Przestawienie któregokolwiek z 15 torów na `lap_from: thread` (decyzja właściciela, z bramkami `tracks:simulate` i `economy:simulate`).
