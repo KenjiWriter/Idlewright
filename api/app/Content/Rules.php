@@ -6,8 +6,10 @@ namespace App\Content;
 
 use App\Content\Units\Measures;
 use App\Domain\Economy\PlayerXpCurve;
+use App\Domain\Run\Dynamics;
 use App\Domain\Run\Rarity;
 use App\Domain\Run\Surface;
+use App\Domain\Run\Thread;
 use App\Domain\Settlement\Ppm;
 use App\Domain\Workshop\WorkshopGear;
 use App\Support\I18nText;
@@ -712,6 +714,51 @@ final class Rules
     public function trackReferenceTires(string $slug): ?string
     {
         return $this->data['tracks'][$slug]['reference_tires'] ?? null;
+    }
+
+    /** Where the lap of a car on a track comes from: `stats` (the formula of the demands, the default) or `thread` (driven on its thread). A track with no thread has its lap from the stats. */
+    public function lapFrom(string $slug): string
+    {
+        $track = $this->data['tracks'][$slug] ?? throw new InvalidArgumentException("Unknown track {$slug}.");
+
+        return ($track['lap_from'] ?? 'stats') === 'thread' && isset($track['thread']) ? 'thread' : 'stats';
+    }
+
+    /** The thread of a track, whether or not the lap is driven on it, or null when the track has none. */
+    public function thread(string $slug): ?Thread
+    {
+        $track = $this->data['tracks'][$slug] ?? throw new InvalidArgumentException("Unknown track {$slug}.");
+
+        return isset($track['thread']) ? ThreadDocument::thread($track['thread'], (string) $track['surface']) : null;
+    }
+
+    /**
+     * What a lap of a track is made of by surface, as a share of its length: the whole of it on the surface of the track, unless its thread has sections on another.
+     *
+     * @return array<string, float> by `asphalt` and `gravel`, only the ones that are driven on
+     */
+    public function surfaceShares(string $slug): array
+    {
+        $thread = $this->thread($slug);
+        $surface = (string) $this->data['tracks'][$slug]['surface'];
+
+        if ($thread === null || $thread->surfaces() === [$surface]) {
+            return [$surface => 1.0];
+        }
+
+        $metres = [];
+
+        foreach ($thread->sections as $section) {
+            $metres[$thread->surfaceOf($section)] = ($metres[$thread->surfaceOf($section)] ?? 0.0) + $section->lengthM;
+        }
+
+        return array_map(static fn (float $length): float => $length / array_sum($metres), $metres);
+    }
+
+    /** The constants of the model of a lap on a thread: the section `dynamics` of the rules, or the defaults of the model where they say nothing. */
+    public function dynamics(): Dynamics
+    {
+        return ThreadDocument::dynamics($this->data['dynamics'] ?? null);
     }
 
     /** The level of the driver from which a track is open. */

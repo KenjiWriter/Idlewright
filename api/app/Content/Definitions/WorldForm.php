@@ -42,6 +42,9 @@ final class WorldForm
                 'surface' => $track['surface'] ?? null,
                 'kind' => $track['kind'] ?? null,
                 'reference_tires' => $track['reference_tires'] ?? null,
+                // The thread of the track is drawn on a page of its own; the form of the tracks keeps it, so that saving the tracks does not lose it.
+                'lap_from' => $track['lap_from'] ?? null,
+                'thread' => $track['thread'] ?? null,
                 'lit' => (bool) ($track['lit'] ?? false),
                 'min_player_level' => $track['min_player_level'] ?? null,
                 // The length and the speed are shown in the units of the game, with the decimals that bring them back to the same metre and the same km/h.
@@ -110,6 +113,14 @@ final class WorldForm
 
             if (DefinitionForm::text($line['reference_tires'] ?? null) !== null) {
                 $track['reference_tires'] = DefinitionForm::text($line['reference_tires']);
+            }
+
+            if (DefinitionForm::text($line['lap_from'] ?? null) !== null) {
+                $track['lap_from'] = DefinitionForm::text($line['lap_from']);
+            }
+
+            if (is_array($line['thread'] ?? null) && $line['thread'] !== []) {
+                $track['thread'] = $line['thread'];
             }
 
             $track['lit'] = ! empty($line['lit']);

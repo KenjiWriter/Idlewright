@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Content;
 
+use App\Domain\Run\CarOnSurface;
 use App\Domain\Run\CarStats;
 use App\Domain\Run\FieldProfile;
 use App\Domain\Run\Rarity;
 use App\Domain\Run\RunInputs;
 use App\Domain\Run\Surface;
+use App\Domain\Run\ThreadLap;
 use App\Domain\Run\TrackProfile;
 use App\Domain\Run\WearPlan;
 use App\Domain\Run\WeatherEffect;
@@ -74,24 +76,7 @@ final class RunInputsFactory
 
         foreach (array_keys($region['weather_ppm']) as $weather) {
             $effect = $this->rules->weather()[$weather];
-            $multipliersPpm = $effect['stat_ppm'];
-
-            // The tires on this surface and the drive of the car (which puts the power on the road better or worse on it) multiply what depends on the grip of
-            // the road, on top of what the weather does by itself.
-            $surface = Surface::of($track['surface'], $effect['ground']);
-            // What the tires grip on this surface: the matrix, less what the adaptive compound of a legendary pair does not lose, more what their affixes of the
-            // surface add, and the traction of the drive.
-            $matrixPpm = $this->rules->tireGripPpm($tireKind, $surface);
-
-            if ($surfaceLossPpm > 0 && $matrixPpm < Ppm::ONE) {
-                $matrixPpm = Ppm::ONE - Ppm::mul(Ppm::ONE - $matrixPpm, Ppm::ONE - $surfaceLossPpm);
-            }
-
-            $tirePpm = Ppm::mul(Ppm::mul($matrixPpm, Ppm::ONE + $this->rules->surfaceAffixPpm($tireAffixes, $surface, $tireCondition)), $tractionPpm[$surface]);
-
-            foreach (self::TRACTION_STATS as $stat) {
-                $multipliersPpm[$stat] = Ppm::mul($tirePpm, $multipliersPpm[$stat] ?? Ppm::ONE);
-            }
+            $multipliersPpm = $this->statMultipliersPpm($effect, $track['surface'], $tireKind, $tireAffixes, $tireCondition, $surfaceLossPpm, $tractionPpm);
 
             $effects[$weather] = new WeatherEffect(
                 array_map(static fn (int $ppm): float => $ppm / 1_000_000, $multipliersPpm),
@@ -99,6 +84,10 @@ final class RunInputsFactory
                 $effect['xp_ppm'],
             );
         }
+
+        $thread = $this->rules->lapFrom($trackSlug) === 'thread'
+            ? $this->threadLap($trackSlug, $track, $car, $region, $tireKind, $tireAffixes, $tireCondition, $surfaceLossPpm, $tractionPpm)
+            : null;
 
         return new RunInputs(
             car: $car,
@@ -117,7 +106,96 @@ final class RunInputsFactory
             nightLapPpm: $track['lit'] ? Ppm::ONE : $this->rules->nightLapPpm(),
             field: $this->field($trackSlug, (int) $vehicle['tier']),
             wear: $plan,
+            thread: $thread,
         );
+    }
+
+    /**
+     * What the weather, the tires and the drive of the car multiply the statistics by on a surface, in ppm: the multipliers of the weather by itself, and on the grip, the
+     * handling and the braking what the tires grip on the surface (the matrix, less what the adaptive compound of a legendary pair does not lose, more what the affixes of
+     * the surface add) times the traction of the drive on it.
+     *
+     * @param  array<string, mixed>  $weather  the weather of the rules: its `ground` and its `stat_ppm`
+     * @param  string  $trackSurface  `asphalt` or `gravel`: what the section is made of when it is dry
+     * @param  array<string, int>  $tireAffixes
+     * @param  array<string, int>  $tractionPpm  the traction of the drive by surface
+     * @return array<string, int>
+     */
+    private function statMultipliersPpm(array $weather, string $trackSurface, string $tireKind, array $tireAffixes, int $tireCondition, int $surfaceLossPpm, array $tractionPpm): array
+    {
+        $multipliersPpm = $weather['stat_ppm'];
+        $surface = Surface::of($trackSurface, $weather['ground']);
+        $matrixPpm = $this->rules->tireGripPpm($tireKind, $surface);
+
+        if ($surfaceLossPpm > 0 && $matrixPpm < Ppm::ONE) {
+            $matrixPpm = Ppm::ONE - Ppm::mul(Ppm::ONE - $matrixPpm, Ppm::ONE - $surfaceLossPpm);
+        }
+
+        $tirePpm = Ppm::mul(Ppm::mul($matrixPpm, Ppm::ONE + $this->rules->surfaceAffixPpm($tireAffixes, $surface, $tireCondition)), $tractionPpm[$surface]);
+
+        foreach (self::TRACTION_STATS as $stat) {
+            $multipliersPpm[$stat] = Ppm::mul($tirePpm, $multipliersPpm[$stat] ?? Ppm::ONE);
+        }
+
+        return $multipliersPpm;
+    }
+
+    /**
+     * What the lap of a track that is driven on its thread is made from: the car in every weather of the region on every surface the thread is made of, and the reference
+     * car of the track (its statistics in the document, which are for the main surface of the track in dry weather, and on another surface what the tires of the reference
+     * car grip there over what they grip on the main one).
+     *
+     * @param  array<string, mixed>  $track
+     * @param  array<string, mixed>  $region
+     * @param  array<string, int>  $tireAffixes
+     * @param  array<string, int>  $tractionPpm
+     */
+    private function threadLap(string $trackSlug, array $track, CarStats $car, array $region, string $tireKind, array $tireAffixes, int $tireCondition, int $surfaceLossPpm, array $tractionPpm): ThreadLap
+    {
+        $thread = $this->rules->thread($trackSlug) ?? throw new InvalidArgumentException("The track {$trackSlug} is driven on its thread and has none.");
+        $weathers = array_unique([...array_keys($region['weather_ppm']), 'dry']);
+        $cars = [];
+
+        foreach ($weathers as $weather) {
+            $effect = $this->rules->weather()[$weather] ?? ['ground' => 'dry', 'stat_ppm' => []];
+
+            foreach ($thread->surfaces() as $trackSurface) {
+                $multipliers = array_map(static fn (int $ppm): float => $ppm / 1_000_000, $this->statMultipliersPpm($effect, $trackSurface, $tireKind, $tireAffixes, $tireCondition, $surfaceLossPpm, $tractionPpm));
+
+                $cars[$weather][$trackSurface] = new CarOnSurface(
+                    Surface::of($trackSurface, $effect['ground']),
+                    $car->get('accel'),
+                    $car->get('top_speed') * ($multipliers['top_speed'] ?? 1.0),
+                    $car->get('grip') * ($multipliers['grip'] ?? 1.0),
+                    $car->get('handling') * ($multipliers['handling'] ?? 1.0),
+                    $car->get('braking') * ($multipliers['braking'] ?? 1.0),
+                    $car->get('clearance'),
+                );
+            }
+        }
+
+        $reference = $track['reference'];
+        $referencePart = $this->rules->trackReferenceTires($trackSlug);
+        $referenceKind = $referencePart === null ? $this->stockTires()['tire_kind'] : ($this->catalog->part($referencePart)['tire_kind'] ?? throw new InvalidArgumentException("Unknown tires {$referencePart}."));
+        $home = $this->rules->tireGripPpm($referenceKind, Surface::of($track['surface'], 'dry'));
+        $benchmark = [];
+
+        foreach ($thread->surfaces() as $trackSurface) {
+            $surface = Surface::of($trackSurface, 'dry');
+            $share = $this->rules->tireGripPpm($referenceKind, $surface) / $home;
+
+            $benchmark[$trackSurface] = new CarOnSurface(
+                $surface,
+                (float) $reference['accel'],
+                (float) $reference['top_speed'],
+                $reference['grip'] * $share,
+                $reference['handling'] * $share,
+                $reference['braking'] * $share,
+                (float) ($reference['clearance'] ?? ThreadDocument::DEFAULT_REFERENCE_CLEARANCE),
+            );
+        }
+
+        return new ThreadLap($thread, $this->rules->dynamics(), $cars, $benchmark);
     }
 
     /**
@@ -191,6 +269,7 @@ final class RunInputsFactory
     {
         $track = $this->rules->track($trackSlug) ?? throw new InvalidArgumentException("Unknown track {$trackSlug}.");
         $lengthM = $this->rules->trackLengthM($trackSlug);
+        $shares = $this->rules->surfaceShares($trackSlug);
         $power = $this->power($carSlug, $mounted);
         $load = $this->engineLoad($this->parts($mounted));
         $service = $this->rules->service();
@@ -200,7 +279,7 @@ final class RunInputsFactory
 
         foreach ($mounted as $slot => $entry) {
             $wear[$slot] = is_array($entry) ? (int) ($entry['wear'] ?? 0) : 0;
-            $perKm[$slot] = $this->rules->wearPerKmPpb($slot, $track['surface'], $power, $load);
+            $perKm[$slot] = (int) round(array_sum(array_map(fn (string $surface, float $share): float => $share * $this->rules->wearPerKmPpb($slot, $surface, $power, $load), array_keys($shares), $shares)));
 
             // A part with an affix of durability wears slower.
             if (is_array($entry)) {

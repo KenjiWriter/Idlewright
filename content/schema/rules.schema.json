@@ -935,6 +935,8 @@
           "surface": { "description": "What the track is made of when it is dry. The weather turns it wet or snowy.", "enum": ["asphalt", "gravel"] },
           "kind": { "description": "What the track asks of the driver: a sprint (a lap of 10 to 15 seconds, a little cash a lap and little fuel an hour, so a tank lasts about an hour), a standard track (the default), or an endurance track (a lap of minutes that burns a tank in about twenty). The gate M3 counts the tracks of a kind among themselves.", "enum": ["sprint", "standard", "endurance"] },
           "reference_tires": { "description": "The tires of the car that the bots of the race are made around, when the stock tires are not what the track asks for: on gravel every stock car is a second slower than a car with the right tires, and a field made around the stock ones would pay a bonus to everyone who buys them. Without it the reference car has the stock tires.", "$ref": "common.schema.json#/$defs/slug" },
+          "lap_from": { "description": "Where the lap of a car on this track comes from: its statistics through the demands of the track (`stats`, the default: the formula the tracks were made with), or a lap driven on the thread of the track (`thread`: a point mass that accelerates, brakes for the corners and holds the surface). The thread is drawn in either case; with `stats` it only shows the track.", "enum": ["stats", "thread"] },
+          "thread": { "$ref": "#/$defs/thread" },
           "lit": { "description": "Whether the track has lights: a track that has none takes longer to drive at night.", "type": "boolean" },
           "min_player_level": { "description": "The level of the driver from which the track is open. A car is thought of as the level of the track when the tracks are compared: it can mount the tier that level reaches.", "type": "integer", "minimum": 1 },
           "length_m": { "description": "How long a lap is, in metres. It is the source of the numbers of a lap: the lap of the reference car is the length over the speed of the track, the fuel is what the engine burns in that time, and what a lap pays and gives is what an hour pays and gives for that time. It is also what the odometer of a car and the wear of its parts grow by with every lap.", "type": "integer", "minimum": 1, "maximum": 100000000000 },
@@ -968,6 +970,52 @@
         ],
         "additionalProperties": false
       }
+    },
+    "dynamics": {
+      "description": "How a lap is driven on the thread of a track: how the statistics of a car turn into acceleration, speed in a corner and braking. The tracks that take their lap from the formula of the demands ignore it. Without it the game uses the numbers written here as the defaults.",
+      "type": "object",
+      "properties": {
+        "power_ppm": { "description": "The share of the power over mass of the car (the statistic acceleration, in kW per tonne) that reaches the road as acceleration. 600 000 is 60%.", "type": "integer", "minimum": 100000, "maximum": 2000000 },
+        "lateral_g_ppm": { "description": "What a grip and a handling of 100 give sideways in a corner, in g: 950 000 is 0.95 g.", "type": "integer", "minimum": 300000, "maximum": 2500000 },
+        "brake_g_ppm": { "description": "What a braking of 100 gives on the brakes, in g.", "type": "integer", "minimum": 300000, "maximum": 3000000 },
+        "launch_g_ppm": { "description": "What a grip of 100 gives off the line, in g: the most the tires let the car accelerate before its power is what holds it back.", "type": "integer", "minimum": 300000, "maximum": 2500000 },
+        "agility": {
+          "description": "How much of a corner is down to the handling of the car and how much to its grip: the share of handling is the highest in a hairpin and falls to the lowest at the radius given here.",
+          "type": "object",
+          "properties": {
+            "min_ppm": { "description": "The share of handling in a wide bend.", "type": "integer", "minimum": 0, "maximum": 1000000 },
+            "max_ppm": { "description": "The share of handling in a hairpin.", "type": "integer", "minimum": 0, "maximum": 1000000 },
+            "radius_m": { "description": "The radius from which a corner counts as a wide bend, in metres.", "type": "integer", "minimum": 20, "maximum": 2000 }
+          },
+          "required": ["min_ppm", "max_ppm", "radius_m"],
+          "additionalProperties": false
+        },
+        "top_speed_ppm": {
+          "description": "What is left of the top speed of a car on a surface: asphalt holds it back by nothing, gravel, snow and mud by more.",
+          "type": "object",
+          "properties": {
+            "asphalt_dry": { "type": "integer", "minimum": 100000, "maximum": 1000000 },
+            "asphalt_wet": { "type": "integer", "minimum": 100000, "maximum": 1000000 },
+            "gravel_dry": { "type": "integer", "minimum": 100000, "maximum": 1000000 },
+            "mud": { "type": "integer", "minimum": 100000, "maximum": 1000000 },
+            "snow": { "type": "integer", "minimum": 100000, "maximum": 1000000 }
+          },
+          "required": ["asphalt_dry", "asphalt_wet", "gravel_dry", "mud", "snow"],
+          "additionalProperties": false
+        },
+        "rough": {
+          "description": "A rough stretch (ruts, cobbles, washboard) holds every car to a speed, lower for a car with less clearance than the stretch asks for.",
+          "type": "object",
+          "properties": {
+            "speed_kmh": { "description": "The speed over a rough stretch of a car that has all the clearance it asks for, in km/h.", "type": "integer", "minimum": 20, "maximum": 400 },
+            "exponent_ppm": { "description": "How fast a car with too little clearance slows down: its speed is the one above times (clearance over what the stretch asks for) to this power. 500 000 is the square root.", "type": "integer", "minimum": 50000, "maximum": 3000000 }
+          },
+          "required": ["speed_kmh", "exponent_ppm"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["power_ppm", "lateral_g_ppm", "brake_g_ppm", "launch_g_ppm", "agility", "top_speed_ppm", "rough"],
+      "additionalProperties": false
     },
     "track_model": {
       "description": "What the numbers of a track come to: the load of the engine of the kinds of track. Without it the game has 12, 20 and 32 ml of fuel for every second of a lap.",
@@ -1013,6 +1061,36 @@
   "required": ["schema", "version", "fuel", "repair", "breakdown", "wear", "tow", "stock_tires", "car", "engines", "drivetrain", "garage", "market", "start", "clock", "player", "shop", "workshop", "tire_matrix", "weather", "regions", "roads", "travel", "tracks", "bots"],
   "additionalProperties": false,
   "$defs": {
+    "thread": {
+      "description": "The line of a track as a chain of sections that are driven in order: a straight with a length, a corner with a radius and an angle. Each can be on another surface than the track, have a speed limit, or be rough.",
+      "type": "object",
+      "properties": {
+        "mode": { "description": "`circuit`: a loop, driven flying (the car crosses the line at the speed it left it). `run`: driven from a standstill every time (a drag strip, a sprint, a climb).", "enum": ["circuit", "run"] },
+        "return_ms": { "description": "What the way back to the start adds to every lap of a run, whatever the car, in ms. A circuit has none.", "type": "integer", "minimum": 0, "maximum": 600000 },
+        "sections": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 60,
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": { "enum": ["straight", "corner"] },
+              "length_m": { "description": "The length of a straight, in metres.", "type": "number", "minimum": 5, "maximum": 5000 },
+              "radius_m": { "description": "The radius of a corner, in metres.", "type": "number", "minimum": 8, "maximum": 1000 },
+              "angle_deg": { "description": "How far a corner turns the car, in degrees.", "type": "number", "minimum": 5, "maximum": 360 },
+              "turn": { "description": "Which way a corner turns. It only draws the line: the lap does not depend on it.", "enum": ["left", "right"] },
+              "surface": { "description": "What the section is made of when the track is made of something else.", "enum": ["asphalt", "gravel"] },
+              "limit_kmh": { "description": "A speed limit of the section, in km/h (a street, a pit lane, a road back).", "type": "number", "minimum": 20, "maximum": 400 },
+              "rough": { "description": "How rough the section is, as the clearance that a car needs to go over it without slowing down (the scale of the statistic clearance).", "type": "number", "minimum": 0, "maximum": 100 }
+            },
+            "required": ["type"],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": ["mode", "sections"],
+      "additionalProperties": false
+    },
     "distance_unit": {
       "description": "A unit of distance: its name and its short form in the languages, how many metres it is, and how many decimals it is shown with.",
       "type": "object",

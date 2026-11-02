@@ -34,7 +34,7 @@ final class RunFreezer
         $lapXp = [];
 
         // The dry lap decides the place among the bots and the experience of a lap, so that the weather, which slows every car, changes neither.
-        $dryMs = $this->lapMs($inputs, $inputs->effectFor('dry'));
+        $dryMs = $this->lapMs($inputs, 'dry');
         $xpPerLap = $this->xpPerLap($inputs, $dryMs);
         $field = $inputs->field?->place($dryMs);
         $rewardPerLap = Ppm::mul($inputs->track->rewardCentsPerLap, $field['reward_ppm'] ?? Ppm::ONE);
@@ -42,7 +42,7 @@ final class RunFreezer
         foreach (array_keys($inputs->weatherChancesPpm) as $weather) {
             $effect = $inputs->effectFor($weather);
 
-            $lapMs[$weather] = $this->lapMs($inputs, $effect);
+            $lapMs[$weather] = $this->lapMs($inputs, $weather);
             $lapCash[$weather] = Ppm::mul($rewardPerLap, $effect->rewardPpm);
             $lapXp[$weather] = Ppm::mul($xpPerLap, $effect->xpPpm);
         }
@@ -71,9 +71,17 @@ final class RunFreezer
         return (int) round($inputs->track->xpPerLap * min($dryMs, $inputs->track->baseLapMs) / $inputs->track->baseLapMs);
     }
 
-    /** Lap time in whole milliseconds: base time divided by perf to the power 1.15. */
-    private function lapMs(RunInputs $inputs, WeatherEffect $effect): int
+    /**
+     * Lap time in whole milliseconds. On a track that is driven on its thread, the base time times how long the car takes on the thread over how long the reference
+     * car does (`ThreadLap`); on any other, the base time divided by perf to the power 1.15.
+     */
+    private function lapMs(RunInputs $inputs, string $weather): int
     {
+        if ($inputs->thread !== null) {
+            return $inputs->thread->lapMs($weather, $inputs->track->baseLapMs);
+        }
+
+        $effect = $inputs->effectFor($weather);
         $perf = 0.0;
 
         foreach ($inputs->track->weights as $stat => $weight) {

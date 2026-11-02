@@ -442,6 +442,7 @@ final class PackValidator
         }
 
         $this->checkTrackNumbers($rules, $result);
+        $this->checkThreads($rules, $result);
 
         foreach ($rules['regions'] ?? [] as $slug => $region) {
             $chances = $region['weather_ppm'] ?? [];
@@ -716,6 +717,42 @@ final class PackValidator
     {
         if ($source->has('rules/economy')) {
             $this->checkPlayerCurve($source->document('rules/economy')['model']['xp'] ?? null, 'rules/economy.json', '/model/xp', 'early', $result);
+        }
+    }
+
+    /**
+     * What the threads of the tracks and the dynamics of the rules come to together, which the schema cannot say (`ThreadDocument::problems`): the sections add up to the
+     * length of the track, a lap that is driven on the thread has a reference car that can be driven, and the handling is not less of a corner in a hairpin than in a
+     * wide bend.
+     *
+     * @param  array<string, mixed>  $rules
+     */
+    private function checkThreads(array $rules, PackValidationResult $result): void
+    {
+        $file = 'rules/starter.json';
+
+        foreach ($rules['tracks'] ?? [] as $slug => $track) {
+            if (! is_array($track)) {
+                continue;
+            }
+
+            try {
+                $problems = ThreadDocument::problems($track);
+            } catch (InvalidArgumentException $problem) {
+                $problems = [['pointer' => '/thread', 'message' => 'The thread cannot be driven: '.$problem->getMessage(), 'error' => true]];
+            }
+
+            foreach ($problems as $problem) {
+                $problem['error']
+                    ? $result->addError($file, "/tracks/{$slug}{$problem['pointer']}", $problem['message'])
+                    : $result->addWarning($file, "/tracks/{$slug}{$problem['pointer']}", $problem['message']);
+            }
+        }
+
+        $agility = $rules['dynamics']['agility'] ?? null;
+
+        if (is_array($agility) && ($agility['min_ppm'] ?? 0) > ($agility['max_ppm'] ?? 0)) {
+            $result->addError($file, '/dynamics/agility', 'The share of handling in a wide bend is more than in a hairpin; it is the other way round.');
         }
     }
 

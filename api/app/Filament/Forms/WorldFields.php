@@ -15,6 +15,7 @@ use App\Filament\Resources\Definitions\Forms\DefinitionFields;
 use App\Filament\Support\FieldHelp;
 use App\Services\ContentDrafts;
 use Filament\Actions\Action;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -147,6 +148,8 @@ final class WorldFields
                         Select::make('kind')->helpKey('world.kind')->options(FieldHelp::options('world.kind', ['sprint', 'standard', 'endurance']))->placeholder(__('admin.world.kinds.standard')),
                     ]),
                     DefinitionFields::texts('name', __('admin.definitions.name'), 'world.track_name'),
+                    Hidden::make('lap_from'),
+                    Hidden::make('thread'),
                     Grid::make(3)->schema([
                         Select::make('reference_tires')->helpKey('world.reference_tires')->options(fn (): array => ContentOptions::parts(app(ContentDrafts::class)->workingModel()->slotOf('tires') ?? 'tires'))->placeholder('-'),
                         TextInput::make('min_player_level')->helpKey('world.min_player_level')->numeric()->integer()->minValue(1)->required(),
