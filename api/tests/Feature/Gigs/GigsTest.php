@@ -34,7 +34,7 @@ function gigRules(callable $change): void
 }
 
 /** A board with one kind of offer in every phase: a ride of 10 km for one person at the plain pay. @return array<string, mixed> */
-function oneTemplate(array $template = [], array $more = []): array
+function gigsOneTemplate(array $template = [], array $more = []): array
 {
     return [
         'kind' => 'taxi', 'title' => ['en' => 'Ride', 'pl' => 'Kurs'], 'capacity' => 'seats', 'amount' => ['min' => 1, 'max' => 1], 'mode' => 'local',
@@ -45,10 +45,10 @@ function oneTemplate(array $template = [], array $more = []): array
 }
 
 /** The board of the repository with the templates replaced by one. */
-function boardOf(array $template = [], array $change = []): void
+function gigsBoardOf(array $template = [], array $change = []): void
 {
     gigRules(function (array $data) use ($template, $change): array {
-        $data['templates'] = ['ride' => oneTemplate($template)];
+        $data['templates'] = ['ride' => gigsOneTemplate($template)];
 
         return [...$data, ...$change];
     });
@@ -82,13 +82,13 @@ function takeGig(User $driver, string $offer): TestResponse
     return test()->postJson('/api/v1/gigs', ['offer' => $offer], bearerFor($driver));
 }
 
-function driverCash(User $driver): int
+function gigsDriverCash(User $driver): int
 {
     return (int) Wallet::query()->find($driver->id)?->cash_cents;
 }
 
 /** The key of the first offer of the board that nothing stands in the way of. */
-function firstOffer(User $driver): string
+function gigsFirstOffer(User $driver): string
 {
     $offers = collect(gigBoard($driver)->json('data.offers'))->where('eligible', true);
 
@@ -142,7 +142,7 @@ describe('the board', function () {
 
     it('shows why a car cannot take an offer: too few seats, too little room, a class, a deadline it would miss', function (array $template, string $code, ?string $what, ?array $details) {
         [$driver] = gigDriver();
-        boardOf($template);
+        gigsBoardOf($template);
 
         $blocked = gigBoard($driver)->json('data.offers.0.blocked');
 
@@ -164,7 +164,7 @@ describe('the board', function () {
 
     it('pays by the rung of the ladder of the car, a part of it by the level of the driver, for the reference time of the trip', function () {
         [$driver] = gigDriver();
-        boardOf();
+        gigsBoardOf();
 
         $offer = gigBoard($driver)->json('data.offers.0');
 
@@ -176,7 +176,7 @@ describe('the board', function () {
 
     it('adds the bonus of the VIP account to the pay', function () {
         [$driver] = gigDriver();
-        boardOf();
+        gigsBoardOf();
         $base = gigBoard($driver)->json('data.offers.0.reward_cents');
 
         Wallet::query()->where('user_id', $driver->id)->update(['vip_until' => Carbon::now()->addDay()]);
@@ -189,8 +189,8 @@ describe('the board', function () {
 describe('taking a gig', function () {
     it('sends the car out: it stands, its fuel for the trip is out of the tank, and every number is frozen', function () {
         [$driver, $race] = gigDriver();
-        boardOf();
-        $offer = firstOffer($driver);
+        gigsBoardOf();
+        $offer = gigsFirstOffer($driver);
 
         $response = takeGig($driver, $offer)->assertCreated();
         $gig = Gig::query()->firstOrFail();
@@ -207,8 +207,8 @@ describe('taking a gig', function () {
 
     it('does nothing the second time it is asked for the same offer', function () {
         [$driver, $race] = gigDriver();
-        boardOf();
-        $offer = firstOffer($driver);
+        gigsBoardOf();
+        $offer = gigsFirstOffer($driver);
 
         takeGig($driver, $offer)->assertCreated();
         $fuel = $race->fresh()->fuel_ml;
@@ -219,14 +219,14 @@ describe('taking a gig', function () {
 
     it('refuses a key that is not on the board of the driver', function () {
         [$driver] = gigDriver();
-        boardOf();
+        gigsBoardOf();
 
         takeGig($driver, 'zlomowo.1327920.0.00000000')->assertStatus(422)->assertJsonPath('code', 'gig_gone');
     });
 
     it('refuses a car that is out already, and keeps the workshop and the roads from a car that is out', function () {
         [$driver] = gigDriver();
-        boardOf();
+        gigsBoardOf();
         $offers = collect(gigBoard($driver)->json('data.offers'))->pluck('key');
 
         takeGig($driver, $offers[0])->assertCreated();
@@ -236,7 +236,7 @@ describe('taking a gig', function () {
 
     it('refuses a gig when the tank does not hold the fuel of the trip', function () {
         [$driver, $race] = gigDriver();
-        boardOf();
+        gigsBoardOf();
         $race->forceFill(['fuel_ml' => 100])->save();
 
         expect(gigBoard($driver)->json('data.offers.0.blocked.code'))->toBe('gig_no_fuel');
@@ -245,8 +245,8 @@ describe('taking a gig', function () {
 
     it('can be taken back in the first seconds: the fuel returns, nothing is paid, and the offer is spent', function () {
         [$driver, $race] = gigDriver();
-        boardOf();
-        $offer = firstOffer($driver);
+        gigsBoardOf();
+        $offer = gigsFirstOffer($driver);
         takeGig($driver, $offer)->assertCreated();
         $id = Gig::query()->firstOrFail()->id;
 
@@ -265,8 +265,8 @@ describe('taking a gig', function () {
 
     it('cannot be taken back after the first seconds', function () {
         [$driver] = gigDriver();
-        boardOf();
-        takeGig($driver, firstOffer($driver))->assertCreated();
+        gigsBoardOf();
+        takeGig($driver, gigsFirstOffer($driver))->assertCreated();
         $id = Gig::query()->firstOrFail()->id;
 
         Carbon::setTestNow(Carbon::now()->addSeconds(61));
@@ -276,8 +276,8 @@ describe('taking a gig', function () {
 
     it('stops at the limit of a day, and says when the day turns over', function () {
         [$driver] = gigDriver();
-        boardOf(change: ['bands' => [['from_level' => 1, 'ratio_ppm' => 620_000, 'max_ref_minutes' => 120, 'daily_limit' => 1]]]);
-        takeGig($driver, firstOffer($driver))->assertCreated();
+        gigsBoardOf(change: ['bands' => [['from_level' => 1, 'ratio_ppm' => 620_000, 'max_ref_minutes' => 120, 'daily_limit' => 1]]]);
+        takeGig($driver, gigsFirstOffer($driver))->assertCreated();
 
         Carbon::setTestNow(Carbon::createFromTimestampMs(RUN_T0 + 600_000));
         $board = gigBoard($driver)->assertOk();
@@ -291,16 +291,16 @@ describe('taking a gig', function () {
 describe('a gig on the road', function () {
     it('pays once when the car is back, gives the experience, and puts the car on its track from that moment', function () {
         [$driver, $race] = gigDriver();
-        boardOf();
+        gigsBoardOf();
         $xp = (new Ledger)->xp($driver->id);
-        $cash = driverCash($driver);
-        takeGig($driver, firstOffer($driver))->assertCreated();
+        $cash = gigsDriverCash($driver);
+        takeGig($driver, gigsFirstOffer($driver))->assertCreated();
         $gig = Gig::query()->firstOrFail();
 
         // Before it is back it has paid nothing and the car stands.
         Carbon::setTestNow(Carbon::createFromTimestampMs($gig->finish_ms - 1));
         gigBoard($driver)->assertOk()->assertJsonPath('data.active.status', 'active');
-        expect(driverCash($driver))->toBe($cash)->and($race->fresh()->stop_reason)->toBe(RaceRun::STOP_GIG);
+        expect(gigsDriverCash($driver))->toBe($cash)->and($race->fresh()->stop_reason)->toBe(RaceRun::STOP_GIG);
 
         Carbon::setTestNow(Carbon::createFromTimestampMs($gig->finish_ms));
         gigBoard($driver)->assertOk();
@@ -308,7 +308,7 @@ describe('a gig on the road', function () {
         test()->getJson('/api/v1/cars', bearerFor($driver))->assertOk();
 
         $run = $race->fresh();
-        expect(driverCash($driver))->toBe($cash + $gig->reward_cents)
+        expect(gigsDriverCash($driver))->toBe($cash + $gig->reward_cents)
             ->and((new Ledger)->xp($driver->id))->toBe($xp + $gig->xp)
             ->and($gig->fresh()->status)->toBe(Gig::STATUS_DONE)
             ->and(LedgerEntry::query()->where('reason', 'gig')->where('idem_key', "gig:{$gig->id}")->count())->toBe(1)
@@ -320,8 +320,8 @@ describe('a gig on the road', function () {
 
     it('is finished by whoever asks first after its time, also when the driver was away for hours, and the laps count from the moment it was back', function () {
         [$driver, $race] = gigDriver();
-        boardOf();
-        takeGig($driver, firstOffer($driver))->assertCreated();
+        gigsBoardOf();
+        takeGig($driver, gigsFirstOffer($driver))->assertCreated();
         $gig = Gig::query()->firstOrFail();
 
         Carbon::setTestNow(Carbon::createFromTimestampMs(RUN_T0 + 3 * 3_600_000));
@@ -339,12 +339,12 @@ describe('a gig on the road', function () {
 
     it('burns the fuel of the trip when the car leaves, and puts the kilometres of the trip on its odometer and on its parts when it is back, like a journey', function () {
         [$driver, $race] = gigDriver();
-        boardOf();
+        gigsBoardOf();
         $race->forceFill(['config' => [...$race->config, 'wear' => ['length_m' => 2_600, 'ppb_per_lap' => ['tires' => 1_000], 'ppb_per_km' => ['tires' => 25_000]]]])->save();
         $part = Part::factory()->create(['user_id' => $driver->id, 'car_id' => $race->car_id, 'slot' => 'tires', 'mounted_slot' => 'tires', 'wear_ppb' => 0]);
         $mileage = Car::query()->find($race->car_id)->mileage_m;
 
-        takeGig($driver, firstOffer($driver))->assertCreated();
+        takeGig($driver, gigsFirstOffer($driver))->assertCreated();
         $gig = Gig::query()->firstOrFail();
 
         // The fuel is out of the tank at once, the kilometres are not on the car yet.
@@ -361,8 +361,8 @@ describe('a gig on the road', function () {
 
     it('is told in the summary of the break, apart from what the laps earned, with the pay and where the car went', function () {
         [$driver] = gigDriver();
-        boardOf();
-        takeGig($driver, firstOffer($driver))->assertCreated();
+        gigsBoardOf();
+        takeGig($driver, gigsFirstOffer($driver))->assertCreated();
         $gig = Gig::query()->firstOrFail();
 
         Carbon::setTestNow(Carbon::createFromTimestampMs($gig->finish_ms + 60_000));
@@ -378,8 +378,8 @@ describe('a gig on the road', function () {
 
     it('keeps the workshop from a car that is out', function () {
         [$driver] = gigDriver();
-        boardOf();
-        takeGig($driver, firstOffer($driver))->assertCreated();
+        gigsBoardOf();
+        takeGig($driver, gigsFirstOffer($driver))->assertCreated();
 
         test()->postJson('/api/v1/garage/jobs', ['kind' => 'mount', 'part' => 1], bearerFor($driver))->assertStatus(422)->assertJsonPath('code', 'car_on_gig');
     });
@@ -410,7 +410,7 @@ describe('the gigs as content', function () {
 describe('the alpha numbers', function () {
     it('say how many gigs were taken a day, by how many drivers, and what the paid ones paid, without the ones that were taken back', function () {
         [$driver] = gigDriver();
-        boardOf();
+        gigsBoardOf();
         $offers = collect(gigBoard($driver)->json('data.offers'))->pluck('key');
         takeGig($driver, $offers[0])->assertCreated();
         $gig = Gig::query()->firstOrFail();
