@@ -25,7 +25,7 @@ final readonly class ThreadLap
      * @param  array<string, array<string, CarOnSurface>>  $carsByWeather  the car for every surface of the thread (`Thread::surfaces`), by weather; it has the dry weather
      * @param  array<string, CarOnSurface>  $reference  the reference car for every surface of the thread
      */
-    public function __construct(public Thread $thread, public Dynamics $dynamics, public array $carsByWeather, array $reference)
+    public function __construct(public Thread $thread, public Dynamics $dynamics, public array $carsByWeather, public array $reference)
     {
         $this->simulator = new LapSimulator($dynamics);
         $this->referenceSeconds = $this->simulator->simulate($thread, $reference)->seconds();
