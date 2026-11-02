@@ -3,10 +3,13 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 
+import { api } from '@/api/client'
+import type { RunProfile } from '@/api/types'
 import FuelGauge from '@/components/FuelGauge.vue'
 import GameShell from '@/components/GameShell.vue'
 import LapRing from '@/components/LapRing.vue'
 import RunAlerts from '@/components/RunAlerts.vue'
+import TrackMap from '@/components/TrackMap.vue'
 import TrackPicker from '@/components/TrackPicker.vue'
 import { gameTime, untilNight } from '@/features/clock/gameClock'
 import { baseLapMs, baseRewardCents } from '@/features/run/laps'
@@ -172,6 +175,53 @@ const weatherChanges = computed(() => run.run !== null && run.run.weather.next !
 /** The lap is slower or faster than in the dry, which the driver should know when the weather turns. */
 const weatherMatters = computed(() => run.run !== null && lapMs.value !== dryLapMs.value)
 
+/**
+ * The line of the thread of the track with the speed of the car along it, when the track has a thread; null when it has none, or the server does not say. It is asked for
+ * again when the track, the car, the weather or the lap of the car change (a part put on changes the lap), and never while the car drives: the car on it moves as a function of
+ * the clock (`TrackMap`).
+ */
+const profile = ref<RunProfile | null>(null)
+let profileFor = ''
+
+async function loadProfile(): Promise<void> {
+  if (!run.run) {
+    return
+  }
+
+  const key = `${run.run.track.slug}|${run.run.car.slug}|${weather.value}|${lapMs.value}`
+
+  if (key === profileFor) {
+    return
+  }
+
+  profileFor = key
+
+  try {
+    profile.value = (await api<{ data: RunProfile | null }>(`/v1/runs/current/profile?weather=${encodeURIComponent(weather.value)}`)).data
+  } catch {
+    // The picture is an extra: a screen without it is the screen as it was.
+    profile.value = null
+  }
+}
+
+watch(
+  () => [run.run?.track.slug, run.run?.car.slug, weather.value, lapMs.value] as const,
+  () => void loadProfile(),
+  { immediate: true },
+)
+
+/** How far through the lap in progress the car is, asked for at every frame by the picture. */
+function playerFraction(): number {
+  return lap.value ? lapProgress(lap.value, run.serverNow()).fraction : 0
+}
+
+/** The bots drive their laps of the dry on the clock of the server, counted from the same moment for every driver, so they are in the same places for everyone. */
+const rivals = computed(() =>
+  (field.value?.rows ?? [])
+    .filter((row) => row.type === 'bot' && row.name !== null)
+    .map((row) => ({ name: row.name as string, fraction: () => (run.serverNow() % row.lap_ms) / row.lap_ms })),
+)
+
 /** The middle of the ring: the time to the end of the lap, or the wait of the tow, or nothing for a car that stands. */
 const ring = computed(() => {
   if (towing.value && run.run) {
@@ -248,6 +298,11 @@ const ring = computed(() => {
         <p v-if="night" class="card card-hi !px-3 !py-1.5 text-xs" data-test="night-note">
           {{ night.soonMs === null ? t('race.forecast.nightNow', { percent: nightPercent }) : t('race.forecast.nightSoon', { time: formatDuration(night.soonMs), percent: nightPercent }) }}
         </p>
+
+        <div v-if="profile" class="card flex flex-col gap-1.5 !p-3.5" data-test="track-card">
+          <p class="kick !mb-0">{{ t('race.track.title') }}</p>
+          <TrackMap :profile="profile" :player="playerFraction" :rivals="rivals" />
+        </div>
 
         <div class="card grid grid-cols-[112px_1fr] items-center gap-3.5 !p-3.5" data-tutorial="laps" data-test="lap">
           <LapRing :fraction="ring.fraction" :value="ring.value" :caption="ring.caption" :label="ring.label" />

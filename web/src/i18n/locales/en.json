@@ -925,6 +925,14 @@
     "done": "From now on the car drives {name}."
   },
   "race": {
+    "track": {
+      "label": "The line of the track with the car on it",
+      "straight": "Straight, {length} m",
+      "corner": "Corner R{radius}, {angle}°",
+      "returning": "Back to the start",
+      "speed": "{speed} km/h",
+      "title": "The track"
+    },
     "live": "LIVE",
     "lapNow": "Lap {lap}",
     "lapsDone": "Done: {laps}",

@@ -6,6 +6,7 @@ import { storeToken } from '@/auth/token'
 import { setLocale } from '@/i18n'
 import { respond, serveApi } from '@/test/fetchServer'
 import { mountView } from '@/test/mountView'
+import { aProfile } from '@/test/profileFixtures'
 import { liveFields } from '@/test/runFixtures'
 
 import RaceView from './RaceView.vue'
@@ -51,16 +52,17 @@ const fetchMock = vi.fn()
 const mounted: { unmount: () => void }[] = []
 
 /** The server answers with its clock at the moment of the answer, as the real one does, so the countdowns keep time over a poll. */
-function serve(run: () => Response) {
+function serve(run: () => Response, extra: Record<string, () => Response> = {}) {
   return serveApi(fetchMock, {
+    ...extra,
     'GET /api/v1/me': () => respond(200, { data: profile }),
     'GET /api/v1/runs/current': run,
     'GET /api/v1/garage': () => respond(404, { message: 'none' }),
   })
 }
 
-async function show(run: Run = aRun()) {
-  const calls = serve(() => respond(200, runAnswer({ ...run, server_time_ms: Date.now() })))
+async function show(run: Run = aRun(), extra: Record<string, () => Response> = {}) {
+  const calls = serve(() => respond(200, runAnswer({ ...run, server_time_ms: Date.now() })), extra)
   const view = await mountView(RaceView, '/race')
   mounted.push(view.wrapper)
   await flushPromises()
@@ -361,7 +363,7 @@ describe('RaceView', () => {
     // The regular poll is not asked: this is about the one that comes with the end of the lap.
     Object.defineProperty(document, 'hidden', { configurable: true, get: () => true })
     const { calls } = await show()
-    const asked = () => calls.filter((call) => call.url.startsWith('/api/v1/runs/current')).length
+    const asked = () => calls.filter((call) => call.url.startsWith('/api/v1/runs/current') && !call.url.includes('/profile')).length
     expect(asked()).toBe(1)
 
     // The lap of 75 s began 10 s ago.
@@ -370,6 +372,32 @@ describe('RaceView', () => {
 
     await vi.advanceTimersByTimeAsync(2_000)
     expect(asked()).toBe(2)
+  })
+
+  it('draws the line of the track with the car on it when the server has a thread for the track, for the weather of the lap', async () => {
+    const { wrapper, calls } = await show(aRun(), { 'GET /api/v1/runs/current/profile': () => respond(200, { data: aProfile() }) })
+
+    expect(wrapper.get('[data-test="track-card"]').exists()).toBe(true)
+    expect(wrapper.get('[data-test="track-map"]').exists()).toBe(true)
+    expect(wrapper.findAll('[data-test="track-rival"]').length).toBe(0)
+    expect(calls.filter((call) => call.url.includes('/profile')).map((call) => call.url)).toEqual(['/api/v1/runs/current/profile?weather=dry'])
+  })
+
+  it('puts the bots of the field on the line as well', async () => {
+    const { wrapper } = await show(aRun({ field: aField(3, 1_100_000) }), { 'GET /api/v1/runs/current/profile': () => respond(200, { data: aProfile() }) })
+
+    expect(wrapper.findAll('[data-test="track-rival"]')).toHaveLength(7)
+  })
+
+  it('has no picture for a track that has no thread, or when the server cannot say', async () => {
+    const without = await show(aRun(), { 'GET /api/v1/runs/current/profile': () => respond(200, { data: null }) })
+
+    expect(without.wrapper.find('[data-test="track-card"]').exists()).toBe(false)
+    expect(without.wrapper.get('[data-test="lap"]').exists()).toBe(true)
+
+    const failing = await show(aRun(), { 'GET /api/v1/runs/current/profile': () => respond(500, { message: 'broken' }) })
+
+    expect(failing.wrapper.find('[data-test="track-card"]').exists()).toBe(false)
   })
 
   it('has the entry of the race in the navigation, marked', async () => {

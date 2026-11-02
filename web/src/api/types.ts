@@ -109,6 +109,35 @@ export interface Run {
   server_time_ms: number
 }
 
+/** A section of the thread of a track: a straight, or a corner with a radius and an angle. Distances are along the lap, in metres. */
+export interface ProfileSection {
+  type: 'straight' | 'corner'
+  from_m: number
+  to_m: number
+  radius_m?: number
+  angle_deg?: number
+  turn?: 'left' | 'right'
+}
+
+/**
+ * The picture of the lap of the run (GET /api/v1/runs/current/profile): the line of the thread of the track, and for every point of it how far along the lap it is,
+ * how fast the car goes there and how far through the lap time it is (0 to 1, spread over the lap the run was frozen with). A run drives `drive_fraction` of the lap and
+ * waits at the finish for the rest. `data` of the answer is null for a track that has no thread.
+ */
+export interface RunProfile {
+  track: string
+  mode: 'circuit' | 'run'
+  length_m: number
+  weather: string
+  lap_s: number
+  drive_fraction: number
+  sections: ProfileSection[]
+  points: [number, number][]
+  distance_m: number[]
+  speed_kmh: number[]
+  time: number[]
+}
+
 /** The journey of a car between two cities, with the names in the language of the driver. */
 export interface RunTravel {
   from: string

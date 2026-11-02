@@ -925,6 +925,14 @@
     "done": "Od teraz auto jeździ po: {name}."
   },
   "race": {
+    "track": {
+      "label": "Linia toru z autem na niej",
+      "straight": "Prosta, {length} m",
+      "corner": "Zakręt R{radius}, {angle}°",
+      "returning": "Powrót na start",
+      "speed": "{speed} km/h",
+      "title": "Tor"
+    },
     "live": "NA ŻYWO",
     "lapNow": "Okrążenie {lap}",
     "lapsDone": "Ukończone: {laps}",

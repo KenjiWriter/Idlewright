@@ -925,6 +925,14 @@
     "done": "À partir de maintenant, la voiture roule sur {name}."
   },
   "race": {
+    "track": {
+      "label": "La ligne du circuit avec la voiture dessus",
+      "straight": "Ligne droite, {length} m",
+      "corner": "Virage R{radius}, {angle}°",
+      "returning": "Retour au départ",
+      "speed": "{speed} km/h",
+      "title": "Le circuit"
+    },
     "live": "EN DIRECT",
     "lapNow": "Tour {lap}",
     "lapsDone": "Terminés : {laps}",

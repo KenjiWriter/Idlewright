@@ -925,6 +925,14 @@
     "done": "Ab jetzt fährt das Auto auf {name}."
   },
   "race": {
+    "track": {
+      "label": "Die Linie der Strecke mit dem Auto darauf",
+      "straight": "Gerade, {length} m",
+      "corner": "Kurve R{radius}, {angle}°",
+      "returning": "Zurück zum Start",
+      "speed": "{speed} km/h",
+      "title": "Die Strecke"
+    },
     "live": "LIVE",
     "lapNow": "Runde {lap}",
     "lapsDone": "Gefahren: {laps}",
