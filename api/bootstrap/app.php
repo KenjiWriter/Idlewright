@@ -1,5 +1,6 @@
 <?php
 
+use App\Exceptions\AccountRefusedException;
 use App\Exceptions\IdempotencyConflictException;
 use App\Exceptions\IdentityTakenException;
 use App\Exceptions\InsufficientFundsException;
@@ -49,6 +50,13 @@ return Application::configure(basePath: dirname(__DIR__))
             'message' => __('account.identity.provider_linked'),
             'code' => 'provider_already_linked',
         ], 409));
+
+        // A change of the sign-ins or of the consent of an account that is refused: a stable `code` and what the client needs next to it.
+        $exceptions->render(fn (AccountRefusedException $e) => response()->json([
+            'message' => __("account.refused.{$e->reason}", $e->replace),
+            'code' => $e->reason,
+            ...$e->details,
+        ], $e->status));
 
         // A request id used again for something else is a mistake of the client, not a retry (a retry repeats the same thing).
         $exceptions->render(fn (IdempotencyConflictException $e) => response()->json([

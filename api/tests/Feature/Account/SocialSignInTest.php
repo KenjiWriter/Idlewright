@@ -70,7 +70,7 @@ describe('starting to link a provider', function () {
 
     it('does not ask an account that has accepted the terms and confirmed its age for them again', function () {
         Carbon::setTestNow('2026-10-23 12:00:00');
-        $driver = User::factory()->create(['claimed_at' => now(), 'terms_accepted_at' => now()->subWeek(), 'age_confirmed_at' => now()->subWeek()]);
+        $driver = User::factory()->create(['claimed_at' => now(), 'terms_accepted_at' => now()->subWeek(), 'age_confirmed_at' => now()->subWeek(), 'terms_version' => config('ride.legal.version')]);
         identityOf($driver, 'email', 'turbo@example.com');
 
         $response = test()->postJson('/api/v1/account/identities/google/start', [], bearerFor($driver))->assertOk();
@@ -81,7 +81,7 @@ describe('starting to link a provider', function () {
     });
 
     it('asks an account for them when they are not both on record', function () {
-        $driver = User::factory()->create(['claimed_at' => now(), 'terms_accepted_at' => now(), 'age_confirmed_at' => null]);
+        $driver = User::factory()->create(['claimed_at' => now(), 'terms_accepted_at' => now(), 'age_confirmed_at' => null, 'terms_version' => config('ride.legal.version')]);
 
         test()->postJson('/api/v1/account/identities/google/start', [], bearerFor($driver))
             ->assertUnprocessable()->assertJsonValidationErrors(['confirm_age']);

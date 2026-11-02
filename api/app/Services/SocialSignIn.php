@@ -29,6 +29,9 @@ final class SocialSignIn
 
     public const LOGIN = 'login';
 
+    /** Signing in again with a provider the account has, to prove who the driver is (see Reauth). */
+    public const REAUTH = 'reauth';
+
     /** How long the person has to come back from the provider. */
     private const STATE_TTL = 600;
 

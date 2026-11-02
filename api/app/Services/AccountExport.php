@@ -51,6 +51,8 @@ final class AccountExport
                 'email' => $identity->email,
                 'linked_at' => $this->day($identity->created_at),
             ])->all(),
+            // When the driver accepted the terms and the privacy policy, and which version of the texts they were shown.
+            'consents' => app(Consent::class)->history($user),
             'devices' => $user->tokens()->orderBy('id')->get()->map(fn (PersonalAccessToken $token): array => [
                 'name' => $token->name,
                 'created_at' => $this->day($token->created_at),
@@ -84,6 +86,7 @@ final class AccountExport
             'terms_accepted_at' => $this->day($user->terms_accepted_at),
             'terms_version' => $user->terms_version,
             'age_confirmed_at' => $this->day($user->age_confirmed_at),
+            'email_changed_at' => $this->day($user->email_changed_at),
             'has_recovery_code' => $user->hasRecoveryCode(),
             'recovery_code_set_at' => $this->day($user->recovery_code_set_at),
         ];

@@ -2,8 +2,11 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\Api\V1\AccountConsentController;
 use App\Http\Controllers\Api\V1\AccountDataController;
 use App\Http\Controllers\Api\V1\AccountEmailController;
+use App\Http\Controllers\Api\V1\AccountIdentityController;
+use App\Http\Controllers\Api\V1\AccountReauthController;
 use App\Http\Controllers\Api\V1\AccountRecoveryController;
 use App\Http\Controllers\Api\V1\AuthProviderController;
 use App\Http\Controllers\Api\V1\AwayController;
@@ -28,6 +31,7 @@ use App\Http\Controllers\Api\V1\TutorialController;
 use App\Http\Controllers\Api\V1\VocabularyController;
 use App\Http\Controllers\Api\V1\WorldController;
 use App\Http\Middleware\ApplyVocabulary;
+use App\Http\Middleware\EnsureConsent;
 use App\Http\Middleware\TouchLastSeen;
 use App\Models\AccountIdentity;
 use App\Services\ContentImages;
@@ -66,7 +70,11 @@ Route::prefix('v1')->group(function (): void {
     // Use the link of an e-mail: it secures an account or signs a driver in. The secret in it cannot be guessed.
     Route::post('/account/email/confirm', [AccountEmailController::class, 'confirm'])->middleware('throttle:account-confirm');
 
-    Route::middleware(['auth:sanctum', TouchLastSeen::class, ApplyVocabulary::class])->group(function (): void {
+    // "This was not me", from the notice sent to the old address when the e-mail of an account is changed: it works with the link alone.
+    Route::post('/account/email/revoke', [AccountEmailController::class, 'revoke'])->middleware('throttle:account-confirm');
+
+    // A driver who has to accept the terms again can do only what EnsureConsent leaves open.
+    Route::middleware(['auth:sanctum', TouchLastSeen::class, ApplyVocabulary::class, EnsureConsent::class])->group(function (): void {
         Route::get('/me', [MeController::class, 'show']);
         Route::patch('/me/locale', [MeController::class, 'updateLocale']);
         // A copy of the data of the account, and, in the same place, having the account deleted.
@@ -74,7 +82,17 @@ Route::prefix('v1')->group(function (): void {
         Route::delete('/account', [AccountDataController::class, 'destroy'])->middleware('throttle:account-erase');
         Route::post('/account/recovery-code', [AccountRecoveryController::class, 'issue'])->middleware('throttle:recovery-issue');
         Route::post('/account/email', [AccountEmailController::class, 'store'])->middleware('throttle:account-email');
+        Route::post('/account/email/change', [AccountEmailController::class, 'change'])->middleware('throttle:account-email-change');
         Route::post('/account/identities/{provider}/start', [SocialAuthController::class, 'startLink'])->whereIn('provider', AccountIdentity::SOCIAL)->middleware('throttle:account-oauth-start');
+        Route::delete('/account/identities/{provider}', [AccountIdentityController::class, 'destroy'])->whereIn('provider', AccountIdentity::ALL)->middleware('throttle:account-unlink');
+
+        // A recent proof of who the driver is, which unlinking a sign-in needs: by a link to the e-mail of the account, or by signing in again with a provider.
+        Route::get('/account/reauth', [AccountReauthController::class, 'show']);
+        Route::post('/account/reauth/email', [AccountReauthController::class, 'email'])->middleware('throttle:account-reauth');
+        Route::post('/account/reauth/{provider}/start', [SocialAuthController::class, 'startReauth'])->whereIn('provider', AccountIdentity::SOCIAL)->middleware('throttle:account-oauth-start');
+
+        // Accepting the terms again after they changed.
+        Route::post('/account/consent', [AccountConsentController::class, 'store'])->middleware('throttle:account-consent');
 
         Route::get('/starter-cars', StarterCarController::class);
 

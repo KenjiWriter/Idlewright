@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Games\BelongsToGame;
+use App\Services\Consent;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -43,6 +44,7 @@ class User extends Authenticatable
             'recovery_code_set_at' => 'datetime',
             'terms_accepted_at' => 'datetime',
             'age_confirmed_at' => 'datetime',
+            'email_changed_at' => 'datetime',
         ];
     }
 
@@ -64,6 +66,12 @@ class User extends Authenticatable
         return $this->terms_accepted_at !== null && $this->age_confirmed_at !== null;
     }
 
+    /** Whether the driver accepted the terms once and the texts have changed since, in a way that needs them to accept again. */
+    public function needsConsent(): bool
+    {
+        return $this->terms_accepted_at !== null && Consent::isOutdated($this->terms_version);
+    }
+
     public function hasRecoveryCode(): bool
     {
         return $this->recovery_code_hash !== null;
@@ -73,6 +81,12 @@ class User extends Authenticatable
     public function identities(): HasMany
     {
         return $this->hasMany(AccountIdentity::class);
+    }
+
+    /** @return HasMany<ConsentRecord, $this> when the driver accepted the terms, and which version of them */
+    public function consents(): HasMany
+    {
+        return $this->hasMany(ConsentRecord::class);
     }
 
     /** @return HasOne<Wallet, $this> */

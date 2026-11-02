@@ -41,4 +41,26 @@ return [
         'taken' => 'Ce nom de pilote est déjà pris.',
     ],
 
+    'email_change' => [
+        'sent' => 'Nous avons envoyé un lien à :email. Le changement n’a lieu qu’une fois le lien ouvert (il n’est utilisable qu’une fois et reste valable :minutes minutes). L’ancienne adresse a été prévenue.',
+    ],
+
+    'reauth' => [
+        'sent' => 'Nous avons envoyé un lien à l’adresse e-mail du compte. Il n’est utilisable qu’une fois et reste valable :minutes minutes. Revenez ici après l’avoir ouvert.',
+    ],
+
+    'refused' => [
+        'identity_not_found' => 'Ce garage n’a pas ce moyen de connexion.',
+        'last_method' => 'C’est le dernier moyen de connexion de ce garage, il ne peut donc pas être retiré. Ajoutez-en d’abord un autre.',
+        'reauth_required' => 'Confirmez que c’est vous avant de retirer un moyen de connexion.',
+        'reauth_mismatch' => 'Ce n’est pas le compte du fournisseur lié au garage. Connectez-vous avec le compte lié.',
+        'reauth_no_method' => 'Ce moyen ne peut pas servir à confirmer, car le garage ne l’a pas.',
+        'reauth_unavailable' => 'Votre identité ne peut pas être confirmée depuis cet appareil. Reconnectez-vous.',
+        'no_email' => 'Ce garage ne se connecte pas par e-mail. Ajoutez une adresse e-mail au lieu d’en changer.',
+        'email_same' => 'C’est déjà l’adresse e-mail de ce garage.',
+        'email_change_cooldown' => 'L’adresse e-mail a été changée récemment. Le prochain changement sera possible à partir du :date.',
+        'consent_required' => 'Les conditions d’utilisation ou la politique de confidentialité ont changé. Acceptez la nouvelle version pour continuer à jouer.',
+        'consent_version_changed' => 'Les textes ont changé pendant votre lecture. Lisez la nouvelle version.',
+    ],
+
 ];

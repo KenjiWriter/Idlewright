@@ -11,10 +11,11 @@ use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
 /**
- * The e-mail with the one-time link of the account flows. It comes in four kinds: `claim` confirms the e-mail of
+ * The e-mail with the one-time link of the account flows. It comes in six kinds: `claim` confirms the e-mail of
  * a guest that wants to secure its garage, `add` confirms an e-mail that a secured account wants to add as one more
  * way to sign in, `login` signs a driver in who asked for a link, and `existing` goes to the owner of an e-mail that
- * somebody tried to use for a new garage, with a link to the garage it already has.
+ * somebody tried to use for a new garage, with a link to the garage it already has, `change` confirms the new address of an
+ * account that changes its e-mail, and `reauth` proves who the driver is before a sign-in is unlinked.
  */
 final class AccountLinkMail extends Mailable
 {
@@ -27,6 +28,12 @@ final class AccountLinkMail extends Mailable
     public const LOGIN = 'login';
 
     public const EXISTING = 'existing';
+
+    /** Confirms the new address of an account that changes its e-mail. */
+    public const CHANGE = 'change';
+
+    /** Proves who the driver is, before something that cannot be taken back. */
+    public const REAUTH = 'reauth';
 
     public function __construct(
         public readonly string $kind,

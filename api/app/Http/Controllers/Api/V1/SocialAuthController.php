@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Exceptions\AccountRefusedException;
 use App\Exceptions\ProviderAlreadyLinkedException;
 use App\Games\CurrentGame;
 use App\Http\Controllers\Controller;
@@ -12,9 +13,12 @@ use App\Models\AccountToken;
 use App\Models\User;
 use App\Services\Accounts;
 use App\Services\AccountTokens;
+use App\Services\Consent;
+use App\Services\Reauth;
 use App\Services\SocialProviders;
 use App\Services\SocialSignIn;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -43,6 +47,27 @@ final class SocialAuthController extends Controller
         }
 
         return response()->json($flow->start($provider, SocialSignIn::LINK, $user, Accounts::consentAt($user)));
+    }
+
+    /**
+     * Starts proving who the driver is by signing in again with a provider the account has (see Reauth). The same answer as to link;
+     * what it gives, when the sign-in is finished, is the proof for this device.
+     *
+     * @throws AccountRefusedException `reauth_no_method` (422) when the account does not have this provider
+     */
+    public function startReauth(Request $request, string $provider, SocialProviders $providers, SocialSignIn $flow): JsonResponse
+    {
+        $user = $request->user();
+
+        if (! $providers->isEnabled($provider)) {
+            return $this->unavailable();
+        }
+
+        if (! $user->identities()->where('provider', $provider)->exists()) {
+            throw AccountRefusedException::unprocessable('reauth_no_method');
+        }
+
+        return response()->json($flow->start($provider, SocialSignIn::REAUTH, $user));
     }
 
     /** Starts signing in with a provider on a device that has no account yet. The same answer as to link. */
@@ -74,7 +99,7 @@ final class SocialAuthController extends Controller
      * The ticket works once, and a wrong verifier does not spend it. The same answer is given for a ticket that is
      * unknown, expired, used or bound to another verifier, so nobody can tell which it was.
      */
-    public function complete(Request $request, AccountTokens $tokens, Accounts $accounts): JsonResponse
+    public function complete(Request $request, AccountTokens $tokens, Accounts $accounts, Reauth $reauth): JsonResponse
     {
         $data = $request->validate([
             'ticket' => ['required', 'string', 'max:128'],
@@ -88,20 +113,56 @@ final class SocialAuthController extends Controller
         }
 
         // The route is open, so the driver is read from the device token if there is one.
-        return $result->intent === SocialSignIn::LINK
-            ? $this->link($request->user('sanctum'), $result, $accounts)
-            : $this->signIn($result, $accounts);
+        return match ($result->intent) {
+            SocialSignIn::LINK => $this->link($request->user('sanctum'), $result, $accounts),
+            SocialSignIn::REAUTH => $this->reauth($request->user('sanctum'), $result, $reauth),
+            default => $this->signIn($result, $accounts),
+        };
     }
 
-    private function link(?User $user, AccountToken $result, Accounts $accounts): JsonResponse
+    /**
+     * The driver signed in again with a provider the account has: the proof for this device. It has to be the same account of the
+     * provider that is linked, and not another one of the same provider.
+     */
+    private function reauth(?User $user, AccountToken $result, Reauth $reauth): JsonResponse
+    {
+        $this->guardDriver($user, $result);
+
+        $identity = $user->identities()->where('provider', $result->provider)->first();
+
+        if ($identity === null || $identity->subject !== $result->subject) {
+            throw AccountRefusedException::forbidden('reauth_mismatch');
+        }
+
+        $reauth->grant(Reauth::deviceOf($user) ?? throw AccountRefusedException::forbidden('reauth_unavailable'));
+
+        return response()->json(['purpose' => 'reauth', 'data' => new MeResource($user)]);
+    }
+
+    /**
+     * The browser has to be signed in as the driver the flow was started for. A driver who has to accept the texts again goes
+     * no further here either.
+     *
+     * @phpstan-assert User $user
+     */
+    private function guardDriver(?User $user, AccountToken $result): void
     {
         if ($user === null) {
             throw new AuthenticationException;
         }
 
         if ((int) $user->id !== (int) $result->user_id) {
-            return response()->json(['message' => __('account.oauth.wrong_account'), 'code' => 'wrong_account'], 403);
+            throw new HttpResponseException(response()->json(['message' => __('account.oauth.wrong_account'), 'code' => 'wrong_account'], 403));
         }
+
+        if ($user->needsConsent()) {
+            throw app(Consent::class)->refusal($user);
+        }
+    }
+
+    private function link(?User $user, AccountToken $result, Accounts $accounts): JsonResponse
+    {
+        $this->guardDriver($user, $result);
 
         // Throws when the provider belongs to another account, or this one has another of the kind: answered as 409.
         $accounts->link($user, (string) $result->provider, (string) $result->subject, $result->email, $result->consent_at);

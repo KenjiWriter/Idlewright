@@ -167,7 +167,7 @@ describe('an account that accepted the terms and confirmed its age already', fun
     /** An account secured with Google a while ago, which accepted the terms then. */
     function securedWithGoogle(array $attributes = []): User
     {
-        $user = User::factory()->create(['claimed_at' => now()->subWeek(), 'email' => null, 'terms_accepted_at' => now()->subWeek(), 'age_confirmed_at' => now()->subWeek(), ...$attributes]);
+        $user = User::factory()->create(['claimed_at' => now()->subWeek(), 'email' => null, 'terms_accepted_at' => now()->subWeek(), 'age_confirmed_at' => now()->subWeek(), 'terms_version' => config('ride.legal.version'), ...$attributes]);
         identityOf($user, AccountIdentity::GOOGLE, '1098765');
 
         return $user;

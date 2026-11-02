@@ -9,6 +9,7 @@ use App\Models\AccountToken;
 use App\Models\Car;
 use App\Models\CityGarage;
 use App\Models\CityWorkshop;
+use App\Models\ConsentRecord;
 use App\Models\CrateOpening;
 use App\Models\LedgerEntry;
 use App\Models\MergeAttempt;
@@ -61,6 +62,7 @@ final class AccountErasure
             'accounts' => 1,
             'sign-ins' => AccountIdentity::query()->where('user_id', $user->id)->count(),
             'devices' => PersonalAccessToken::query()->where('tokenable_type', $user->getMorphClass())->where('tokenable_id', $user->id)->count(),
+            'consents' => ConsentRecord::query()->where('user_id', $user->id)->count(),
             'waiting links' => AccountToken::query()->where('user_id', $user->id)->count(),
             'wallets' => Wallet::query()->where('user_id', $user->id)->count(),
             'cars' => Car::query()->withoutGlobalScopes()->where('user_id', $user->id)->count(),
@@ -125,6 +127,7 @@ final class AccountErasure
             Purchase::query()->where('user_id', $user->id)->update(['user_id' => null]);
             Wallet::query()->where('user_id', $user->id)->delete();
             AccountToken::query()->where('user_id', $user->id)->delete();
+            ConsentRecord::query()->where('user_id', $user->id)->delete();
             AccountIdentity::query()->where('user_id', $user->id)->delete();
             $user->tokens()->delete();
 

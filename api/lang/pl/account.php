@@ -41,4 +41,26 @@ return [
         'taken' => 'To imię kierowcy jest już zajęte.',
     ],
 
+    'email_change' => [
+        'sent' => 'Wysłaliśmy link na :email. Zmiana nastąpi dopiero po jego otwarciu (działa jeden raz, przez :minutes minut). Na dotychczasowy adres poszło powiadomienie.',
+    ],
+
+    'reauth' => [
+        'sent' => 'Wysłaliśmy link na adres e-mail konta. Działa jeden raz, przez :minutes minut. Po jego otwarciu wróć tutaj.',
+    ],
+
+    'refused' => [
+        'identity_not_found' => 'Ten garaż nie ma takiego sposobu logowania.',
+        'last_method' => 'To ostatni sposób logowania tego garażu, więc nie można go odpiąć. Najpierw dodaj inny.',
+        'reauth_required' => 'Potwierdź, że to Ty, zanim odepniesz sposób logowania.',
+        'reauth_mismatch' => 'To inne konto u dostawcy niż to, które jest połączone z garażem. Zaloguj się połączonym kontem.',
+        'reauth_no_method' => 'Tego sposobu nie da się użyć do potwierdzenia, bo garaż go nie ma.',
+        'reauth_unavailable' => 'Z tego urządzenia nie da się potwierdzić tożsamości. Zaloguj się ponownie.',
+        'no_email' => 'Ten garaż nie loguje się e-mailem. Dodaj e-mail zamiast go zmieniać.',
+        'email_same' => 'To już jest e-mail tego garażu.',
+        'email_change_cooldown' => 'E-mail zmieniono niedawno. Kolejna zmiana będzie możliwa od :date.',
+        'consent_required' => 'Regulamin lub polityka prywatności się zmieniły. Zaakceptuj nową wersję, żeby grać dalej.',
+        'consent_version_changed' => 'Teksty zmieniły się w trakcie czytania. Przeczytaj nową wersję.',
+    ],
+
 ];

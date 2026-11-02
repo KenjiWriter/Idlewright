@@ -12,6 +12,8 @@ use App\Models\AccountToken;
 use App\Services\AccountLinks;
 use App\Services\Accounts;
 use App\Services\AccountTokens;
+use App\Services\EmailChange;
+use App\Services\Reauth;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -60,6 +62,40 @@ final class AccountEmailController extends Controller
     }
 
     /**
+     * Starts changing the e-mail of an account that signs in with one: a link goes to the new address and nothing changes until it
+     * is used, and the old address is told (see EmailChange). The answer is the same whether the new address is free or has a garage.
+     */
+    public function change(Request $request, EmailChange $change): JsonResponse
+    {
+        $email = Accounts::normalizeEmail($request->validate(['email' => ['required', 'email:rfc', 'max:191']])['email']);
+
+        $change->request($request->user(), $email);
+
+        return response()->json([
+            'message' => __('account.email_change.sent', ['email' => $email, 'minutes' => intdiv(AccountLinks::ttlSeconds(), 60)]),
+            'expires_in' => AccountLinks::ttlSeconds(),
+        ], 202);
+    }
+
+    /**
+     * "This was not me", from the notice to the old address: secures the account again (see EmailChange::revoke). It needs only the
+     * link, which works for some days, and the link is spent. The page that carries it asks first, so a program that opens
+     * the addresses of a mail does not do it.
+     */
+    public function revoke(Request $request, AccountTokens $tokens, EmailChange $change): JsonResponse
+    {
+        $secret = $request->validate(['token' => ['required', 'string', 'max:128']])['token'];
+
+        $token = $tokens->consume(AccountToken::EMAIL_REVOKE, $secret);
+
+        if ($token === null || $token->user === null) {
+            throw ValidationException::withMessages(['token' => __('account.token.invalid')]);
+        }
+
+        return response()->json(['purpose' => 'revoke', 'restored' => $change->revoke($token)]);
+    }
+
+    /**
      * Asks for a link that signs a driver in on a new device. The answer is always the same, whether the address
      * belongs to a garage or not, so nobody can use it to find out who plays: only the owner of the address gets a link.
      */
@@ -89,11 +125,11 @@ final class AccountEmailController extends Controller
      * The link works once and for a short time. A link that is unknown, expired, used or of another kind is refused
      * in the same way, so nobody can tell which it was.
      */
-    public function confirm(Request $request, AccountTokens $tokens, Accounts $accounts): JsonResponse
+    public function confirm(Request $request, AccountTokens $tokens, Accounts $accounts, EmailChange $change, Reauth $reauth): JsonResponse
     {
         $secret = $request->validate(['token' => ['required', 'string', 'max:128']])['token'];
 
-        $token = $tokens->consume(AccountToken::CLAIM, $secret) ?? $tokens->consume(AccountToken::LOGIN, $secret);
+        $token = $tokens->consume([AccountToken::CLAIM, AccountToken::LOGIN, AccountToken::EMAIL_CHANGE, AccountToken::REAUTH], $secret);
         $user = $token?->user;
 
         if ($token === null || $user === null) {
@@ -105,6 +141,20 @@ final class AccountEmailController extends Controller
             $accounts->link($user, AccountIdentity::EMAIL, (string) $token->email, (string) $token->email, $token->consent_at);
 
             return response()->json(['purpose' => 'claim', 'data' => new MeResource($user)]);
+        }
+
+        if ($token->purpose === AccountToken::EMAIL_CHANGE) {
+            // The link of the new address: from now on the account signs in with it. Throws when it was taken meanwhile (409).
+            return response()->json(['purpose' => 'email_change', 'data' => new MeResource($change->apply($token))]);
+        }
+
+        if ($token->purpose === AccountToken::REAUTH) {
+            // Opened in any browser, it proves who the driver is on the device that asked for the link, and on no other.
+            if ($token->device_token_id !== null) {
+                $reauth->grant((int) $token->device_token_id);
+            }
+
+            return response()->json(['purpose' => 'reauth', 'data' => new MeResource($user)]);
         }
 
         $user->forceFill(['last_seen_at' => now()])->save();

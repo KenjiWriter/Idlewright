@@ -19,7 +19,7 @@ use Carbon\CarbonInterface;
 final class AccountTokens
 {
     /**
-     * @param  array{user_id?: int|null, provider?: string|null, intent?: string|null, email?: string|null, consent_at?: CarbonInterface|null, challenge?: string|null, subject?: string|null}  $attributes
+     * @param  array{user_id?: int|null, provider?: string|null, intent?: string|null, email?: string|null, consent_at?: CarbonInterface|null, challenge?: string|null, subject?: string|null, device_token_id?: int|null}  $attributes
      * @return string the secret, to be given to the person and never stored
      */
     public function issue(string $purpose, int $ttlSeconds, array $attributes = []): string
@@ -37,13 +37,13 @@ final class AccountTokens
     }
 
     /**
-     * Uses a secret of the given purpose. Returns its row, or null when the secret is unknown, of another purpose,
+     * Uses a secret of the given purpose (or of one of the given purposes: the row says which). Returns its row, or null when the secret is unknown, of another purpose,
      * expired or already used. The caller cannot tell these apart, and neither can anyone who guesses.
      *
      * With a `$verifier` the secret is used only if the token was bound to it (its `challenge` is the hash of the
      * verifier). A wrong verifier does not spend the secret, so nobody can burn it without knowing the verifier.
      */
-    public function consume(string $purpose, string $secret, ?string $verifier = null): ?AccountToken
+    public function consume(string|array $purpose, string $secret, ?string $verifier = null): ?AccountToken
     {
         if ($secret === '' || strlen($secret) > 128) {
             return null;
@@ -53,13 +53,29 @@ final class AccountTokens
 
         $used = AccountToken::query()
             ->where('token_hash', $hash)
-            ->where('purpose', $purpose)
+            ->whereIn('purpose', (array) $purpose)
             ->whereNull('used_at')
             ->where('expires_at', '>', now())
             ->when($verifier !== null, fn ($query) => $query->where('challenge', self::hash($verifier)))
             ->update(['used_at' => now()]);
 
         return $used === 1 ? AccountToken::query()->where('token_hash', $hash)->first() : null;
+    }
+
+    /**
+     * Makes the unused links of an account that were sent to an address, or of a kind, useless. For when the address stops being one
+     * of the account's, or the account is secured again.
+     *
+     * @param  list<string>  $purposes
+     */
+    public function cancel(int $userId, array $purposes, ?string $email = null): int
+    {
+        return AccountToken::query()
+            ->where('user_id', $userId)
+            ->whereIn('purpose', $purposes)
+            ->whereNull('used_at')
+            ->when($email !== null, fn ($query) => $query->where('email', $email))
+            ->update(['used_at' => now()]);
     }
 
     /** Removes the tokens that expired or were used more than a day ago. */

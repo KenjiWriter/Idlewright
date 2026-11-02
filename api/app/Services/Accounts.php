@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Exceptions\AccountRefusedException;
 use App\Exceptions\IdentityTakenException;
 use App\Exceptions\ProviderAlreadyLinkedException;
 use App\Models\AccountIdentity;
+use App\Models\AccountToken;
+use App\Models\ConsentRecord;
 use App\Models\User;
 use Carbon\CarbonInterface;
 use Illuminate\Database\UniqueConstraintViolationException;
@@ -77,6 +80,11 @@ final class Accounts
 
                 $identity = $locked->identities()->create(['provider' => $provider, 'subject' => $subject, 'email' => $email]);
 
+                // The first consent is the one the texts in force were accepted with; it is on record next to the ones that may follow.
+                if ($consentAt !== null && $locked->terms_accepted_at === null) {
+                    $locked->consents()->create(['terms_version' => config('ride.legal.version'), 'source' => ConsentRecord::LINK, 'accepted_at' => $consentAt]);
+                }
+
                 $locked->forceFill(array_filter([
                     'claimed_at' => $locked->claimed_at === null ? now() : null,
                     'terms_accepted_at' => $consentAt !== null && $locked->terms_accepted_at === null ? $consentAt : null,
@@ -95,5 +103,68 @@ final class Accounts
             // Another request linked the same identity, or took the e-mail, between the check and the insert.
             throw new IdentityTakenException($provider);
         }
+    }
+
+    /**
+     * Unlinks a way of signing in. The one that is left is never unlinked, and a driver who has not proved who they are a
+     * moment ago (see Reauth) cannot unlink any. The checks are made with the account locked, so that two requests at once cannot
+     * between them leave an account with no way in.
+     *
+     * Unlinking the e-mail clears the address of the account and makes the links that were sent to it useless, since the address
+     * is no longer the account's. The devices that signed in with the way that goes are signed out, except the one that asked.
+     * What the provider holds about the driver is theirs and the provider's: nothing is deleted there.
+     *
+     * @param  bool  $proven  whether the driver proved who they are a moment ago, on this device
+     * @param  int|null  $keepDevice  the device the request comes from: it stays signed in
+     * @return string|null the address a notice of the change goes to: the e-mail of the account, or the one just unlinked
+     *
+     * @throws AccountRefusedException `identity_not_found` (404), `last_method` (422) or `reauth_required` (403)
+     */
+    public function unlink(User $user, string $provider, bool $proven, ?int $keepDevice): ?string
+    {
+        $notice = DB::transaction(function () use ($user, $provider, $proven, $keepDevice): ?string {
+            $locked = User::query()->whereKey($user->id)->lockForUpdate()->firstOrFail();
+
+            $identity = $locked->identities()->where('provider', $provider)->first()
+                ?? throw AccountRefusedException::notFound('identity_not_found');
+
+            if ($locked->identities()->count() <= 1) {
+                throw AccountRefusedException::unprocessable('last_method');
+            }
+
+            if (! $proven) {
+                throw AccountRefusedException::forbidden('reauth_required');
+            }
+
+            $address = $provider === AccountIdentity::EMAIL ? $identity->subject : $locked->identities()->where('provider', AccountIdentity::EMAIL)->value('subject');
+
+            $identity->delete();
+
+            if ($provider === AccountIdentity::EMAIL) {
+                $locked->forceFill(['email' => null, 'email_verified_at' => null])->save();
+
+                (new AccountTokens)->cancel($locked->id, [AccountToken::CLAIM, AccountToken::LOGIN, AccountToken::EMAIL_CHANGE, AccountToken::REAUTH], $address);
+            }
+
+            $locked->tokens()->where('name', "{$provider}-login")->when($keepDevice !== null, fn ($query) => $query->where('id', '!=', $keepDevice))->delete();
+
+            return is_string($address) && $address !== '' ? $address : null;
+        });
+
+        $user->refresh();
+
+        return $notice;
+    }
+
+    /** turbo@example.com becomes t***@example.com. */
+    public static function maskEmail(?string $email): ?string
+    {
+        if ($email === null || ! str_contains($email, '@')) {
+            return null;
+        }
+
+        [$local, $domain] = explode('@', $email, 2);
+
+        return mb_substr($local, 0, 1).'***@'.$domain;
     }
 }

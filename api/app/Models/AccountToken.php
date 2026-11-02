@@ -20,6 +20,15 @@ class AccountToken extends Model
     /** What the provider said about the person, waiting for the browser that started the sign-in to finish it. */
     public const RESULT = 'oauth_result';
 
+    /** Confirms the new address of the account: the link goes to the new address and changes nothing until it is used. */
+    public const EMAIL_CHANGE = 'email_change';
+
+    /** The link "this was not me" of the notice to the old address: it secures the account again. */
+    public const EMAIL_REVOKE = 'email_revoke';
+
+    /** Proves who the driver is, on the device that asked for it, before something that cannot be taken back. */
+    public const REAUTH = 'reauth';
+
     public const UPDATED_AT = null;
 
     protected $guarded = [];

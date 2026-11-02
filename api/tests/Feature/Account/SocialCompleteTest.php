@@ -50,7 +50,7 @@ describe('finishing a link', function () {
 
     it('adds a provider to a secured account and leaves the moments it accepted the terms as they were', function () {
         $accepted = now()->subWeek()->startOfSecond();
-        $driver = User::factory()->create(['claimed_at' => $accepted, 'terms_accepted_at' => $accepted, 'age_confirmed_at' => $accepted]);
+        $driver = User::factory()->create(['claimed_at' => $accepted, 'terms_accepted_at' => $accepted, 'age_confirmed_at' => $accepted, 'terms_version' => config('ride.legal.version')]);
         identityOf($driver, 'email', 'turbo@example.com', 'turbo@example.com');
 
         $start = startProviderLink($driver, 'google', ['accept_terms' => null, 'confirm_age' => null])->assertOk();

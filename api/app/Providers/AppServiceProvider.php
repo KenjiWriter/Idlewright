@@ -104,5 +104,22 @@ class AppServiceProvider extends ServiceProvider
             Limit::perHour(3)->by('address:'.sha1(Accounts::normalizeEmail($request->string('email')->toString()))),
             Limit::perHour(30)->by('ip:'.$request->ip()),
         ]);
+
+        // Changing the e-mail sends a link to an address of the driver's choosing and a notice to the old one, so it is limited as sending the first link is.
+        RateLimiter::for('account-email-change', fn (Request $request) => [
+            Limit::perHour(5)->by('user:'.$request->user()?->getAuthIdentifier()),
+            Limit::perHour(3)->by('address:'.sha1(Accounts::normalizeEmail($request->string('email')->toString()))),
+            Limit::perHour(30)->by('ip:'.$request->ip()),
+        ]);
+
+        // Unlinking cannot be undone and proving who the driver is sends a mail to their own address: both are limited per account.
+        RateLimiter::for('account-unlink', fn (Request $request) => Limit::perHour(10)->by('user:'.$request->user()?->getAuthIdentifier()));
+
+        RateLimiter::for('account-reauth', fn (Request $request) => [
+            Limit::perHour(5)->by('user:'.$request->user()?->getAuthIdentifier()),
+            Limit::perHour(20)->by('ip:'.$request->ip()),
+        ]);
+
+        RateLimiter::for('account-consent', fn (Request $request) => Limit::perHour(20)->by('user:'.$request->user()?->getAuthIdentifier()));
     }
 }

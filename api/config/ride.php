@@ -112,6 +112,15 @@ return [
     'account' => [
         // How long the link of an e-mail works, in seconds. It works once.
         'link_ttl_seconds' => 1800,
+
+        // How long a driver counts as having just proved who they are, on the device that did it. Needed to unlink a sign-in.
+        'reauth_ttl_seconds' => 600,
+
+        // The pause after a change of the e-mail of the account before the next one can be asked for, in days.
+        'email_change_cooldown_days' => 7,
+
+        // How long the link "this was not me" in the notice to the old address works, in days. It can undo a change that was made.
+        'email_undo_days' => 7,
     ],
 
     /*
@@ -133,6 +142,10 @@ return [
 
         // The day the texts were last changed. Bump it together with them: it is saved with the consent.
         'version' => env('LEGAL_VERSION', '2026-10-23'),
+
+        // The day of the last change of the texts that needs a new consent. A driver who accepted an earlier version is asked again;
+        // a smaller change bumps only the version above. Empty: every change of the version asks.
+        'consent_version' => env('LEGAL_CONSENT_VERSION'),
 
         // Who runs the game. The terms and the privacy policy name them and say where to write to.
         'operator' => [

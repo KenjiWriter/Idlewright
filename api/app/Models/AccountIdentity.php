@@ -24,6 +24,9 @@ class AccountIdentity extends Model
     /** The providers of a sign-in with another service, in the order they are offered. */
     public const SOCIAL = [self::GOOGLE, self::FACEBOOK, self::APPLE];
 
+    /** Every way to sign in: the e-mail, then the providers. */
+    public const ALL = [self::EMAIL, ...self::SOCIAL];
+
     protected $guarded = [];
 
     /** @return BelongsTo<User, $this> */
