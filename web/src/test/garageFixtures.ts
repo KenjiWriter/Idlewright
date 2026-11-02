@@ -1,4 +1,4 @@
-import type { EquipmentItemKey, GarageCar, GarageResponse, MergeOffer, MergeResult, MountedPart, OpenedCrate, OwnedPart, RepairNext, ServiceState, ShopCrates, ShopOffer, TransmuteOffer, UpgradeNext, WorkshopGear, WorkshopJob } from '@/api/types'
+import type { EquipmentItemKey, GarageCar, GarageResponse, MergeOffer, MergeResult, MountedPart, OpenedCrate, OwnedPart, PartBonus, RepairNext, ServiceState, ShopCrates, ShopOffer, TransmuteOffer, TuneNext, UpgradeNext, WorkshopGear, WorkshopJob } from '@/api/types'
 
 /** The time of the server in the fixtures. */
 export const NOW = 1_792_692_000_000
@@ -22,6 +22,38 @@ export function aPart(overrides: Partial<OwnedPart> = {}): OwnedPart {
     condition_loss_percent: 0,
     mounted: false,
     car_id: null,
+    ...overrides,
+  }
+}
+
+/** A bonus that the driver put at a place of a part: the grip on gravel, 6.2% after seven tries. */
+export function aBonus(overrides: Partial<PartBonus> = {}): PartBonus {
+  return {
+    place: 1,
+    key: 'gravel-grip',
+    name: 'Gravel grip',
+    description: 'Better grip of the tires on gravel and mud.',
+    effect: 'surface',
+    stat: null,
+    context: { kinds: null, surfaces: ['gravel_dry', 'mud'], weathers: null },
+    value_ppm: 62_000,
+    percent: 6.2,
+    tries: 7,
+    ...overrides,
+  }
+}
+
+/** What a try at a place of a part is for a driver of level 3: $17.10 for a draw, $57 for a pick, 1 min 57 s (street tires of tier 2), and two bonuses to pick from. */
+export function aTuneNext(overrides: Partial<TuneNext> = {}): TuneNext {
+  return {
+    locked: null,
+    cost_random_cents: 1_710,
+    cost_pick_cents: 5_700,
+    duration_ms: 117_600,
+    bonuses: [
+      { key: 'dry-grip', name: 'Dry grip', description: 'Better grip of the tires on dry asphalt.', effect: 'surface', stat: null, context: { kinds: null, surfaces: ['asphalt_dry'], weathers: null }, mean_percent: 5, max_percent: 12 },
+      { key: 'gravel-grip', name: 'Gravel grip', description: 'Better grip of the tires on gravel and mud.', effect: 'surface', stat: null, context: { kinds: null, surfaces: ['gravel_dry', 'mud'], weathers: null }, mean_percent: 5, max_percent: 12 },
+    ],
     ...overrides,
   }
 }

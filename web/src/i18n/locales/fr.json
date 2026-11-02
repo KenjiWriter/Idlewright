@@ -387,6 +387,11 @@
     "surfaceLine": "{surface} ×{value}",
     "condition": "État : {percent} %",
     "unserviceable": "Hors service",
+    "bonus": {
+      "title": "Bonus",
+      "empty": "Emplacement vide",
+      "tries": "{count} essais"
+    },
     "affix": {
       "title": "Affixes",
       "stat": "{name} +{percent} %",
@@ -530,6 +535,22 @@
     "cancelledRefund": "Travail annulé. {price} sont de retour dans votre portefeuille.",
     "merge": "Fusion : {part} + {other} → {to}",
     "mergeOpen": "Fusionner",
+    "tune": "Réglage : {part}",
+    "bonus": {
+      "open": "Bonus",
+      "close": "Fermer",
+      "place": "Emplacement {place}",
+      "draw": "Tirer ({price})",
+      "again": "Réessayer ({price})",
+      "choose": "Choisir…",
+      "option": "{mean} % en moyenne, jusqu’à {max} %",
+      "pick": "Mettre ({price})",
+      "waits": "Un essai attend",
+      "level": "Les bonus s’ouvrent au niveau {required} (vous êtes niveau {current}).",
+      "cost": "Un essai coûte {price} et dure {time}. Choisir le bonus coûte {pick}.",
+      "note": "Un résultat plus faible ne change rien, le meilleur est conservé.",
+      "none": "Aucun autre bonus ne convient à cette pièce pour le moment."
+    },
     "transmute": {
       "open": "Améliorer la rareté",
       "title": "Amélioration de la rareté",

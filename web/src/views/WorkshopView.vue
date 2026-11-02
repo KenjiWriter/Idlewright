@@ -14,6 +14,7 @@ import PartCondition from '@/components/PartCondition.vue'
 import PartMerge from '@/components/PartMerge.vue'
 import PartTransmute from '@/components/PartTransmute.vue'
 import PartAffixes from '@/components/PartAffixes.vue'
+import PartBonuses from '@/components/PartBonuses.vue'
 import MediaPicture from '@/components/MediaPicture.vue'
 import PartStats from '@/components/PartStats.vue'
 import PartVerdict from '@/components/PartVerdict.vue'
@@ -169,10 +170,20 @@ const tutorialTarget = computed(() => tutorial.current?.target ?? tutorial.goal?
  */
 const inventoryFilter = computed(() => (tutorialTarget.value === 'mount' || tutorialTarget.value === 'merge' ? null : pickedSlot.value))
 /** The part that is fitted on the slot of a part of the inventory, to set it against; none when the slot holds the factory part. */
-function fittedOf(part: OwnedPart): { name: string; stats: Record<string, number>; surfaces?: Record<string, number> | null } | null {
+function fittedOf(part: OwnedPart): { name: string; stats: Record<string, number>; surfaces?: Record<string, number> | null; tuning?: OwnedPart['tuning'] } | null {
   const fitted = car.value?.slots.find((slot) => slot.slot === part.slot)?.part
 
-  return fitted ? { name: fitted.name, stats: fitted.stats, surfaces: fitted.surfaces } : null
+  return fitted ? { name: fitted.name, stats: fitted.stats, surfaces: fitted.surfaces, tuning: fitted.tuning } : null
+}
+
+/** The places (from 1) of a part where a try waits for the mechanic or is done by him. */
+function waitingPlaces(part: OwnedPart): number[] {
+  return jobs.value.filter((job) => job.kind === 'tune' && job.part?.id === part.id && job.tune).map((job) => job.tune!.place)
+}
+
+/** Whether another job holds the part, so no try can be asked for it (the tries at its other places may wait together). */
+function heldByOtherJob(part: OwnedPart): boolean {
+  return jobs.value.some((job) => job.kind !== 'tune' && (job.part?.id === part.id || job.merge_with?.id === part.id))
 }
 
 /**
@@ -320,7 +331,7 @@ function failureText(failure: unknown): string {
       : t('common.error')
 }
 
-async function act(kind: JobKind, part: OwnedPart | null, other?: OwnedPart['id']): Promise<void> {
+async function act(kind: JobKind, part: OwnedPart | null, other?: OwnedPart['id'], tune?: { place: number; key: string | null }): Promise<void> {
   if (busy.value) {
     return
   }
@@ -330,7 +341,7 @@ async function act(kind: JobKind, part: OwnedPart | null, other?: OwnedPart['id'
   clearCancelled()
 
   try {
-    await store.queue(kind, part?.id ?? null, other)
+    await store.queue(kind, part?.id ?? null, other, tune)
     merging.value = null
     now.value = store.serverNow()
     // The server moves the tutorial when it is asked, and a job in the queue is what a step waits for.
@@ -641,6 +652,9 @@ async function finish(jobId: number): Promise<void> {
             <p v-if="pickedPart.unmount_next?.locked" class="sub text-danger" :data-test="`take-off-lock-${pickedPart.id}`">{{ lockText(t, pickedPart.unmount_next.locked, fixed) }}</p>
             <p v-else-if="pickedPart.unmount_next" class="sub" :data-test="`take-off-info-${pickedPart.id}`">{{ slotJobInfo(pickedPart.unmount_next) }}</p>
           </div>
+
+          <!-- The bonuses of the part: the places, and a try at one of them (paid now, and the car stands while the mechanic is at it). -->
+          <PartBonuses :part="pickedPart" :waiting="waitingPlaces(pickedPart)" :disabled="busy || heldByOtherJob(pickedPart)" @tune="(place, key) => act('tune', pickedPart, undefined, { place, key })" />
         </div>
       </SlotDetail>
 
@@ -744,6 +758,7 @@ async function finish(jobId: number): Promise<void> {
                 {{ t('workshop.transmute.open') }}
               </button>
             </div>
+            <PartBonuses :part="part" :waiting="waitingPlaces(part)" :disabled="busy || heldByOtherJob(part)" @tune="(place, key) => act('tune', part, undefined, { place, key })" />
             <PartTransmute v-if="part.transmute && transmuting === part.id" :part="part" :offer="part.transmute" :disabled="busy" @done="transmuted" @close="transmuting = null" />
             <PartMerge
               v-if="part.merge && merging === part.id"

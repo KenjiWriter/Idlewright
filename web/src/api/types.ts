@@ -465,6 +465,54 @@ export interface SlotJobNext {
   locked?: PartLock | null
 }
 
+/** Where a bonus of a part works: the kinds of track, the surfaces and the weathers (null for every one). */
+export interface PartBonusContext {
+  kinds: string[] | null
+  surfaces: SurfaceKey[] | null
+  weathers: string[] | null
+}
+
+/** A bonus that the driver put at a place of a part (`tuning`): its name in the language of the driver, what it does, where it works and how much it gives. */
+export interface PartBonus {
+  /** The place on the part, from 1. */
+  place: number
+  key: string
+  name: string
+  description: string
+  effect: AffixEffect
+  stat: string | null
+  context: PartBonusContext
+  value_ppm: number
+  percent: number
+  /** How many tries were made at the place. */
+  tries: number
+}
+
+/** A bonus that a place of the part can be given: what a try gives on average and the most it can give, in percent. */
+export interface TuneOption {
+  key: string
+  name: string
+  description: string
+  effect: AffixEffect
+  stat: string | null
+  context: PartBonusContext
+  mean_percent: number
+  max_percent: number
+}
+
+/**
+ * What a try at a place of a part would be: a draw (and another try at the bonus the place holds) costs `cost_random_cents`, picking a bonus `cost_pick_cents`, and
+ * a try takes `duration_ms`. `locked` says why it cannot be done (the model has no price or no places, or the driver is not of the level yet); `bonuses` are the ones
+ * that fit the slot and are on offer at the level of the driver.
+ */
+export interface TuneNext {
+  locked: { reason: 'unavailable' } | { reason: 'level'; required: number; current: number } | null
+  cost_random_cents: number | null
+  cost_pick_cents: number | null
+  duration_ms: number | null
+  bonuses: TuneOption[]
+}
+
 /** A part of the driver, in the inventory or on the car. */
 export interface OwnedPart extends PartInfo {
   id: number
@@ -484,6 +532,11 @@ export interface OwnedPart extends PartInfo {
   transmute?: TransmuteOffer | null
   /** What putting it on would cost and take, with the taking off of the part that sits in its slot: the parts of the inventory of the garage have it. */
   mount_next?: SlotJobNext | null
+  /** How many places for bonuses the part has, and what each holds (null for an empty one); absent in the answers of an older server. */
+  tuning_slots?: number
+  tuning?: (PartBonus | null)[]
+  /** What a try at a place of the part would be (the parts of the garage have it). */
+  tune_next?: TuneNext
 }
 
 /** A part for sale, with what the car of the driver says about it. */
@@ -640,7 +693,7 @@ export interface GarageCar {
   run: { id: number; status: RunStatus; stop_reason: StopReason | null } | null
 }
 
-export type JobKind = 'mount' | 'unmount' | 'upgrade' | 'merge' | 'repair' | 'service'
+export type JobKind = 'mount' | 'unmount' | 'upgrade' | 'merge' | 'repair' | 'service' | 'tune'
 
 /** The items of equipment of a workshop; each has levels that are bought one after the other (level 0 is the start state). */
 export type EquipmentItemKey = 'tire_machine' | 'lift' | 'hoist' | 'toolkit'
@@ -813,6 +866,8 @@ export interface WorkshopJob {
   /** A merge: the part that is used up with `part` (which is the one that stays), and the rarity the attempt aims at (null for the other jobs). */
   merge_with: OwnedPart | null
   merge_to: PartRarity | null
+  /** A tune: the place of the part it makes a try at (from 1) and the bonus it was asked to put there (null for a draw, or another try at the one the place holds). */
+  tune?: { place: number; key: string | null } | null
   /** Waiting for the mechanic, or being done (the car stands in the workshop, except for a merge and the repair of a part of the inventory, which are not done on the car). */
   status: 'queued' | 'working'
   /** The part the job is about: none for a service, which is a job on the car. */

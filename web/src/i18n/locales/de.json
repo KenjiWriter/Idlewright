@@ -387,6 +387,11 @@
     "surfaceLine": "{surface} ×{value}",
     "condition": "Zustand: {percent} %",
     "unserviceable": "Unbrauchbar",
+    "bonus": {
+      "title": "Boni",
+      "empty": "Leerer Platz",
+      "tries": "{count} Versuche"
+    },
     "affix": {
       "title": "Affixe",
       "stat": "{name} +{percent} %",
@@ -530,6 +535,22 @@
     "cancelledRefund": "Auftrag abgebrochen. {price} sind wieder in deinem Geldbeutel.",
     "merge": "Verschmelzen: {part} + {other} → {to}",
     "mergeOpen": "Verschmelzen",
+    "tune": "Tuning: {part}",
+    "bonus": {
+      "open": "Boni",
+      "close": "Schließen",
+      "place": "Platz {place}",
+      "draw": "Auslosen ({price})",
+      "again": "Noch einmal versuchen ({price})",
+      "choose": "Wählen…",
+      "option": "im Schnitt {mean} %, bis zu {max} %",
+      "pick": "Einsetzen ({price})",
+      "waits": "Ein Versuch wartet",
+      "level": "Boni werden auf Stufe {required} freigeschaltet (du bist auf Stufe {current}).",
+      "cost": "Ein Versuch kostet {price} und dauert {time}. Einen Bonus zu wählen kostet {pick}.",
+      "note": "Ein schwächeres Ergebnis ändert nichts, das bessere bleibt.",
+      "none": "Kein anderer Bonus passt gerade zu diesem Teil."
+    },
     "transmute": {
       "open": "Seltenheit erhöhen",
       "title": "Seltenheit erhöhen",

@@ -387,6 +387,11 @@
     "surfaceLine": "{surface} ×{value}",
     "condition": "Estado: {percent}%",
     "unserviceable": "Inutilizável",
+    "bonus": {
+      "title": "Bônus",
+      "empty": "Lugar vazio",
+      "tries": "{count} tentativas"
+    },
     "affix": {
       "title": "Afixos",
       "stat": "{name} +{percent}%",
@@ -530,6 +535,22 @@
     "cancelledRefund": "Serviço cancelado. {price} voltaram para a sua carteira.",
     "merge": "Fundindo: {part} + {other} → {to}",
     "mergeOpen": "Fundir",
+    "tune": "Ajuste: {part}",
+    "bonus": {
+      "open": "Bônus",
+      "close": "Fechar",
+      "place": "Lugar {place}",
+      "draw": "Sortear ({price})",
+      "again": "Tentar de novo ({price})",
+      "choose": "Escolher…",
+      "option": "em média {mean}%, até {max}%",
+      "pick": "Colocar ({price})",
+      "waits": "Uma tentativa aguarda",
+      "level": "Os bônus abrem no nível {required} (você está no nível {current}).",
+      "cost": "Uma tentativa custa {price} e leva {time}. Escolher o bônus custa {pick}.",
+      "note": "Um resultado mais fraco não muda nada: o melhor fica.",
+      "none": "Nenhum outro bônus serve para esta peça agora."
+    },
     "transmute": {
       "open": "Subir a raridade",
       "title": "Subir a raridade",

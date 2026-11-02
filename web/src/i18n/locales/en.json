@@ -387,6 +387,11 @@
     "surfaceLine": "{surface} ×{value}",
     "condition": "Condition: {percent}%",
     "unserviceable": "Unserviceable",
+    "bonus": {
+      "title": "Bonuses",
+      "empty": "Empty place",
+      "tries": "{count} tries"
+    },
     "affix": {
       "title": "Affixes",
       "stat": "{name} +{percent}%",
@@ -530,6 +535,22 @@
     "cancelledRefund": "Job cancelled. {price} is back in your wallet.",
     "merge": "Merging: {part} + {other} → {to}",
     "mergeOpen": "Merge",
+    "tune": "Tuning: {part}",
+    "bonus": {
+      "open": "Bonuses",
+      "close": "Close",
+      "place": "Place {place}",
+      "draw": "Draw ({price})",
+      "again": "Try again ({price})",
+      "choose": "Choose…",
+      "option": "{mean}% on average, up to {max}%",
+      "pick": "Put it ({price})",
+      "waits": "A try is waiting",
+      "level": "Bonuses open at level {required} (you are at level {current}).",
+      "cost": "A try costs {price} and takes {time}. Choosing the bonus costs {pick}.",
+      "note": "A lower result changes nothing: the better one is kept.",
+      "none": "No other bonus fits this part now."
+    },
     "transmute": {
       "open": "Raise rarity",
       "title": "Raise the rarity",

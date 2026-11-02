@@ -387,6 +387,11 @@
     "surfaceLine": "{surface} ×{value}",
     "condition": "Stan: {percent}%",
     "unserviceable": "Niesprawna",
+    "bonus": {
+      "title": "Bonusy",
+      "empty": "Puste miejsce",
+      "tries": "próby: {count}"
+    },
     "affix": {
       "title": "Afiksy",
       "stat": "{name} +{percent}%",
@@ -530,6 +535,22 @@
     "cancelledRefund": "Zlecenie anulowane. {price} wraca do Twojego portfela.",
     "merge": "Łączenie: {part} + {other} → {to}",
     "mergeOpen": "Połącz",
+    "tune": "Dostrajanie: {part}",
+    "bonus": {
+      "open": "Bonusy",
+      "close": "Zamknij",
+      "place": "Miejsce {place}",
+      "draw": "Losuj ({price})",
+      "again": "Spróbuj jeszcze raz ({price})",
+      "choose": "Wybierz…",
+      "option": "średnio {mean}%, najwyżej {max}%",
+      "pick": "Wstaw ({price})",
+      "waits": "Próba czeka",
+      "level": "Bonusy otwierają się na poziomie {required} (masz {current}).",
+      "cost": "Próba kosztuje {price} i trwa {time}. Wybranie bonusu kosztuje {pick}.",
+      "note": "Słabszy wynik niczego nie zmienia, zostaje lepszy.",
+      "none": "Żaden inny bonus nie pasuje teraz do tej części."
+    },
     "transmute": {
       "open": "Podnieś rzadkość",
       "title": "Podniesienie rzadkości",
