@@ -375,6 +375,16 @@ Serwer decyduje o wszystkim (cel dzienny, tarcze, nagrody); aplikacja pokazuje b
 - **Pięć języków** (`missions.streak.*`, `missions.glance.streak`, `hud.streak`, `awayAccount.streak*`); **teksty fr, de i pt-BR są moje, bez native speakera**.
 - **Specyfikacje:** `StreakCard` 7, plus po 1–2 w `missions` (magazyn), `MissionsView`, `MissionsGlance`, `GameHud` i `AccountAway`.
 
+## Transmutacja rzadkości w warsztacie (C2, 2026-11-02)
+
+Serwer decyduje o wszystkim (cena, wynik, odmowy); aplikacja pokazuje pole `transmute` z `GET /garage` i niczego nie liczy.
+
+- **Przycisk „Podnieś rzadkość”** (`transmute-open-{id}`) jest przy każdej części inwentarza, która ma `transmute`, obok „Połącz”; nie ma go przy części najlepszej rzadkości. Wyłącza się, gdy część czeka w zleceniu.
+- **Karta** (`PartTransmute`, pod częścią): „Common → Uncommon” (dwa znaczki rzadkości), znaczek „Pewne, bez losowania”, koszt w kapsułach (monety i gotówka z groszami), a po otwarciu karta pyta `GET /parts/{id}/transmute` i **pokazuje część taką, jaką będzie, z afiksami** (`PartStats` i `PartAffixes`). Pod spodem zdanie, że model i ulepszenie zostają, a przetransmutowanej części nie da się już scalać. Gdy serwer mówi `blocked` (`busy`, `level`, `limit`), karta podaje powód i nie ma czym potwierdzić.
+- **„Transmutuj”** wysyła `POST` z jednym `request_id` na jeden zamiar (powtórka nie pobierze drugi raz). Po udanym żądaniu garaż, bieg i portfel premium są pytane od nowa (pasek u góry pokazuje nowe saldo), karta się zamyka, a nad listą inwentarza jest komunikat „… ma teraz rzadkość: …” (`transmute-done`). Odmowa serwera (422) pokazuje jego tekst na karcie i zostawia ją otwartą.
+- **Pięć języków** (`workshop.transmute.*`); **teksty fr, de i pt-BR są moje, bez native speakera**.
+- **Specyfikacje:** 4 w `WorkshopView` (oferta tylko na częściach, które można przetransmutować; podgląd, koszt i potwierdzenie; powód blokady; odmowa serwera).
+
 ## Jednostki gry w aplikacji (2026-10-30)
 
 Dystans, prędkość i zużycie paliwa są w aplikacji **w jednostkach gry**, a nie na sztywno w „km” i „km/h”. Serwer podaje wszystkie liczby w skali kanonicznej (metry, kilometry, km/h), a aplikacja przelicza je w jednym miejscu.
