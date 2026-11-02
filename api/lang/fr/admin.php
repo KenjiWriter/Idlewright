@@ -277,6 +277,8 @@ return [
             'wear' => 'Ce que cela change : la durée de vie des pièces, le coût de la réparation et de l’entretien et la façon dont la négligence abîme une voiture.',
             'premium' => 'Ce que cela change : le prix des lots de pièces, l’accélération contre des pièces et le prix de l’avocat.',
             'missions' => 'Ce que cela change : l’heure à laquelle commence le jour des missions, la part de la valeur du travail que demandent les missions qu’elles paient en argent et en XP (séries et missions principales), et le bonus en pièces pour une série complète. Ce sont les seules pièces gratuites du jeu.',
+            'streaks' => 'Ce que cela change : combien de missions du jour font l’objectif qui garde la série, à quelle fréquence on gagne un bouclier et combien on en garde, et ce que paient les jours de la série (une part d’un plein de la meilleure voiture, et des caisses). Elle ne paie pas de pièces et s’ajoute aux gains des voitures.',
+            'slots' => 'Ce que cela change : combien de voitures un joueur peut avoir sur la route (les autres restent en réserve et ne rapportent rien), combien de plus donne le compte VIP, combien de temps une voiture sortie de la réserve met à être prête et ce que coûte un échange. C’est la plus grande part de la valeur du compte VIP.',
             'workshop' => 'Ce que cela change : les durées de montage, d’amélioration et de fusion, le prix des postes et des mécaniciens et la longueur de la file.',
             'tire_matrix' => 'Ce que cela change : l’adhérence de chaque type de pneu sur chaque surface.',
             'weather' => 'Ce que cela change : l’effet de la météo sur un tour.',

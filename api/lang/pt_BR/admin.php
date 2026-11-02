@@ -277,6 +277,8 @@ return [
             'wear' => 'O que muda: quanto tempo duram as peças, quanto custam o reparo e a revisão e como o descuido estraga um carro.',
             'premium' => 'O que muda: os preços dos pacotes de moedas, a aceleração com moedas e o preço do advogado.',
             'missions' => 'O que muda: quando o dia de missões começa, que parte do valor do trabalho que as missões pedem elas pagam em dinheiro e em XP (conjuntos e missões principais) e o bônus em moedas por um conjunto completo. São as únicas moedas grátis do jogo.',
+            'streaks' => 'O que muda: quantas missões do dia formam a meta que mantém a sequência, com que frequência se ganha um escudo e quantos se guardam, e o que pagam os dias da sequência (uma parte de um tanque do melhor carro e caixas). Não paga moedas e vem além dos ganhos dos carros.',
+            'slots' => 'O que muda: quantos carros um jogador pode ter na estrada (os outros ficam guardados e não ganham nada), quantos a mais a conta VIP dá, quanto tempo um carro tirado da guarda leva para ficar pronto e quanto custa uma troca. Essa é a maior parte do valor da conta VIP.',
             'workshop' => 'O que muda: os tempos de montagem, melhoria e fusão, os preços de baias e mecânicos e o tamanho da fila.',
             'tire_matrix' => 'O que muda: a aderência de cada tipo de pneu em cada piso.',
             'weather' => 'O que muda: como o clima afeta uma volta.',

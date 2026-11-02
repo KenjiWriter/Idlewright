@@ -439,6 +439,19 @@ describe('the slots of the VIP account', function () {
         $this->postJson("/api/v1/cars/{$third}/activate", [], bearerFor($driver))->assertOk()->assertJsonPath('data.slots.active', 3);
     });
 
+    it('are not an end for a driver who never had the account: the cars they have above the limit are theirs', function () {
+        $driver = slotDriver(2);
+        fleetOf($driver);
+        // A third car that did not come through the rules of the limit (a gift of the people who run the game, say).
+        RaceRun::factory()->create(['user_id' => $driver->id, 'cursor_ms' => RunService::nowMs()]);
+        RaceRun::query()->where('user_id', $driver->id)->update(['fuel_ml' => 450_000]);
+
+        Carbon::setTestNow(Carbon::now()->addHours(1));
+        fleetOf($driver);
+
+        expect(RaceRun::query()->where('user_id', $driver->id)->whereNull('stop_reason')->count())->toBe(3);
+    });
+
     it('do not touch the cars a driver kept from before the limit', function () {
         $driver = slotDriver(4);
         RaceRun::query()->where('user_id', $driver->id)->update(['fuel_ml' => 450_000]);

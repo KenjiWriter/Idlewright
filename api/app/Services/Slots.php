@@ -300,8 +300,8 @@ final class Slots
 
     /**
      * Until when a run may earn, or null when there is no end to it. A car in a slot that only the VIP account gives (a number above the base and the cars the driver kept
-     * from before the limit) earns until the account ends and not a moment after, so a driver who is away when it ends does not get the time for nothing. A car that has no
-     * number yet is put in order first (it is the first time anybody looks at the cars of the driver since the limit was made).
+     * from before the limit) earns until the account ends and not a moment after, so a driver who is away when it ends does not get the time for nothing; a driver who never
+     * had the account has no end to it. A car that has no number yet is put in order first (it is the first time anybody looks at the cars of the driver since the limit was made).
      */
     public function horizonMs(RaceRun $run): ?int
     {
@@ -327,7 +327,8 @@ final class Slots
             return null;
         }
 
-        return Wallet::query()->find($run->user_id)?->vip_until?->getTimestampMs() ?? 0;
+        // A driver who never had the account has no end to wait for: the cars they have above the limit were not given by it, and are theirs to keep.
+        return Wallet::query()->find($run->user_id)?->vip_until?->getTimestampMs();
     }
 
     /**

@@ -277,6 +277,8 @@ return [
             'wear' => 'Das ändert sich: wie lange Teile halten, was Reparatur und Wartung kosten und wie Vernachlässigung ein Auto verdirbt.',
             'premium' => 'Das ändert sich: die Preise der Münzpakete, das Beschleunigen mit Münzen und der Preis des Anwalts.',
             'missions' => 'Das ändert sich: wann der Missionstag beginnt, welchen Teil des Wertes der verlangten Arbeit die Missionen in Geld und in XP zahlen (Sets und Hauptmissionen) und den Bonus in Münzen für ein ganzes Set. Das sind die einzigen kostenlosen Münzen im Spiel.',
+            'streaks' => 'Das ändert sich: wie viele Missionen des Tages das Ziel ergeben, das die Serie hält, wie oft ein Schild verdient und wie viele behalten werden und was die Tage der Serie zahlen (ein Teil einer Tankfüllung des besten Autos und Kisten). Sie zahlt keine Münzen und kommt zu den Einnahmen der Autos hinzu.',
+            'slots' => 'Das ändert sich: wie viele Autos ein Spieler auf der Straße haben kann (die übrigen stehen eingelagert und verdienen nichts), wie viele mehr das VIP-Konto gibt, wie lange ein aus der Einlagerung geholtes Auto bis zur Fahrbereitschaft braucht und was ein Tausch kostet. Das ist der größte Teil des Wertes des VIP-Kontos.',
             'workshop' => 'Das ändert sich: die Zeiten für Einbau, Aufwertung und Verschmelzen, die Preise von Plätzen und Mechanikern und die Länge der Warteschlange.',
             'tire_matrix' => 'Das ändert sich: der Grip jeder Reifenart auf jedem Untergrund.',
             'weather' => 'Das ändert sich: wie das Wetter eine Runde beeinflusst.',

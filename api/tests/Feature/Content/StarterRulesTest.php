@@ -102,6 +102,19 @@ function rulesSchemaErrors(array $rules): array
         }
     }
 
+    // The cycle of the streak and its milestones are lists of objects, and so are the crates that they give.
+    foreach (['cycle', 'milestones'] as $key) {
+        if (isset($data->streaks->{$key}) && is_object($data->streaks->{$key})) {
+            $data->streaks->{$key} = array_values((array) $data->streaks->{$key});
+        }
+
+        foreach ((array) ($data->streaks->{$key} ?? []) as $entry) {
+            if (isset($entry->items) && is_object($entry->items)) {
+                $entry->items = array_values((array) $entry->items);
+            }
+        }
+    }
+
     if (isset($data->player->early_xp) && is_object($data->player->early_xp)) {
         $data->player->early_xp = array_values((array) $data->player->early_xp);
     }
