@@ -19,8 +19,10 @@ class MapPoint extends Field
 
     public const HEIGHT = 300;
 
-    /** The schema lets a city be anywhere on the board of the app, which is taller than the part of it that the map screen shows. */
-    public const MAX_Y = 716;
+    /** The map screen shows the strip of the board from the 60th to the 360th unit, and the schema lets a city be in it and nowhere else: a city outside would be valid and not seen. */
+    public const MIN_Y = self::TOP;
+
+    public const MAX_Y = self::TOP + self::HEIGHT;
 
     protected string $view = 'filament.forms.map-point';
 

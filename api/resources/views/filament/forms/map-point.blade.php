@@ -25,7 +25,7 @@
                 const at = point.matrixTransform(board.getScreenCTM().inverse())
                 this.state = {
                     x: Math.max(0, Math.min({{ MapPoint::WIDTH }}, Math.round(at.x))),
-                    y: Math.max(0, Math.min({{ MapPoint::MAX_Y }}, Math.round(at.y))),
+                    y: Math.max({{ MapPoint::MIN_Y }}, Math.min({{ MapPoint::MAX_Y }}, Math.round(at.y))),
                 }
             },
         }"
@@ -78,7 +78,7 @@
             </label>
             <label style="display: flex; gap: 0.35rem; align-items: center;">
                 <span>y</span>
-                <input type="number" min="0" max="{{ MapPoint::MAX_Y }}" x-model.number="state.y" style="width: 6rem; padding: 0.25rem 0.5rem; border-radius: 0.375rem; border: 1px solid rgba(127, 127, 127, 0.4); background: transparent;" />
+                <input type="number" min="{{ MapPoint::MIN_Y }}" max="{{ MapPoint::MAX_Y }}" x-model.number="state.y" style="width: 6rem; padding: 0.25rem 0.5rem; border-radius: 0.375rem; border: 1px solid rgba(127, 127, 127, 0.4); background: transparent;" />
             </label>
         </div>
     </div>

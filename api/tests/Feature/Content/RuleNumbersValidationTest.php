@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Content\PackValidationResult;
 use App\Content\PackValidator;
+use App\Filament\Forms\Components\MapPoint;
 
 /**
  * What the validator says of the numbers of the rules that only make sense next to each other: each of these used to get through, and break a draw, a run or a
@@ -11,7 +12,7 @@ use App\Content\PackValidator;
  *
  * @param  Closure(array<string, mixed>): array<string, mixed>  $change
  */
-function validatedRules(Closure $change, string $document = 'rules/starter'): PackValidationResult
+function validatedRuleNumbers(Closure $change, string $document = 'rules/starter'): PackValidationResult
 {
     return PackValidator::fromConfig()->validateSource(contentWith([$document => $change]));
 }
@@ -28,7 +29,7 @@ it('finds nothing wrong in the numbers of the game', function () {
 
 describe('the market', function () {
     it('refuses a range that runs from the highest to the lowest', function (string $pointer, array $path) {
-        $result = validatedRules(function (array $rules) use ($path): array {
+        $result = validatedRuleNumbers(function (array $rules) use ($path): array {
             $range = &$rules;
 
             foreach ($path as $key) {
@@ -47,7 +48,7 @@ describe('the market', function () {
     ]);
 
     it('refuses a condition of a storage class above a whole car, which would make a negative number of defects', function () {
-        $result = validatedRules(function (array $rules): array {
+        $result = validatedRuleNumbers(function (array $rules): array {
             $rules['market']['storage']['classes']['good']['condition_ppm']['max'] = 1_200_000;
 
             return $rules;
@@ -58,7 +59,7 @@ describe('the market', function () {
     });
 
     it('refuses bands of defects that do not follow the mileage, or give no chance to any number of defects', function () {
-        $result = validatedRules(function (array $rules): array {
+        $result = validatedRuleNumbers(function (array $rules): array {
             $rules['market']['exchange']['defects'][1]['up_to_km'] = 50_000;
             $rules['market']['exchange']['defects'][2]['weights'] = [0, 0, 0];
 
@@ -69,7 +70,7 @@ describe('the market', function () {
     });
 
     it('refuses a word of the listing that is good from less than it is fair from', function () {
-        $result = validatedRules(function (array $rules): array {
+        $result = validatedRuleNumbers(function (array $rules): array {
             $rules['market']['exchange']['description']['good_from_ppm'] = 400_000;
 
             return $rules;
@@ -79,7 +80,7 @@ describe('the market', function () {
     });
 
     it('refuses a unit with no odds at all, and one that the guarantee could not draw from', function () {
-        $result = validatedRules(function (array $rules): array {
+        $result = validatedRuleNumbers(function (array $rules): array {
             $rules['market']['storage']['units']['small']['odds'] = ['scrap' => 0, 'junk' => 0, 'good' => 0, 'gem' => 0];
             $rules['market']['storage']['units']['medium']['odds'] = ['scrap' => 500, 'junk' => 500, 'good' => 0, 'gem' => 0];
 
@@ -102,7 +103,7 @@ describe('the market', function () {
 
 describe('the journey with the police', function () {
     it('refuses a stop that is to be before it can be', function () {
-        $result = validatedRules(function (array $rules): array {
+        $result = validatedRuleNumbers(function (array $rules): array {
             $rules['travel']['boost']['police_from_ppm'] = 900_000;
             $rules['travel']['boost']['police_to_ppm'] = 100_000;
 
@@ -113,7 +114,7 @@ describe('the journey with the police', function () {
     });
 
     it('refuses a bribe that costs more when it works than when it does not', function () {
-        $result = validatedRules(function (array $rules): array {
+        $result = validatedRuleNumbers(function (array $rules): array {
             $rules['travel']['boost']['bribe_ppm'] = 3_000_000;
             $rules['travel']['boost']['bribe_fail_fine_ppm'] = 2_000_000;
 
@@ -126,7 +127,7 @@ describe('the journey with the police', function () {
 
 describe('the bots', function () {
     it('refuses a reward that is not given for every place of the field', function () {
-        $result = validatedRules(function (array $rules): array {
+        $result = validatedRuleNumbers(function (array $rules): array {
             array_pop($rules['bots']['reward_ppm_by_position']);
 
             return $rules;
@@ -136,7 +137,7 @@ describe('the bots', function () {
     });
 
     it('refuses a worse place that pays more, and fewer names than bots', function () {
-        $result = validatedRules(function (array $rules): array {
+        $result = validatedRuleNumbers(function (array $rules): array {
             $rules['bots']['reward_ppm_by_position'][3] = 1_400_000;
             $rules['bots']['names'] = ['Bruk Racing'];
 
@@ -149,7 +150,7 @@ describe('the bots', function () {
 
 describe('the levels of the driver', function () {
     it('refuses a catch-up level that is not above the end of the table', function () {
-        $result = validatedRules(function (array $rules): array {
+        $result = validatedRuleNumbers(function (array $rules): array {
             // Nine places in the table reach level 10.
             $rules['player']['catch_up_level'] = 10;
 
@@ -160,7 +161,7 @@ describe('the levels of the driver', function () {
     });
 
     it('accepts the first level above the table', function () {
-        $result = validatedRules(function (array $rules): array {
+        $result = validatedRuleNumbers(function (array $rules): array {
             $rules['player']['catch_up_level'] = 11;
 
             return $rules;
@@ -170,7 +171,7 @@ describe('the levels of the driver', function () {
     });
 
     it('refuses a table that does not rise', function () {
-        $result = validatedRules(function (array $rules): array {
+        $result = validatedRuleNumbers(function (array $rules): array {
             $rules['player']['early_xp'][4] = 100;
 
             return $rules;
@@ -180,7 +181,7 @@ describe('the levels of the driver', function () {
     });
 
     it('says the same of the copy of the economy', function () {
-        $result = validatedRules(function (array $economy): array {
+        $result = validatedRuleNumbers(function (array $economy): array {
             $economy['model']['xp']['catch_up_level'] = 3;
 
             return $economy;
@@ -192,7 +193,7 @@ describe('the levels of the driver', function () {
 
 describe('the workshop', function () {
     it('refuses bays and mechanics that do not get dearer one after the other', function () {
-        $result = validatedRules(function (array $rules): array {
+        $result = validatedRuleNumbers(function (array $rules): array {
             $rules['workshop']['bays']['price_cents'] = [0, 600_000, 200_000, 1_500_000];
 
             return $rules;
@@ -202,7 +203,7 @@ describe('the workshop', function () {
     });
 
     it('warns that the price of the first bay, of the first mechanic and of the first level of a piece of equipment is never charged', function () {
-        $result = validatedRules(function (array $rules): array {
+        $result = validatedRuleNumbers(function (array $rules): array {
             $rules['workshop']['bays']['price_cents'][0] = 50_000;
             $rules['workshop']['equipment']['lift']['levels'][0]['price_cents'] = 10_000;
 
@@ -217,7 +218,7 @@ describe('the workshop', function () {
 
 describe('the parts', function () {
     it('warns that the game does not keep a part off the cars it does not fit', function () {
-        $result = validatedRules(function (array $part): array {
+        $result = validatedRuleNumbers(function (array $part): array {
             $part['fits'] = ['classes' => ['super']];
 
             return $part;
@@ -228,7 +229,7 @@ describe('the parts', function () {
     });
 
     it('warns when the power of an engine is not the one the rules of the engines give, and the game uses the number of the part', function () {
-        $result = validatedRules(function (array $part): array {
+        $result = validatedRuleNumbers(function (array $part): array {
             $part['stats']['power_kw'] += 20;
 
             return $part;
@@ -242,5 +243,23 @@ describe('the parts', function () {
         $result = PackValidator::fromConfig()->validateSource(repositoryContent());
 
         expect(array_filter($result->warnings(), fn (array $issue): bool => str_starts_with($issue['file'], 'parts/') || str_contains($issue['message'], 'never charged')))->toBe([]);
+    });
+});
+
+describe('the map', function () {
+    it('keeps a city inside the strip of the board that the map screen shows, in the schema and in the point of the panel', function () {
+        $schema = json_decode((string) file_get_contents(config('ride.content_path').'/schema/rules.schema.json'), true);
+        $y = $schema['properties']['regions']['additionalProperties']['properties']['map']['properties']['y'];
+
+        expect([$y['minimum'], $y['maximum']])->toBe([MapPoint::MIN_Y, MapPoint::MAX_Y]);
+
+        $result = validatedRuleNumbers(function (array $rules): array {
+            $rules['regions'][array_key_first($rules['regions'])]['map']['y'] = 500;
+
+            return $rules;
+        });
+
+        expect($result->isValid())->toBeFalse()
+            ->and(implode(' ', array_column($result->errors(), 'pointer')))->toContain('/map/y');
     });
 });
