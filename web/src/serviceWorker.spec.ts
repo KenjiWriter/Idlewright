@@ -51,7 +51,16 @@ function fakeCaches() {
   }
 }
 
-type Listener = (event: { request?: Asked; waitUntil?: (work: Promise<unknown>) => void; respondWith?: (answer: Promise<Response>) => void }) => void
+interface PushEvent {
+  request?: Asked
+  waitUntil?: (work: Promise<unknown>) => void
+  respondWith?: (answer: Promise<Response>) => void
+  data?: { json: () => unknown } | null
+  notification?: { close: () => void; data?: { url?: unknown } }
+  oldSubscription?: { options: object } | null
+}
+
+type Listener = (event: PushEvent) => void
 
 function boot(network: (request: Asked | string) => Promise<Response>) {
   const listeners: Record<string, Listener> = {}
@@ -59,7 +68,8 @@ function boot(network: (request: Asked | string) => Promise<Response>) {
     location: { origin: ORIGIN },
     addEventListener: (type: string, listener: Listener) => void (listeners[type] = listener),
     skipWaiting: vi.fn(async () => undefined),
-    clients: { claim: vi.fn(async () => undefined) },
+    clients: { claim: vi.fn(async () => undefined), matchAll: vi.fn(async (): Promise<unknown[]> => []), openWindow: vi.fn(async () => undefined) },
+    registration: { showNotification: vi.fn(async () => undefined), pushManager: { subscribe: vi.fn(async () => ({})) } },
   }
   const caches = fakeCaches()
   const fetchMock = vi.fn(network)
@@ -238,6 +248,124 @@ describe('the service worker', () => {
       expect(files.entries.has(`${ORIGIN}/assets/old-0.js`)).toBe(false)
       expect(files.entries.has(`${ORIGIN}/assets/old-1.js`)).toBe(true)
       expect(files.entries.has(`${ORIGIN}/assets/new.js`)).toBe(true)
+    })
+  })
+
+  describe('push messages', () => {
+    const worker = () => boot(async () => script())
+
+    /** What the worker does when a push message comes: it waits for the notification to be shown. */
+    async function receive(boots: ReturnType<typeof boot>, data: PushEvent['data']): Promise<void> {
+      const work: Promise<unknown>[] = []
+      boots.listeners.push({ data, waitUntil: (given) => void work.push(given) })
+      await Promise.all(work)
+    }
+
+    /** What the worker does when a notification is tapped. */
+    async function tap(boots: ReturnType<typeof boot>, url: unknown): Promise<{ closed: boolean }> {
+      const work: Promise<unknown>[] = []
+      const seen = { closed: false }
+      boots.listeners.notificationclick({ notification: { close: () => void (seen.closed = true), data: { url } }, waitUntil: (given) => void work.push(given) })
+      await Promise.all(work)
+
+      return seen
+    }
+
+    it('shows the notification that the server wrote, in the language of the driver, with the tag that lets a newer message take its place', async () => {
+      const w = worker()
+
+      await receive(w, { json: () => ({ kind: 'car_stopped', title: 'Rdzak GT-4 stoi', body: 'Skończyło się paliwo.', url: '/garage', tag: 'car-12', lang: 'pl' }) })
+
+      expect(w.self.registration.showNotification).toHaveBeenCalledExactlyOnceWith('Rdzak GT-4 stoi', {
+        body: 'Skończyło się paliwo.',
+        icon: '/icons/icon-192.png',
+        tag: 'car-12',
+        renotify: true,
+        lang: 'pl',
+        data: { url: '/garage' },
+      })
+    })
+
+    it('shows a neutral notification when the message cannot be read or has nothing in it, because a browser takes back the permission of a site that shows nothing', async () => {
+      const unreadable = worker()
+      await receive(unreadable, {
+        json: () => {
+          throw new SyntaxError('not json')
+        },
+      })
+      const empty = worker()
+      await receive(empty, null)
+      const odd = worker()
+      await receive(odd, { json: () => ({ title: 5, body: null, url: {}, tag: [] }) })
+
+      for (const w of [unreadable, empty, odd]) {
+        expect(w.self.registration.showNotification).toHaveBeenCalledExactlyOnceWith('RideIdle', { body: '', icon: '/icons/icon-192.png', tag: undefined, renotify: false, lang: undefined, data: { url: '/' } })
+      }
+    })
+
+    it('opens the page that the message names in the window that is open, and closes the notification', async () => {
+      const w = worker()
+      const open = { url: `${ORIGIN}/missions`, focus: vi.fn(async () => undefined), navigate: vi.fn(async () => undefined) }
+      w.self.clients.matchAll.mockResolvedValue([{ url: 'https://other.example/', focus: vi.fn() }, open])
+
+      const seen = await tap(w, '/garage')
+
+      expect(seen.closed).toBe(true)
+      expect(open.focus).toHaveBeenCalledOnce()
+      expect(open.navigate).toHaveBeenCalledExactlyOnceWith(`${ORIGIN}/garage`)
+      expect(w.self.clients.openWindow).not.toHaveBeenCalled()
+    })
+
+    it('does not reload the window that is already on that page', async () => {
+      const w = worker()
+      const open = { url: `${ORIGIN}/garage`, focus: vi.fn(async () => undefined), navigate: vi.fn(async () => undefined) }
+      w.self.clients.matchAll.mockResolvedValue([open])
+
+      await tap(w, '/garage')
+
+      expect(open.focus).toHaveBeenCalledOnce()
+      expect(open.navigate).not.toHaveBeenCalled()
+    })
+
+    it('opens a window when none is open, or the one that is open cannot be reached', async () => {
+      const none = worker()
+      await tap(none, '/garage')
+      expect(none.self.clients.openWindow).toHaveBeenCalledExactlyOnceWith(`${ORIGIN}/garage`)
+
+      const stuck = worker()
+      stuck.self.clients.matchAll.mockResolvedValue([{ url: `${ORIGIN}/map`, focus: vi.fn(async () => Promise.reject(new Error('gone'))) }])
+      await tap(stuck, '/garage')
+      expect(stuck.self.clients.openWindow).toHaveBeenCalledExactlyOnceWith(`${ORIGIN}/garage`)
+    })
+
+    it('never opens a page of another site, whatever the message says', async () => {
+      const w = worker()
+
+      await tap(w, 'https://attacker.example/phish')
+      await tap(w, 42)
+
+      expect(w.self.clients.openWindow.mock.calls).toEqual([[`${ORIGIN}/`], [`${ORIGIN}/`]])
+    })
+
+    it('makes the subscription again, with the same options, when the browser renews it', async () => {
+      const w = worker()
+      const options = { userVisibleOnly: true, applicationServerKey: new Uint8Array([4, 1]) }
+      const work: Promise<unknown>[] = []
+
+      w.listeners.pushsubscriptionchange({ oldSubscription: { options }, waitUntil: (given) => void work.push(given) })
+      await Promise.all(work)
+
+      expect(w.self.registration.pushManager.subscribe).toHaveBeenCalledExactlyOnceWith(options)
+
+      w.listeners.pushsubscriptionchange({ oldSubscription: null, waitUntil: (given) => void work.push(given) })
+      expect(w.self.registration.pushManager.subscribe).toHaveBeenCalledOnce()
+    })
+
+    it('still leaves the API alone, and the pages and files as they were', async () => {
+      const w = worker()
+
+      expect(await w.ask('/api/v1/push/config')).toBeUndefined()
+      expect(await w.ask('/icons/icon-192.png')).toBeDefined()
     })
   })
 })

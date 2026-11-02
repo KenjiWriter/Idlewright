@@ -1,5 +1,5 @@
 /*
- * The service worker of RideIdle. It makes the app installable and lets it start when the network is not there; it does nothing else.
+ * The service worker of RideIdle. It makes the app installable, lets it start when the network is not there, and shows the push messages of the game; it does nothing else.
  *
  * - When it is installed it fetches the shell and every file of the build (the list is assets-manifest.json, which the build writes), so the app starts without
  *   the network after the first visit already, on any screen (the page that installs it was loaded before the worker could keep anything); where the network
@@ -11,6 +11,9 @@
  *   it came with.
  * - The API (/api/) and everything that is not a GET of this site is not touched: nothing a driver does or sees (the token, the cash, the garage) is ever
  *   written to a cache here.
+ * - A push message (a car stopped, a car arrived) is shown as a notification, in the words the server wrote in the language of the driver, so no text is kept here; a tap
+ *   opens the page of this site that the message names. A message that cannot be read is still shown, because the browsers take back the permission of a site that
+ *   receives a message and shows nothing.
  */
 const SHELL = 'shell-v1'
 const FILES = 'files-v1'
@@ -54,6 +57,74 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(file(request))
   }
 })
+
+/*
+ * Web push. The server sends the JSON of the notification (title, body, url, tag, lang), encrypted so that only this browser can read it.
+ */
+self.addEventListener('push', (event) => {
+  event.waitUntil(show(event.data))
+})
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close()
+  event.waitUntil(open(event.notification.data && event.notification.data.url))
+})
+
+/** The browser renews a subscription now and then: it is made again with the same options, and the app tells the server about the new one when it starts. */
+self.addEventListener('pushsubscriptionchange', (event) => {
+  const options = event.oldSubscription && event.oldSubscription.options
+
+  if (options) {
+    event.waitUntil(self.registration.pushManager.subscribe(options).catch(() => undefined))
+  }
+})
+
+/** The notification of a message; one is shown whatever the message is (see the head of this file). */
+function show(data) {
+  let message = {}
+
+  try {
+    message = (data && data.json()) || {}
+  } catch {
+    message = {}
+  }
+
+  const text = (value) => (typeof value === 'string' ? value : '')
+
+  return self.registration.showNotification(text(message.title) || 'RideIdle', {
+    body: text(message.body),
+    icon: '/icons/icon-192.png',
+    tag: text(message.tag) || undefined,
+    // A newer message of the same thing alerts again; the one that it replaces is not shown a second time.
+    renotify: text(message.tag) !== '',
+    lang: text(message.lang) || undefined,
+    data: { url: text(message.url) || '/' },
+  })
+}
+
+/** Opens the page of this site that a notification names: in the window that is open when there is one, else in a new one. An address of another site is never opened. */
+async function open(path) {
+  const target = new URL(typeof path === 'string' ? path : '/', self.location.origin)
+  const address = target.origin === self.location.origin ? target.href : `${self.location.origin}/`
+  const windows = await self.clients.matchAll({ type: 'window', includeUncontrolled: true })
+  const client = windows.find((candidate) => new URL(candidate.url).origin === self.location.origin)
+
+  if (client) {
+    try {
+      await client.focus()
+
+      if (client.url !== address && typeof client.navigate === 'function') {
+        await client.navigate(address)
+      }
+
+      return
+    } catch {
+      // A window that cannot be reached is as good as none.
+    }
+  }
+
+  await self.clients.openWindow(address)
+}
 
 /** The shell, and the files of the build: the ones the shell names, and every one that the list of the build has (the screens, the languages, the fonts, the art). */
 async function precache() {
