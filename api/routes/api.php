@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\V1\BrandingController;
 use App\Http\Controllers\Api\V1\FleetController;
 use App\Http\Controllers\Api\V1\GameController;
 use App\Http\Controllers\Api\V1\GarageController;
+use App\Http\Controllers\Api\V1\GigController;
 use App\Http\Controllers\Api\V1\LegalController;
 use App\Http\Controllers\Api\V1\LocaleController;
 use App\Http\Controllers\Api\V1\MarketController;
@@ -124,6 +125,11 @@ Route::prefix('v1')->group(function (): void {
         Route::post('/travel', [WorldController::class, 'travel']);
         Route::post('/travel/finish', [WorldController::class, 'finishTravel']);
         Route::post('/travel/police', [WorldController::class, 'police']);
+
+        // The side jobs of a city: the board for a car, taking an offer, and taking it back in the first seconds.
+        Route::get('/gigs', [GigController::class, 'show'])->middleware('throttle:gigs');
+        Route::post('/gigs', [GigController::class, 'take']);
+        Route::delete('/gigs/{gig}', [GigController::class, 'cancel'])->whereNumber('gig');
 
         Route::get('/garage', [GarageController::class, 'show']);
         Route::post('/garage/jobs', [GarageController::class, 'queueJob']);
