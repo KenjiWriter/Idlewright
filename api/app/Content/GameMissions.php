@@ -55,6 +55,6 @@ final class GameMissions
             ];
         }
 
-        return new MissionEconomy($periods);
+        return new MissionEconomy($periods, $effort);
     }
 }

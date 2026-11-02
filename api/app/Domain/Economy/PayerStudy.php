@@ -21,6 +21,9 @@ final class PayerStudy
     /** The charges of the auto-refill that a player uses in a day. */
     private const CHARGES = [1.0, 3.0];
 
+    /** The parts of what the missions pay now at which a player who does all of them is played too, to see what a lower level of them would do. */
+    private const MISSION_LEVELS = [0.25, 0.5, 0.75];
+
     public function __construct(private readonly Simulator $simulator) {}
 
     /** @param  list<string>  $only  the kinds of players to play, all of them when empty */
@@ -32,7 +35,13 @@ final class PayerStudy
             $variants[$key] = ['label' => $plan['label'], 'runs' => $this->keep($this->simulator->simulateAllGame($rules, $plan['extras']), $only)];
         }
 
-        return new PayerResult($this->keep($this->simulator->simulateAllGame($rules), $only), $variants, $rules->gateTolerance());
+        $levels = [];
+
+        foreach ($missions === null ? [] : self::MISSION_LEVELS as $factor) {
+            $levels[(string) $factor] = $this->keep($this->simulator->simulateAllGame($rules, static fn (): array => [new MissionsExtra($missions->scaled($factor), 1.0, 'missions')]), $only);
+        }
+
+        return new PayerResult($this->keep($this->simulator->simulateAllGame($rules), $only), $variants, $rules->gateTolerance(), $levels);
     }
 
     /**

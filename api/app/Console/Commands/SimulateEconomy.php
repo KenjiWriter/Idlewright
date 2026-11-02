@@ -16,6 +16,7 @@ use App\Content\RunInputsFactory;
 use App\Content\TutorialSteps;
 use App\Domain\Economy\CrateEconomy;
 use App\Domain\Economy\EconomyRules;
+use App\Domain\Economy\EffortAudit;
 use App\Domain\Economy\ExtrasResult;
 use App\Domain\Economy\ExtrasStudy;
 use App\Domain\Economy\Finding;
@@ -24,6 +25,7 @@ use App\Domain\Economy\GateReport;
 use App\Domain\Economy\GateRow;
 use App\Domain\Economy\LadderRow;
 use App\Domain\Economy\MergeEconomy;
+use App\Domain\Economy\MissionEconomy;
 use App\Domain\Economy\PaceGate;
 use App\Domain\Economy\PayerStudy;
 use App\Domain\Economy\PlayerRun;
@@ -119,13 +121,24 @@ final class SimulateEconomy extends Command
         $extras = $study->run($economy, $crateEconomy, $units->economy(), array_map('strval', array_keys($runs)));
         $gameOk = $fleetReport->passed() && $unreachable === [] && array_filter($rows, static fn (LadderRow $row): bool => ! $row->ok || ! $row->xpOk) === [] && $extras->passed();
 
-        $payers = $this->option('payers') ? $payerStudy->run($economy, $gameMissions->economy(), $gamePerks->economy(), array_map('strval', array_keys($runs))) : null;
+        $payers = null;
+        $audit = null;
+
+        if ($this->option('payers')) {
+            $missions = $gameMissions->economy();
+            $payers = $payerStudy->run($economy, $missions, $gamePerks->economy(), array_map('strval', array_keys($runs)));
+            $audit = $missions === null ? null : $this->effortAudit($economy, $crateEconomy, $missions);
+        }
 
         if ($this->option('json')) {
             $document = $this->asArray($economy, $runs, $report, $findings, $game, $extras, $merge, $upkeep);
 
             if ($payers !== null) {
                 $document['payers'] = $this->payersAsArray($economy, $payers);
+
+                if ($audit !== null) {
+                    $document['payers']['effort_audit'] = $audit;
+                }
             }
 
             $this->line((string) json_encode($document, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR));
@@ -134,13 +147,26 @@ final class SimulateEconomy extends Command
             $this->printLaterGifts($tutorial);
 
             if ($payers !== null) {
-                $this->printPayers($economy, $payers);
+                $this->printPayers($economy, $payers, $audit);
             }
         }
 
         $strict = (bool) $this->option('strict');
 
         return $report->passed() && (! $strict || $off === []) && (! $this->option('strict-game') || $gameOk) ? self::SUCCESS : self::FAILURE;
+    }
+
+    /**
+     * What the work that the missions ask for costs against what they say it is worth.
+     *
+     * @return array{efforts: array<string, float|null>, rows: list<array<string, mixed>>, off: array<string, array{effort: float, lowest: float, highest: float}>}
+     */
+    private function effortAudit(EconomyRules $economy, CrateEconomy $crates, MissionEconomy $missions): array
+    {
+        $audit = new EffortAudit;
+        $result = $audit->run($economy, $crates, $missions);
+
+        return [...$result, 'off' => $audit->off($result)];
     }
 
     /**

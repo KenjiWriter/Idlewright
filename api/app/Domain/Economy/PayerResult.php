@@ -13,8 +13,9 @@ final readonly class PayerResult
     /**
      * @param  array<string, PlayerRun>  $baseline  the scenario game without extras
      * @param  array<string, array{label: string, runs: array<string, PlayerRun>}>  $variants  by key of the variant, then the runs by player
+     * @param  array<string, array<string, PlayerRun>>  $missionLevels  a player who does every mission, when the missions pay this share of what they pay (the key, as text), by player
      */
-    public function __construct(public array $baseline, public array $variants, public float $tolerance) {}
+    public function __construct(public array $baseline, public array $variants, public float $tolerance, public array $missionLevels = []) {}
 
     /** The day on which a player of a variant has the car of this rung, or null when never (the baseline when the variant is null). */
     public function dayOf(?string $variant, string $player, int $rung): ?int

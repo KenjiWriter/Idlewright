@@ -455,3 +455,25 @@ describe('economy:simulate --payers', function () {
         expect($code)->toBe(0)->and(str_starts_with($with, $plain))->toBeTrue();
     });
 });
+
+describe('economy:simulate --payers, the effort of the missions', function () {
+    it('says what the missions would do at a part of what they pay, and what the work they ask for costs against what they say it is worth', function () {
+        Artisan::call('economy:simulate', ['--payers' => true, '--player' => ['B']]);
+        $output = Artisan::output();
+
+        expect($output)->toContain('What the missions would do if they paid a part of what they pay now')
+            ->and($output)->toContain('The work that the missions ask for, against what it costs')
+            ->and($output)->toMatch('/A car costs from [\d.]+ to [\d.]+ times what the missions say it is worth \(5\.00 tanks\)/');
+    });
+
+    it('prints both in the JSON report: the days at each part of what the missions pay, and the audit of the effort by rung', function () {
+        Artisan::call('economy:simulate', ['--json' => true, '--payers' => true, '--player' => ['B']]);
+        $report = json_decode(Artisan::output(), true, 512, JSON_THROW_ON_ERROR);
+
+        expect(array_keys($report['payers']['mission_levels']))->toBe(['0.25', '0.5', '0.75'])
+            ->and($report['payers']['effort_audit']['rows'])->toHaveCount(9)
+            ->and($report['payers']['effort_audit']['efforts'])->toEqual(['crate' => 1.0, 'part' => 1.0, 'car' => 5.0])
+            ->and($report['payers']['effort_audit']['off'])->toHaveKey('car')
+            ->and($report['payers']['effort_audit']['rows'][8]['car'])->toBeNull();
+    });
+});

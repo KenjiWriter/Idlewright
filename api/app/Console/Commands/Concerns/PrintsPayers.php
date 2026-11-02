@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Console\Commands\Concerns;
 
 use App\Domain\Economy\EconomyRules;
+use App\Domain\Economy\EffortAudit;
 use App\Domain\Economy\PayerResult;
 use App\Domain\Economy\PerkExtra;
 
@@ -22,7 +23,8 @@ trait PrintsPayers
         return array_values(array_unique(array_filter([1, 3, 5, $last], static fn (int $rung): bool => $rung >= 1 && $rung <= $last)));
     }
 
-    private function printPayers(EconomyRules $economy, PayerResult $payers): void
+    /** @param  array{efforts: array<string, float|null>, rows: list<array<string, mixed>>, off: array<string, array{effort: float, lowest: float, highest: float}>}|null  $audit */
+    private function printPayers(EconomyRules $economy, PayerResult $payers, ?array $audit = null): void
     {
         $rungs = $this->payerRungs($economy);
 
@@ -61,12 +63,67 @@ trait PrintsPayers
 
         if ($beyond === []) {
             $this->info('No payer buys a car more than '.sprintf('%.0f%%', $payers->tolerance * 100).' of the days sooner than a player who pays nothing.');
+        } else {
+            $this->warn('Payers that buy a car more than '.sprintf('%.0f%%', $payers->tolerance * 100).' of the days sooner than a player who pays nothing (information: this fails nothing):');
+            $this->table(['variant', 'player', 'car', 'days saved'], array_map(fn (array $row): array => [$payers->variants[$row['variant']]['label'], $row['player'], $economy->rungName($row['rung']), sprintf('%.0f%%', $row['saved'] * 100)], $beyond));
+        }
+
+        $this->printMissionLevels($economy, $payers, $rungs);
+
+        if ($audit !== null) {
+            $this->printEffortAudit($audit);
+        }
+    }
+
+    /** @param  list<int>  $rungs */
+    private function printMissionLevels(EconomyRules $economy, PayerResult $payers, array $rungs): void
+    {
+        if ($payers->missionLevels === [] || ! isset($payers->variants['missions-100'])) {
+            return;
+        }
+
+        $this->newLine();
+        $this->line('What the missions would do if they paid a part of what they pay now (a player who does all of them; the cash and the experience of the sets, the coins are as they are):');
+
+        foreach (array_keys($payers->baseline) as $player) {
+            $this->newLine();
+            $this->line("Player {$player}:");
+            $rows = [];
+            $levels = [...$payers->missionLevels, '1' => $payers->variants['missions-100']['runs']];
+            ksort($levels);
+
+            foreach ($levels as $factor => $runs) {
+                $note = $runs[$player]->notes['missions'];
+                $rows[] = [
+                    sprintf('%.0f%%', (float) $factor * 100),
+                    ...array_map(fn (int $rung): string => (string) ($runs[$player]->dayOf($rung) ?? '-'), $rungs),
+                    sprintf('%+.0f%%', $note['uplift_cash_30d'] * 100),
+                    sprintf('%+.0f%%', $note['uplift_xp_30d'] * 100),
+                ];
+            }
+
+            $this->table(['of what they pay', ...array_map(fn (int $rung): string => 'day of '.$economy->rungName($rung), $rungs), 'cash '.PerkExtra::WINDOW_DAYS.' d', 'XP '.PerkExtra::WINDOW_DAYS.' d'], $rows);
+        }
+    }
+
+    /** @param  array{efforts: array<string, float|null>, rows: list<array<string, mixed>>, off: array<string, array{effort: float, lowest: float, highest: float}>}  $audit */
+    private function printEffortAudit(array $audit): void
+    {
+        $cell = static fn (?float $tanks): string => $tanks === null ? '-' : number_format($tanks, 2);
+
+        $this->newLine();
+        $this->line('The work that the missions ask for, against what it costs, in tanks of the car of the rung (a tank is the profit of the window of the car). The missions say that a crate is worth '.$cell($audit['efforts']['crate']).' tanks, a part '.$cell($audit['efforts']['part']).' and a car '.$cell($audit['efforts']['car']).':');
+        $this->table(['rung', 'level', 'a tank', 'a crate', 'a part', 'a car'], array_map(fn (array $row): array => [$row['rung'], $row['level'], '$'.number_format($row['tank'], 0, '.', ' '), $cell($row['crate']), $cell($row['part']), $cell($row['car'])], $audit['rows']));
+
+        if ($audit['off'] === []) {
+            $this->info('The effort of the missions is within a factor of '.(int) EffortAudit::TOLERANCE.' of what the work costs, at every rung.');
 
             return;
         }
 
-        $this->warn('Payers that buy a car more than '.sprintf('%.0f%%', $payers->tolerance * 100).' of the days sooner than a player who pays nothing (information: this fails nothing):');
-        $this->table(['variant', 'player', 'car', 'days saved'], array_map(fn (array $row): array => [$payers->variants[$row['variant']]['label'], $row['player'], $economy->rungName($row['rung']), sprintf('%.0f%%', $row['saved'] * 100)], $beyond));
+        foreach ($audit['off'] as $work => $row) {
+            $this->warn(sprintf('A %s costs from %.1f to %.1f times what the missions say it is worth (%.2f tanks): more than a factor of %d off at some rung. This fails nothing.', $work, $row['lowest'], $row['highest'], $row['effort'], (int) EffortAudit::TOLERANCE));
+        }
     }
 
     /** @param  array<string, array<string, mixed>>  $notes */
@@ -107,6 +164,7 @@ trait PrintsPayers
                 array_map(fn (string $player): array => array_map(fn (int $rung): ?float => ($saved = $payers->saved($key, $player, $rung)) === null ? null : round($saved, 4), $rungs), array_keys($payers->variants[$key]['runs'])),
             ), array_combine(array_keys($payers->variants), array_keys($payers->variants))),
             'beyond_tolerance' => $payers->beyondTolerance(),
+            'mission_levels' => array_map(fn (array $runs): array => array_map(fn ($run): array => ['days' => array_map(fn (int $rung): ?int => $run->dayOf($rung), $rungs), 'notes' => $run->notes], $runs), $payers->missionLevels),
         ];
     }
 }

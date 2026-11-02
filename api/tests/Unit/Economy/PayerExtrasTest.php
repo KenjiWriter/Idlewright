@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
+use App\Domain\Economy\CrateEconomy;
 use App\Domain\Economy\DayEffect;
 use App\Domain\Economy\DayState;
 use App\Domain\Economy\EconomyRules;
+use App\Domain\Economy\EffortAudit;
 use App\Domain\Economy\Extra;
 use App\Domain\Economy\MissionEconomy;
 use App\Domain\Economy\MissionsExtra;
@@ -308,5 +310,57 @@ describe('the payers study', function () {
         expect(array_keys($noMissions->variants))->toBe(['vip', 'refill-1', 'refill-3', 'pass', 'all-in'])
             ->and($nothing->variants)->toBe([])
             ->and(array_keys($onlyMissions->variants))->toBe(['missions-100', 'missions-60']);
+    });
+});
+
+describe('what the missions pay at other levels, and the audit of their effort', function () {
+    it('pay a part of the cash and the experience when they are scaled, and leave the coins, and say what a goal is worth', function () {
+        $missions = (new MissionEconomy(aMissionEconomy()->periods, ['crate' => 1_000_000, 'car_bought' => 5_000_000]))->scaled(0.5);
+
+        expect($missions->periods['daily']['cash_ppm'])->toBe(50_000)
+            ->and($missions->periods['daily']['xp_ppm'])->toBe(25_000)
+            ->and($missions->periods['daily']['bonus_coins'])->toBe(2)
+            ->and($missions->tanksPerDay(5)['cash'])->toEqualWithDelta(0.15, 1e-9)
+            ->and($missions->effortOf('car_bought'))->toBe(5.0)
+            ->and($missions->effortOf('unheard-of'))->toBeNull();
+    });
+
+    it('play a player who does all of them at a quarter, a half and three quarters of what they pay, and the more they pay the sooner the cars come', function () {
+        $study = (new PayerStudy(new Simulator))->run(economyRules(), aMissionEconomy(), somePerks(), ['B']);
+        $levels = $study->missionLevels;
+        $day = fn (string $key): int => $levels[$key]['B']->dayOf(8);
+
+        expect(array_keys($levels))->toBe(['0.25', '0.5', '0.75'])
+            ->and($day('0.25'))->toBeGreaterThanOrEqual($day('0.5'))
+            ->and($day('0.5'))->toBeGreaterThanOrEqual($day('0.75'))
+            ->and($day('0.75'))->toBeGreaterThanOrEqual($study->variants['missions-100']['runs']['B']->dayOf(8))
+            ->and((new PayerStudy(new Simulator))->run(economyRules(), null, somePerks(), ['B'])->missionLevels)->toBe([]);
+    });
+
+    it('price a crate, a part and a car in tanks of the car of each rung, and say which goals cost more than twice or less than half of what the missions value them at', function () {
+        $rules = economyRules();
+        $crates = new CrateEconomy(1, 3, 1_000_000, ['tires' => 2, 'suspension' => 1, 'brakes' => 1], ['common' => 620, 'uncommon' => 250, 'rare' => 100, 'epic' => 27, 'legendary' => 3], 10, 'rare', 150, [0.0, 0.10, 0.15, 0.18, 0.20]);
+        $missions = new MissionEconomy([], ['crate' => 1_000_000, 'parts_bought' => 1_000_000, 'car_bought' => 5_000_000]);
+
+        $audit = new EffortAudit;
+        $result = $audit->run($rules, $crates, $missions);
+        $tank = $rules->netPerHour(1) * $rules->offlineWindowHours(1);
+        $second = $result['rows'][1];
+
+        expect($result['efforts'])->toBe(['crate' => 1.0, 'part' => 1.0, 'car' => 5.0])
+            ->and($result['rows'])->toHaveCount($rules->rungs())
+            ->and($second['level'])->toBe(3)
+            ->and($second['tank'])->toEqualWithDelta($tank, 1e-6)
+            ->and($second['crate'])->toEqualWithDelta($crates->cost($rules, 2) / $tank, 1e-9)
+            ->and($second['car'])->toEqualWithDelta($rules->stepCost(1) / $tank, 1e-9)
+            ->and(end($result['rows'])['car'])->toBeNull();
+
+        // A car costs from 10 to 30 tanks and is said to be worth 5: off. A goal that the missions do not value is not audited.
+        $off = $audit->off($result);
+
+        expect($off)->toHaveKey('car')
+            ->and($off['car']['effort'])->toBe(5.0)
+            ->and($off['car']['highest'])->toBeGreaterThan(EffortAudit::TOLERANCE)
+            ->and($audit->off($audit->run($rules, $crates, new MissionEconomy([], []))))->toBe([]);
     });
 });

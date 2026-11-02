@@ -18,8 +18,23 @@ final readonly class MissionEconomy
 
     /**
      * @param  array<string, array{cash_ppm: int, xp_ppm: int, bonus_coins: int, slots: list<list<array{weight: int, worth: float, min_level: int, max_level: int}>>}>  $periods  by period
+     * @param  array<string, int>  $effort  what one doing of a goal is worth in tanks, in ppm, by the goal (`rules/missions`, `effort`)
      */
-    public function __construct(public array $periods) {}
+    public function __construct(public array $periods, public array $effort = []) {}
+
+    /** What one doing of a goal is worth, in tanks of the best car (1.0 is a whole tank), or null when the missions do not value it. */
+    public function effortOf(string $goal): ?float
+    {
+        return isset($this->effort[$goal]) ? $this->effort[$goal] / 1_000_000 : null;
+    }
+
+    /** The same missions paying a part of what they pay: the shares of the sets in cash and in experience times the factor (the coins are not touched). */
+    public function scaled(float $factor): self
+    {
+        $periods = array_map(static fn (array $period): array => [...$period, 'cash_ppm' => (int) round($period['cash_ppm'] * $factor), 'xp_ppm' => (int) round($period['xp_ppm'] * $factor)], $this->periods);
+
+        return new self($periods, $this->effort);
+    }
 
     /** How many missions the set of a period has. */
     public function missionsIn(string $period): int
