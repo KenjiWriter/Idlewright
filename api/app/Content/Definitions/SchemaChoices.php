@@ -41,6 +41,20 @@ final class SchemaChoices
         return self::enum('rules.schema.json', ['$defs', 'stat', 'enum']);
     }
 
+    /** @return list<string> what a mission counts: the goals of the sets and, for the main missions, the facts about the driver as well */
+    public static function missionObjectives(): array
+    {
+        return array_values(array_filter(self::enum('missions.schema.json', ['$defs', 'objective', 'enum']), is_string(...)));
+    }
+
+    /** The highest number of premium coins that the schema lets a set of a period pay for having done all of it. */
+    public static function missionCoinCap(string $period): ?int
+    {
+        $cap = self::node('rules.schema.json', ['properties', 'missions', 'properties', 'periods', 'properties', $period, 'properties', 'bonus_coins', 'maximum']);
+
+        return is_int($cap) ? $cap : null;
+    }
+
     /**
      * @param  list<string|int>  $path
      * @return list<mixed>

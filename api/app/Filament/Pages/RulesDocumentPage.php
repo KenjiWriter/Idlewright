@@ -259,7 +259,7 @@ abstract class RulesDocumentPage extends Page implements HasSchemas
      * @param  list<array{file: string, pointer: string, message: string}>  $warnings
      * @return list<string>
      */
-    private static function missingLanguages(array $warnings): array
+    protected static function missingLanguages(array $warnings): array
     {
         $languages = [];
 
