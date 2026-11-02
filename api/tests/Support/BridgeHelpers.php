@@ -1,7 +1,11 @@
 <?php
 
 declare(strict_types=1);
+use App\Content\Bridge\Brief;
+use App\Content\Bridge\BriefRecorder;
+use App\Content\Bridge\BriefSelection;
 use App\Models\AiExchange;
+use App\Models\Game;
 use Illuminate\Support\Str;
 
 // A block of changes the way an AI would write it, and the answer it is written in: shared by the tests of the bridge.
@@ -34,4 +38,20 @@ function bridgeBrief(?array $scope = null): AiExchange
         'scope' => $scope ?? ['kind:vehicle', 'kind:part', 'rules:starter'],
         'selection' => 'test',
     ]);
+}
+
+/** A canned answer of an AI (tests/Fixtures/ai), with the instruction it answers filled into it. */
+function bridgeCanned(string $name, Brief $brief): string
+{
+    return str_replace(
+        ['{{game}}', '{{pack}}', '{{snapshot}}', '{{brief}}'],
+        [(string) Game::query()->where('is_default', true)->value('slug'), $brief->pack, $brief->snapshot, $brief->code],
+        (string) file_get_contents(__DIR__.'/../Fixtures/ai/'.$name.'.md'),
+    );
+}
+
+/** An instruction made the way the page makes it, for a new admin. */
+function bridgeTheBrief(?BriefSelection $selection = null): Brief
+{
+    return app(BriefRecorder::class)->prepare($selection ?? new BriefSelection(locale: 'en'), anAdmin(['email' => 'ai-'.uniqid().'@example.com']));
 }
