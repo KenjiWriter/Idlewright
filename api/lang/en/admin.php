@@ -1108,6 +1108,8 @@ return [
         'col_notes' => 'Notes',
         'note_rounded' => 'rounded',
         'note_draft' => 'goes on top of a draft',
+        'note_unreviewed' => 'translation not reviewed',
+        'note_new' => 'new',
         'acknowledge' => 'I have seen the remarks and want to keep it in spite of them.',
         'repeat' => 'This text was applied before; apply it again (the numbers change a second time).',
         'apply' => 'Keep as a draft',
@@ -1152,6 +1154,9 @@ return [
             'too_many' => 'Too many changes',
             'real_money_field' => 'A price in real money is not changed here',
             'invalid_content' => 'The content would not pass the checks',
+            'not_text' => 'Not a text in several languages',
+            'text_markup' => 'A text has no markup and no links',
+            'slug_taken' => 'The slug is taken (or was used)',
         ],
         'refused' => [
             'not_ok' => 'The answer has errors, so nothing was kept.',

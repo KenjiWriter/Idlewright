@@ -35,5 +35,10 @@ return [
             'example' => 'Só “Recursos pagos” (premium), quando você fala do preço do VIP.',
             'tip' => 'Uma resposta só pode mudar as seções que você marcar.',
         ],
+        'texts' => [
+            'label' => 'Incluir os textos',
+            'help' => 'Ligado: os nomes e as descrições dos carros e das peças, e os textos das seções das regras escolhidas, entram na instrução em todos os idiomas (alguns milhares de tokens a mais). Sem isso o assistente não vê os textos e não pode mudar nem traduzir nenhum.',
+            'tip' => 'Ligue quando quiser renomear ou traduzir.',
+        ],
     ],
 ];

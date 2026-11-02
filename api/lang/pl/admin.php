@@ -1108,6 +1108,8 @@ return [
         'col_notes' => 'Uwagi',
         'note_rounded' => 'zaokrąglone',
         'note_draft' => 'dokłada się do szkicu',
+        'note_unreviewed' => 'tłumaczenie AI, nieprzejrzane',
+        'note_new' => 'nowe',
         'acknowledge' => 'Widziałem uwagi i chcę zapisać mimo nich.',
         'repeat' => 'Ten sam tekst był już zastosowany; zastosuj go jeszcze raz (liczby zmienią się drugi raz).',
         'apply' => 'Zapisz jako szkic',
@@ -1152,6 +1154,9 @@ return [
             'too_many' => 'Za dużo zmian',
             'real_money_field' => 'Cen w prawdziwych pieniądzach nie zmienia się tutaj',
             'invalid_content' => 'Treść nie przeszłaby sprawdzeń',
+            'not_text' => 'To nie jest tekst w kilku językach',
+            'text_markup' => 'Tekst bez znaczników i linków',
+            'slug_taken' => 'Ten slug jest zajęty (był użyty)',
         ],
         'refused' => [
             'not_ok' => 'Odpowiedź ma błędy, więc nic nie zapisano.',

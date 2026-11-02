@@ -1073,6 +1073,8 @@ return [
         'col_notes' => 'Notes',
         'note_rounded' => 'arrondi',
         'note_draft' => 's’ajoute à un brouillon',
+        'note_unreviewed' => 'traduction non relue',
+        'note_new' => 'nouveau',
         'acknowledge' => 'J’ai vu les remarques et je veux garder malgré elles.',
         'repeat' => 'Ce texte a déjà été appliqué ; l’appliquer encore (les chiffres changent une seconde fois).',
         'apply' => 'Garder comme brouillon',
@@ -1117,6 +1119,9 @@ return [
             'too_many' => 'Trop de changements',
             'real_money_field' => 'Un prix en argent réel ne se change pas ici',
             'invalid_content' => 'Le contenu ne passerait pas les contrôles',
+            'not_text' => 'Pas un texte en plusieurs langues',
+            'text_markup' => 'Un texte sans balises ni liens',
+            'slug_taken' => 'Ce slug est pris (ou l’a été)',
         ],
         'refused' => [
             'not_ok' => 'La réponse a des erreurs, rien n’a donc été gardé.',

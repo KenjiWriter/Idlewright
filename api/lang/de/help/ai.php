@@ -35,5 +35,10 @@ return [
             'example' => 'Nur „Bezahlfunktionen“ (premium), wenn du über den Preis des VIP sprichst.',
             'tip' => 'Eine Antwort darf nur die angekreuzten Abschnitte ändern.',
         ],
+        'texts' => [
+            'label' => 'Texte einbeziehen',
+            'help' => 'Ein: Die Namen und Beschreibungen der Autos und Teile sowie die Texte der gewählten Abschnitte der Regeln kommen in allen Sprachen in die Anweisung (einige tausend Tokens mehr). Ohne das sieht der Assistent die Texte nicht und kann keinen ändern oder übersetzen.',
+            'tip' => 'Schalte es ein, wenn du umbenennen oder übersetzen willst.',
+        ],
     ],
 ];

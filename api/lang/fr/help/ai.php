@@ -35,5 +35,10 @@ return [
             'example' => 'Seulement « Fonctions payantes » (premium), quand vous parlez du prix du VIP.',
             'tip' => 'Une réponse ne peut changer que les sections que vous cochez.',
         ],
+        'texts' => [
+            'label' => 'Inclure les textes',
+            'help' => 'Activé : les noms et descriptions des voitures et des pièces, et les textes des sections des règles choisies, vont dans l’instruction dans toutes les langues (quelques milliers de jetons de plus). Sans cela l’assistant ne voit pas les textes, il ne peut donc en changer ni en traduire aucun.',
+            'tip' => 'Activez-le pour renommer ou traduire.',
+        ],
     ],
 ];

@@ -101,6 +101,7 @@ class AiBridgePage extends Page implements HasSchemas
         $this->form->fill([
             'include' => ['vehicles', 'parts', 'rules'],
             'simple' => true,
+            'texts' => false,
             'sections' => [],
             'locale' => in_array($locale, BriefSelection::LOCALES, true) ? $locale : 'pl',
         ]);
@@ -119,6 +120,7 @@ class AiBridgePage extends Page implements HasSchemas
                 ->live()
                 ->columnSpanFull(),
             Toggle::make('simple')->helpKey('ai.simple')->live(),
+            Toggle::make('texts')->helpKey('ai.texts')->live(),
             Select::make('locale')
                 ->helpKey('ai.locale')
                 ->options(['pl' => 'Polski', 'en' => 'English', 'fr' => 'Français', 'de' => 'Deutsch', 'pt-BR' => 'Português (Brasil)'])
@@ -282,7 +284,7 @@ class AiBridgePage extends Page implements HasSchemas
             'published' => $change->publishedText(),
             'before' => $change->beforeText(),
             'after' => $change->afterText(),
-            'percent' => sprintf('%+.2f%%', $change->percent()),
+            'percent' => $change->type === ResolvedChange::NUMBER ? sprintf('%+.2f%%', $change->percent()) : '',
             'notes' => $change->notes,
         ];
     }

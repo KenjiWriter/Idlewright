@@ -35,5 +35,10 @@ return [
             'example' => 'Only “Paid features” (premium), when you talk about the price of the VIP.',
             'tip' => 'An answer may change only the sections you tick.',
         ],
+        'texts' => [
+            'label' => 'Include the texts',
+            'help' => 'On: the names and descriptions of the cars and parts, and the texts of the sections of the rules you chose, go into the instruction in every language (a few thousand tokens more). Without it the assistant cannot see the texts, so it cannot change or translate any.',
+            'tip' => 'Turn it on when you want to rename or translate.',
+        ],
     ],
 ];

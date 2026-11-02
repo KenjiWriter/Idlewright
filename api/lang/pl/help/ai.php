@@ -35,5 +35,10 @@ return [
             'example' => 'Tylko „Płatne funkcje” (premium), gdy rozmawiasz o cenie VIP.',
             'tip' => 'Odpowiedź może zmienić tylko zaznaczone sekcje.',
         ],
+        'texts' => [
+            'label' => 'Dołącz teksty',
+            'help' => 'Włączone: do instrukcji trafiają nazwy i opisy aut i części oraz teksty wybranych sekcji reguł, we wszystkich językach (to kilka tysięcy tokenów więcej). Bez tego asystent nie widzi tekstów, więc nie zmieni ani nie przetłumaczy żadnego.',
+            'tip' => 'Włącz, gdy chcesz zmieniać nazwy albo tłumaczyć.',
+        ],
     ],
 ];

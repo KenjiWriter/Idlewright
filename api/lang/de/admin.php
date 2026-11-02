@@ -1073,6 +1073,8 @@ return [
         'col_notes' => 'Hinweise',
         'note_rounded' => 'gerundet',
         'note_draft' => 'kommt auf einen Entwurf',
+        'note_unreviewed' => 'Übersetzung nicht geprüft',
+        'note_new' => 'neu',
         'acknowledge' => 'Ich habe die Hinweise gesehen und will trotzdem speichern.',
         'repeat' => 'Dieser Text wurde schon angewendet; erneut anwenden (die Zahlen ändern sich ein zweites Mal).',
         'apply' => 'Als Entwurf speichern',
@@ -1117,6 +1119,9 @@ return [
             'too_many' => 'Zu viele Änderungen',
             'real_money_field' => 'Ein Preis in echtem Geld wird hier nicht geändert',
             'invalid_content' => 'Der Inhalt würde die Prüfungen nicht bestehen',
+            'not_text' => 'Kein Text in mehreren Sprachen',
+            'text_markup' => 'Ein Text ohne Auszeichnung und Links',
+            'slug_taken' => 'Der Slug ist vergeben (oder war es)',
         ],
         'refused' => [
             'not_ok' => 'Die Antwort hat Fehler, deshalb wurde nichts gespeichert.',

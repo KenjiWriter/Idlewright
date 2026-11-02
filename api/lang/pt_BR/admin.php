@@ -1073,6 +1073,8 @@ return [
         'col_notes' => 'Avisos',
         'note_rounded' => 'arredondado',
         'note_draft' => 'vai sobre um rascunho',
+        'note_unreviewed' => 'tradução não revisada',
+        'note_new' => 'novo',
         'acknowledge' => 'Vi os avisos e quero guardar mesmo assim.',
         'repeat' => 'Este texto já foi aplicado; aplicar de novo (os números mudam uma segunda vez).',
         'apply' => 'Guardar como rascunho',
@@ -1117,6 +1119,9 @@ return [
             'too_many' => 'Mudanças demais',
             'real_money_field' => 'Um preço em dinheiro real não se muda aqui',
             'invalid_content' => 'O conteúdo não passaria nas verificações',
+            'not_text' => 'Não é um texto em vários idiomas',
+            'text_markup' => 'Um texto sem marcação nem links',
+            'slug_taken' => 'O slug está em uso (ou já esteve)',
         ],
         'refused' => [
             'not_ok' => 'A resposta tem erros, então nada foi guardado.',
