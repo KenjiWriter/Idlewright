@@ -385,6 +385,17 @@ Serwer decyduje o wszystkim (cena, wynik, odmowy); aplikacja pokazuje pole `tran
 - **Pięć języków** (`workshop.transmute.*`); **teksty fr, de i pt-BR są moje, bez native speakera**.
 - **Specyfikacje:** 4 w `WorkshopView` (oferta tylko na częściach, które można przetransmutować; podgląd, koszt i potwierdzenie; powód blokady; odmowa serwera).
 
+## Bonusy części w warsztacie (B3b, 2026-11-02)
+
+Serwer decyduje o wszystkim (cena, czas, wynik, odmowy); aplikacja pokazuje pola `tuning`, `tuning_slots` i `tune_next` z `GET /garage` i niczego nie liczy.
+
+- **Karta bonusów** (`PartBonuses`) jest na karcie slotu, który dotknięto na aucie (część zamontowana), i przy każdej części inwentarza. Pokazuje miejsca części (tyle, ile mówi `tuning_slots`): bonus słowami jak afiks (`◆ Przyczepność na żwirze +6,2% (Żwir, Błoto)`, opis z serwera w podpowiedzi) i liczbę prób, albo „Puste miejsce”. Części bez miejsc albo z serwera, który ich nie zna, nie pokazują nic.
+- **Edytor** otwiera przycisk „Bonusy” (`bonus-open-{id}`): przy pustym miejscu „Losuj ({cena})”, przy zajętym „Spróbuj jeszcze raz ({cena})” (ta sama cena losu), a „Wybierz…” rozwija listę bonusów slotu (nazwa, opis, „średnio X%, najwyżej Y%”, „Wstaw ({cena wyboru})”), **bez bonusów, które część już ma**. Pod spodem cena próby, jej czas i cena wyboru oraz zdanie, że słabszy wynik niczego nie zmienia, bo zostaje lepszy. Gdy serwer mówi `locked: level`, jest tylko zdanie o poziomie; przy `unavailable` (model bez ceny) edytora nie ma.
+- **Kolejka:** próba jest zleceniem „Dostrajanie: {część}” (`workshop.tune`); miejsce, na którym próba czeka albo jest wykonywana, pokazuje „Próba czeka” zamiast przycisków (serwer i tak odmówi, `tuning_place_busy`), a część, która czeka w innym zleceniu, ma przyciski wyłączone. `POST /garage/jobs` dostaje `kind: tune`, `part`, `place` i, przy wyborze, `key` (przy losowaniu klucza nie ma).
+- **Porównanie części** (`compare.ts`): bonusy obu części wchodzą do porównania z nazwą bonusu i różnicą w punktach procentowych (to, co część ma, a zdjęta nie, to zysk; to, co zostaje na starej części, to strata). Część lepsza w statystykach, która zostawia bonus, a także gorsza, która go przynosi, ma werdykt „zależy”, bo wybór zależy od toru.
+- **Pięć języków** (`workshop.bonus.*`, `workshop.tune`, `part.bonus.*`); **teksty fr, de i pt-BR są moje, bez native speakera**.
+- **Specyfikacje:** `PartBonuses` (7), `WorkshopBonuses` (3: kolejka próby z karty części, bonusy części na aucie, miejsca z czekającą próbą) i 3 w porównaniu; całość `npm test` 1599 zielonych, `vue-tsc` czysty. **Nie sprawdzone w przeglądarce** (400 px) i bez kroku samouczka.
+
 ## Jednostki gry w aplikacji (2026-10-30)
 
 Dystans, prędkość i zużycie paliwa są w aplikacji **w jednostkach gry**, a nie na sztywno w „km” i „km/h”. Serwer podaje wszystkie liczby w skali kanonicznej (metry, kilometry, km/h), a aplikacja przelicza je w jednym miejscu.
