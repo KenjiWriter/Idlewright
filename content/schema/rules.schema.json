@@ -36,7 +36,7 @@
       "additionalProperties": false
     },
     "wear": {
-      "description": "Mileage, the condition of the parts and the service (Systemy III, point 11). A part that sits on a car wears with every kilometre by 1 / life_km of its life, faster on rough ground (rough_ppm), with the power of the car (power_exponent_ppm: wear x (power / reference power) ^ exponent) and with a booster on it (boost_ppm, for the parts of the engine). Its statistics are multiplied by stat_floor_ppm + (1 - stat_floor_ppm) x condition, and it is unserviceable under unserviceable_ppm. The condition counts in stages of stage_ppm, so that the frozen configuration of a run changes only when a part reaches the next one. A car is due for service every service.every_km; past it the performance falls by penalty_ppm_per_step for every step_km, at most max_steps steps.",
+      "description": "Mileage, the condition of the parts and the service (Systemy III, point 11). A part that sits on a car wears with every kilometre by 1 / life_km of its life, faster on rough ground (rough_ppm), with the power of the car (power_exponent_ppm: wear x (power / reference power) ^ exponent, between 0.8 and 2 times) and, for the parts of the engine, with the load of the engine (load_ppm_per_point). Its statistics are multiplied by stat_floor_ppm + (1 - stat_floor_ppm) x condition, and it is unserviceable under unserviceable_ppm. The condition counts in stages of stage_ppm, so that the frozen configuration of a run changes only when a part reaches the next one. A car is due for service every service.every_km; past it the performance falls by penalty_ppm_per_step for every step_km, at most max_steps steps.",
       "type": "object",
       "properties": {
         "life_km": {
@@ -52,9 +52,9 @@
           "propertyNames": { "pattern": "^[a-z][a-z0-9_]{0,31}$" },
           "additionalProperties": { "type": "integer", "minimum": 1000000 }
         },
-        "power_exponent_ppm": { "type": "integer", "minimum": 0, "maximum": 2000000 },
+        "power_exponent_ppm": { "description": "The exponent of the power of the car over the reference power (reference_power_kw of the fuel) in the wear of a part: 500000 is a square root, so a car of four times the power wears them twice as fast. The wear is kept between 0.8 and 2 times the plain one.", "type": "integer", "minimum": 0, "maximum": 2000000 },
         "load_ppm_per_point": { "description": "How much faster the parts of the engine (engine, booster, gearbox, cooling) wear for every point of the load of the engine (the sum of the engine_load of the parts on the car, never under 0): 10000 is 1% a point, so a booster of load 18 and an intercooler of -6 wear them 12% faster.", "type": "integer", "minimum": 0, "maximum": 100000 },
-        "stage_ppm": { "type": "integer", "minimum": 1000, "maximum": 500000 },
+        "stage_ppm": { "description": "The condition of a part counts in steps of this share of its life (50000 is 5%): the frozen configuration of a run changes only when a part reaches the next step, and not with every kilometre.", "type": "integer", "minimum": 1000, "maximum": 500000 },
         "stat_floor_ppm": { "description": "What a worn out part still gives of its statistics (the design: 0.6).", "type": "integer", "minimum": 0, "maximum": 1000000 },
         "unserviceable_ppm": { "description": "Under this condition a part is unserviceable and the car breaks down more.", "type": "integer", "minimum": 0, "maximum": 1000000 },
         "repair_cost_ppm_of_price": { "description": "What the repair of a part costs: this share of its price for the whole condition it is short of.", "type": "integer", "minimum": 0 },
@@ -269,7 +269,7 @@
             "mileage_km": { "$ref": "#/$defs/range" },
             "km_per_year": { "description": "How many km a year a car was driven: the age follows from it and the mileage.", "$ref": "#/$defs/range" },
             "age_years": { "description": "The age of a listed car is kept within this.", "$ref": "#/$defs/range" },
-            "defect_ppm": { "description": "What one defect takes from the condition of a car, from the least to the most.", "$ref": "#/$defs/range" },
+            "defect_ppm": { "description": "What one defect takes from the condition of a car, from the least to the most.", "$ref": "#/$defs/ppm_range" },
             "defects": {
               "description": "How many defects a car has, by its mileage: the weights of 0, 1, 2... defects, for the first band the mileage fits in. The weight of 0 is the chance of a car in a perfect condition.",
               "type": "array",
@@ -319,14 +319,14 @@
           "required": ["age_kept_ppm", "class_floor_ppm", "mileage_per_year_km", "mileage_span_km", "mileage_floor_ppm", "condition_base_ppm"],
           "additionalProperties": false
         },
-        "dealer_mileage_km": { "description": "What the odometer of a new car of the dealer says (the board: 0 to 15 km).", "type": "integer", "minimum": 0 },
+        "dealer_mileage_km": { "description": "What the odometer of a new car of the dealer says, in km. The app shows it as the range 0 to this.", "type": "integer", "minimum": 0 },
         "resale_ppm": { "description": "What a driver is paid for a car: this share of its value, as it was when the driver got it (the economy model has 70%).", "type": "integer", "minimum": 1, "maximum": 1000000 },
         "scrap_cents_per_kg": { "description": "The least a car is bought for, by the kilogram of its mass: what it is worth as scrap.", "type": "integer", "minimum": 0 },
         "storage": {
           "description": "The storage units of the city: a locked unit with a random car in it. The odds are shown before the purchase, the draw is made by the server, and the unit gives at least a good car now and then (the guarantee).",
           "type": "object",
           "properties": {
-            "pity_every": { "description": "A unit of a kind that has not given a good car or better this many times in a row gives one the next time.", "type": "integer", "minimum": 1 },
+            "pity_every": { "description": "The guarantee: the unit of a kind that is opened this many times in a row gives a good car or a gem at the latest at the last of them (with 15, the 15th opening after 14 that gave none).", "type": "integer", "minimum": 1 },
             "classes": {
               "description": "What can be in a unit: scrap, junk, good, and gem. The car has an age, a mileage and a condition within these ranges, and its value is the one of the formula of the exchange.",
               "type": "object",
@@ -678,7 +678,7 @@
       "type": "object",
       "properties": {
         "mechanic_level": { "type": "integer", "minimum": 1, "maximum": 50 },
-        "time_cut_ppm_per_level": { "description": "How much of the time every level of the mechanic cuts.", "type": "integer", "minimum": 0, "maximum": 20000 },
+        "time_cut_ppm_per_level": { "description": "How much of the time every level of the mechanic cuts (20000 is 2%). The schema takes 2% at the most, so that a high level of the mechanic cannot cut a job down to nothing.", "type": "integer", "minimum": 0, "maximum": 20000 },
         "removal_ppm": { "description": "Taking a part off takes this share of the time of putting it on.", "type": "integer", "minimum": 1, "maximum": 1000000 },
         "max_queue": { "description": "How many jobs can wait in the queue of a workshop that has one mechanic at work, the one that is done included.", "type": "integer", "minimum": 1, "maximum": 20 },
         "queue_per_extra_worker": { "description": "How many more jobs fit in the queue for every mechanic at work after the first (a mechanic works when he has a bay).", "type": "integer", "minimum": 0, "maximum": 10 },
@@ -814,9 +814,9 @@
         "properties": {
           "name": { "description": "The name of the city of this region, as the map shows it.", "$ref": "common.schema.json#/$defs/i18n" },
           "map": {
-            "description": "Where the city is on the map, in the 390 by 716 units of the board (Mapa).",
+            "description": "Where the city is on the map, in the units of the board of the app (390 wide). The map screen shows the strip of the board from y 60 to y 360, so a city has to be within it, or the driver does not see it.",
             "type": "object",
-            "properties": { "x": { "type": "integer", "minimum": 0, "maximum": 390 }, "y": { "type": "integer", "minimum": 0, "maximum": 716 } },
+            "properties": { "x": { "type": "integer", "minimum": 0, "maximum": 390 }, "y": { "type": "integer", "minimum": 60, "maximum": 360 } },
             "required": ["x", "y"],
             "additionalProperties": false
           },
@@ -866,7 +866,7 @@
             "stop_ms": { "description": "How long the car stands when the fine is paid.", "type": "integer", "minimum": 0 },
             "bribe_ppm": { "description": "What a bribe costs as a multiple of the fine; the car does not stand when it works.", "type": "integer", "minimum": 1000000, "maximum": 10000000 },
             "bribe_fail_ppm": { "description": "The chance that a bribe does not work.", "type": "integer", "minimum": 0, "maximum": 1000000 },
-            "bribe_fail_fine_ppm": { "description": "What a bribe that did not work costs as a multiple of the fine (the bribe is lost, and the fine is written).", "type": "integer", "minimum": 1000000, "maximum": 10000000 },
+            "bribe_fail_fine_ppm": { "description": "What a bribe that did not work costs the driver in all, as a multiple of the fine: one sum, in which the bribe that is lost and the fine that is written are both (it is not the bribe plus this; the sum is not more than the cash of the driver). It is not less than the bribe, because the driver would try it every time.", "type": "integer", "minimum": 1000000, "maximum": 10000000 },
             "bribe_fail_stop_ms": { "description": "How long the car stands after a bribe that did not work.", "type": "integer", "minimum": 0 },
             "lawyer_coins": { "description": "What a lawyer costs in premium coins; there is none to hire when the game sells no coins.", "type": "integer", "minimum": 1 }
           },
@@ -874,7 +874,7 @@
           "additionalProperties": false
         },
         "speed_share_ppm": { "description": "The average speed on the road as a share of the top speed of the car.", "type": "integer", "minimum": 1, "maximum": 1000000 },
-        "fuel_ml_per_km": { "description": "The fuel of a kilometre for a car of the thirst of the track fuel use (1.0).", "type": "integer", "minimum": 1 }
+        "fuel_ml_per_km": { "description": "The fuel of a kilometre of the road for a car that burns as much as the reference car does: the fuel use of the car multiplies it, so a thirstier car burns more on the road.", "type": "integer", "minimum": 1 }
       },
       "required": ["speed_share_ppm", "fuel_ml_per_km"],
       "additionalProperties": false
@@ -1013,7 +1013,7 @@
       "additionalProperties": false
     },
     "purchase_prices": {
-      "description": "What the next one costs, by how many there are already: the first is free (it is there from the start), and every price is higher than the one before.",
+      "description": "What the next one costs, by how many there are already: the first is free (it is there from the start, so the first price is never charged and is 0), and every price is higher than the one before (the validator says so when it is not).",
       "type": "array",
       "minItems": 2,
       "maxItems": 8,
@@ -1161,7 +1161,7 @@
       "type": "object",
       "properties": {
         "age_years": { "$ref": "#/$defs/range" },
-        "condition_ppm": { "$ref": "#/$defs/range" },
+        "condition_ppm": { "$ref": "#/$defs/ppm_range" },
         "mileage_km": { "$ref": "#/$defs/range" }
       },
       "required": ["age_years", "condition_ppm", "mileage_km"],
@@ -1170,6 +1170,13 @@
     "range": {
       "type": "object",
       "properties": { "min": { "type": "integer", "minimum": 0 }, "max": { "type": "integer", "minimum": 0 } },
+      "required": ["min", "max"],
+      "additionalProperties": false
+    },
+    "ppm_range": {
+      "description": "A range of a share of a whole, in ppm: it cannot reach beyond the whole (a condition above 1 000 000 would make a negative number of defects).",
+      "type": "object",
+      "properties": { "min": { "type": "integer", "minimum": 0, "maximum": 1000000 }, "max": { "type": "integer", "minimum": 0, "maximum": 1000000 } },
       "required": ["min", "max"],
       "additionalProperties": false
     }

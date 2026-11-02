@@ -56,6 +56,17 @@ final class PackValidator
         'missions' => 'missions.schema.json',
     ];
 
+    /**
+     * The keys of steps of the tutorial that the server knows by name (TutorialScript), and what it arranges for each.
+     *
+     * @var array<string, string>
+     */
+    private const TUTORIAL_KEYS_OF_THE_SERVER = [
+        'repair' => 'the breakdown of the first run, until the step is done',
+        'mount' => 'the short first job of mounting, and with it the free first crate',
+        'crate' => 'the free first crate, until the step is done',
+    ];
+
     private readonly Validator $validator;
 
     public function __construct(string $schemaPath)
@@ -203,6 +214,10 @@ final class PackValidator
         $result->count($folder);
 
         if ($folder === 'rules') {
+            if ($slug === 'starter') {
+                $this->checkRuleNumbers($data, $result);
+            }
+
             $this->warnAboutMissingRulesTranslations($relative, (string) $slug, $data, $result);
             $this->checkVocabulary($relative, (string) $slug, $data, $result, $model);
             $this->checkModelDocument($relative, (string) $slug, $data, $result);
@@ -316,6 +331,9 @@ final class PackValidator
 
         $this->checkModel($source, $rules, $result);
         $this->checkWorld($rules, $result);
+        $this->checkRuleNumbers($rules, $result);
+        $this->checkEconomyCurve($source, $result);
+        $this->checkParts($source, $result);
         $this->checkTutorial($source, $parts, $vehicles, $regions, $result);
         $this->checkMissions($source, $rules, $result);
         $this->checkWithdrawn($source, $parts, $vehicles, $result);
@@ -410,7 +428,9 @@ final class PackValidator
             }
         }
 
-        $reached = array_slice(array_keys($rules['regions'] ?? []), 0, 1);
+        // The roads have to lead from the city where a new driver starts (the city of the first track), or the cars of a driver cannot reach the rest of the map.
+        $home = $rules['tracks'][array_key_first($rules['tracks'] ?? [])]['region'] ?? array_key_first($rules['regions'] ?? []);
+        $reached = $home === null || ! isset($rules['regions'][$home]) ? [] : [$home];
 
         for ($index = 0; $index < count($reached); $index++) {
             foreach ($rules['roads'] ?? [] as $road) {
@@ -423,7 +443,7 @@ final class PackValidator
         }
 
         foreach (array_diff(array_keys($rules['regions'] ?? []), $reached) as $slug) {
-            $result->addError($file, "/regions/{$slug}", 'No road leads there from the first city.');
+            $result->addError($file, "/regions/{$slug}", 'No road leads there from the city where a new driver starts (the city of the first track).');
         }
 
         foreach ($rules['roads'] ?? [] as $index => $road) {
@@ -436,6 +456,235 @@ final class PackValidator
 
         if ($first !== null && ($rules['tracks'][$first]['min_player_level'] ?? 1) !== 1) {
             $result->addError($file, "/tracks/{$first}/min_player_level", 'The first track is where a new driver starts: it is open from level 1.');
+        }
+    }
+
+    /**
+     * What the schema cannot say about the numbers of the rules, because it compares one number with another: a range runs from its lowest to its highest, the bands of
+     * the defects follow the mileage, the odds of a unit can be drawn, the stop of the police is somewhere on the way and a bribe that fails is no cheaper than one that
+     * works, the bots have a reward for every place, and the curve of the levels is a table that is followed by the plain curve. Each is a thing that breaks a draw or a
+     * run at a player, and not at the person who writes the number, when it is let through.
+     *
+     * @param  array<string, mixed>  $rules
+     */
+    private function checkRuleNumbers(array $rules, PackValidationResult $result): void
+    {
+        $this->checkMarket($rules['market'] ?? [], $result);
+        $this->checkWorkshopPrices($rules['workshop'] ?? [], $result);
+        $this->checkBoost($rules['travel']['boost'] ?? null, $result);
+        $this->checkBots($rules['bots'] ?? null, $result);
+        $this->checkPlayerCurve($rules['player'] ?? null, 'rules/starter.json', '/player', 'early_xp', $result);
+    }
+
+    /**
+     * The bays and the mechanics are bought one after the other, each dearer than the last, and the first of them is there from the start: its price is never charged. The
+     * same for the first level of a piece of equipment, which is the state that the workshop starts in.
+     *
+     * @param  array<string, mixed>  $workshop
+     */
+    private function checkWorkshopPrices(array $workshop, PackValidationResult $result): void
+    {
+        $file = 'rules/starter.json';
+
+        foreach (['bays', 'mechanics'] as $kind) {
+            $prices = array_values($workshop[$kind]['price_cents'] ?? []);
+
+            foreach ($prices as $index => $price) {
+                if ($index > 0 && $price <= $prices[$index - 1]) {
+                    $result->addError($file, "/workshop/{$kind}/price_cents/{$index}", 'Each one costs more than the one before it, and this is not more than the last.');
+                }
+            }
+
+            if (($prices[0] ?? 0) !== 0) {
+                $result->addWarning($file, "/workshop/{$kind}/price_cents/0", 'The first one is there from the start, so its price is never charged. Put 0 there.');
+            }
+        }
+
+        foreach ($workshop['equipment'] ?? [] as $name => $item) {
+            if (($item['levels'][0]['price_cents'] ?? 0) !== 0) {
+                $result->addWarning($file, "/workshop/equipment/{$name}/levels/0/price_cents", 'The first level is the state that the workshop starts in, so its price is never charged. Put 0 there.');
+            }
+        }
+    }
+
+    /**
+     * What the parts say that the game does not hold them to: `fits` is kept by the simulator of the tracks only (the workshop, the shop and the preview put the part on any
+     * car), and the power and the mass of an engine are the part's own numbers, which the rules of the engines (the layout, the litres and the tier) would give another.
+     */
+    private function checkParts(ContentSource $source, PackValidationResult $result): void
+    {
+        $engineSlot = GameModel::fromSource($source)->slotOf('engine');
+        $rules = Rules::fromSource($source);
+
+        foreach ($source->slugs('parts') as $slug) {
+            $part = $source->document("parts/{$slug}");
+            $file = "parts/{$slug}.json";
+
+            if (isset($part['fits'])) {
+                $result->addWarning($file, '/fits', 'The simulator of the tracks keeps the part off the cars it does not fit, but the workshop, the shop and the preview do not: a driver can put it on any car.');
+            }
+
+            if ($engineSlot === null || ($part['slot'] ?? null) !== $engineSlot || ! isset($part['engine'])) {
+                continue;
+            }
+
+            try {
+                $power = $rules->enginePowerKw($part['engine']['layout'], (float) $part['engine']['displacement_l'], (int) $part['tier']);
+                $mass = $rules->engineMassKg($part['engine']['layout'], (float) $part['engine']['displacement_l']);
+            } catch (Throwable) {
+                $result->addError($file, '/engine/layout', "The rules of the engines have no layout {$part['engine']['layout']}.");
+
+                continue;
+            }
+
+            if (isset($part['stats']['power_kw']) && abs($part['stats']['power_kw'] - $power) > 0.01) {
+                $result->addWarning($file, '/stats/power_kw', sprintf('The rules of the engines give %s kW for this layout, displacement and tier, and the part says %s. The game uses the number of the part.', round($power, 2), $part['stats']['power_kw']));
+            }
+
+            if (isset($part['stats']['engine_mass_kg']) && abs($part['stats']['engine_mass_kg'] - $mass) > 0.01) {
+                $result->addWarning($file, '/stats/engine_mass_kg', sprintf('The rules of the engines give %s kg for this layout and displacement, and the part says %s. The game uses the number of the part.', round($mass, 2), $part['stats']['engine_mass_kg']));
+            }
+        }
+    }
+
+    /**
+     * @param  array<string, mixed>  $market
+     */
+    private function checkMarket(array $market, PackValidationResult $result): void
+    {
+        $file = 'rules/starter.json';
+        $exchange = $market['exchange'] ?? [];
+
+        foreach (['mileage_km', 'km_per_year', 'age_years', 'defect_ppm'] as $key) {
+            $this->checkRange($file, "/market/exchange/{$key}", $exchange[$key] ?? null, $result);
+        }
+
+        $before = 0;
+
+        foreach ($exchange['defects'] ?? [] as $index => $band) {
+            if ($index > 0 && ($band['up_to_km'] ?? 0) <= $before) {
+                $result->addError($file, "/market/exchange/defects/{$index}/up_to_km", 'The bands go by the mileage, from the lowest: this one ends at or before the end of the band above it, so no car would ever fall in it.');
+            }
+
+            $before = (int) ($band['up_to_km'] ?? 0);
+
+            if (array_sum($band['weights'] ?? []) <= 0) {
+                $result->addError($file, "/market/exchange/defects/{$index}/weights", 'All the weights are 0, so there is no chance for any number of defects, and a car of this band cannot be made.');
+            }
+        }
+
+        $description = $exchange['description'] ?? null;
+
+        if ($description !== null && $description['good_from_ppm'] < $description['fair_from_ppm']) {
+            $result->addError($file, '/market/exchange/description/good_from_ppm', 'A car is good from a higher condition than the one it is fair from, and here it is the other way round.');
+        }
+
+        $storage = $market['storage'] ?? [];
+
+        foreach ($storage['classes'] ?? [] as $class => $ranges) {
+            foreach (['age_years', 'condition_ppm', 'mileage_km'] as $key) {
+                $this->checkRange($file, "/market/storage/classes/{$class}/{$key}", $ranges[$key] ?? null, $result);
+            }
+        }
+
+        foreach ($storage['units'] ?? [] as $unit => $definition) {
+            $odds = $definition['odds'] ?? [];
+
+            if (array_sum($odds) <= 0) {
+                $result->addError($file, "/market/storage/units/{$unit}/odds", 'All the odds are 0, so nothing could be in the unit.');
+            } elseif (($odds['good'] ?? 0) + ($odds['gem'] ?? 0) <= 0) {
+                $result->addError($file, "/market/storage/units/{$unit}/odds", 'The guarantee gives a good car or a gem after the units that gave none, and this unit has no odds for either of them.');
+            }
+        }
+    }
+
+    /**
+     * @param  array<string, mixed>|null  $range
+     */
+    private function checkRange(string $file, string $pointer, ?array $range, PackValidationResult $result): void
+    {
+        if ($range !== null && ($range['min'] ?? 0) > ($range['max'] ?? 0)) {
+            $result->addError($file, $pointer, 'The lowest value is above the highest.');
+        }
+    }
+
+    /**
+     * @param  array<string, mixed>|null  $boost
+     */
+    private function checkBoost(?array $boost, PackValidationResult $result): void
+    {
+        if ($boost === null) {
+            return;
+        }
+
+        $file = 'rules/starter.json';
+
+        if ($boost['police_from_ppm'] > $boost['police_to_ppm']) {
+            $result->addError($file, '/travel/boost/police_to_ppm', 'The latest place of the stop is before the earliest, so the police have nowhere on the way to stop the car.');
+        }
+
+        if ($boost['bribe_fail_fine_ppm'] < $boost['bribe_ppm']) {
+            $result->addError($file, '/travel/boost/bribe_fail_fine_ppm', 'A bribe that did not work costs the driver the bribe and the fine in one sum, so it cannot be less than a bribe that worked: then the driver would try it every time.');
+        }
+    }
+
+    /**
+     * @param  array<string, mixed>|null  $bots
+     */
+    private function checkBots(?array $bots, PackValidationResult $result): void
+    {
+        if ($bots === null) {
+            return;
+        }
+
+        $file = 'rules/starter.json';
+        $rewards = array_values($bots['reward_ppm_by_position'] ?? []);
+
+        if (count($rewards) !== count($bots['offsets_ppm'] ?? []) + 1) {
+            $result->addError($file, '/bots/reward_ppm_by_position', 'The field is the bots and the car, so there is a reward for every place: one more than there are bots in offsets_ppm. A run cannot be started with the wrong number.');
+        }
+
+        foreach ($rewards as $place => $reward) {
+            if ($place > 0 && $reward > $rewards[$place - 1]) {
+                $result->addError($file, "/bots/reward_ppm_by_position/{$place}", 'A worse place pays more than a better one, and the reward never rises with the place.');
+            }
+        }
+
+        if (count($bots['names'] ?? []) < count($bots['offsets_ppm'] ?? [])) {
+            $result->addError($file, '/bots/names', 'A track takes a name for every bot, and there are fewer names than bots.');
+        }
+    }
+
+    /**
+     * The first levels are a table and the plain curve starts at the catch-up level, which has to be above the end of the table, and the table has to rise.
+     *
+     * @param  array<string, mixed>|null  $player  the rules of the levels (the player of the rules, the xp of the economy)
+     */
+    private function checkPlayerCurve(?array $player, string $file, string $pointer, string $tableKey, PackValidationResult $result): void
+    {
+        if ($player === null || ! isset($player[$tableKey], $player['catch_up_level'])) {
+            return;
+        }
+
+        $table = array_values($player[$tableKey]);
+
+        foreach ($table as $index => $xp) {
+            if ($index > 0 && $xp <= $table[$index - 1]) {
+                $result->addError($file, "{$pointer}/{$tableKey}/{$index}", 'The experience that reaches a level has to be more than the one before it.');
+            }
+        }
+
+        // The table reaches level count + 1: the plain curve has to start above it.
+        if ($player['catch_up_level'] <= count($table) + 1) {
+            $result->addError($file, "{$pointer}/catch_up_level", 'The table reaches level '.(count($table) + 1).', and the catch-up level has to be above it: from it the plain curve starts, and the levels between are on a straight line to it.');
+        }
+    }
+
+    /** The economy keeps its own copy of the table of the levels, and it follows the same rule. */
+    private function checkEconomyCurve(ContentSource $source, PackValidationResult $result): void
+    {
+        if ($source->has('rules/economy')) {
+            $this->checkPlayerCurve($source->document('rules/economy')['model']['xp'] ?? null, 'rules/economy.json', '/model/xp', 'early', $result);
         }
     }
 
@@ -581,10 +830,37 @@ final class PackValidator
                 $result->addError($file, "/steps/{$index}/decline", 'An optional step needs the words of the button that leaves it for later.');
             }
 
-            foreach (['trigger', 'completion'] as $field) {
-                if (in_array('car_bought', TutorialSteps::conditions($step[$field] ?? []), true) && ! isset($tutorial['script']['exchange_listing'])) {
-                    $result->addError($file, "/steps/{$index}/{$field}", 'The step waits for a car bought from the exchange, and the script has no listing of the tutorial to buy.');
-                }
+            if (($step['sms'] ?? []) !== [] && ! isset($step['reply'])) {
+                $result->addError($file, "/steps/{$index}/reply", 'The step shows messages, and it has no words for the button that answers them.');
+            }
+
+            $trigger = TutorialSteps::conditions($step['trigger'] ?? []);
+            $completion = TutorialSteps::conditions($step['completion'] ?? []);
+
+            if (in_array('acknowledged', $trigger, true)) {
+                $result->addError($file, "/steps/{$index}/trigger", 'The messages of a step are shown after it has started, so the driver cannot answer them before it starts, and the step would never start. Use acknowledged as the completion.');
+            }
+
+            if (in_array('recovered', $trigger, true)) {
+                $result->addError($file, "/steps/{$index}/trigger", 'recovered holds for every car that does not stand broken down, so a step that starts on it starts at once. It is for ending a step that starts on breakdown.');
+            }
+
+            if (in_array('recovered', $completion, true) && ! in_array('breakdown', $trigger, true)) {
+                $result->addError($file, "/steps/{$index}/completion", 'recovered holds for every car that does not stand broken down, so the step would be done the moment it started. Start the step on breakdown.');
+            }
+
+            if (in_array('car_bought', $completion, true) && ! isset($tutorial['script']['exchange_listing'])) {
+                $result->addError($file, "/steps/{$index}/completion", 'The step waits for a car bought from the exchange, and the script has no listing of the tutorial to buy.');
+            }
+
+            if (in_array('car_bought', $trigger, true)) {
+                $result->addWarning($file, "/steps/{$index}/trigger", 'The step starts when the driver has bought a car from the exchange, any car. The listing of the tutorial is offered only to a driver whose waiting step has car_bought as its completion.');
+            }
+        }
+
+        foreach (self::TUTORIAL_KEYS_OF_THE_SERVER as $step => $arranges) {
+            if (($tutorial['steps'] ?? []) !== [] && ! isset($keys[$step])) {
+                $result->addWarning($file, '/steps', "The server arranges {$arranges} for the step with the key {$step}, and the tutorial has no such step: it is not arranged.");
             }
         }
 

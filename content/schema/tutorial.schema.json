@@ -39,7 +39,7 @@
       "items": {
         "type": "object",
         "properties": {
-          "key": { "$ref": "common.schema.json#/$defs/slug" },
+          "key": { "description": "The name of the step. The server knows three of them by name: repair (the first run breaks down at the lap of the script until it is done), mount (the first job of mounting is short, and the free first crate waits for it) and crate (the first crate is free until it is done). A tutorial without them does not arrange those things, and the validator says so.", "$ref": "common.schema.json#/$defs/slug" },
           "phase": { "description": "The phase of the design: 1 the first five minutes, 2 the first hour (the guided first fifteen minutes end with it), 3 the first day, 4 the first week.", "type": "integer", "minimum": 1, "maximum": 4 },
           "trigger": { "$ref": "#/$defs/conditions" },
           "completion": { "$ref": "#/$defs/conditions" },
@@ -88,6 +88,8 @@
             "additionalProperties": false
           }
         },
+        "if": { "properties": { "sms": { "minItems": 1 } }, "required": ["sms"] },
+        "then": { "required": ["reply"] },
         "required": ["key", "phase", "trigger", "completion", "target", "goal", "sender", "sms", "reward"],
         "additionalProperties": false
       }
@@ -97,7 +99,7 @@
   "additionalProperties": false,
   "$defs": {
     "condition": {
-      "description": "A fact about the driver that the server can read. Plain ones: none always holds; run_started the driver has a run; driving the car has been sent out and is not waiting in the garage any more; lap_completed it has finished a lap; fuel_low the tank holds less than a quarter; fuel_restored it holds at least four fifths; breakdown the car stands broken down; recovered it does not; acknowledged the driver has answered the messages of the step; job_queued the driver has put a job in the queue of the workshop; crate_opened the driver has opened a crate; travel_started the driver has sent a car on a journey; travel_done the car of the driver has arrived from its journey; rain_forecast the forecast of the track of the car shows rain; merge_done, service_done and upgrade_done a job of that kind was done since the step started; car_bought the driver bought a car from the exchange since the step started; equipment_bought the driver bought something for the workshop since the step started; email_confirmed the e-mail of the driver is confirmed; garage_bought the driver bought a garage since the step started; city_open there is a city with a track the driver may drive on, where they have no garage yet. mission_taken the driver has taken the reward of a mission (at any time, as crate_opened counts any crate). With a number or a word after a colon: tires_mounted:kind the car has tires of that kind on; car_level:n the car is at level n at least; cash:n the driver holds n dollars at least; returned:n the driver came back after at least n minutes away.",
+      "description": "A fact about the driver that the server can read. Plain ones: none always holds; run_started the driver has a run; driving the car has been sent out and is not waiting in the garage any more; lap_completed it has finished a lap; fuel_low the tank holds less than a quarter; fuel_restored it holds at least four fifths; breakdown the car stands broken down; recovered it does not (it ends a step that starts on breakdown: on any other step it holds from the start); acknowledged the driver has answered the messages of the step (a completion only: the messages are shown after the step starts, so as a trigger it never holds); job_queued the driver has put a job in the queue of the workshop; crate_opened the driver has opened a crate; travel_started the driver has sent a car on a journey; travel_done the car of the driver has arrived from its journey; rain_forecast the forecast of the track of the car shows rain; merge_done, service_done and upgrade_done a job of that kind was done since the step started; car_bought the driver bought a car from the exchange since the step started; equipment_bought the driver bought something for the workshop since the step started; email_confirmed the e-mail of the driver is confirmed; garage_bought the driver bought a garage since the step started; city_open there is a city with a track the driver may drive on, where they have no garage yet. mission_taken the driver has taken the reward of a mission (at any time, as crate_opened counts any crate). With a number or a word after a colon: tires_mounted:kind the car has tires of that kind on; car_level:n the car is at level n at least; cash:n the driver holds n dollars at least; returned:n the driver came back after at least n minutes away.",
       "oneOf": [
         {
           "enum": [

@@ -22,7 +22,7 @@
     "tier": { "$ref": "common.schema.json#/$defs/tier" },
     "price_cents": { "$ref": "common.schema.json#/$defs/cents" },
     "stats": {
-      "description": "Base statistics of the model. Rarity and upgrades multiply them at run time.",
+      "description": "Base statistics of the model. Rarity and upgrades multiply them at run time. The app shows every one of them, but a formula of the game reads only some: cooling, fade_resistance and gears are not read by any yet.",
       "type": "object",
       "minProperties": 1,
       "propertyNames": { "pattern": "^[a-z][a-z0-9_]*$" },
@@ -49,7 +49,7 @@
       "additionalProperties": false
     },
     "fits": {
-      "description": "Optional restriction to vehicle classes or powertrains.",
+      "description": "Optional restriction to vehicle classes or powertrains. Only the simulator of the tracks keeps the part off the cars it does not fit; the workshop, the shop and the preview do not, and the validator warns about it.",
       "type": "object",
       "properties": {
         "powertrain": { "enum": ["ice", "ev"] },

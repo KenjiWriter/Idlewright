@@ -24,8 +24,8 @@
       "properties": {
         "layout": { "enum": ["R4", "V6", "R6", "V8", "V10", "V12"] },
         "displacement_l": { "type": "number", "minimum": 0.8, "maximum": 8 },
-        "tune": { "type": "number", "minimum": 0.75, "maximum": 1.1 },
-        "motors": { "type": "integer", "minimum": 1, "maximum": 4 }
+        "tune": { "description": "How hard the factory engine is tuned (1 is plain). It is data of the pack: no formula of the game reads it yet.", "type": "number", "minimum": 0.75, "maximum": 1.1 },
+        "motors": { "description": "How many electric motors the car has. No formula reads it yet: the game cannot run an electric car yet.", "type": "integer", "minimum": 1, "maximum": 4 }
       },
       "additionalProperties": false
     },
@@ -38,11 +38,11 @@
       "exclusiveMinimum": 0,
       "maximum": 400
     },
-    "cargo_kg": { "type": "integer", "minimum": 0, "maximum": 3000 },
-    "seats": { "type": "integer", "minimum": 1, "maximum": 9 },
+    "cargo_kg": { "description": "What the car can carry. The game shows it in the list of the cars to start with and uses it for nothing else yet.", "type": "integer", "minimum": 0, "maximum": 3000 },
+    "seats": { "description": "How many seats the car has. Data of the pack: no formula of the game reads it yet.", "type": "integer", "minimum": 1, "maximum": 9 },
     "tank_l": { "type": "number", "exclusiveMinimum": 0, "maximum": 200 },
-    "battery_kwh": { "type": "number", "exclusiveMinimum": 0, "maximum": 250 },
-    "max_charge_kw": { "type": "integer", "exclusiveMinimum": 0, "maximum": 400 },
+    "battery_kwh": { "description": "The battery of an electric car. No formula reads it yet: the game cannot run an electric car yet.", "type": "number", "exclusiveMinimum": 0, "maximum": 250 },
+    "max_charge_kw": { "description": "How fast an electric car charges. No formula reads it yet: the game cannot run an electric car yet.", "type": "integer", "exclusiveMinimum": 0, "maximum": 400 },
     "tier": { "$ref": "common.schema.json#/$defs/tier" },
     "min_player_level": { "type": "integer", "minimum": 1, "maximum": 100 },
     "price_cents": { "$ref": "common.schema.json#/$defs/cents" },
