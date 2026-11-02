@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Content\Catalog;
 use App\Content\Rules;
 use App\Content\RunInputsFactory;
+use App\Content\ThreadDocument;
 use App\Domain\Run\RunFreezer;
 
 /** A bonus that a place holds. */
@@ -45,6 +46,21 @@ function tuningFactory(?Rules $rules = null): RunInputsFactory
 function tuningLaps(RunInputsFactory $factory, string $track, array $mounted): array
 {
     return (new RunFreezer)->freeze($factory->make('rdzak-gt-4', $track, $mounted), 'tuning-pipeline', 0)->config['lap_ms'];
+}
+
+/** The rules of the repository with the street driven on a thread of fourteen sections, its base lap said by hand. */
+function tuningThreadRules(): Rules
+{
+    $data = json_decode((string) file_get_contents(config('ride.content_path').'/rules/starter.json'), true, 512, JSON_THROW_ON_ERROR);
+    $straight = static fn (int $length): array => ['type' => 'straight', 'length_m' => $length];
+    $corner = static fn (int $radius, int $angle, string $turn = 'right'): array => ['type' => 'corner', 'radius_m' => $radius, 'angle_deg' => $angle, 'turn' => $turn];
+    $thread = ['mode' => 'circuit', 'sections' => [
+        $straight(629), $corner(70, 90), $straight(295), $corner(40, 90), $straight(206), $corner(90, 90), $straight(423), $corner(28, 180), $straight(256),
+        $corner(80, 45, 'left'), $straight(29), $corner(80, 45), $straight(147), $corner(55, 90, 'left'),
+    ]];
+    $data['tracks']['zlomowo-street'] = [...$data['tracks']['zlomowo-street'], 'lap_from' => 'thread', 'thread' => $thread, 'length_m' => ThreadDocument::lengthM($thread), 'base_lap_ms' => 75_000];
+
+    return Rules::fromArray($data);
 }
 
 describe('the bonuses of the tuning in the pipeline', function () {
@@ -90,6 +106,16 @@ describe('the bonuses of the tuning in the pipeline', function () {
             ->and(tuningLaps($factory, 'zlomowo-street', tunedCar(['tires' => [tuned('gravel-grip', 80_000)]])))->toBe($base)
             // Dry grip does nothing on gravel.
             ->and(tuningLaps($factory, 'kruszyn-quarry', tunedCar(['tires' => [tuned('dry-grip', 80_000)]], 'offroad-tires-t2')))->toBe(tuningLaps($factory, 'kruszyn-quarry', tunedCar([], 'offroad-tires-t2')));
+    });
+
+    it('of a surface and of a weather work on the sections of a track that is driven on its thread, where the surface is that', function () {
+        $factory = tuningFactory(tuningThreadRules());
+        $base = tuningLaps($factory, 'zlomowo-street', tunedCar());
+        $dry = tuningLaps($factory, 'zlomowo-street', tunedCar(['tires' => [tuned('dry-grip', 80_000)]]));
+        $rain = tuningLaps($factory, 'zlomowo-street', tunedCar(['tires' => [tuned('rain-handling', 100_000)]]));
+
+        expect($dry['dry'])->toBeLessThan($base['dry'])->and($dry['rain'])->toBe($base['rain'])
+            ->and($rain['rain'])->toBeLessThan($base['rain'])->and($rain['dry'])->toBe($base['dry']);
     });
 
     it('of a weather multiply the statistic in that weather and in no other', function () {
