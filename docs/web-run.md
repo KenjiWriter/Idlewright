@@ -101,6 +101,18 @@ Druga zakładka garażu (plansza Flota; zakładki **Auto | Flota** to `GarageTab
 
 Od planszy Flota różni się model (plansza ma aktywne sloty i magazyn z zamianą, ekran ma garaże miast i wszystkie auta jadące naraz: uzasadnienie w `docs/api-runs.md`), a zakładki Auto | Flota są na ekranie garażu także tam, gdzie plansza Garaż ich nie rysuje, bo bez nich nie ma wejścia do floty.
 
+## Flota: auta na drodze i w magazynie (`/garage/fleet`, D3, 2026-11-02)
+
+Limit i liczby są serwera (blok `slots` w `GET /cars`); ekran je pokazuje i woła `POST /cars/{id}/store|activate|swap`.
+
+- **Nagłówek:** „Na drodze: 2 z 2 · w magazynie: 1”, a z kontem VIP znacznik „Konto VIP: 5 miejsc, dopóki trwa”; gracz sprzed limitu widzi zdanie, że zostawiamy mu auta ponad limit, dopóki nie odstawi któregoś. W grze bez limitu nie ma ani linii, ani przycisków.
+- **Pasek aut:** auto w magazynie jest przygaszone i ma znaczek „Magazyn” (znaczek „Wybrane” ma pierwszeństwo). Na scenie status „W magazynie”.
+- **Karta auta:** dla auta na drodze przycisk **„Odstaw do magazynu”** (gdy to jedyne auto na drodze, zamiast niego zdanie „To jedyne auto na drodze: najpierw wyprowadź inne”); dla auta w magazynie zdanie, że nie jeździ, nie pali paliwa i nic się nie zużywa, **bez przycisku „Graj tym autem”**, i albo **„Wyprowadź na drogę”** (wolny slot), albo **zamiana**: lista aut na drodze („Odstaw zamiast niego”) i przycisk „Zamień · 8 $” (wyłączony bez gotówki). Komunikaty po akcji w języku gracza („Kuna 4x4 jedzie, Rdzak GT-4 stoi w magazynie”, „… jest na drodze i pojedzie za 2 min”).
+- **Zakupy aut** (giełda, dealer, złomowisko, magazyn losowy): gdy wszystkie sloty są zajęte, komunikat dodaje, że auto trafia do magazynu (`stored` w odpowiedzi).
+- **Pięć języków** (`fleet.slots*`, `fleet.toStorage*`, `fleet.toRoad*`, `fleet.swap*`, `fleet.stored*`, `fleet.noFreeSlot`, `fleet.onlyOne`, `fleet.carStored`, `run.status.stored`, `run.banner.stored`, `fleet.sellBlocked.last_active_car`); **teksty fr, de i pt-BR są moje, bez native speakera**.
+- **Sprawdzone w przeglądarce** (telefon, prawdziwe API na kopii bazy): trzeci kupiony wóz trafił do magazynu, nagłówek, znaczek w pasku, karta auta w magazynie z zamianą i „Zamień · 8 $”, po kliknięciu auta zamienione, a wybór przeniesiony. **Nie sprawdzone:** konto VIP w przeglądarce, pozostałe języki, szeroki ekran.
+- **Specyfikacje:** 7 nowych w `FleetView`, po jednej w `DealerView` (komunikat zakupu), plus `StreakCard` itd. z etapu B (zob. wyżej).
+
 ## Miasto: sklep ze skrzynkami, giełda, dealer i magazyny (`/shop`, `/exchange`, `/dealer`, `/storage`)
 
 W nawigacji jest „Miasto” (plansza Kursy; ikona z budynkami) zamiast „Sklep”, a w nim zakładki **Sklep | Giełda | Dealer | Magazyny** (`CityTabs`, ten sam pasek `seg` co Auto | Flota; cztery mieszczą się na 375 px). „Miasto” świeci się na wszystkich czterech ekranach. Zakładki Kursy z planszy nie ma, bo kursów w grze nie ma. Rynek jest rynkiem **miasta, w którym stoi auto, którym się gra** (kierowca nie ma własnej pozycji), a stan trzyma sklep Pinia `market`; API i zasady są w `docs/api-runs.md` (część „Rynek miasta”).

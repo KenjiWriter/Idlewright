@@ -17,7 +17,7 @@ const MIN_ASK_MS = 3_000
 const CELLS = 8
 const WORN_ORDER = [1, 2, 4, 6, 0, 3, 5, 7]
 
-const { store, t, done, loadError, busy, error, cash, garage, city, hasRoom, className, askedAgoMs, load, attempt } = useMarketScreen()
+const { store, t, done, loadError, busy, error, cash, garage, city, hasRoom, className, askedAgoMs, load, attempt, storedNote } = useMarketScreen()
 const { money, number } = useFormat()
 const { distanceKm } = useUnits()
 
@@ -71,14 +71,14 @@ const buy = (listing: ExchangeListing) =>
   attempt(async () => {
     await store.buyListing(listing.key)
 
-    return t('fleet.carBought', { car: listing.vehicle.name, city: city.value })
+    return t('fleet.carBought', { car: listing.vehicle.name, city: city.value }) + storedNote()
   })
 
 const buyWreck = (wreck: YardCar) =>
   attempt(async () => {
     await store.buyWreck(wreck.slug)
 
-    return t('fleet.carBought', { car: wreck.name, city: city.value })
+    return t('fleet.carBought', { car: wreck.name, city: city.value }) + storedNote()
   })
 </script>
 

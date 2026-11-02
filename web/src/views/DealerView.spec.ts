@@ -227,4 +227,20 @@ describe('DealerView', () => {
       expect(wrapper.get('[data-test="offer-rdzak-gt-2"] [data-test="speed"]').text()).toBe('Top 150 km/h')
     })
   })
+
+  it('says that the car went to storage when every slot of the driver was taken', async () => {
+    const afterBuying = { ...aMarket({ garage: { owned: true, capacity: 3, used: 2, free: 1 } }, 500_000), bought: 9, repeated: false, stored: true }
+    serve({
+      'GET /api/v1/market': () => respond(200, aMarket({}, 2_000_000)),
+      'POST /api/v1/market/dealer': () => respond(201, afterBuying),
+      'GET /api/v1/runs/current': noRun,
+    })
+
+    const { wrapper } = await mountView(DealerView, '/dealer')
+    await flushPromises()
+    await wrapper.get('[data-test="offer-rdzak-gt-2"] [data-test="buy"]').trigger('click')
+    await flushPromises()
+
+    expect(wrapper.get('[data-test="done"]').text()).toBe('Rdzak GT-2 is in the garage in Złomowo. It goes to storage: all the slots of your cars on the road are taken.')
+  })
 })

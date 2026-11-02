@@ -127,7 +127,8 @@
       "towed": "Remorquée",
       "workshop": "À l’atelier",
       "travel": "En route",
-      "parked": "Attend le départ"
+      "parked": "Attend le départ",
+      "stored": "En réserve"
     },
     "stat": {
       "cash": "Argent",
@@ -142,6 +143,7 @@
       "workshop": "La voiture reste à l’atelier pendant que le mécanicien travaille. Elle repart quand le dernier travail est terminé.",
       "travel": "La voiture roule vers {city}, arrivée dans {time}. Elle ne gagne rien en route.",
       "parked": "La voiture attend dans le garage. Elle ne rapporte rien tant que tu ne l’envoies pas avec Démarrer.",
+      "stored": "La voiture est en réserve. Elle ne roule pas, ne brûle pas de carburant et ne s’use pas tant que vous ne la mettez pas sur la route.",
       "breakdownPart": "Pièce en cause : {part}."
     },
     "fuel": {
@@ -1087,9 +1089,25 @@
     "sold": "{car} vendue pour {price}.",
     "sellBlocked": {
       "last_car": "Votre dernière voiture reste avec vous.",
+      "last_active_car": "C’est la seule voiture sur la route.",
       "busy": "Elle est sur la route ou a du travail à l’atelier."
     },
     "xpNote": "Seule la voiture que vous jouez vous donne de l’XP. Les autres rapportent de l’argent et montent de niveau seules.",
+    "carStored": "Elle va en réserve : toutes les places de vos voitures sur la route sont prises.",
+    "slotsLine": "Sur la route : {active} sur {limit} · en réserve : {stored}",
+    "slotsVip": "Compte VIP : {limit} places tant qu’il dure.",
+    "slotsLegacy": "Vous gardez {count} voitures au-delà de la limite, d’avant sa mise en place, tant que vous n’en mettez pas une en réserve.",
+    "toStorage": "Mettre en réserve",
+    "toStorageDone": "{car} est en réserve.",
+    "toRoad": "Mettre sur la route",
+    "toRoadDone": "{car} est sur la route et roule dans {time}.",
+    "swapPick": "Mettre en réserve à la place",
+    "swapGo": "Échanger · {fee}",
+    "swapDone": "{car} est sur la route, {other} est en réserve.",
+    "storedTag": "Réserve",
+    "storedNote": "Une voiture en réserve ne roule pas, ne brûle pas de carburant et ne s’use pas. Elle garde sa place au garage.",
+    "noFreeSlot": "Toutes les places sont prises. Échangez-la avec une voiture sur la route.",
+    "onlyOne": "C’est la seule voiture sur la route : mettez-en d’abord une autre.",
     "cars": "Vos voitures",
     "value": "Vaut {price}"
   },

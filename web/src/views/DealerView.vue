@@ -9,7 +9,7 @@ import { useMarketScreen } from '@/features/market/useMarketScreen'
 import { useUnits } from '@/game/useUnits'
 import { useFormat } from '@/i18n/useFormat'
 
-const { store, t, done, loadError, busy, error, cash, garage, city, hasRoom, className, load, attempt } = useMarketScreen()
+const { store, t, done, loadError, busy, error, cash, garage, city, hasRoom, className, load, attempt, storedNote } = useMarketScreen()
 const { money, number } = useFormat()
 const { distanceKm, speed } = useUnits()
 
@@ -24,7 +24,7 @@ const buy = (offer: DealerOffer) =>
   attempt(async () => {
     await store.buyNew(offer.vehicle.slug)
 
-    return t('fleet.carBought', { car: offer.vehicle.name, city: city.value })
+    return t('fleet.carBought', { car: offer.vehicle.name, city: city.value }) + storedNote()
   })
 </script>
 

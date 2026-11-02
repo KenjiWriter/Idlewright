@@ -127,7 +127,8 @@
       "towed": "Abgeschleppt",
       "workshop": "In der Werkstatt",
       "travel": "Unterwegs",
-      "parked": "Wartet auf den Start"
+      "parked": "Wartet auf den Start",
+      "stored": "Eingelagert"
     },
     "stat": {
       "cash": "Geld",
@@ -142,6 +143,7 @@
       "workshop": "Das Auto steht in der Werkstatt, solange der Mechaniker arbeitet. Es fährt wieder, wenn der letzte Auftrag erledigt ist.",
       "travel": "Das Auto ist nach {city} unterwegs und kommt in {time} an. Unterwegs verdient es nichts.",
       "parked": "Das Auto wartet in der Garage. Es verdient nichts, bis du es mit Start losschickst.",
+      "stored": "Das Auto ist eingelagert. Es fährt nicht, verbraucht keinen Treibstoff und verschleißt nicht, bis du es auf die Straße bringst.",
       "breakdownPart": "Betroffen war: {part}."
     },
     "fuel": {
@@ -1087,9 +1089,25 @@
     "sold": "{car} für {price} verkauft.",
     "sellBlocked": {
       "last_car": "Dein letztes Auto bleibt bei dir.",
+      "last_active_car": "Es ist das einzige Auto auf der Straße.",
       "busy": "Es ist unterwegs oder hat Arbeit in der Werkstatt."
     },
     "xpNote": "Nur das Auto, das du fährst, gibt dir XP. Die anderen verdienen Geld und steigen selbst auf.",
+    "carStored": "Es wird eingelagert: Alle Plätze für Autos auf der Straße sind belegt.",
+    "slotsLine": "Auf der Straße: {active} von {limit} · eingelagert: {stored}",
+    "slotsVip": "VIP-Konto: {limit} Plätze, solange es läuft.",
+    "slotsLegacy": "Du behältst {count} Autos über der Grenze aus der Zeit davor, bis du eines einlagerst.",
+    "toStorage": "Einlagern",
+    "toStorageDone": "{car} ist eingelagert.",
+    "toRoad": "Auf die Straße bringen",
+    "toRoadDone": "{car} ist auf der Straße und fährt in {time}.",
+    "swapPick": "Stattdessen einlagern",
+    "swapGo": "Tauschen · {fee}",
+    "swapDone": "{car} ist auf der Straße, {other} ist eingelagert.",
+    "storedTag": "Lager",
+    "storedNote": "Ein eingelagertes Auto fährt nicht, verbraucht keinen Treibstoff und verschleißt nicht. Es behält seinen Platz in der Garage.",
+    "noFreeSlot": "Alle Plätze sind belegt. Tausche es gegen ein Auto auf der Straße.",
+    "onlyOne": "Es ist das einzige Auto auf der Straße: Bring zuerst ein anderes darauf.",
     "cars": "Deine Autos",
     "value": "Wert {price}"
   },

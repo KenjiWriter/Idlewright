@@ -127,7 +127,8 @@
       "towed": "Towed",
       "workshop": "In the workshop",
       "travel": "On the road",
-      "parked": "Waiting to start"
+      "parked": "Waiting to start",
+      "stored": "In storage"
     },
     "stat": {
       "cash": "Cash",
@@ -142,6 +143,7 @@
       "workshop": "The car stands in the workshop while the mechanic works. It drives again when the last job is done.",
       "travel": "The car is on its way to {city}, arriving in {time}. It earns nothing on the road.",
       "parked": "The car is waiting in the garage. It earns nothing until you send it out with Start.",
+      "stored": "The car is in storage. It does not drive, burns no fuel and wears nothing until you put it on the road.",
       "breakdownPart": "It was the {part}."
     },
     "fuel": {
@@ -1087,9 +1089,25 @@
     "sold": "{car} sold for {price}.",
     "sellBlocked": {
       "last_car": "Your last car stays with you.",
+      "last_active_car": "It is the only car on the road.",
       "busy": "It is on the road or has work in the workshop."
     },
     "xpNote": "Only the car you play gives you XP. The others earn cash and level themselves.",
+    "carStored": "It goes to storage: all the slots of your cars on the road are taken.",
+    "slotsLine": "On the road: {active} of {limit} · in storage: {stored}",
+    "slotsVip": "VIP account: {limit} slots while it lasts.",
+    "slotsLegacy": "You keep {count} cars above the limit from before it was made, until you put one in storage.",
+    "toStorage": "Put in storage",
+    "toStorageDone": "{car} is in storage.",
+    "toRoad": "Put on the road",
+    "toRoadDone": "{car} is on the road and drives in {time}.",
+    "swapPick": "Put in storage instead",
+    "swapGo": "Swap · {fee}",
+    "swapDone": "{car} is on the road, {other} is in storage.",
+    "storedTag": "Storage",
+    "storedNote": "A car in storage does not drive, burns no fuel and wears nothing. It keeps its place in the garage.",
+    "noFreeSlot": "All the slots are taken. Swap it with a car on the road.",
+    "onlyOne": "It is the only car on the road: put another on it first.",
     "cars": "Your cars",
     "value": "Worth {price}"
   },

@@ -50,7 +50,7 @@ export interface RecoveryCodeResponse extends MeResponse {
 export type RunStatus = 'running' | 'stopped'
 
 /** Why a run stopped: the tank is empty, the car broke down, it stands in the workshop while a job is done, it is on the road to another city, or it waits in the garage for the Start. */
-export type StopReason = 'fuel_empty' | 'breakdown' | 'workshop' | 'travel' | 'parked'
+export type StopReason = 'fuel_empty' | 'breakdown' | 'workshop' | 'travel' | 'parked' | 'stored'
 
 /** One racer of the field of a run: a bot (with a name) or the driver (the screen writes the car). `lap_ms` is the lap in the dry. */
 export interface FieldRow {
@@ -1058,8 +1058,28 @@ export interface FleetCar {
   travel: { to: string; to_name: string; arrive_ms: number } | null
   /** What a sale of the car pays now, in cents. */
   sale_cents: number
-  /** Why the car cannot be sold now: it is the last one the driver has, or it is on the road or has work in the workshop. */
-  sell_blocked: 'last_car' | 'busy' | null
+  /** Why the car cannot be sold now: it is the last one the driver has, the only one on the road, or it is on the road to a city or has work in the workshop. */
+  sell_blocked: 'last_car' | 'busy' | 'last_active_car' | null
+  /** The place of the car among the cars that drive, or null for a car in storage (and in a game that has no limit). */
+  slot_no?: number | null
+  /** The car is in storage: it does not drive, burns no fuel and wears nothing. */
+  stored?: boolean
+}
+
+/** The cars that drive: how many a driver can have on the road, how that is made up, and how many are on it, in storage and free. Null in a game that has no limit. */
+export interface FleetSlots {
+  base: number
+  vip: number
+  vip_active: boolean
+  /** The cars kept from before the limit, above what it lets the driver have. */
+  legacy: number
+  limit: number
+  active: number
+  stored: number
+  free: number
+  /** How long a car taken out of storage is made ready for, and what a swap costs (cents). */
+  swap_ms: number
+  swap_fee_cents: number
 }
 
 /** A garage the driver can have in a city, with how full it is. */
@@ -1081,13 +1101,17 @@ export interface YardCar {
 
 /** GET /api/v1/cars, and the answer of the calls that change the fleet. `repeated` says that a purchase came a second time and bought nothing. */
 export interface FleetResponse {
-  data: { selected: number | null; cars: FleetCar[]; garages: FleetGarage[]; yard: YardCar[] }
+  data: { selected: number | null; slots?: FleetSlots | null; cars: FleetCar[]; garages: FleetGarage[]; yard: YardCar[] }
   wallet: Wallet
   now_ms: number
   repeated?: boolean
   bought?: number | null
+  /** The car that was bought went to storage: every slot of the driver was taken. */
+  stored?: boolean
   /** The car that was sold, and what the driver was paid for it. */
   sold?: { car: number; cents: number }
+  /** What a swap cost, in cents. */
+  fee_cents?: number
 }
 
 /** A car of the market as the screens show it: the body, and what it is made of. */
@@ -1174,6 +1198,8 @@ export interface MarketResponse {
   }
   wallet: Wallet
   now_ms: number
+  /** The car that was bought went to storage: every slot of the driver was taken. */
+  stored?: boolean
   /** A purchase that came a second time bought nothing. */
   repeated?: boolean
   bought?: number | null

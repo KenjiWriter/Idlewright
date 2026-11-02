@@ -49,6 +49,12 @@ const garages = computed(() => store.fleet?.garages ?? [])
 const owned = computed(() => garages.value.filter((garage) => garage.owned))
 const unowned = computed(() => garages.value.filter((garage) => !garage.owned))
 const cash = computed(() => store.cash?.cash_cents ?? 0)
+/** The limit of cars on the road, or null in a game that has none. */
+const slots = computed(() => store.fleet?.slots ?? null)
+const onTheRoad = computed(() => cars.value.filter((car) => car.stored !== true))
+/** The car on the road that a swap puts in storage: the one the driver picked, else the first. */
+const swapWith = ref<number | null>(null)
+const swapChoice = computed(() => (onTheRoad.value.some((car) => car.id === swapWith.value) ? swapWith.value : (onTheRoad.value[0]?.id ?? null)))
 
 /** What a thumb of the strip shows, the same as the stage would for the car. */
 const thumbArt = (car: FleetCar) => stageArt(car.vehicle.image_url, car.vehicle.slug)
@@ -102,7 +108,7 @@ function statusKey(car: FleetCar): string {
 function chipClass(car: FleetCar): string {
   const reason = car.run?.stop_reason ?? null
 
-  return car.run?.status !== 'stopped' ? 'chip-cy' : reason === 'workshop' || reason === 'travel' || reason === 'parked' ? 'chip-am' : 'chip-bad'
+  return car.run?.status !== 'stopped' ? 'chip-cy' : reason === 'workshop' || reason === 'travel' || reason === 'parked' || reason === 'stored' ? 'chip-am' : 'chip-bad'
 }
 
 /** Where the car is, and what it is doing there. */
@@ -155,6 +161,33 @@ const choose = (car: FleetCar) =>
     return t('fleet.chosen', { car: car.vehicle.name })
   })
 
+const putInStorage = (car: FleetCar) =>
+  attempt(async () => {
+    await store.store(car.id)
+
+    return t('fleet.toStorageDone', { car: car.vehicle.name })
+  })
+
+const putOnTheRoad = (car: FleetCar) =>
+  attempt(async () => {
+    await store.activate(car.id)
+
+    return t('fleet.toRoadDone', { car: car.vehicle.name, time: formatDuration(slots.value?.swap_ms ?? 0) })
+  })
+
+const swapFor = (car: FleetCar) =>
+  attempt(async () => {
+    const other = cars.value.find((candidate) => candidate.id === swapChoice.value)
+
+    if (other === undefined) {
+      throw new Error('There is no car to swap with.')
+    }
+
+    await store.swap(car.id, other.id)
+
+    return t('fleet.swapDone', { car: car.vehicle.name, other: other.vehicle.name })
+  })
+
 const buyGarage = (garage: FleetGarage) =>
   attempt(async () => {
     await store.buyGarage(garage.city)
@@ -170,6 +203,12 @@ const buyGarage = (garage: FleetGarage) =>
       <p v-if="store.fleet" class="sub" data-test="summary">{{ t('fleet.summary', { cars: cars.length, garages: owned.length }) }}</p>
       <!-- A fleet earns cash with every car, but only the car that is played levels the driver. -->
       <p v-if="cars.length > 1" class="sub" data-test="xp-note">{{ t('fleet.xpNote') }}</p>
+      <!-- The cars that drive: a driver has only so many on the road, and the others stand in storage. -->
+      <p v-if="slots" class="sub" data-test="slots">
+        {{ t('fleet.slotsLine', { active: slots.active, limit: slots.limit, stored: slots.stored }) }}
+        <span v-if="slots.vip_active" class="tag tag-am ml-1" data-test="slots-vip">{{ t('fleet.slotsVip', { limit: slots.limit }) }}</span>
+      </p>
+      <p v-if="slots && slots.legacy > 0" class="sub" data-test="slots-legacy">{{ t('fleet.slotsLegacy', { count: slots.legacy }) }}</p>
     </header>
 
     <GarageTabs />
@@ -198,7 +237,7 @@ const buyGarage = (garage: FleetGarage) =>
             :key="car.id"
             type="button"
             class="thumb"
-            :class="{ on: car.id === focused.id }"
+            :class="{ on: car.id === focused.id, 'opacity-60': car.stored }"
             :aria-pressed="car.id === focused.id"
             :data-test="`thumb-${car.id}`"
             @click="focusId = car.id"
@@ -208,6 +247,7 @@ const buyGarage = (garage: FleetGarage) =>
                 <template #placeholder><span class="stage-empty" data-test="thumb-empty" aria-hidden="true"><CarSilhouette /></span></template>
               </MediaPicture>
               <span v-if="car.selected" class="thumb-tag" data-test="thumb-selected">{{ t('fleet.selected') }}</span>
+              <span v-else-if="car.stored" class="thumb-tag" data-test="thumb-stored">{{ t('fleet.storedTag') }}</span>
             </span>
             <span class="thumb-body">
               <span class="thumb-name" data-test="thumb-name">{{ car.vehicle.name }}</span>
@@ -235,8 +275,25 @@ const buyGarage = (garage: FleetGarage) =>
             <span class="chip chip-am">{{ t('garage.carLevel', { level: focused.level }) }}</span>
             <span class="chip" :class="focused.condition_percent < 60 ? 'chip-bad' : ''" data-test="car-condition">{{ t('fleet.condition', { percent: focused.condition_percent }) }}</span>
           </div>
+          <p v-if="focused.stored" class="text-xs text-muted" data-test="stored-note">{{ t('fleet.storedNote') }}</p>
           <div class="flex flex-wrap gap-2">
-            <button v-if="!focused.selected" type="button" class="btn btn-secondary btn-sm flex-1" :disabled="busy" data-test="play" @click="choose(focused)">{{ t('fleet.play') }}</button>
+            <button v-if="!focused.selected && !focused.stored" type="button" class="btn btn-secondary btn-sm flex-1" :disabled="busy" data-test="play" @click="choose(focused)">{{ t('fleet.play') }}</button>
+            <!-- The cars that drive: a car on the road goes to storage, a car in storage goes on the road (in a free slot, or in place of another). -->
+            <template v-if="slots">
+              <button v-if="!focused.stored && onTheRoad.length > 1" type="button" class="btn btn-secondary btn-sm flex-1" :disabled="busy" data-test="store" @click="putInStorage(focused)">{{ t('fleet.toStorage') }}</button>
+              <p v-else-if="!focused.stored" class="sub basis-full" data-test="only-one">{{ t('fleet.onlyOne') }}</p>
+              <button v-else-if="slots.free > 0" type="button" class="btn btn-primary btn-sm flex-1" :disabled="busy" data-test="activate" @click="putOnTheRoad(focused)">{{ t('fleet.toRoad') }}</button>
+              <div v-else class="flex w-full basis-full flex-col gap-1.5 border-t border-line pt-2" data-test="swap">
+                <p class="sub">{{ t('fleet.noFreeSlot') }}</p>
+                <label class="flex flex-col gap-1 text-xs text-muted">
+                  {{ t('fleet.swapPick') }}
+                  <select v-model="swapWith" class="field" data-test="swap-with">
+                    <option v-for="car in onTheRoad" :key="car.id" :value="car.id" :selected="car.id === swapChoice">{{ car.vehicle.name }} · {{ car.city.name }}</option>
+                  </select>
+                </label>
+                <button type="button" class="btn btn-primary btn-sm" :disabled="busy || swapChoice === null || cash < slots.swap_fee_cents" data-test="swap-go" @click="swapFor(focused)">{{ t('fleet.swapGo', { fee: money(slots.swap_fee_cents) }) }}</button>
+              </div>
+            </template>
             <CarSale :car="focused" :disabled="busy" @sell="sell(focused)" />
           </div>
         </article>

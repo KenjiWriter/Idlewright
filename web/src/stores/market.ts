@@ -58,6 +58,7 @@ export const useMarketStore = defineStore('market', () => {
     const response = await api<MarketResponse>(`/v1/market/exchange/${encodeURIComponent(key)}/buy`, { method: 'POST' })
 
     apply(response)
+    useFleetStore().boughtStored = response.stored === true
     syncRun()
 
     return response.bought ?? null
@@ -75,6 +76,7 @@ export const useMarketStore = defineStore('market', () => {
 
     dealerIds.answered()
     apply(response)
+    useFleetStore().boughtStored = response.stored === true
     syncRun()
 
     return response.bought ?? null
@@ -92,6 +94,7 @@ export const useMarketStore = defineStore('market', () => {
 
     storageIds.answered()
     apply(response)
+    useFleetStore().boughtStored = response.stored === true
     syncRun()
 
     return response.opened ?? null

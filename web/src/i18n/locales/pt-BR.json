@@ -127,7 +127,8 @@
       "towed": "Rebocado",
       "workshop": "Na oficina",
       "travel": "Na estrada",
-      "parked": "Aguardando a largada"
+      "parked": "Aguardando a largada",
+      "stored": "Na guarda"
     },
     "stat": {
       "cash": "Dinheiro",
@@ -142,6 +143,7 @@
       "workshop": "O carro fica parado na oficina enquanto o mecânico trabalha. Volta a andar quando o último serviço terminar.",
       "travel": "O carro está a caminho de {city}, chegando em {time}. Na estrada ele não ganha nada.",
       "parked": "O carro está esperando na garagem. Ele não ganha nada até você enviá-lo com Iniciar.",
+      "stored": "O carro está guardado. Ele não anda, não gasta combustível e não se desgasta até você colocá-lo na estrada.",
       "breakdownPart": "A peça com defeito: {part}."
     },
     "fuel": {
@@ -1087,9 +1089,25 @@
     "sold": "{car} vendido por {price}.",
     "sellBlocked": {
       "last_car": "Seu último carro fica com você.",
+      "last_active_car": "É o único carro na estrada.",
       "busy": "Ele está na estrada ou tem serviço na oficina."
     },
     "xpNote": "Só o carro que você joga dá XP a você. Os outros rendem dinheiro e sobem de nível sozinhos.",
+    "carStored": "Ele vai para a guarda: todas as vagas dos carros na estrada estão ocupadas.",
+    "slotsLine": "Na estrada: {active} de {limit} · guardados: {stored}",
+    "slotsVip": "Conta VIP: {limit} vagas enquanto durar.",
+    "slotsLegacy": "Você mantém {count} carros acima do limite, de antes dele, até guardar um.",
+    "toStorage": "Guardar",
+    "toStorageDone": "{car} está guardado.",
+    "toRoad": "Colocar na estrada",
+    "toRoadDone": "{car} está na estrada e anda em {time}.",
+    "swapPick": "Guardar no lugar dele",
+    "swapGo": "Trocar · {fee}",
+    "swapDone": "{car} está na estrada, {other} está guardado.",
+    "storedTag": "Guarda",
+    "storedNote": "Um carro guardado não anda, não gasta combustível e não se desgasta. Ele mantém o lugar na garagem.",
+    "noFreeSlot": "Todas as vagas estão ocupadas. Troque-o por um carro na estrada.",
+    "onlyOne": "É o único carro na estrada: coloque outro nela primeiro.",
     "cars": "Seus carros",
     "value": "Vale {price}"
   },

@@ -12,7 +12,7 @@ import { useFormat } from '@/i18n/useFormat'
 /** What can be in a unit, from the worst to the best: the order of the odds on the card. */
 const CLASSES: StorageClass[] = ['scrap', 'junk', 'good', 'gem']
 
-const { store, t, loadError, busy, error, cash, garage, city, hasRoom, className, load, attempt } = useMarketScreen()
+const { store, t, loadError, busy, error, cash, garage, city, hasRoom, className, load, attempt, storedNote } = useMarketScreen()
 const { money, number, percent } = useFormat()
 const { distanceKm } = useUnits()
 
@@ -37,6 +37,9 @@ const open = (unit: StorageUnit) =>
       // The unit that was opened may be far down the page, and what it held is on top.
       await nextTick()
       foundCard.value?.scrollIntoView?.({ block: 'center', behavior: 'smooth' })
+
+      // A car that went to storage is told so: nothing is driving it.
+      return storedNote().trim() || null
     }
 
     return null

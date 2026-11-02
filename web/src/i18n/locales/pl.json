@@ -127,7 +127,8 @@
       "towed": "Holowane",
       "workshop": "W warsztacie",
       "travel": "W drodze",
-      "parked": "Czeka na start"
+      "parked": "Czeka na start",
+      "stored": "W magazynie"
     },
     "stat": {
       "cash": "Gotówka",
@@ -142,6 +143,7 @@
       "workshop": "Auto stoi w warsztacie, dopóki mechanik pracuje. Pojedzie dalej, gdy skończy się ostatnie zlecenie.",
       "travel": "Auto jedzie do miasta {city}, dojazd za {time}. W drodze nic nie zarabia.",
       "parked": "Auto czeka w garażu. Nic nie zarabia, dopóki nie wyślesz go przyciskiem Start.",
+      "stored": "Auto stoi w magazynie. Nie jeździ, nie pali paliwa i nic się nie zużywa, dopóki nie wyprowadzisz go na drogę.",
       "breakdownPart": "Zepsuło się: {part}."
     },
     "fuel": {
@@ -1087,9 +1089,25 @@
     "sold": "Sprzedano {car} za {price}.",
     "sellBlocked": {
       "last_car": "Ostatnie auto zostaje z Tobą.",
+      "last_active_car": "To jedyne auto na drodze.",
       "busy": "Auto jest w drodze albo ma zlecenie w warsztacie."
     },
     "xpNote": "XP dostajesz tylko za auto, którym grasz. Pozostałe zarabiają i same awansują.",
+    "carStored": "Trafia do magazynu: wszystkie miejsca aut na drodze są zajęte.",
+    "slotsLine": "Na drodze: {active} z {limit} · w magazynie: {stored}",
+    "slotsVip": "Konto VIP: {limit} miejsc, dopóki trwa.",
+    "slotsLegacy": "Zostawiamy Ci {count} aut ponad limit z czasu przed jego wprowadzeniem, dopóki nie odstawisz któregoś do magazynu.",
+    "toStorage": "Odstaw do magazynu",
+    "toStorageDone": "{car} stoi w magazynie.",
+    "toRoad": "Wyprowadź na drogę",
+    "toRoadDone": "{car} jest na drodze i pojedzie za {time}.",
+    "swapPick": "Odstaw zamiast niego",
+    "swapGo": "Zamień · {fee}",
+    "swapDone": "{car} jedzie, {other} stoi w magazynie.",
+    "storedTag": "Magazyn",
+    "storedNote": "Auto w magazynie nie jeździ, nie pali paliwa i nic się nie zużywa. Miejsce w garażu zachowuje.",
+    "noFreeSlot": "Wszystkie miejsca są zajęte. Zamień je z autem na drodze.",
+    "onlyOne": "To jedyne auto na drodze: najpierw wyprowadź inne.",
     "cars": "Twoje auta",
     "value": "Wartość {price}"
   },

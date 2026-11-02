@@ -5,6 +5,7 @@ import { ApiError } from '@/api/client'
 import { useFlash } from '@/features/run/useFlash'
 import { useLeaveOnSignOut } from '@/features/session/leaveOnSignOut'
 import { endSessionIfUnauthorized } from '@/features/session/unauthorized'
+import { useFleetStore } from '@/stores/fleet'
 import { useMarketStore } from '@/stores/market'
 
 /**
@@ -80,5 +81,10 @@ export function useMarketScreen() {
     }
   }
 
-  return { store, t, done, loadError, busy, error, cash, garage, city, hasRoom, className, askedAgoMs, load, attempt }
+  /** What a purchase adds to its message when the car went to storage: every slot of the driver was taken. */
+  function storedNote(): string {
+    return useFleetStore().boughtStored ? ` ${t('fleet.carStored')}` : ''
+  }
+
+  return { store, t, done, loadError, busy, error, cash, garage, city, hasRoom, className, askedAgoMs, load, attempt, storedNote }
 }

@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { storeToken } from '@/auth/token'
 import { setLocale } from '@/i18n'
-import { aFleet, aFleetCar, aFleetGarage } from '@/test/fleetFixtures'
+import { aFleet, aFleetCar, aFleetGarage, aStoredCar, someSlots } from '@/test/fleetFixtures'
 import { NOW } from '@/test/garageFixtures'
 import { respond, serveApi } from '@/test/fetchServer'
 import { mountView } from '@/test/mountView'
@@ -420,5 +420,111 @@ describe('FleetView', () => {
     await flushPromises()
 
     expect(wrapper.get('[data-test="xp-note"]').text()).toBe('XP dostajesz tylko za auto, którym grasz. Pozostałe zarabiają i same awansują.')
+  })
+
+  describe('the cars on the road and in storage', () => {
+    it('says how many cars are on the road and in storage, and that the account of the VIP gave slots', async () => {
+      serve({ 'GET /api/v1/cars': () => respond(200, aFleet({ slots: someSlots({ vip_active: true, limit: 5, active: 2, stored: 1, free: 3 }) })), 'GET /api/v1/runs/current': noRun })
+
+      const { wrapper } = await mountView(FleetView, '/garage/fleet')
+      await flushPromises()
+
+      expect(wrapper.get('[data-test="slots"]').text()).toContain('On the road: 2 of 5 · in storage: 1')
+      expect(wrapper.get('[data-test="slots-vip"]').text()).toBe('VIP account: 5 slots while it lasts.')
+      expect(wrapper.find('[data-test="slots-legacy"]').exists()).toBe(false)
+    })
+
+    it('says what a driver keeps from before the limit', async () => {
+      serve({ 'GET /api/v1/cars': () => respond(200, aFleet({ slots: someSlots({ legacy: 2, limit: 4 }) })), 'GET /api/v1/runs/current': noRun })
+
+      const { wrapper } = await mountView(FleetView, '/garage/fleet')
+      await flushPromises()
+
+      expect(wrapper.get('[data-test="slots-legacy"]').text()).toBe('You keep 2 cars above the limit from before it was made, until you put one in storage.')
+    })
+
+    it('says nothing of slots, and has no buttons for them, in a game that has no limit', async () => {
+      serve({ 'GET /api/v1/cars': () => respond(200, aFleet({ slots: null })), 'GET /api/v1/runs/current': noRun })
+
+      const { wrapper } = await mountView(FleetView, '/garage/fleet')
+      await flushPromises()
+
+      expect(wrapper.find('[data-test="slots"]').exists()).toBe(false)
+      expect(wrapper.find('[data-test="store"]').exists()).toBe(false)
+    })
+
+    it('puts a car on the road in storage with a button', async () => {
+      const calls = serve({
+        'GET /api/v1/cars': () => respond(200, aFleet({ slots: someSlots() })),
+        'POST /api/v1/cars/6/store': () => respond(200, aFleet({ slots: someSlots({ active: 1, stored: 1, free: 1 }), cars: [aFleetCar(), aStoredCar({ id: 6, vehicle: { slug: 'bizon-m-2', name: 'Bizon M-2' } })] })),
+        'GET /api/v1/runs/current': noRun,
+      })
+
+      const { wrapper } = await mountView(FleetView, '/garage/fleet')
+      await flushPromises()
+      await focus(wrapper, 6)
+      await wrapper.get('[data-test="car-6"] [data-test="store"]').trigger('click')
+      await flushPromises()
+
+      expect(calls.some((call) => call.method === 'POST' && call.url === '/api/v1/cars/6/store')).toBe(true)
+      expect(wrapper.get('[data-test="done"]').text()).toBe('Bizon M-2 is in storage.')
+    })
+
+    it('does not offer to put the only car on the road in storage', async () => {
+      serve({ 'GET /api/v1/cars': () => respond(200, aFleet({ slots: someSlots({ active: 1, stored: 1, free: 1 }), cars: [aFleetCar(), aStoredCar()] })), 'GET /api/v1/runs/current': noRun })
+
+      const { wrapper } = await mountView(FleetView, '/garage/fleet')
+      await flushPromises()
+
+      expect(wrapper.find('[data-test="store"]').exists()).toBe(false)
+      expect(wrapper.get('[data-test="only-one"]').text()).toBe('It is the only car on the road: put another on it first.')
+    })
+
+    it('shows a car in storage as in storage, with no button to play it, and puts it on the road in a free slot', async () => {
+      const calls = serve({
+        'GET /api/v1/cars': () => respond(200, aFleet({ slots: someSlots({ active: 1, stored: 1, free: 1 }), cars: [aFleetCar(), aStoredCar()] })),
+        'POST /api/v1/cars/9/activate': () => respond(200, aFleet({ slots: someSlots(), cars: [aFleetCar(), aStoredCar({ stored: false, slot_no: 2, run: { id: 11, status: 'running', stop_reason: null, laps_done: 4, fuel_ml: 20_000, tank_ml: 50_000, track: 'Złomowo Street Sprint' } })] })),
+        'GET /api/v1/runs/current': noRun,
+      })
+
+      const { wrapper } = await mountView(FleetView, '/garage/fleet')
+      await flushPromises()
+      await focus(wrapper, 9)
+
+      expect(wrapper.get('[data-test="thumb-9"] [data-test="thumb-stored"]').text()).toBe('Storage')
+      expect(wrapper.get('[data-test="stage"] [data-test="car-status"]').text()).toBe('In storage')
+      expect(wrapper.get('[data-test="stored-note"]').text()).toContain('does not drive')
+      expect(wrapper.find('[data-test="play"]').exists()).toBe(false)
+
+      await wrapper.get('[data-test="activate"]').trigger('click')
+      await flushPromises()
+
+      expect(calls.some((call) => call.method === 'POST' && call.url === '/api/v1/cars/9/activate')).toBe(true)
+      expect(wrapper.get('[data-test="done"]').text()).toBe('Kuna 4x4 is on the road and drives in 2 min 00 s.')
+    })
+
+    it('swaps a car in storage for one on the road when no slot is free, and says what it costs', async () => {
+      const calls = serve({
+        'GET /api/v1/cars': () => respond(200, aFleet({ slots: someSlots({ stored: 1 }), cars: [aFleetCar(), aFleetCar({ id: 6, selected: false, vehicle: { slug: 'bizon-m-2', name: 'Bizon M-2' } }), aStoredCar()] })),
+        'POST /api/v1/cars/9/swap': (): Response => respond(200, { ...aFleet({ slots: someSlots({ stored: 1 }) }), fee_cents: 800 }),
+        'GET /api/v1/runs/current': noRun,
+      })
+
+      const { wrapper } = await mountView(FleetView, '/garage/fleet')
+      await flushPromises()
+      await focus(wrapper, 9)
+
+      expect(wrapper.find('[data-test="activate"]').exists()).toBe(false)
+      expect(wrapper.get('[data-test="swap"]').text()).toContain('All the slots are taken.')
+      expect(wrapper.get('[data-test="swap-go"]').text()).toBe('Swap · $8')
+
+      await wrapper.get('[data-test="swap-with"]').setValue(6)
+      await wrapper.get('[data-test="swap-go"]').trigger('click')
+      await flushPromises()
+
+      const swap = calls.find((call) => call.url === '/api/v1/cars/9/swap')
+      expect(swap?.body).toMatchObject({ with: 6 })
+      expect(wrapper.get('[data-test="done"]').text()).toBe('Kuna 4x4 is on the road, Bizon M-2 is in storage.')
+    })
   })
 })

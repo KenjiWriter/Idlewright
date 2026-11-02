@@ -20,6 +20,8 @@ export const useFleetStore = defineStore('fleet', () => {
   const fleet = ref<FleetResponse['data'] | null>(null)
   const cash = ref<FleetResponse['wallet'] | null>(null)
   const loaded = ref(false)
+  /** The car that was bought last went to storage (every slot was taken): the screens that bought it say so. */
+  const boughtStored = ref(false)
   /** The clock of the server minus the clock of this device, as it was at the last answer. */
   const clockOffsetMs = ref(0)
 
@@ -76,6 +78,28 @@ export const useFleetStore = defineStore('fleet', () => {
     return response.sold?.cents ?? 0
   }
 
+  /** Puts a car in storage: it stops where it stands, and its slot is free. The car the driver plays may be the one that went, so the screens that show it ask again. */
+  async function store(carId: number): Promise<void> {
+    apply(await api<FleetResponse>(`/v1/cars/${carId}/store`, { method: 'POST' }))
+    syncSelected()
+  }
+
+  /** Puts a car from storage on the road, in a free slot. */
+  async function activate(carId: number): Promise<void> {
+    apply(await api<FleetResponse>(`/v1/cars/${carId}/activate`, { method: 'POST' }))
+    syncRun()
+  }
+
+  /** Swaps a car on the road (`withId`) for one from storage, which costs a part of a tank. Returns the cost, in cents. */
+  async function swap(carId: number, withId: number): Promise<number> {
+    const response = await api<FleetResponse>(`/v1/cars/${carId}/swap`, { method: 'POST', body: JSON.stringify({ with: withId, request_id: newRequestId() }) })
+
+    apply(response)
+    syncSelected()
+
+    return response.fee_cents ?? 0
+  }
+
   /** Buys a garage in a city. */
   async function buyGarage(city: string): Promise<void> {
     apply(await api<FleetResponse>('/v1/garages', { method: 'POST', body: JSON.stringify({ city }) }))
@@ -105,10 +129,11 @@ export const useFleetStore = defineStore('fleet', () => {
 
     pendingWreck = null
     apply(response)
+    boughtStored.value = response.stored === true
     syncRun()
 
     return response.bought ?? null
   }
 
-  return { fleet, cash, loaded, serverNow, load, select, sell, buyGarage, buyCar }
+  return { fleet, cash, loaded, boughtStored, serverNow, load, select, sell, store, activate, swap, buyGarage, buyCar }
 })
