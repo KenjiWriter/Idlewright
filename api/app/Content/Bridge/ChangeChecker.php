@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Content\Bridge;
 
-use App\Content\Definitions\JsonDocument;
 use App\Content\Publishing\CandidatePack;
 use App\Games\CurrentGame;
 use App\Models\AiExchange;
@@ -17,8 +16,6 @@ use App\Services\ContentPacks;
  */
 final class ChangeChecker
 {
-    private const FOLDERS = ['rules' => 'rules', 'part' => 'parts', 'vehicle' => 'vehicles'];
-
     public function __construct(
         private readonly ChangeBlockParser $parser,
         private readonly ChangeResolver $resolver,
@@ -87,16 +84,9 @@ final class ChangeChecker
      */
     private function judgeContent(ChangeCheck $check): array
     {
-        $replace = [];
-
-        foreach ($check->documents as $key => $document) {
-            [$kind, $slug] = explode(':', $key, 2);
-            $replace[self::FOLDERS[$kind].'/'.$slug] = JsonDocument::encode($document);
-        }
-
         // The manifest of the candidate has to be a number a pack can have; the number of the one that is live will do, as nothing is made of this.
         $number = $this->packs->active()?->number ?? now()->format('Y.n').'.0';
-        $result = $this->packs->validate($this->candidates->make($number)->with($replace), checkTables: false);
+        $result = $this->packs->validate($this->candidates->make($number)->with($check->replacements()), checkTables: false);
 
         return array_map(
             static fn (array $error): BridgeIssue => BridgeIssue::error('invalid_content', $error['message'], where: trim($error['file'].' '.$error['pointer'])),

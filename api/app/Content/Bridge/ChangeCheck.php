@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Content\Bridge;
 
+use App\Content\Definitions\JsonDocument;
+
 /**
  * What came of looking at a block of changes: every number it changes (with the values before and after), the documents as they would be, and what is wrong or worth a
  * remark. Nothing has been written anywhere. A check with an error is not to be applied; one with only remarks may be.
@@ -61,6 +63,24 @@ final readonly class ChangeCheck
     public function ok(): bool
     {
         return $this->block !== null && $this->errors() === [] && $this->changes !== [];
+    }
+
+    /**
+     * The text of every document of the check as the content keeps it (by `rules/starter`, `parts/slug`, `vehicles/slug`), to be put over the content that is being worked on.
+     *
+     * @return array<string, string>
+     */
+    public function replacements(): array
+    {
+        $folders = ['rules' => 'rules', 'part' => 'parts', 'vehicle' => 'vehicles'];
+        $replace = [];
+
+        foreach ($this->documents as $key => $document) {
+            [$kind, $slug] = explode(':', $key, 2);
+            $replace[$folders[$kind].'/'.$slug] = JsonDocument::encode($document);
+        }
+
+        return $replace;
     }
 
     /** The message to give back to the AI: only what is refused, and how to answer. Empty when nothing is. */
