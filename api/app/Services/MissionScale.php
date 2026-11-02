@@ -26,7 +26,8 @@ final class MissionScale
     {
         $best = null;
 
-        foreach (RaceRun::query()->where('user_id', $userId)->whereNotNull('car_id')->with('car')->orderBy('id')->get() as $run) {
+        // A car in storage does not drive: its tank is not what a day of play is worth.
+        foreach (RaceRun::query()->where('user_id', $userId)->whereNotNull('car_id')->where(fn ($query) => $query->whereNull('stop_reason')->orWhere('stop_reason', '!=', RaceRun::STOP_STORED))->with('car')->orderBy('id')->get() as $run) {
             $tank = $this->tankOf($run);
 
             if ($tank !== null && ($best === null || $tank['net_cents'] > $best['net_cents'])) {

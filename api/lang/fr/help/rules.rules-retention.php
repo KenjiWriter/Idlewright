@@ -41,5 +41,31 @@ return [
             'example' => '30 : une série de trente jours donne son étape le trentième jour, une seule fois.',
             'range' => '2 – 3650 (jours).',
         ],
+        '/slots/base' => [
+            'label' => 'Voitures que chaque joueur peut avoir sur la route',
+            'help' => 'Combien de voitures un joueur peut avoir actives (qui roulent) en même temps. Les autres voitures restent en réserve dans le garage : elles ne roulent pas, ne brûlent pas de carburant, ne s’usent pas et ne rapportent rien, et elles gardent leur place au garage. Les voitures qu’un joueur avait avant la limite lui restent tant qu’il n’en met pas une en réserve.',
+            'example' => '2 : un joueur peut avoir deux voitures sur la route ; une troisième va en réserve quand il l’obtient.',
+            'range' => '1 – 50 (voitures).',
+            'tip' => 'Le simulateur d’économie suppose environ 1,7 voiture sur la route pour un joueur régulier : 2 ne change donc pas le rythme des joueurs qui ne paient pas. Vérifiez-le avec la commande economy:simulate après un changement.',
+        ],
+        '/slots/vip' => [
+            'label' => 'Voitures de plus sur la route avec le compte VIP',
+            'help' => 'Combien de voitures de plus un joueur avec le compte VIP peut avoir sur la route, tant que le compte dure. Les voitures de ces places cessent de rapporter à la fin du compte et vont en réserve ; rien n’est perdu.',
+            'example' => '3 : avec le compte VIP un joueur peut avoir cinq voitures sur la route (2 + 3), soit avec le bonus du compte environ trois fois ce que gagne un joueur avec deux voitures.',
+            'range' => '0 – 50 (voitures).',
+            'tip' => 'C’est la plus grande part de la valeur du compte VIP : plus de voitures rapportent plus que le bonus d’argent et d’XP. Vérifiez l’avantage avec le simulateur d’économie avant de l’augmenter.',
+        ],
+        '/slots/swap_ms' => [
+            'label' => 'Temps pour mettre une voiture sur la route',
+            'help' => 'Combien de temps une voiture sortie de la réserve est préparée : elle roule à partir de ce moment et ne rapporte rien avant. Cela évite qu’un joueur change de voiture à chaque averse.',
+            'example' => '120 s : deux minutes.',
+            'range' => '0 – 3600 s.',
+        ],
+        '/slots/swap_fee_ppm' => [
+            'label' => 'Coût d’un échange (part d’un plein)',
+            'help' => 'Ce que coûte la mise sur la route d’une voiture de la réserve à la place d’une voiture qui y est, en part des gains nets d’un plein de la meilleure voiture du joueur (100 % est un plein entier), en dollars entiers et au moins un. Mettre une voiture sur une place libre ne coûte rien.',
+            'example' => '2 % : pour une voiture qui gagne 375 $ par plein, un échange coûte 8 $.',
+            'range' => '0 – 100 % (une part d’un plein).',
+        ],
     ],
 ];

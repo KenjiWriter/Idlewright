@@ -41,5 +41,31 @@ return [
             'example' => '30: a streak of thirty days pays its milestone on the thirtieth day, once.',
             'range' => '2 – 3650 (days).',
         ],
+        '/slots/base' => [
+            'label' => 'Cars every driver can have on the road',
+            'help' => 'How many cars a driver can have active (driving) at a time. The other cars stand in storage in the garage: they do not drive, burn no fuel, wear nothing and earn nothing, and they keep their place in the garage. The cars a driver had before the limit was made are kept until they put one in storage.',
+            'example' => '2: a driver can have two cars on the road; a third car goes to storage when they get it.',
+            'range' => '1 – 50 (cars).',
+            'tip' => 'The economy simulator assumes about 1.7 cars on the road for a regular player, so 2 does not change the pace of players who do not pay. Check it with the command economy:simulate after a change.',
+        ],
+        '/slots/vip' => [
+            'label' => 'More cars on the road with the VIP account',
+            'help' => 'How many more cars a driver with the VIP account can have on the road, for as long as the account lasts. The cars in these slots stop earning the moment the account ends and go to storage; nothing is lost.',
+            'example' => '3: with the VIP account a driver can have five cars on the road (2 + 3), which with the bonus of the account is about three times what a driver with two cars earns.',
+            'range' => '0 – 50 (cars).',
+            'tip' => 'This is the biggest part of what the VIP account is worth: more cars earn more than the cash and XP bonus. Check the advantage with the economy simulator before you raise it.',
+        ],
+        '/slots/swap_ms' => [
+            'label' => 'Time to put a car on the road',
+            'help' => 'How long a car taken out of storage is made ready for: it drives from that moment on and earns nothing before. It keeps a driver from changing cars at every shower.',
+            'example' => '120 s: two minutes.',
+            'range' => '0 – 3600 s.',
+        ],
+        '/slots/swap_fee_ppm' => [
+            'label' => 'Cost of a swap (part of a tank)',
+            'help' => 'What it costs to put a car from storage on the road in place of one that is on it, as a part of the net earnings of a tank of the best car of the driver (100% is a whole tank), in whole dollars and at least one. Putting a car on a free slot costs nothing.',
+            'example' => '2%: for a car that earns $375 a tank a swap costs $8.',
+            'range' => '0 – 100% (a part of a tank).',
+        ],
     ],
 ];

@@ -813,6 +813,13 @@
       { "day": 30, "items": [{ "type": "crate", "kind": "mixed" }] }
     ]
   },
+  "slots": {
+    "enabled": true,
+    "base": 2,
+    "vip": 3,
+    "swap_ms": 120000,
+    "swap_fee_ppm": 20000
+  },
   "workshop": {
     "mechanic_level": 1,
     "time_cut_ppm_per_level": 20000,

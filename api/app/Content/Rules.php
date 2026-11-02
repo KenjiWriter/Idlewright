@@ -617,6 +617,31 @@ final class Rules
         return ($this->streaks()['enabled'] ?? false) === true && $this->missionsOn();
     }
 
+    /**
+     * The limit of active cars as the rules give it: the switch, how many cars a driver can have on the road, how many more with the VIP account, how long a car taken
+     * out of storage takes to be ready and what a swap costs (a part of a tank). Null when the rules do not mention it, which is the same as off.
+     *
+     * @return array{enabled: bool, base: int, vip: int, swap_ms: int, swap_fee_ppm: int}|null
+     */
+    public function slots(): ?array
+    {
+        $slots = $this->data['slots'] ?? null;
+
+        return $slots === null ? null : [
+            'enabled' => (bool) $slots['enabled'],
+            'base' => (int) $slots['base'],
+            'vip' => (int) $slots['vip'],
+            'swap_ms' => (int) $slots['swap_ms'],
+            'swap_fee_ppm' => (int) $slots['swap_fee_ppm'],
+        ];
+    }
+
+    /** Whether the game limits the cars that drive: it is in the rules and switched on. */
+    public function slotsOn(): bool
+    {
+        return ($this->slots()['enabled'] ?? false) === true;
+    }
+
     /** How many cars a garage holds. */
     public function garageCapacity(): int
     {

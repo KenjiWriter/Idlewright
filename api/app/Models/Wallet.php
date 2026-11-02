@@ -25,6 +25,7 @@ class Wallet extends Model
             'xp' => 'integer',
             'premium_coins' => 'integer',
             'auto_refills' => 'integer',
+            'legacy_slots' => 'integer',
             'auto_refill_enabled' => 'boolean',
             'vip_until' => 'datetime',
             'infinity_until' => 'datetime',

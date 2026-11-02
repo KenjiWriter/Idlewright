@@ -41,5 +41,31 @@ return [
             'example' => '30: seria trzydziestu dni płaci swój kamień milowy trzydziestego dnia, jeden raz.',
             'range' => '2 – 3650 (dni).',
         ],
+        '/slots/base' => [
+            'label' => 'Auta, które każdy gracz może mieć na drodze',
+            'help' => 'Ile aut gracz może mieć aktywnych (jadących) naraz. Pozostałe auta stoją w magazynie w garażu: nie jeżdżą, nie palą paliwa, nic się nie zużywa i nic nie zarabiają, a miejsce w garażu zachowują. Auta, które gracz miał, zanim wprowadzono limit, zostają mu, dopóki nie odstawi któregoś do magazynu.',
+            'example' => '2: gracz może mieć dwa auta na drodze; trzecie auto trafia do magazynu, gdy je dostanie.',
+            'range' => '1 – 50 (aut).',
+            'tip' => 'Symulator ekonomii zakłada ok. 1,7 auta na drodze dla zwykłego gracza, więc 2 nie zmienia tempa graczy, którzy nie płacą. Sprawdź to poleceniem economy:simulate po zmianie.',
+        ],
+        '/slots/vip' => [
+            'label' => 'Więcej aut na drodze z kontem VIP',
+            'help' => 'Ile aut więcej gracz z kontem VIP może mieć na drodze, dopóki konto trwa. Auta w tych miejscach przestają zarabiać w chwili końca konta i idą do magazynu; nic nie ginie.',
+            'example' => '3: z kontem VIP gracz może mieć pięć aut na drodze (2 + 3), co razem z premią konta daje ok. trzy razy tyle, ile zarabia gracz z dwoma autami.',
+            'range' => '0 – 50 (aut).',
+            'tip' => 'To największa część wartości konta VIP: więcej aut zarabia więcej niż premia do gotówki i XP. Sprawdź przewagę w symulatorze ekonomii, zanim ją podniesiesz.',
+        ],
+        '/slots/swap_ms' => [
+            'label' => 'Czas wyprowadzenia auta na drogę',
+            'help' => 'Ile auto wyjęte z magazynu jest przygotowywane: jedzie od tej chwili, a wcześniej nic nie zarabia. Dzięki temu gracz nie zmienia aut przy każdym deszczu.',
+            'example' => '120 s: dwie minuty.',
+            'range' => '0 – 3600 s.',
+        ],
+        '/slots/swap_fee_ppm' => [
+            'label' => 'Koszt zamiany (część baku)',
+            'help' => 'Ile kosztuje wyprowadzenie auta z magazynu na drogę w miejsce auta, które jest na drodze, jako część zarobku netto jednego baku najlepszego auta gracza (100% to cały bak), w pełnych dolarach i co najmniej jeden. Postawienie auta na wolnym miejscu nic nie kosztuje.',
+            'example' => '2%: dla auta, które zarabia $375 na baku, zamiana kosztuje $8.',
+            'range' => '0 – 100% (część baku).',
+        ],
     ],
 ];

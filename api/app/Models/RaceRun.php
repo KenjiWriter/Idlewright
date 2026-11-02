@@ -33,8 +33,11 @@ class RaceRun extends Model
     /** The car was sold: its run is closed for good. */
     public const STOP_SOLD = 'sold';
 
+    /** The car is in storage: it stands in its garage, does not drive, burns no fuel and wears nothing, until the driver puts it on the road (`Slots`). */
+    public const STOP_STORED = 'stored';
+
     /** The stops that a service puts on a car, not the road or the tank: nothing settles past them, and nothing but the service ends them. */
-    public const SERVICE_STOPS = [self::STOP_WORKSHOP, self::STOP_TRAVEL, self::STOP_PARKED, self::STOP_SOLD];
+    public const SERVICE_STOPS = [self::STOP_WORKSHOP, self::STOP_TRAVEL, self::STOP_PARKED, self::STOP_SOLD, self::STOP_STORED];
 
     protected $guarded = [];
 

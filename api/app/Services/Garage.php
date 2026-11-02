@@ -19,12 +19,16 @@ final class Garage
 {
     public function __construct(private readonly Rules $rules) {}
 
-    /** The car the driver plays: the one they selected, or the first car they have. */
+    /**
+     * The car the driver plays: the one they selected, or the first car they have that is on the road (a car in storage is not played: it does not drive), or, when
+     * none is, the first.
+     */
     public function carOf(int $userId): ?Car
     {
+        $stored = $this->storedCarIds($userId);
         $selected = User::query()->whereKey($userId)->value('selected_car_id');
 
-        if ($selected !== null) {
+        if ($selected !== null && ! in_array((int) $selected, $stored, true)) {
             $car = Car::query()->where('user_id', $userId)->find($selected);
 
             if ($car !== null) {
@@ -32,7 +36,20 @@ final class Garage
             }
         }
 
-        return Car::query()->where('user_id', $userId)->orderBy('id')->first();
+        return Car::query()->where('user_id', $userId)->whereNotIn('id', $stored)->orderBy('id')->first()
+            ?? Car::query()->where('user_id', $userId)->orderBy('id')->first();
+    }
+
+    /** Whether a car stands in storage (see `Slots`): the car a driver has just got when every slot was taken. */
+    public function isStored(?Car $car): bool
+    {
+        return $car !== null && $this->runOf($car)?->stop_reason === RaceRun::STOP_STORED;
+    }
+
+    /** @return list<int> the cars of the driver that are in storage (see `Slots`) */
+    public function storedCarIds(int $userId): array
+    {
+        return array_map('intval', RaceRun::query()->where('user_id', $userId)->where('stop_reason', RaceRun::STOP_STORED)->whereNotNull('car_id')->pluck('car_id')->all());
     }
 
     /** @return Collection<int, Car> every car of the driver, the oldest first */
@@ -44,11 +61,15 @@ final class Garage
     /**
      * The driver plays another of their cars.
      *
-     * @throws RuleRefusedException the car is not the driver's
+     * @throws RuleRefusedException the car is not the driver's, or it is in storage (`car_stored`: it has to be put on the road first)
      */
     public function select(int $userId, int $carId): Car
     {
         $car = Car::query()->where('user_id', $userId)->find($carId) ?? throw new RuleRefusedException('car_not_found');
+
+        if (in_array($car->id, $this->storedCarIds($userId), true)) {
+            throw new RuleRefusedException('car_stored');
+        }
 
         User::query()->whereKey($userId)->update(['selected_car_id' => $car->id]);
 

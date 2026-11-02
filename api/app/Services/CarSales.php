@@ -28,6 +28,9 @@ final class CarSales
 
     public const BLOCKED_BUSY = 'busy';
 
+    /** The only car that is on the road: the driver puts another on it first. */
+    public const BLOCKED_LAST_ACTIVE = 'last_active_car';
+
     public function __construct(
         private readonly Ledger $ledger,
         private readonly Rules $rules,
@@ -62,6 +65,12 @@ final class CarSales
         }
 
         $run = $this->garage->runOf($car);
+        $slots = app(Slots::class);
+
+        // A car that is on the road is not sold when it is the only one: a driver always has a car that drives.
+        if ($slots->on() && $run?->stop_reason !== RaceRun::STOP_STORED && $slots->activeCars($car->user_id)->count() <= 1) {
+            return self::BLOCKED_LAST_ACTIVE;
+        }
 
         if ($run?->stop_reason === RaceRun::STOP_TRAVEL || WorkshopJob::query()->where('car_id', $car->id)->where('status', '!=', WorkshopJob::STATUS_DONE)->exists()) {
             return self::BLOCKED_BUSY;
@@ -94,6 +103,10 @@ final class CarSales
                 throw new RuleRefusedException('car_busy');
             }
 
+            if ($reason === self::BLOCKED_LAST_ACTIVE) {
+                throw new RuleRefusedException('last_active_car');
+            }
+
             // What it earned until now is the driver's: it is settled before the car goes.
             $run = $this->garage->runOf($car);
 
@@ -113,6 +126,9 @@ final class CarSales
             User::query()->whereKey($userId)->where('selected_car_id', $car->id)->update(['selected_car_id' => null]);
 
             $this->ledger->post($userId, $cents, 'sale', "sale:{$userId}:{$car->id}");
+
+            // The cars that drive are put in order, and the cars the driver kept from before the limit are as many as it lets them keep.
+            app(Slots::class)->afterLeaving($userId);
 
             return $cents;
         }, Ledger::DEADLOCK_ATTEMPTS);

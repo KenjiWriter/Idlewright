@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Services\Garage;
 use App\Services\Ledger;
 use App\Services\Market;
 use App\Services\RunService;
@@ -22,6 +23,7 @@ final class MarketController extends Controller
         private readonly Market $market,
         private readonly Workshop $workshop,
         private readonly Ledger $ledger,
+        private readonly Garage $garage,
     ) {}
 
     /** The market as it is now: an arrival that is due is carried out first, so the city is the one the car is in. */
@@ -50,7 +52,7 @@ final class MarketController extends Controller
         $this->workshop->advance($userId);
         $car = $this->market->buyListing($userId, $key, RunService::nowMs());
 
-        return $this->respond($userId, $car === null ? 200 : 201, ['repeated' => $car === null, 'bought' => $car?->id]);
+        return $this->respond($userId, $car === null ? 200 : 201, ['repeated' => $car === null, 'bought' => $car?->id, 'stored' => $this->garage->isStored($car)]);
     }
 
     /** Buys a new car from the dealer: `vehicle` is the slug, `request_id` makes a repeated request harmless (it buys nothing twice). */
@@ -65,7 +67,7 @@ final class MarketController extends Controller
         $this->workshop->advance($userId);
         $car = $this->market->buyNew($userId, $data['vehicle'], $data['request_id'], RunService::nowMs());
 
-        return $this->respond($userId, $car === null ? 200 : 201, ['repeated' => $car === null, 'bought' => $car?->id]);
+        return $this->respond($userId, $car === null ? 200 : 201, ['repeated' => $car === null, 'bought' => $car?->id, 'stored' => $this->garage->isStored($car)]);
     }
 
     /**
@@ -83,6 +85,7 @@ final class MarketController extends Controller
         return $this->respond($userId, $opened === null ? 200 : 201, [
             'repeated' => $opened === null,
             'bought' => $opened['car']->id ?? null,
+            'stored' => $this->garage->isStored($opened['car'] ?? null),
             'opened' => $opened === null ? null : [
                 'class' => $opened['outcome']->class,
                 'vehicle' => $this->market->vehicleOf($opened['outcome']->vehicle),

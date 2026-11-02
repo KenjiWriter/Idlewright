@@ -108,6 +108,9 @@ Route::prefix('v1')->group(function (): void {
         Route::post('/cars', [FleetController::class, 'buyCar']);
         Route::post('/cars/{car}/select', [FleetController::class, 'select'])->whereNumber('car');
         Route::post('/cars/{car}/sell', [FleetController::class, 'sell'])->whereNumber('car');
+        Route::post('/cars/{car}/store', [FleetController::class, 'store'])->whereNumber('car');
+        Route::post('/cars/{car}/activate', [FleetController::class, 'activate'])->whereNumber('car');
+        Route::post('/cars/{car}/swap', [FleetController::class, 'swap'])->whereNumber('car');
         Route::post('/garages', [FleetController::class, 'buyGarage']);
 
         Route::get('/market', [MarketController::class, 'show']);

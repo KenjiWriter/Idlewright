@@ -215,6 +215,8 @@ final class CityGarages
     public function park(int $userId, string $vehicle, string $region, ?int $nowMs = null, int $conditionPpm = 1_000_000, ?int $valueCents = null, int $mileageKm = 0): Car
     {
         $track = $this->rules->tracksOf($region)[0];
+        // With every slot taken the car goes to storage: it is the driver's, it keeps its place in the garage, and it drives when they put it on the road.
+        $stored = app(Slots::class)->mustStore($userId);
 
         $car = Car::query()->create([
             'user_id' => $userId,
@@ -227,9 +229,10 @@ final class CityGarages
             'serviced_at_m' => $mileageKm * 1000,
         ]);
 
-        $this->runs->start($userId, $vehicle, $track, $this->inputs->makeForCar($car, $track), $this->inputs->tankMl($vehicle), $nowMs, $car);
+        $this->runs->start($userId, $vehicle, $track, $this->inputs->makeForCar($car, $track), $this->inputs->tankMl($vehicle), $nowMs, $car, stored: $stored);
+        app(Slots::class)->renumber($userId);
 
-        return $car;
+        return $car->refresh();
     }
 
     /**

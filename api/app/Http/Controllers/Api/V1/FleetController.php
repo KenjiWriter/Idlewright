@@ -16,6 +16,7 @@ use App\Services\ContentImages;
 use App\Services\Garage;
 use App\Services\Ledger;
 use App\Services\RunService;
+use App\Services\Slots;
 use App\Services\Travel;
 use App\Services\Workshop;
 use App\Support\I18nText;
@@ -40,6 +41,7 @@ final class FleetController extends Controller
         private readonly Rules $rules,
         private readonly Catalog $catalog,
         private readonly RunInputsFactory $inputs,
+        private readonly Slots $slots,
     ) {}
 
     /** The cars and the garages as they are now: what is due is carried out first, and every car is settled, so the laps and the cash are current. */
@@ -67,7 +69,7 @@ final class FleetController extends Controller
         $this->bringUpToDate($userId);
         $car = $this->garages->buyCar($userId, $data['vehicle'], $data['city'], $data['request_id']);
 
-        return $this->respond($userId, $car === null ? 200 : 201, ['repeated' => $car === null, 'bought' => $car?->id]);
+        return $this->respond($userId, $car === null ? 200 : 201, ['repeated' => $car === null, 'bought' => $car?->id, 'stored' => $this->garage->isStored($car)]);
     }
 
     /** Buys a garage in a city the level of the driver opens. */
@@ -89,6 +91,47 @@ final class FleetController extends Controller
         $this->bringUpToDate($userId);
 
         return $this->respond($userId);
+    }
+
+    /**
+     * Puts a car of the driver in storage: it stops where it stands, drives no more and burns no fuel, and its slot is free. What it earned until now is paid first.
+     * A car in storage already stays there (`repeated`).
+     */
+    public function store(Request $request, int $car): JsonResponse
+    {
+        $userId = (int) $request->user()->getAuthIdentifier();
+        $this->workshop->advance($userId);
+        $done = $this->slots->store($userId, $car);
+
+        return $this->respond($userId, 200, ['repeated' => $done['repeated']]);
+    }
+
+    /** Puts a car from storage on the road, in a free slot: it drives when it is ready (`slots.swap_ms`). A car on the road already stays on it (`repeated`). */
+    public function activate(Request $request, int $car): JsonResponse
+    {
+        $userId = (int) $request->user()->getAuthIdentifier();
+        $this->workshop->advance($userId);
+        $done = $this->slots->activate($userId, $car);
+
+        return $this->respond($userId, 200, ['repeated' => $done['repeated']]);
+    }
+
+    /**
+     * Swaps the car on the road named by `with` for this one from storage: the first goes to storage, this one to the road, and the swap costs a part of a tank of the best
+     * car of the driver. `request_id` makes a repeated request harmless: it changes and charges nothing (`repeated`).
+     */
+    public function swap(Request $request, int $car): JsonResponse
+    {
+        $data = $request->validate([
+            'with' => ['required', 'integer'],
+            'request_id' => ['required', 'string', 'max:'.RunService::MAX_REQUEST_ID_LENGTH],
+        ]);
+
+        $userId = (int) $request->user()->getAuthIdentifier();
+        $this->workshop->advance($userId);
+        $done = $this->slots->swap($userId, $car, (int) $data['with'], $data['request_id']);
+
+        return $this->respond($userId, 200, ['repeated' => $done['repeated'], 'fee_cents' => $done['fee_cents']]);
     }
 
     /**
@@ -135,10 +178,13 @@ final class FleetController extends Controller
         }
 
         $yard = $this->garages->yard();
+        // Put in order first: the numbers of the cars are what the cars below show.
+        $slots = $this->slots->state($userId);
 
         return response()->json([
             'data' => [
                 'selected' => $selected?->id,
+                'slots' => $slots,
                 'cars' => $this->carsData($userId, $selected),
                 'garages' => $garages,
                 'yard' => $yard,
@@ -169,6 +215,9 @@ final class FleetController extends Controller
             'id' => $car->id,
             'level' => $car->level,
             'selected' => $selected?->id === $car->id,
+            // The place of the car among the cars that drive, or null for a car in storage (or when the game has no limit).
+            'slot_no' => $car->slot_no,
+            'stored' => $run?->stop_reason === RaceRun::STOP_STORED,
             'condition_percent' => (int) round($car->conditionPpm() / 10_000),
             'mileage_km' => intdiv((int) $car->mileage_m, 1000),
             // What a sale pays, and why there is none now (`last_car`, `busy`) or null.

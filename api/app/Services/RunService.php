@@ -62,9 +62,9 @@ final class RunService
 
     /**
      * Starts a run: freezes the configuration with a new seed and puts the cursor at the start time. The run drives
-     * `$car`, or a new car of the driver at the level a new car has when none is given.
+     * `$car`, or a new car of the driver at the level a new car has when none is given. A run that is `$stored` starts in storage (the driver has no slot for it).
      */
-    public function start(int $userId, string $carSlug, string $trackSlug, RunInputs $inputs, int $fuelMl, ?int $nowMs = null, ?Car $car = null, bool $parked = false): RaceRun
+    public function start(int $userId, string $carSlug, string $trackSlug, RunInputs $inputs, int $fuelMl, ?int $nowMs = null, ?Car $car = null, bool $parked = false, bool $stored = false): RaceRun
     {
         $seed = bin2hex(random_bytes(16));
         $frozen = $this->freezer->freeze($inputs, $seed, 0);
@@ -92,8 +92,8 @@ final class RunService
             'car_id' => $car->id,
             'car_slug' => $carSlug,
             'track_slug' => $trackSlug,
-            'status' => $parked ? RaceRun::STATUS_STOPPED : RaceRun::STATUS_RUNNING,
-            'stop_reason' => $parked ? RaceRun::STOP_PARKED : null,
+            'status' => $parked || $stored ? RaceRun::STATUS_STOPPED : RaceRun::STATUS_RUNNING,
+            'stop_reason' => $parked ? RaceRun::STOP_PARKED : ($stored ? RaceRun::STOP_STORED : null),
             'cursor_ms' => $nowMs ?? self::nowMs(),
             'laps_done' => 0,
             'fuel_ml' => $fuelMl,
@@ -458,14 +458,21 @@ final class RunService
      */
     public function settleLocked(RaceRun $run, int $nowMs): Settled
     {
-        $settled = $this->settleOnce($run, $nowMs);
+        // A car in a slot that only the VIP account gives earns until the account ends; it is put in storage when the time has come.
+        $horizon = $this->slots()->horizonMs($run);
+        $untilMs = $horizon === null ? $nowMs : min($nowMs, $horizon);
+        $settled = $this->settleOnce($run, $untilMs);
 
         // A part that has worn to its next stage, or a service that has moved on, changes the car at a lap that was known when the configuration was frozen:
         // the settlement stops there, the configuration is frozen again with what the car is now (the same seed), and the rest is settled with it. Wear is a
         // function of the laps, so this gives what one pass would if the car were looked at in between, and the passes are few (a stage is thousands of laps).
         for ($pass = 0; $pass < self::MAX_PASSES && $this->mustFreezeAgain($run); $pass++) {
             $this->freezeAgain($run);
-            $settled = self::together($settled, $this->settleOnce($run, $nowMs));
+            $settled = self::together($settled, $this->settleOnce($run, $untilMs));
+        }
+
+        if ($horizon !== null && $horizon <= $nowMs) {
+            $this->slots()->storeExpired($run);
         }
 
         // A run that was frozen with other content than the one that is live now (a new pack was made live) has been settled up to now with the lap it was
@@ -679,6 +686,11 @@ final class RunService
         }
 
         return $events;
+    }
+
+    private function slots(): Slots
+    {
+        return app(Slots::class);
     }
 
     private function perks(): SettlementPerks
