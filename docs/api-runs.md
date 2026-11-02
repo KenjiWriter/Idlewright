@@ -672,6 +672,16 @@ Przycisk **„Policz wpływ na balans”** przy sprawdzonej odpowiedzi (obok „
 - **Testy**: `AiAddDesignTest` 7 (co jest zbiorem a co nie, dodanie wpisu bez zapisu, odmowy: zajęta nazwa, nie zbiór, cena w prawdziwych pieniądzach, sekcja spoza instrukcji, wpis niezgodny z treścią; zapis jako szkic i cofnięcie wpisu; linia `COLLECTIONS`; rola projektowania i teksty w danych).
 - **Czego to nie obejmuje**: dokumentów reguł poza `starter` w instrukcji (misje, samouczek, słownik, model mają własne dokumenty, które blok może wskazać, ale instrukcja ich nie opisuje); przykładu `add`; tego, że model utrzyma etapy projektu (nie próbowałem żadnego modelu); okna ani przełącznika w przeglądarce.
 
+### Most AI: instrukcja o jednym rekordzie, na formularzu auta i części (most AI, etap A7, 2026-11-02)
+
+Na stronie edycji auta i części (wspólna `EditDefinition`) jest przycisk **„Przygotuj dla AI (ten rekord)”**. Otwiera okno z instrukcją **o tym jednym rekordzie** (kopiuj, pokaż tekst, link do strony „Most AI”, na której wkleja się odpowiedź).
+
+- **Co jest w instrukcji** (`BriefBuilder::buildRecord`): ta sama rola, sposób rozmowy i format bloku co w pełnej instrukcji; w danych `RECORD` (rodzaj, slug, nazwa), wszystkie **liczby tego rekordu** jako `[wskaźnik, jednostka, wartość, min, max]`, jego **teksty we wszystkich językach** (`TEXTS`) oraz **tabela tych obok**, do porównania cen i parametrów (części tego samego slotu, albo auta). Cała instrukcja ma ok. 6 tys. tokenów (większość to rola i schemat), czyli kilka razy mniej niż pełna. Przykładowy blok jest zrobiony z tego rekordu (zmiana nazwy i cena +10%).
+- **Zakres to ten jeden rekord** (`part:<slug>` / `vehicle:<slug>`), więc odpowiedź **nie zmieni żadnego innego** (`out_of_scope`, także przez `select`) i **nie zrobi nowego auta ani części** (do `create` potrzebny jest zakres całego rodzaju). To najbezpieczniejszy tryb. Instrukcję zapisuje `BriefRecorder::prepareRecord` w `ai_exchanges` jak pełną (kod, zakres, ślad `ai_brief_prepared`); ta sama osoba i ten sam rekord na tej samej treści mają ten sam kod. Odpowiedź wkleja się na stronie „Most AI” i przechodzi tę samą drogę: sprawdzenie, tabela, szkic, cofnięcie.
+- **Język** opisów to język panelu (`pt_BR` panelu to `pt-BR` treści; poprawiłem to też na stronie „Most AI”, gdzie portugalski domyślnie wracał do polskiego).
+- **Testy**: `AiRecordBriefTest` 5 (rekord z liczbami i tekstami, sąsiedzi tylko z jego slotu, kod i zapis, odpowiedź o tym rekordzie przyjęta a o innym, o wybranych przez `select` i o nowym odrzucona, brak rekordu, przycisk na formularzu części tworzy instrukcję przy otwarciu okna).
+- **Czego to nie obejmuje**: okna w przeglądarce nie oglądałem (schowek w oknie aplikacji i tak jest zablokowany, zadziała tryb z polem do zaznaczenia); opisów pól auta i części z katalogu pomocy w instrukcji o rekordzie (są tylko nazwy pól i jednostki).
+
 ### Tory w mieście: sprint, standard i dystans (krok T1, 2026-10-28)
 
 Projekt D1–D8 zatwierdził użytkownik po prośbie o „szybki tor, okrążenie 10–15 s, ale mniej kasy za okrążenie” i „dłuższe tory, gdzie paliwo każe decydować”. Dotąd miasto miało jeden tor, a wybór toru był wyborem miasta; paliwo nie było decyzją, bo **wszystkie pięć torów spalało to samo na godzinę** (ok. 72 l/h przy bazowym okrążeniu, więc zbiornik 45 l starczał na ok. 35 minut wszędzie).
