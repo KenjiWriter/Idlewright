@@ -183,4 +183,13 @@ describe('pasting the answer', function () {
 
         $page->set('answer', $text.' ')->call('check')->assertNotified(__('admin.ai.rate_limited'));
     });
+    it('works out the effect of a checked answer on the balance, in a window, and keeps nothing', function () {
+        signedInAdmin();
+        $text = bridgeCanned('vip-price', bridgeTheBrief());
+
+        $page = Livewire::test(AiBridgePage::class)->set('answer', $text)->call('check')->assertSeeHtml('data-ai-balance');
+        $page->mountAction('balance')->assertActionMounted('balance');
+
+        expect(ContentDefinition::query()->whereNotNull('draft')->count())->toBe(0);
+    });
 });
