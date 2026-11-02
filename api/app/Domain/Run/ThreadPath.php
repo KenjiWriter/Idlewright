@@ -14,11 +14,13 @@ namespace App\Domain\Run;
 final class ThreadPath
 {
     /**
+     * The line of the thread: `points` are one every `$stepM` metres or so and the end of every section, `gap_m` is how far the end of the last section was from the start
+     * (0 for a run, which does not close), and `turn_deg` is what the corners turn the car in all (left is positive). A circuit is bent until it closes, unless `$close` is
+     * false, which draws it as the sections make it.
+     *
      * @return array{points: list<array{x: float, y: float, distance_m: float, section: int}>, gap_m: float, turn_deg: float}
-     *                                                                                                                        `points` are one every `$stepM` metres or so and the end of every section, `gap_m` is how far the end of the last section was from the start before the line
-     *                                                                                                                        was bent (0 for a run, which does not close), `turn_deg` is what the corners turn the car in all (left is positive)
      */
-    public static function outline(Thread $thread, float $stepM = 10.0): array
+    public static function outline(Thread $thread, float $stepM = 10.0, bool $close = true): array
     {
         $x = 0.0;
         $y = 0.0;
@@ -65,7 +67,7 @@ final class ThreadPath
 
         $gap = $thread->isCircuit() ? hypot($x, $y) : 0.0;
 
-        if ($gap > 0.0) {
+        if ($close && $gap > 0.0) {
             foreach ($points as &$point) {
                 $share = $point['distance_m'] / $distance;
                 $point['x'] -= $x * $share;

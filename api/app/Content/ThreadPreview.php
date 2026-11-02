@@ -42,7 +42,8 @@ final class ThreadPreview
             $surface = (string) ($track['surface'] ?? 'asphalt');
             $thread = ThreadDocument::thread($track['thread'], $surface);
             $length = ThreadDocument::lengthM($track['thread'], $surface);
-            $outline = ThreadPath::outline($thread);
+            // The line is drawn as it is, open where the sections do not close it, so that the operator sees the gap to close.
+            $outline = ThreadPath::outline($thread, close: false);
             $drivable = array_values(array_filter($cars, fn (string $slug): bool => ($this->catalog->vehicle($slug)['powertrain'] ?? null) === 'ice'));
 
             $threadRules = $this->with($rules, $trackSlug, 'thread', $length);

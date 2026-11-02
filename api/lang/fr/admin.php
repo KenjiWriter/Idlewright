@@ -552,7 +552,7 @@ return [
         'numbers' => 'Longueur :length m en :sections sections. La voiture de référence met :lap sur le tracé, :speed en moyenne.',
         'pace_note' => 'Le circuit indique un temps de base de :base, la voiture de référence fait donc exactement ce temps, et les autres selon leur écart avec elle sur le tracé. Le tracé seul donnerait :physical (allure :pace).',
         'pace_free' => 'Le circuit n’indique pas de temps de base, le temps de base est donc celui de la voiture de référence sur le tracé : :physical.',
-        'gap_note' => 'La ligne se termine à :gap m du départ ; elle est dessinée légèrement courbée pour se refermer.',
+        'gap_note' => 'La ligne se termine à :gap m du départ (la ligne rouge en pointillés). Modifiez les sections jusqu’à ce qu’elle rejoigne le départ.',
         'split_title' => 'À quoi sert le temps du tour (voiture de référence)',
         'split_accelerating' => 'Accélération',
         'split_holding' => 'À la limite',

@@ -552,7 +552,7 @@ return [
         'numbers' => 'Comprimento :length m em :sections trechos. O carro de referência leva :lap no traçado, :speed em média.',
         'pace_note' => 'A pista tem uma volta base de :base, então o carro de referência faz exatamente isso, e os outros conforme o quanto são mais rápidos ou mais lentos que ele no traçado. O traçado sozinho daria :physical (ritmo :pace).',
         'pace_free' => 'A pista não tem volta base, então a volta base é a do carro de referência no traçado: :physical.',
-        'gap_note' => 'A linha termina a :gap m da largada; ela é desenhada levemente curvada para se fechar.',
+        'gap_note' => 'A linha termina a :gap m da largada (a linha vermelha tracejada). Altere os trechos até ela chegar à largada.',
         'split_title' => 'Para onde vai o tempo da volta (carro de referência)',
         'split_accelerating' => 'Acelerando',
         'split_holding' => 'No limite',

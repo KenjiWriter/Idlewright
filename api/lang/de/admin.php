@@ -552,7 +552,7 @@ return [
         'numbers' => 'Länge :length m in :sections Abschnitten. Das Referenzauto braucht auf dem Streckenverlauf :lap, im Schnitt :speed.',
         'pace_note' => 'Die Strecke hat eine Basisrunde von :base, das Referenzauto fährt also genau diese, die anderen je nachdem, wie viel schneller oder langsamer als es sie auf dem Streckenverlauf sind. Der Streckenverlauf allein ergäbe :physical (Tempofaktor :pace).',
         'pace_free' => 'Die Strecke hat keine Basisrunde, also ist die Runde des Referenzautos auf dem Streckenverlauf die Basisrunde: :physical.',
-        'gap_note' => 'Die Linie endet :gap m vom Start entfernt; sie ist leicht gebogen gezeichnet, damit sie sich schließt.',
+        'gap_note' => 'Die Linie endet :gap m vom Start entfernt (die rot gestrichelte Linie). Ändere die Abschnitte, bis sie den Start erreicht.',
         'split_title' => 'Wofür die Zeit der Runde draufgeht (Referenzauto)',
         'split_accelerating' => 'Beschleunigen',
         'split_holding' => 'Am Limit',

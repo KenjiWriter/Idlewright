@@ -582,7 +582,7 @@ return [
         'numbers' => 'Length :length m in :sections sections. The reference car takes :lap on the thread, :speed on average.',
         'pace_note' => 'The track says a base lap of :base, so the reference car laps exactly that, and the other cars by how much faster or slower than it they are on the thread. The thread alone would give :physical (pace :pace).',
         'pace_free' => 'The track says no base lap, so the lap of the reference car on the thread is the base lap: :physical.',
-        'gap_note' => 'The line ends :gap m from where it started; it is drawn bent a little so that it meets itself.',
+        'gap_note' => 'The line ends :gap m from where it started (the dashed red line). Change the sections until it meets the start.',
         'split_title' => 'Where the lap goes (reference car)',
         'split_accelerating' => 'Accelerating',
         'split_holding' => 'At the limit',

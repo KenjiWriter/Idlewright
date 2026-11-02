@@ -582,7 +582,7 @@ return [
         'numbers' => 'Długość :length m w :sections odcinkach. Auto wzorcowe jedzie po nitce :lap, średnio :speed.',
         'pace_note' => 'Tor ma czas bazowy :base, więc auto wzorcowe jedzie dokładnie tyle, a pozostałe tyle, o ile są od niego szybsze lub wolniejsze na nitce. Sama nitka dałaby :physical (tempo :pace).',
         'pace_free' => 'Tor nie ma czasu bazowego, więc czasem bazowym jest okrążenie auta wzorcowego po nitce: :physical.',
-        'gap_note' => 'Linia kończy się :gap m od miejsca startu; na rysunku jest lekko wygięta, żeby się zamknęła.',
+        'gap_note' => 'Linia kończy się :gap m od miejsca startu (czerwona przerywana linia). Zmieniaj odcinki, aż dojdzie do startu.',
         'split_title' => 'Na co idzie czas okrążenia (auto wzorcowe)',
         'split_accelerating' => 'Przyspieszanie',
         'split_holding' => 'Na limicie',
