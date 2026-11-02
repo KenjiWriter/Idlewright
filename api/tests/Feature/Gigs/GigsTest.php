@@ -407,6 +407,26 @@ describe('the gigs as content', function () {
     });
 });
 
+describe('the alpha numbers', function () {
+    it('say how many gigs were taken a day, by how many drivers, and what the paid ones paid, without the ones that were taken back', function () {
+        [$driver] = gigDriver();
+        boardOf();
+        $offers = collect(gigBoard($driver)->json('data.offers'))->pluck('key');
+        takeGig($driver, $offers[0])->assertCreated();
+        $gig = Gig::query()->firstOrFail();
+        Carbon::setTestNow(Carbon::createFromTimestampMs($gig->finish_ms));
+        gigBoard($driver)->assertOk();
+        $second = collect(gigBoard($driver)->json('data.offers'))->firstWhere('eligible', true)['key'];
+        takeGig($driver, $second)->assertCreated();
+        test()->deleteJson('/api/v1/gigs/'.Gig::query()->where('offer_key', $second)->value('id'), [], bearerFor($driver))->assertOk();
+
+        Artisan::call('metrics:report', ['--days' => 30, '--json' => true]);
+        $today = collect(json_decode(Artisan::output(), true)['gigs']['days'])->last();
+
+        expect($today)->toMatchArray(['taken' => 1, 'drivers' => 1, 'paid_cents' => $gig->reward_cents]);
+    });
+});
+
 describe('the report', function () {
     it('measures the pay of an hour of a gig against the rung of the ladder and against the laps of the same car, for every car that can take one', function () {
         $this->artisan('gigs:report', ['--json' => true])->assertExitCode(0);

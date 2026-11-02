@@ -65,6 +65,8 @@ final class MetricsReport extends Command
         $this->newLine();
         $this->line("The missions of the day (all accounts); the bonuses gave {$report['missions']['coins_30_days']} premium coins in thirty days");
         $this->table(['day', 'sets drawn', 'done whole', 'bonus taken'], $report['missions']['days']);
+        $this->line("The gigs of the day (all accounts); they paid {$report['gigs']['paid_cents_30_days']} cents in thirty days");
+        $this->table(['day', 'gigs taken', 'drivers', 'paid, cents'], $report['gigs']['days']);
 
         return self::SUCCESS;
     }

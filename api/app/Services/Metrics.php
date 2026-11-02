@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Models\Gig;
 use App\Models\LedgerEntry;
 use App\Models\Travel;
 use App\Models\TutorialProgress;
@@ -51,7 +52,8 @@ final class Metrics
      *     activity: list<array{day: string, active: int, new: int, returning: int}>,
      *     first_steps: array<string, array{reached: int, rate: float|null, median_minutes: float|null, within_target: int|null, target_minutes: int|null}>,
      *     tutorial: array<string, array{reached: int, rate: float|null}>,
-     *     missions: array{days: list<array{day: string, drawn: int, done: int, bonus_taken: int}>, coins_30_days: int}
+     *     missions: array{days: list<array{day: string, drawn: int, done: int, bonus_taken: int}>, coins_30_days: int},
+     *     gigs: array{days: list<array{day: string, taken: int, drivers: int, paid_cents: int}>, paid_cents_30_days: int}
      * }
      */
     public function report(CarbonImmutable $from, CarbonImmutable $to, ?CarbonImmutable $now = null): array
@@ -74,6 +76,7 @@ final class Metrics
             'first_steps' => $this->firstSteps($accounts),
             'tutorial' => $this->tutorial($accounts),
             'missions' => $this->missions($now),
+            'gigs' => $this->gigs($now),
         ];
     }
 
@@ -218,6 +221,31 @@ final class Metrics
         $coins = (int) LedgerEntry::query()->where('currency', 'premium')->where('reason', 'mission_bonus')->where('created_at', '>=', $now->subDays(30))->sum('delta');
 
         return ['days' => $days, 'coins_30_days' => $coins];
+    }
+
+    /**
+     * How the gigs are taken, for the last fourteen days and all accounts: how many were taken (the ones taken back are not counted), by how many drivers, and what the ones that
+     * were paid paid; and what they paid in thirty days. It says whether the gigs are a second loop that drivers use, and how much of the income they are.
+     *
+     * @return array{days: list<array{day: string, taken: int, drivers: int, paid_cents: int}>, paid_cents_30_days: int}
+     */
+    private function gigs(CarbonImmutable $now): array
+    {
+        $first = $now->startOfDay()->subDays(13);
+        $taken = Gig::query()->where('status', '!=', Gig::STATUS_CANCELLED)->where('start_ms', '>=', $first->getTimestampMs())->get(['user_id', 'start_ms', 'reward_cents', 'status'])
+            ->groupBy(static fn (Gig $gig): string => CarbonImmutable::createFromTimestampMs($gig->start_ms)->toDateString());
+        $days = [];
+
+        for ($i = 0; $i < 14; $i++) {
+            $day = $first->addDays($i)->toDateString();
+            $rows = $taken->get($day, collect());
+
+            $days[] = ['day' => $day, 'taken' => $rows->count(), 'drivers' => $rows->pluck('user_id')->unique()->count(), 'paid_cents' => (int) $rows->where('status', Gig::STATUS_DONE)->sum('reward_cents')];
+        }
+
+        $paid = (int) LedgerEntry::query()->where('currency', 'cash')->where('reason', 'gig')->where('created_at', '>=', $now->subDays(30))->sum('delta');
+
+        return ['days' => $days, 'paid_cents_30_days' => $paid];
     }
 
     /**
