@@ -1093,7 +1093,7 @@ return [
         'answer_label' => 'Odpowiedź asystenta',
         'answer_hint' => 'Wklej całą odpowiedź asystenta albo sam blok zmian. Panel go sprawdzi i pokaże, co by się zmieniło; nic nie jest zapisywane, dopóki nie klikniesz „Zapisz jako szkic”.',
         'check' => 'Sprawdź odpowiedź',
-        'verdict_ok' => 'Odpowiedź przyjęta: zmieni się :changes liczb w :documents dokumentach. Nic jeszcze nie zapisano.',
+        'verdict_ok' => 'Odpowiedź przyjęta: zmieni się :changes liczb (dokumentów: :documents). Nic jeszcze nie zapisano.',
         'verdict_refused' => 'Odpowiedź nie została przyjęta (błędów: :errors). Nic nie zostało zmienione.',
         'error' => 'Błąd',
         'remark' => 'Uwaga',
