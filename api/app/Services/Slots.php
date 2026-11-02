@@ -367,7 +367,7 @@ final class Slots
     /** A car on the road to another city, or with work waiting for the mechanic, is not put in storage (as it is not sold). */
     private function assertNotBusy(Car $car, ?RaceRun $run): void
     {
-        if ($run?->stop_reason === RaceRun::STOP_TRAVEL || WorkshopJob::query()->where('car_id', $car->id)->where('status', '!=', WorkshopJob::STATUS_DONE)->exists()) {
+        if (in_array($run?->stop_reason, [RaceRun::STOP_TRAVEL, RaceRun::STOP_GIG], true) || WorkshopJob::query()->where('car_id', $car->id)->where('status', '!=', WorkshopJob::STATUS_DONE)->exists()) {
             throw new RuleRefusedException('car_busy');
         }
     }
