@@ -6,9 +6,12 @@ use App\Content\ContentSource;
 use App\Content\GigCatalog;
 use App\Content\PackValidator;
 use App\Content\Rules;
+use App\Content\RunInputsFactory;
+use App\Models\Car;
 use App\Models\CityGarage;
 use App\Models\Gig;
 use App\Models\LedgerEntry;
+use App\Models\Part;
 use App\Models\RaceRun;
 use App\Models\TutorialProgress;
 use App\Models\User;
@@ -332,6 +335,28 @@ describe('a gig on the road', function () {
             ->and($run->laps_done)->toBe(29)
             ->and($run->fuel_ml)->toBeLessThan(1_500)
             ->and($run->stop_reason)->toBe('fuel_empty');
+    });
+
+    it('burns the fuel of the trip when the car leaves, and puts the kilometres of the trip on its odometer and on its parts when it is back, like a journey', function () {
+        [$driver, $race] = gigDriver();
+        boardOf();
+        $race->forceFill(['config' => [...$race->config, 'wear' => ['length_m' => 2_600, 'ppb_per_lap' => ['tires' => 1_000], 'ppb_per_km' => ['tires' => 25_000]]]])->save();
+        $part = Part::factory()->create(['user_id' => $driver->id, 'car_id' => $race->car_id, 'slot' => 'tires', 'mounted_slot' => 'tires', 'wear_ppb' => 0]);
+        $mileage = Car::query()->find($race->car_id)->mileage_m;
+
+        takeGig($driver, firstOffer($driver))->assertCreated();
+        $gig = Gig::query()->firstOrFail();
+
+        // The fuel is out of the tank at once, the kilometres are not on the car yet.
+        expect($race->fresh()->fuel_ml)->toBe(45_000 - $gig->fuel_ml)
+            ->and($gig->fuel_ml)->toBe((int) ceil($gig->distance_km * app(Rules::class)->travelFuelMlPerKm() * app(RunInputsFactory::class)->stats('rdzak-gt-4')->fuelUseMultiplier))
+            ->and(Car::query()->find($race->car_id)->mileage_m)->toBe($mileage);
+
+        Carbon::setTestNow(Carbon::createFromTimestampMs($gig->finish_ms));
+        gigBoard($driver)->assertOk();
+
+        expect(Car::query()->find($race->car_id)->mileage_m)->toBe($mileage + 10_000)
+            ->and($part->fresh()->wear_ppb)->toBe(10 * 25_000);
     });
 
     it('keeps the workshop from a car that is out', function () {

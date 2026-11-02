@@ -9,7 +9,7 @@ namespace App\Domain\Economy;
  * visits they do it on (`$adoption`, by the kind of player), at most the daily limit of the level, and is paid what a gig is worth on average to the car (`GigEconomy`),
  * which a player who chooses among the offers gets a bit more of (`$choice`).
  *
- * - A gig does not take the tank: the car drives it on the fuel of the road and is back on its track, so the laps of the day are not touched. It is an addition to the
+ * - A gig burns the fuel of the road out of the tank (like a journey) and puts its kilometres on the car, but not at the pace of the laps (a dozen times less an hour), so the car is back on its track with most of the tank and the laps of the day are not touched. It is an addition to the
  *   income of the day, which is what the shift gate measures.
  * - With `$everyCar` the player sends every car of their fleet on every visit (the most that a player who plays normally does); with `$perDay` they take that many gigs a day
  *   whatever the visits (a script that farms them: the daily limit is the most that can be asked of the rules).
