@@ -214,4 +214,31 @@ describe('AuthCallbackView', () => {
 
     await setLocale('en')
   })
+
+  describe('when the browser comes back from signing in again to prove who the driver is', () => {
+    it('goes to the garage, which is waiting to go on with unlinking', async () => {
+      storeToken('device-token')
+      storePending('google', 'v-123')
+      const calls = serveApi(fetchMock, { 'POST /api/v1/auth/complete': () => respond(200, { purpose: 'reauth', data: claimed }) })
+
+      const { router } = await open()
+
+      expect(calls[0]?.body).toEqual({ ticket: 'ticket-789', verifier: 'v-123' })
+      await vi.waitFor(() => expect(router.currentRoute.value.name).toBe('garage'))
+      expect(readPending()).toBeNull()
+    })
+
+    it('says what the server says when it was another account of the provider', async () => {
+      storeToken('device-token')
+      storePending('google', 'v-123')
+      serveApi(fetchMock, {
+        'POST /api/v1/auth/complete': () => respond(403, { message: 'This is not the provider account that is linked to the garage. Sign in with the linked one.', code: 'reauth_mismatch' }),
+      })
+
+      const { wrapper } = await open()
+
+      expect(wrapper.get('[data-test="body"]').text()).toBe('This is not the provider account that is linked to the garage. Sign in with the linked one.')
+    })
+  })
+
 })

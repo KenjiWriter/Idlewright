@@ -3,13 +3,18 @@ import { ref } from 'vue'
 
 import { ApiError, api } from '@/api/client'
 import type {
+  AccountProvider,
   EmailConfirmation,
   EmailLinkResponse,
   LegalInfo,
   LegalResponse,
+  MeResponse,
   ProviderFinish,
   ProviderStart,
   ProvidersResponse,
+  ReauthResponse,
+  ReauthState,
+  RevokeResponse,
   SocialProvider,
 } from '@/api/types'
 import { dataFileName, saveAsFile } from '@/features/account/download'
@@ -33,6 +38,9 @@ export const useAccountStore = defineStore('account', () => {
 
   /** What the legal texts need from the server. Asked once; null until then. */
   const legal = ref<LegalInfo | null>(null)
+
+  /** Whether this device has just proved who the driver is (needed to unlink a sign-in), and with what it can. Null until asked. */
+  const reauth = ref<ReauthState | null>(null)
 
   /** Asks the server which providers are on. If it cannot be asked, the e-mail link is still there to offer. */
   async function loadProviders(): Promise<void> {
@@ -121,7 +129,7 @@ export const useAccountStore = defineStore('account', () => {
    * The verifier is dropped once the server answered, whatever the answer: a sign-in is finished once. If the server
    * could not be reached it is kept, so the same address can be tried again.
    */
-  async function finishProvider(ticket: string): Promise<'link' | 'login'> {
+  async function finishProvider(ticket: string): Promise<'link' | 'login' | 'reauth'> {
     const session = useSessionStore()
     const pending = readPending()
 
@@ -158,7 +166,7 @@ export const useAccountStore = defineStore('account', () => {
    * another browser than the one the guest plays in: this device just asks for its profile again. A link that signs
    * in starts a session here.
    */
-  async function confirmEmail(secret: string): Promise<'claim' | 'login'> {
+  async function confirmEmail(secret: string): Promise<EmailConfirmation['purpose']> {
     const session = useSessionStore()
     const response = await api<EmailConfirmation>('/v1/account/email/confirm', {
       method: 'POST',
@@ -174,5 +182,80 @@ export const useAccountStore = defineStore('account', () => {
     return response.purpose
   }
 
-  return { providers, providersLoaded, loadProviders, legal, loadLegal, downloadData, deleteAccount, requestEmailLink, requestLoginLink, startProvider, finishProvider, confirmEmail }
+  /** Asks whether this device has the proof of who the driver is, and with which of their sign-ins it can get it. */
+  async function loadReauth(): Promise<ReauthState> {
+    reauth.value = (await api<ReauthResponse>('/v1/account/reauth')).data
+
+    return reauth.value
+  }
+
+  /** Asks for a link to the e-mail of the account. Opening it, in any browser, gives this device the proof. */
+  async function requestReauthLink(): Promise<string> {
+    return (await api<EmailLinkResponse>('/v1/account/reauth/email', { method: 'POST' })).message
+  }
+
+  /** Sends the browser to a provider the account has, to sign in again there; coming back gives this device the proof. */
+  async function startReauthProvider(provider: SocialProvider): Promise<void> {
+    const start = await api<ProviderStart>(`/v1/account/reauth/${provider}/start`, { method: 'POST' })
+
+    storePending(provider, start.verifier)
+    goTo(start.url)
+  }
+
+  /**
+   * Unlinks a sign-in from the account. It needs the proof of who the driver is (a 403 `reauth_required` otherwise), and the server
+   * never unlinks the last one (a 422 `last_method`). The profile it answers with replaces the one here.
+   */
+  async function unlink(provider: AccountProvider): Promise<void> {
+    const response = await api<MeResponse>(`/v1/account/identities/${provider}`, { method: 'DELETE' })
+
+    useSessionStore().me = response.data
+    reauth.value = null
+  }
+
+  /**
+   * Asks to change the e-mail of the account. A link goes to the new address and nothing changes until it is used, and the old
+   * address is told. The answer is the same whether the new address already has a garage or not.
+   */
+  async function requestEmailChange(email: string): Promise<string> {
+    return (await api<EmailLinkResponse>('/v1/account/email/change', { method: 'POST', body: JSON.stringify({ email }) })).message
+  }
+
+  /** "This was not me", from the notice sent to the old address: secures the account again. Says whether the old address was put back. */
+  async function revokeEmailChange(secret: string): Promise<boolean> {
+    return (await api<RevokeResponse>('/v1/account/email/revoke', { method: 'POST', body: JSON.stringify({ token: secret }) })).restored
+  }
+
+  /** Accepts the terms and the privacy policy as they are now, after they changed. `version` is the one the driver was shown. */
+  async function acceptConsent(version: string): Promise<void> {
+    const response = await api<MeResponse>('/v1/account/consent', {
+      method: 'POST',
+      body: JSON.stringify({ accept_terms: true, confirm_age: true, version }),
+    })
+
+    useSessionStore().me = response.data
+  }
+
+  return {
+    providers,
+    providersLoaded,
+    loadProviders,
+    legal,
+    loadLegal,
+    reauth,
+    downloadData,
+    deleteAccount,
+    requestEmailLink,
+    requestLoginLink,
+    startProvider,
+    finishProvider,
+    confirmEmail,
+    loadReauth,
+    requestReauthLink,
+    startReauthProvider,
+    unlink,
+    requestEmailChange,
+    revokeEmailChange,
+    acceptConsent,
+  }
 })

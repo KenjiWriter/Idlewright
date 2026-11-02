@@ -155,4 +155,36 @@ describe('ConfirmEmailView', () => {
 
     await setLocale('en')
   })
+
+  it('tells the driver the address changed, for the link of the new address', async () => {
+    serveApi(fetchMock, { 'POST /api/v1/account/email/confirm': () => respond(200, { purpose: 'email_change', data: claimed }) })
+
+    const { wrapper } = await open()
+
+    expect(wrapper.get('[data-test="title"]').text()).toBe('E-mail changed')
+    expect(wrapper.get('[data-test="body"]').text()).toContain('link sent to the new address')
+  })
+
+  it('tells the driver the proof was given, for the link that proves who they are', async () => {
+    storeToken('device-token')
+    serveApi(fetchMock, {
+      'POST /api/v1/account/email/confirm': () => respond(200, { purpose: 'reauth', data: claimed }),
+      'GET /api/v1/me': () => respond(200, { data: claimed }),
+    })
+
+    const { wrapper } = await open()
+
+    expect(wrapper.get('[data-test="title"]').text()).toBe('Confirmed')
+    expect(wrapper.get('[data-test="body"]').text()).toContain('Go back to the garage on the device where you are unlinking a sign-in')
+    expect(wrapper.get('[data-test="next"]').attributes('href')).toBe('/garage')
+  })
+
+  it('does not sign anybody in with the link of a change or of a proof', async () => {
+    serveApi(fetchMock, { 'POST /api/v1/account/email/confirm': () => respond(200, { purpose: 'email_change', data: claimed }) })
+
+    await open()
+
+    expect(readToken()).toBeNull()
+  })
+
 })

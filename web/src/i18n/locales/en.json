@@ -227,7 +227,11 @@
     "invalid": "It was already used, it has expired or it is not complete. Ask for a new one.",
     "garage": "Go to the garage",
     "newLink": "Ask for a new link",
-    "home": "Back to the start"
+    "home": "Back to the start",
+    "changeTitle": "E-mail changed",
+    "changeBody": "From now on you sign in with a link sent to the new address. The old address was told about the change.",
+    "reauthTitle": "Confirmed",
+    "reauthBody": "Go back to the garage on the device where you are unlinking a sign-in. It will notice the confirmation by itself."
   },
   "provider": {
     "email": "E-mail",
@@ -281,7 +285,11 @@
     "title": "Your sign-ins",
     "add": "Add another sign-in",
     "addDescription": "Link one more way to get into this garage, so losing one does not lock you out.",
-    "close": "Close"
+    "close": "Close",
+    "unlink": "Unlink",
+    "changeEmail": "Change address",
+    "lastHint": "This is the only way to sign in to this garage, so it cannot be unlinked. Add another one if you want to swap it.",
+    "unlinked": "Unlinked: {provider}."
   },
   "legal": {
     "version": "Version of {date}",
@@ -1122,5 +1130,64 @@
     "rare": "Rare",
     "epic": "Epic",
     "legendary": "Legendary"
+  },
+  "unlink": {
+    "title": "Unlink {provider}?",
+    "doneTitle": "Unlinked: {provider}",
+    "checking": "Checking whether you can do this…",
+    "proveIntro": "Unlinking cannot be undone with one click, so first confirm that it is you. The confirmation lasts a moment and only on this device.",
+    "proveEmailTo": "Send a link to {email}",
+    "proveEmail": "Send a link to the e-mail of the garage",
+    "proveProvider": "Sign in again with {provider}",
+    "noMethod": "Nothing can confirm it right now. Try again later.",
+    "waiting": "Open the link in your mail, in this browser or another. This page will notice the confirmation by itself.",
+    "resend": "Send the link again",
+    "confirmIntro": "Once unlinked, {provider} will no longer let anyone into this garage.",
+    "consequenceDevices": "Devices that signed in this way will be signed out. The one you unlink from stays.",
+    "consequenceEmail": "The e-mail address leaves the garage, and the links sent to it stop working.",
+    "consequenceProvider": "The {provider} account and its data stay with {provider}: we do not delete them. You take back the permission you gave the game in the settings of your {provider} account.",
+    "consequenceNotice": "We will send a short notice of the unlinking to the e-mail of the garage.",
+    "action": "Unlink {provider}",
+    "unlinking": "Unlinking…",
+    "cancel": "Cancel",
+    "doneBody": "{provider} no longer signs in to this garage.",
+    "close": "Close"
+  },
+  "changeEmail": {
+    "title": "Change e-mail",
+    "intro": "We send a link to the new address. Nothing changes until it is used, and the current address gets a notice with a “This was not me” button. The next change is possible only after a pause.",
+    "label": "New e-mail address",
+    "send": "Send link",
+    "sending": "Sending…",
+    "afterSent": "Open the link in your mail at the new address. The current address keeps working until you do.",
+    "another": "Use another address",
+    "close": "Close"
+  },
+  "consent": {
+    "title": "Our terms have changed",
+    "intro": "The terms or the privacy policy have changed. To keep playing, read them and accept the new version. Your garage is waiting untouched.",
+    "changesTitle": "What changed",
+    "noList": "We changed the texts of the terms and the privacy policy. Read them in full before you accept.",
+    "accepted": "Version you accepted before: {date}",
+    "acceptedBefore": "Version you accepted before: from before versions were numbered",
+    "current": "Version in force: {date}",
+    "read": "Read the {terms} and the {privacy}.",
+    "accept": "I accept and keep playing",
+    "accepting": "Saving…",
+    "declineTitle": "Do not want to agree?",
+    "declineBody": "Without agreeing you cannot play, but you lose nothing right away: the account stays, and you can download your data or delete the account.",
+    "leave": "Sign out of this device"
+  },
+  "secure": {
+    "title": "Was this not you?",
+    "body": "We secure the garage: we cancel the change of e-mail if one is waiting, put the old address back if someone changed it, sign out every device and delete the recovery code. You get back in with a link sent to the old address.",
+    "action": "Secure the garage",
+    "working": "Securing…",
+    "doneTitle": "Garage secured",
+    "doneRestored": "We put the old e-mail address back and signed out every device.",
+    "doneKept": "Every device is signed out and no change of e-mail is waiting any more. If the address of the garage is not yours, write to the operator of the game.",
+    "signIn": "Sign in with an e-mail link",
+    "failedTitle": "This link does not work",
+    "invalid": "It was already used, it has expired or it is not complete."
   }
 }

@@ -5,6 +5,7 @@ import { nextTick } from 'vue'
 import type { AccountIdentity, Me } from '@/api/types'
 import { storeToken } from '@/auth/token'
 import { goTo } from '@/features/account/redirect'
+import { storeUnlinkIntent } from '@/features/account/unlinkIntent'
 import { setLocale } from '@/i18n'
 import { useSessionStore } from '@/stores/session'
 import { respond, serveApi, type Call } from '@/test/fetchServer'
@@ -159,4 +160,89 @@ describe('LinkedAccounts', () => {
 
     await setLocale('en')
   })
+
+  describe('unlinking a sign-in and changing the e-mail', () => {
+    const reauth = (valid: boolean) => () => respond(200, { data: { valid, expires_in: valid ? 600 : 0, methods: ['email', 'google'] } })
+
+    it('offers to unlink each sign-in when the account has more than one', async () => {
+      const { wrapper } = await show([email, google])
+
+      expect(wrapper.get('[data-test="unlink-email"]').text()).toBe('Unlink')
+      expect(wrapper.get('[data-test="unlink-google"]').text()).toBe('Unlink')
+      expect(wrapper.find('[data-test="last-hint"]').exists()).toBe(false)
+    })
+
+    it('does not offer to unlink the only sign-in, and says why', async () => {
+      const { wrapper } = await show([google])
+
+      expect(wrapper.find('[data-test="unlink-google"]').exists()).toBe(false)
+      expect(wrapper.get('[data-test="last-hint"]').text()).toContain('cannot be unlinked')
+    })
+
+    it('offers to change the address only where there is an e-mail', async () => {
+      const withEmail = await show([email, google])
+      expect(withEmail.wrapper.find('[data-test="change-email"]').exists()).toBe(true)
+
+      const withoutEmail = await show([google, { provider: 'facebook', email: null }])
+      expect(withoutEmail.wrapper.find('[data-test="change-email"]').exists()).toBe(false)
+    })
+
+    it('opens the dialog for the sign-in, which asks the server about the proof', async () => {
+      const { wrapper, calls } = await show([email, google], undefined, { 'GET /api/v1/account/reauth': reauth(false) })
+
+      await wrapper.get('[data-test="unlink-google"]').trigger('click')
+      await flushPromises()
+
+      expect(wrapper.get('[data-test="dialog-title"]').text()).toBe('Unlink Google?')
+      expect(made(calls, 'GET', '/api/v1/account/reauth')).toHaveLength(1)
+
+      await wrapper.get('[data-test="cancel"]').trigger('click')
+      expect(wrapper.find('[data-test="dialog"]').exists()).toBe(false)
+    })
+
+    it('shows the sign-ins that are left after one was unlinked, and says which', async () => {
+      const { wrapper } = await show([email, google], undefined, {
+        'GET /api/v1/account/reauth': reauth(true),
+        'DELETE /api/v1/account/identities/google': () => respond(200, { data: profile([email]) }),
+      })
+
+      await wrapper.get('[data-test="unlink-google"]').trigger('click')
+      await flushPromises()
+      await wrapper.get('[data-test="unlink"]').trigger('click')
+      await flushPromises()
+
+      expect(wrapper.find('[data-test="identity-google"]').exists()).toBe(false)
+      expect(wrapper.get('[data-test="notice"]').text()).toBe('Unlinked: Google.')
+      expect(wrapper.find('[data-test="last-hint"]').exists()).toBe(true)
+    })
+
+    it('opens the step again when the browser comes back from the provider the driver signed in with to prove who they are', async () => {
+      storeUnlinkIntent('google')
+
+      const { wrapper } = await show([email, google], undefined, { 'GET /api/v1/account/reauth': reauth(true) })
+
+      expect(wrapper.get('[data-test="dialog-title"]').text()).toBe('Unlink Google?')
+      expect(wrapper.find('[data-test="unlink"]').exists()).toBe(true)
+    })
+
+    it('forgets what it was doing when the sign-in is no longer there', async () => {
+      storeUnlinkIntent('facebook')
+
+      const { wrapper } = await show([email, google])
+
+      expect(wrapper.find('[data-test="dialog"]').exists()).toBe(false)
+      expect(sessionStorage.getItem('ride.unlink')).toBeNull()
+    })
+
+    it('opens the dialog that changes the e-mail', async () => {
+      const { wrapper } = await show([email, google])
+
+      await wrapper.get('[data-test="change-email"]').trigger('click')
+
+      expect(wrapper.get('[data-test="dialog-title"]').text()).toBe('Change e-mail')
+      await wrapper.get('[data-test="close"]').trigger('click')
+      expect(wrapper.find('[data-test="dialog"]').exists()).toBe(false)
+    })
+  })
+
 })

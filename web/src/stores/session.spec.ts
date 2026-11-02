@@ -236,4 +236,63 @@ describe('session store', () => {
       await setLocale('en')
     })
   })
+
+  describe('the terms that have to be accepted again', () => {
+    const consent = { required: true, accepted_version: '2026-10-23', current_version: '2026-11-01' }
+
+    it('waits for the driver to accept when the profile says so', () => {
+      storeToken('saved-token')
+      const session = useSessionStore()
+      session.me = { ...profile, consent }
+
+      expect(session.needsConsent).toBe(true)
+
+      session.me = { ...profile, consent: { ...consent, required: false } }
+      expect(session.needsConsent).toBe(false)
+    })
+
+    it('does not wait for anybody who is signed out, nor for a server that sends nothing about it', () => {
+      const session = useSessionStore()
+      session.me = { ...profile, consent }
+      expect(session.needsConsent).toBe(false)
+
+      storeToken('saved-token')
+      setActivePinia(createPinia())
+      const other = useSessionStore()
+      other.me = profile
+      expect(other.needsConsent).toBe(false)
+    })
+
+    it('learns it from a call the server refused, before the profile is read again', () => {
+      storeToken('saved-token')
+      const session = useSessionStore()
+      session.me = { ...profile, consent: { ...consent, required: false } }
+
+      session.markConsentRequired()
+
+      expect(session.needsConsent).toBe(true)
+      expect(session.me?.consent?.accepted_version).toBe('2026-10-23')
+    })
+
+    it('has nothing to mark before there is a profile', () => {
+      storeToken('saved-token')
+      const session = useSessionStore()
+
+      session.markConsentRequired()
+
+      expect(session.me).toBeNull()
+    })
+
+    it('is told by the API client, when the server answers 403 consent_required', async () => {
+      storeToken('saved-token')
+      const session = useSessionStore()
+      session.me = { ...profile, consent: { ...consent, required: false } }
+      fetchMock.mockResolvedValue(respond(403, { message: 'The terms have changed.', code: 'consent_required' }))
+
+      await session.fetchMe().catch(() => undefined)
+
+      expect(session.needsConsent).toBe(true)
+    })
+  })
+
 })

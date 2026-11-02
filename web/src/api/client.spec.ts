@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { storeToken } from '@/auth/token'
 
-import { ApiError, api } from './client'
+import { ApiError, api, setConsentRequiredHandler } from './client'
 
 function respond(status: number, body: unknown): Response {
   return new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
@@ -76,4 +76,40 @@ describe('api client', () => {
     expect((error as ApiError).message).toBe('Bad Gateway')
     expect((error as ApiError).errors).toEqual({})
   })
+
+  describe('when the terms have to be accepted again', () => {
+    afterEach(() => {
+      setConsentRequiredHandler(null)
+    })
+
+    it('tells the app, and still fails the call', async () => {
+      const handler = vi.fn()
+      setConsentRequiredHandler(handler)
+      fetchMock.mockResolvedValue(respond(403, { message: 'The terms have changed.', code: 'consent_required' }))
+
+      const error = await api('/v1/garage').catch((e: unknown) => e)
+
+      expect(handler).toHaveBeenCalledTimes(1)
+      expect((error as ApiError).status).toBe(403)
+      expect((error as ApiError).code).toBe('consent_required')
+    })
+
+    it('does not mistake another refusal for it', async () => {
+      const handler = vi.fn()
+      setConsentRequiredHandler(handler)
+      fetchMock.mockResolvedValue(respond(403, { message: 'Confirm that it is you.', code: 'reauth_required' }))
+
+      await api('/v1/account/identities/google', { method: 'DELETE' }).catch(() => undefined)
+
+      expect(handler).not.toHaveBeenCalled()
+    })
+
+    it('does not need anybody to listen', async () => {
+      setConsentRequiredHandler(null)
+      fetchMock.mockResolvedValue(respond(403, { message: 'The terms have changed.', code: 'consent_required' }))
+
+      await expect(api('/v1/garage')).rejects.toBeInstanceOf(ApiError)
+    })
+  })
+
 })

@@ -16,8 +16,8 @@ const session = useSessionStore()
 
 const PROVIDERS: SocialProvider[] = ['google', 'facebook', 'apple']
 
-/** `linked`: the provider was added to the account of the driver. */
-const outcome = ref<'checking' | 'linked' | 'cancelled' | 'failed'>('checking')
+/** `linked`: the provider was added to the account of the driver. `proved`: the driver signed in again to prove who they are. */
+const outcome = ref<'checking' | 'linked' | 'proved' | 'cancelled' | 'failed'>('checking')
 const provider = ref<SocialProvider | null>(null)
 const failure = ref<string | null>(null)
 
@@ -73,7 +73,10 @@ onMounted(async () => {
   }
 
   try {
-    if ((await account.finishProvider(ticket)) === 'login') {
+    const purpose = await account.finishProvider(ticket)
+
+    // A sign-in goes to the garage; so does the proof, which is what the garage was waiting for to go on with unlinking.
+    if (purpose === 'login' || purpose === 'reauth') {
       await router.replace({ name: 'garage' })
 
       return

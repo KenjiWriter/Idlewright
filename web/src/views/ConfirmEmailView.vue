@@ -13,8 +13,8 @@ const router = useRouter()
 const account = useAccountStore()
 const session = useSessionStore()
 
-/** `claim`: the link secured the account it was asked for. */
-const outcome = ref<'checking' | 'claim' | 'failed'>('checking')
+/** `claim`: the link secured the account it was asked for. `email_change`: it made the address it went to the one of the account. `reauth`: it proved who the driver is. */
+const outcome = ref<'checking' | 'claim' | 'email_change' | 'reauth' | 'failed'>('checking')
 const failure = ref<string | null>(null)
 
 const failureText = computed(() => failure.value ?? t('confirm.invalid'))
@@ -50,13 +50,15 @@ onMounted(async () => {
   }
 
   try {
-    if ((await account.confirmEmail(secret)) === 'login') {
+    const purpose = await account.confirmEmail(secret)
+
+    if (purpose === 'login') {
       await router.replace({ name: 'garage' })
 
       return
     }
 
-    outcome.value = 'claim'
+    outcome.value = purpose
   } catch (error) {
     failure.value = describe(error)
     outcome.value = 'failed'
@@ -67,6 +69,22 @@ onMounted(async () => {
 <template>
   <main class="mx-auto flex max-w-md flex-col gap-6 px-4 py-12">
     <p v-if="outcome === 'checking'" class="text-muted" role="status" data-test="checking">{{ t('confirm.checking') }}</p>
+
+    <template v-else-if="outcome === 'email_change'">
+      <h1 class="text-3xl font-bold tracking-tight" data-test="title">{{ t('confirm.changeTitle') }}</h1>
+      <p class="text-muted" data-test="body">{{ t('confirm.changeBody') }}</p>
+      <RouterLink :to="session.isAuthenticated ? '/garage' : '/'" class="btn btn-primary" data-test="next">
+        {{ session.isAuthenticated ? t('confirm.garage') : t('confirm.home') }}
+      </RouterLink>
+    </template>
+
+    <template v-else-if="outcome === 'reauth'">
+      <h1 class="text-3xl font-bold tracking-tight" data-test="title">{{ t('confirm.reauthTitle') }}</h1>
+      <p class="text-muted" data-test="body">{{ t('confirm.reauthBody') }}</p>
+      <RouterLink :to="session.isAuthenticated ? '/garage' : '/'" class="btn btn-primary" data-test="next">
+        {{ session.isAuthenticated ? t('confirm.garage') : t('confirm.home') }}
+      </RouterLink>
+    </template>
 
     <template v-else-if="outcome === 'claim'">
       <h1 class="text-3xl font-bold tracking-tight" data-test="title">{{ t('confirm.claimTitle') }}</h1>

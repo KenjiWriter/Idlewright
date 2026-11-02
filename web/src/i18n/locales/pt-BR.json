@@ -227,7 +227,11 @@
     "invalid": "Ele já foi usado, expirou ou está incompleto. Peça um novo.",
     "garage": "Ir para a garagem",
     "newLink": "Pedir um novo link",
-    "home": "Voltar ao início"
+    "home": "Voltar ao início",
+    "changeTitle": "E-mail trocado",
+    "changeBody": "A partir de agora você entra com um link enviado ao novo endereço. O endereço antigo foi avisado da troca.",
+    "reauthTitle": "Confirmado",
+    "reauthBody": "Volte à garagem no aparelho em que você está desvinculando um login. Ele percebe a confirmação sozinho."
   },
   "provider": {
     "email": "E-mail",
@@ -281,7 +285,11 @@
     "title": "Seus logins",
     "add": "Adicionar outro login",
     "addDescription": "Vincule mais um login para acessar esta garagem e não ficar sem acesso se perder um deles.",
-    "close": "Fechar"
+    "close": "Fechar",
+    "unlink": "Desvincular",
+    "changeEmail": "Trocar endereço",
+    "lastHint": "Este é o único login desta garagem, então não pode ser desvinculado. Adicione outro se quiser trocá-lo.",
+    "unlinked": "Desvinculado: {provider}."
   },
   "legal": {
     "version": "Versão de {date}",
@@ -1122,5 +1130,64 @@
     "rare": "Rara",
     "epic": "Épica",
     "legendary": "Lendária"
+  },
+  "unlink": {
+    "title": "Desvincular {provider}?",
+    "doneTitle": "Desvinculado: {provider}",
+    "checking": "Verificando se você pode fazer isso…",
+    "proveIntro": "Desvincular não se desfaz com um clique, então confirme primeiro que é você. A confirmação vale por um instante e só neste aparelho.",
+    "proveEmailTo": "Enviar um link para {email}",
+    "proveEmail": "Enviar um link para o e-mail da garagem",
+    "proveProvider": "Entrar de novo com {provider}",
+    "noMethod": "Por enquanto nada permite confirmar isso. Tente novamente mais tarde.",
+    "waiting": "Abra o link no seu e-mail, neste navegador ou em outro. Esta página percebe a confirmação sozinha.",
+    "resend": "Enviar o link de novo",
+    "confirmIntro": "Depois de desvinculado, {provider} não dará mais acesso a esta garagem.",
+    "consequenceDevices": "Os aparelhos que entraram por esse login serão desconectados. Aquele de onde você desvincula continua conectado.",
+    "consequenceEmail": "O endereço de e-mail sai da garagem, e os links enviados a ele param de funcionar.",
+    "consequenceProvider": "A conta {provider} e os dados dela ficam com {provider}: nós não os apagamos. A permissão que você deu ao jogo você retira nas configurações da sua conta {provider}.",
+    "consequenceNotice": "Vamos enviar um aviso curto da desvinculação ao e-mail da garagem.",
+    "action": "Desvincular {provider}",
+    "unlinking": "Desvinculando…",
+    "cancel": "Cancelar",
+    "doneBody": "{provider} não serve mais para entrar nesta garagem.",
+    "close": "Fechar"
+  },
+  "changeEmail": {
+    "title": "Trocar o e-mail",
+    "intro": "Enviamos um link ao novo endereço. Nada muda até ele ser usado, e o endereço atual recebe um aviso com o botão “Não fui eu”. A próxima troca só será possível depois de uma pausa.",
+    "label": "Novo endereço de e-mail",
+    "send": "Enviar link",
+    "sending": "Enviando…",
+    "afterSent": "Abra o link no seu e-mail, no novo endereço. O endereço atual continua valendo até você fazer isso.",
+    "another": "Usar outro endereço",
+    "close": "Fechar"
+  },
+  "consent": {
+    "title": "Nossos termos mudaram",
+    "intro": "Os termos ou a política de privacidade mudaram. Para continuar jogando, leia-os e aceite a nova versão. Sua garagem espera intacta.",
+    "changesTitle": "O que mudou",
+    "noList": "Mudamos os textos dos termos e da política de privacidade. Leia-os por inteiro antes de aceitar.",
+    "accepted": "Versão aceita antes: {date}",
+    "acceptedBefore": "Versão aceita antes: de antes de as versões serem numeradas",
+    "current": "Versão em vigor: {date}",
+    "read": "Leia os {terms} e a {privacy}.",
+    "accept": "Aceito e continuo jogando",
+    "accepting": "Salvando…",
+    "declineTitle": "Não quer concordar?",
+    "declineBody": "Sem concordar você não pode jogar, mas não perde nada de imediato: a conta continua, e você pode baixar seus dados ou excluir a conta.",
+    "leave": "Sair deste aparelho"
+  },
+  "secure": {
+    "title": "Não foi você?",
+    "body": "Vamos proteger a garagem: cancelamos a troca de e-mail, se houver uma esperando, devolvemos o endereço antigo, se alguém o trocou, desconectamos todos os aparelhos e apagamos o código de recuperação. Você volta com um link enviado ao endereço antigo.",
+    "action": "Proteger a garagem",
+    "working": "Protegendo…",
+    "doneTitle": "Garagem protegida",
+    "doneRestored": "Devolvemos o endereço de e-mail antigo e desconectamos todos os aparelhos.",
+    "doneKept": "Todos os aparelhos estão desconectados e nenhuma troca de e-mail está mais esperando. Se o endereço da garagem não é seu, escreva ao responsável pelo jogo.",
+    "signIn": "Entrar com um link por e-mail",
+    "failedTitle": "Este link não funciona",
+    "invalid": "Ele já foi usado, expirou ou está incompleto."
   }
 }

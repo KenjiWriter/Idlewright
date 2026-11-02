@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 
-import { ApiError, api } from '@/api/client'
+import { ApiError, api, setConsentRequiredHandler } from '@/api/client'
 import type { Me, MeResponse, RecoveryCodeResponse, SessionResponse } from '@/api/types'
 import { clearToken, readToken, storeToken } from '@/auth/token'
 import { clearLinkPromptDismissed, readLinkPromptDismissed, storeLinkPromptDismissed } from '@/features/account/linkPrompt'
@@ -23,6 +23,18 @@ export const useSessionStore = defineStore('session', () => {
   const accountDeleted = ref(false)
 
   const isAuthenticated = computed(() => token.value !== null)
+
+  /** The terms changed since the driver accepted them, so the game waits until they accept again. */
+  const needsConsent = computed(() => isAuthenticated.value && me.value?.consent?.required === true)
+
+  /** The server said so (403 `consent_required`) before the profile did, e.g. the texts changed while the app was open. */
+  function markConsentRequired(): void {
+    if (me.value) {
+      me.value = { ...me.value, consent: { accepted_version: null, current_version: '', ...me.value.consent, required: true } }
+    }
+  }
+
+  setConsentRequiredHandler(markConsentRequired)
 
   function start(profile: Me, deviceToken: string): void {
     storeToken(deviceToken)
@@ -121,6 +133,8 @@ export const useSessionStore = defineStore('session', () => {
     me,
     token,
     isAuthenticated,
+    needsConsent,
+    markConsentRequired,
     linkPromptDismissed,
     accountDeleted,
     createDriver,

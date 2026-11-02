@@ -392,4 +392,80 @@ describe('account store', () => {
       await expect(useAccountStore().confirmEmail('old')).rejects.toMatchObject({ status: 422 })
     })
   })
+
+  describe('unlinking, changing the e-mail and accepting again', () => {
+    it('asks whether this device has the proof and keeps the answer', async () => {
+      const calls = serveApi(fetchMock, { 'GET /api/v1/account/reauth': () => respond(200, { data: { valid: true, expires_in: 540, methods: ['email'] } }) })
+      const account = useAccountStore()
+
+      const state = await account.loadReauth()
+
+      expect(state).toEqual({ valid: true, expires_in: 540, methods: ['email'] })
+      expect(account.reauth).toEqual(state)
+      expect(calls.map((call) => call.url)).toEqual(['/api/v1/account/reauth'])
+    })
+
+    it('asks for the link that proves who the driver is, and says what the server says', async () => {
+      const calls = serveApi(fetchMock, { 'POST /api/v1/account/reauth/email': () => respond(202, { message: 'We sent a link.', expires_in: 1800 }) })
+
+      expect(await useAccountStore().requestReauthLink()).toBe('We sent a link.')
+      expect(calls[0]?.method).toBe('POST')
+    })
+
+    it('unlinks, takes the profile the server answers with, and forgets the proof', async () => {
+      const calls = serveApi(fetchMock, {
+        'DELETE /api/v1/account/identities/google': () => respond(200, { data: { ...claimed, identities: [{ provider: 'email', email: 't***@example.com' }] } }),
+      })
+      const account = useAccountStore()
+      account.reauth = { valid: true, expires_in: 100, methods: ['email'] }
+
+      await account.unlink('google')
+
+      expect(calls[0]).toMatchObject({ method: 'DELETE', url: '/api/v1/account/identities/google' })
+      expect(useSessionStore().me?.identities).toEqual([{ provider: 'email', email: 't***@example.com' }])
+      expect(account.reauth).toBeNull()
+    })
+
+    it('passes on the refusal to unlink', async () => {
+      serveApi(fetchMock, { 'DELETE /api/v1/account/identities/google': () => respond(422, { message: 'Last one.', code: 'last_method' }) })
+
+      await expect(useAccountStore().unlink('google')).rejects.toMatchObject({ status: 422, code: 'last_method' })
+    })
+
+    it('asks to change the e-mail with the address, and says what the server says', async () => {
+      const calls = serveApi(fetchMock, { 'POST /api/v1/account/email/change': () => respond(202, { message: 'Sent to new@example.com.', expires_in: 1800 }) })
+
+      expect(await useAccountStore().requestEmailChange('new@example.com')).toBe('Sent to new@example.com.')
+      expect(calls[0]?.body).toEqual({ email: 'new@example.com' })
+    })
+
+    it('says "this was not me" with the secret of the link, and tells whether the old address was put back', async () => {
+      const calls = serveApi(fetchMock, { 'POST /api/v1/account/email/revoke': () => respond(200, { purpose: 'revoke', restored: true }) })
+
+      expect(await useAccountStore().revokeEmailChange('secret-from-the-mail')).toBe(true)
+      expect(calls[0]?.body).toEqual({ token: 'secret-from-the-mail' })
+    })
+
+    it('accepts the version that was shown, twice confirmed, and takes the profile that comes back', async () => {
+      const calls = serveApi(fetchMock, {
+        'POST /api/v1/account/consent': () => respond(200, { data: { ...claimed, consent: { required: false, accepted_version: '2026-11-01', current_version: '2026-11-01' } } }),
+      })
+
+      await useAccountStore().acceptConsent('2026-11-01')
+
+      expect(calls[0]?.body).toEqual({ accept_terms: true, confirm_age: true, version: '2026-11-01' })
+      expect(useSessionStore().me?.consent?.required).toBe(false)
+    })
+
+    it('sends the browser to a provider the account has, to prove who the driver is', async () => {
+      const calls = serveApi(fetchMock, { 'POST /api/v1/account/reauth/google/start': () => respond(200, { url: 'https://accounts.example/auth', verifier: 'v-1' }) })
+
+      await useAccountStore().startReauthProvider('google')
+
+      expect(calls[0]?.method).toBe('POST')
+      expect(goTo).toHaveBeenCalledWith('https://accounts.example/auth')
+      expect(readPending()).toMatchObject({ provider: 'google', verifier: 'v-1' })
+    })
+  })
+
 })

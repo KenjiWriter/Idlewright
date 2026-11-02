@@ -227,7 +227,11 @@
     "invalid": "Został już użyty, wygasł albo jest niepełny. Poproś o nowy.",
     "garage": "Przejdź do garażu",
     "newLink": "Poproś o nowy link",
-    "home": "Wróć na początek"
+    "home": "Wróć na początek",
+    "changeTitle": "Adres e-mail zmieniony",
+    "changeBody": "Od teraz logujesz się linkiem wysłanym na nowy adres. Na dotychczasowy adres poszła informacja o zmianie.",
+    "reauthTitle": "Potwierdzone",
+    "reauthBody": "Wróć do garażu na urządzeniu, na którym odpinasz sposób logowania. Samo zauważy potwierdzenie."
   },
   "provider": {
     "email": "E-mail",
@@ -281,7 +285,11 @@
     "title": "Twoje sposoby logowania",
     "add": "Dodaj kolejny sposób logowania",
     "addDescription": "Połącz jeszcze jeden sposób wejścia do garażu, żeby utrata jednego nie zamknęła Ci drogi.",
-    "close": "Zamknij"
+    "close": "Zamknij",
+    "unlink": "Odepnij",
+    "changeEmail": "Zmień adres",
+    "lastHint": "To jedyny sposób logowania do tego garażu, więc nie można go odpiąć. Dodaj drugi, jeśli chcesz go zamienić.",
+    "unlinked": "Odpięto: {provider}."
   },
   "legal": {
     "version": "Wersja z dnia {date}",
@@ -1122,5 +1130,64 @@
     "rare": "Rzadka",
     "epic": "Epicka",
     "legendary": "Legendarna"
+  },
+  "unlink": {
+    "title": "Odpiąć {provider}?",
+    "doneTitle": "Odpięto: {provider}",
+    "checking": "Sprawdzamy, czy możesz to zrobić…",
+    "proveIntro": "Odpięcia nie da się cofnąć jednym kliknięciem, więc najpierw potwierdź, że to Ty. Potwierdzenie działa chwilę i tylko na tym urządzeniu.",
+    "proveEmailTo": "Wyślij link na {email}",
+    "proveEmail": "Wyślij link na e-mail garażu",
+    "proveProvider": "Zaloguj się ponownie przez {provider}",
+    "noMethod": "Teraz nie da się tego potwierdzić żadnym sposobem. Spróbuj później.",
+    "waiting": "Otwórz link w poczcie, w tej lub w innej przeglądarce. Ta strona sama zauważy potwierdzenie.",
+    "resend": "Wyślij link jeszcze raz",
+    "confirmIntro": "Po odpięciu {provider} nie wpuści już do tego garażu.",
+    "consequenceDevices": "Urządzenia, na których zalogowano się tym sposobem, zostaną wylogowane. To, z którego odpinasz, zostaje.",
+    "consequenceEmail": "Adres e-mail zniknie z garażu, a linki wysłane na niego przestaną działać.",
+    "consequenceProvider": "Konto {provider} i jego dane zostają u {provider}: my ich nie usuwamy. Zgodę dla gry cofniesz w ustawieniach konta {provider}.",
+    "consequenceNotice": "Na adres e-mail garażu wyślemy krótką informację o odpięciu.",
+    "action": "Odepnij {provider}",
+    "unlinking": "Odpinamy…",
+    "cancel": "Anuluj",
+    "doneBody": "{provider} nie służy już do logowania do tego garażu.",
+    "close": "Zamknij"
+  },
+  "changeEmail": {
+    "title": "Zmień adres e-mail",
+    "intro": "Wyślemy link na nowy adres. Do jego użycia nic się nie zmienia, a na dotychczasowy adres pójdzie informacja z przyciskiem „To nie ja”. Kolejną zmianę będzie można zrobić dopiero po przerwie.",
+    "label": "Nowy adres e-mail",
+    "send": "Wyślij link",
+    "sending": "Wysyłamy…",
+    "afterSent": "Otwórz link w poczcie na nowym adresie. Dotychczasowy adres działa, dopóki tego nie zrobisz.",
+    "another": "Użyj innego adresu",
+    "close": "Zamknij"
+  },
+  "consent": {
+    "title": "Zmieniły się nasze zasady",
+    "intro": "Regulamin albo polityka prywatności się zmieniły. Żeby grać dalej, przeczytaj je i zaakceptuj nową wersję. Twój garaż czeka nietknięty.",
+    "changesTitle": "Co się zmieniło",
+    "noList": "Zmieniliśmy teksty regulaminu i polityki prywatności. Przeczytaj je w całości, zanim zaakceptujesz.",
+    "accepted": "Poprzednio zaakceptowana wersja: {date}",
+    "acceptedBefore": "Poprzednio zaakceptowana wersja: sprzed numerowania wersji",
+    "current": "Obowiązuje wersja: {date}",
+    "read": "Przeczytaj {terms} i {privacy}.",
+    "accept": "Akceptuję i gram dalej",
+    "accepting": "Zapisujemy…",
+    "declineTitle": "Nie chcesz się zgodzić?",
+    "declineBody": "Bez zgody nie możesz grać, ale nic nie tracisz od razu: konto zostaje, możesz pobrać swoje dane albo usunąć konto.",
+    "leave": "Wyloguj się z tego urządzenia"
+  },
+  "secure": {
+    "title": "To nie Ty?",
+    "body": "Zabezpieczymy garaż: anulujemy zmianę e-maila, jeśli czeka, przywrócimy dawny adres, jeśli ktoś go zmienił, wylogujemy wszystkie urządzenia i usuniemy kod odzyskiwania. Wejdziesz ponownie linkiem wysłanym na dawny adres.",
+    "action": "Zabezpiecz garaż",
+    "working": "Zabezpieczamy…",
+    "doneTitle": "Garaż zabezpieczony",
+    "doneRestored": "Przywróciliśmy dawny adres e-mail i wylogowaliśmy wszystkie urządzenia.",
+    "doneKept": "Wszystkie urządzenia są wylogowane i żadna zmiana e-maila już nie czeka. Jeśli adres garażu nie jest Twój, napisz do operatora gry.",
+    "signIn": "Zaloguj się linkiem na e-mail",
+    "failedTitle": "Ten link nie działa",
+    "invalid": "Został już użyty, wygasł albo jest niepełny."
   }
 }

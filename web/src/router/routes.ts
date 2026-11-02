@@ -23,6 +23,8 @@ export const routes: RouteRecordRaw[] = [
   { path: '/recover', name: 'recover', component: () => import('@/views/RecoverView.vue'), meta: { guestOnly: true } },
   // The link of an e-mail is opened in any browser, by a driver or not: it is open to everybody.
   { path: '/account/confirm', name: 'account-confirm', component: () => import('@/views/ConfirmEmailView.vue') },
+  // "This was not me" in the notice to the old address of a garage: the link alone is the proof, so it is open to everybody.
+  { path: '/account/secure', name: 'account-secure', component: () => import('@/views/AccountSecureView.vue') },
   // Where the API sends the browser back from Google, Facebook or Apple. A driver linking an account and a visitor
   // signing in both come here, so it is open to everybody.
   { path: '/auth/callback', name: 'auth-callback', component: () => import('@/views/AuthCallbackView.vue') },
@@ -30,6 +32,8 @@ export const routes: RouteRecordRaw[] = [
   { path: '/terms', name: 'terms', component: () => import('@/views/LegalView.vue'), props: { document: 'terms' } },
   { path: '/privacy', name: 'privacy', component: () => import('@/views/LegalView.vue'), props: { document: 'privacy' } },
   // The story between the name and the choice of a wreck: only for a driver who has just been made.
+  // Where a driver is kept until they accept the terms again, after they changed (see the guards).
+  { path: '/consent', name: 'consent', component: () => import('@/views/ConsentView.vue'), meta: { requiresAuth: true, bare: true } },
   { path: '/story', name: 'story', component: () => import('@/views/StoryView.vue'), meta: { requiresAuth: true, bare: true } },
   { path: '/choose', name: 'choose', component: () => import('@/views/ChooseCarView.vue'), meta: { requiresAuth: true, bare: true } },
   { path: '/map', name: 'map', component: () => import('@/views/MapView.vue'), meta: { requiresAuth: true, game: true } },

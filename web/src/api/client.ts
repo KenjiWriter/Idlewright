@@ -36,6 +36,16 @@ export class ApiError extends Error {
   }
 }
 
+let onConsentRequired: (() => void) | null = null
+
+/**
+ * Registers what to do when the server says the driver has to accept the terms again (403 `consent_required`): the call
+ * still fails, but the app can take the driver to the screen that asks. Replaces an earlier one.
+ */
+export function setConsentRequiredHandler(handler: (() => void) | null): void {
+  onConsentRequired = handler
+}
+
 /**
  * Thin wrapper around fetch: always asks for JSON, sends the language of the
  * driver in X-Locale (so server messages come back in that language) and the
@@ -63,6 +73,10 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
       code?: string
       errors?: FieldErrors
     } | null
+
+    if (response.status === 403 && body?.code === 'consent_required') {
+      onConsentRequired?.()
+    }
 
     throw new ApiError(response.status, body?.message ?? response.statusText, body?.code, body?.errors)
   }

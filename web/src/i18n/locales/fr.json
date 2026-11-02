@@ -227,7 +227,11 @@
     "invalid": "Il a déjà été utilisé, il a expiré ou il est incomplet. Demandez-en un nouveau.",
     "garage": "Aller au garage",
     "newLink": "Demander un nouveau lien",
-    "home": "Retour à l’accueil"
+    "home": "Retour à l’accueil",
+    "changeTitle": "Adresse e-mail changée",
+    "changeBody": "Désormais, vous vous connectez avec un lien envoyé à la nouvelle adresse. L’ancienne adresse a été prévenue du changement.",
+    "reauthTitle": "Confirmé",
+    "reauthBody": "Retournez au garage sur l’appareil où vous retirez un moyen de connexion. Il remarquera la confirmation tout seul."
   },
   "provider": {
     "email": "E-mail",
@@ -281,7 +285,11 @@
     "title": "Vos moyens de connexion",
     "add": "Ajouter un autre moyen de connexion",
     "addDescription": "Liez un moyen de connexion supplémentaire pour accéder à ce garage : si vous en perdez un, vous pourrez utiliser l’autre.",
-    "close": "Fermer"
+    "close": "Fermer",
+    "unlink": "Retirer",
+    "changeEmail": "Changer d’adresse",
+    "lastHint": "C’est le seul moyen de connexion à ce garage, il ne peut donc pas être retiré. Ajoutez-en un autre si vous voulez le remplacer.",
+    "unlinked": "Retiré : {provider}."
   },
   "legal": {
     "version": "Version du {date}",
@@ -1122,5 +1130,64 @@
     "rare": "Rare",
     "epic": "Épique",
     "legendary": "Légendaire"
+  },
+  "unlink": {
+    "title": "Retirer {provider} ?",
+    "doneTitle": "Retiré : {provider}",
+    "checking": "Vérification de ce que vous pouvez faire…",
+    "proveIntro": "Un retrait ne s’annule pas d’un clic : confirmez d’abord que c’est vous. La confirmation dure un instant et seulement sur cet appareil.",
+    "proveEmailTo": "Envoyer un lien à {email}",
+    "proveEmail": "Envoyer un lien à l’adresse e-mail du garage",
+    "proveProvider": "Se reconnecter avec {provider}",
+    "noMethod": "Rien ne permet de le confirmer pour le moment. Réessayez plus tard.",
+    "waiting": "Ouvrez le lien dans votre messagerie, dans ce navigateur ou un autre. Cette page remarquera la confirmation toute seule.",
+    "resend": "Renvoyer le lien",
+    "confirmIntro": "Une fois retiré, {provider} ne donnera plus accès à ce garage.",
+    "consequenceDevices": "Les appareils connectés de cette façon seront déconnectés. Celui depuis lequel vous retirez reste connecté.",
+    "consequenceEmail": "L’adresse e-mail quitte le garage et les liens qui lui ont été envoyés cessent de fonctionner.",
+    "consequenceProvider": "Le compte {provider} et ses données restent chez {provider} : nous ne les supprimons pas. Vous retirez l’autorisation donnée au jeu dans les paramètres de votre compte {provider}.",
+    "consequenceNotice": "Nous enverrons un bref avis du retrait à l’adresse e-mail du garage.",
+    "action": "Retirer {provider}",
+    "unlinking": "Retrait en cours…",
+    "cancel": "Annuler",
+    "doneBody": "{provider} ne sert plus à se connecter à ce garage.",
+    "close": "Fermer"
+  },
+  "changeEmail": {
+    "title": "Changer l’adresse e-mail",
+    "intro": "Nous envoyons un lien à la nouvelle adresse. Rien ne change tant qu’il n’est pas utilisé, et l’adresse actuelle reçoit un avis avec un bouton « Ce n’était pas moi ». Le changement suivant ne sera possible qu’après un délai.",
+    "label": "Nouvelle adresse e-mail",
+    "send": "Envoyer le lien",
+    "sending": "Envoi en cours…",
+    "afterSent": "Ouvrez le lien dans votre messagerie, à la nouvelle adresse. L’adresse actuelle continue de fonctionner d’ici là.",
+    "another": "Utiliser une autre adresse",
+    "close": "Fermer"
+  },
+  "consent": {
+    "title": "Nos conditions ont changé",
+    "intro": "Les conditions d’utilisation ou la politique de confidentialité ont changé. Pour continuer à jouer, lisez-les et acceptez la nouvelle version. Votre garage vous attend, intact.",
+    "changesTitle": "Ce qui a changé",
+    "noList": "Nous avons modifié les textes des conditions d’utilisation et de la politique de confidentialité. Lisez-les en entier avant d’accepter.",
+    "accepted": "Version acceptée précédemment : {date}",
+    "acceptedBefore": "Version acceptée précédemment : antérieure à la numérotation des versions",
+    "current": "Version en vigueur : {date}",
+    "read": "Lisez {terms} et {privacy}.",
+    "accept": "J’accepte et je continue à jouer",
+    "accepting": "Enregistrement…",
+    "declineTitle": "Vous ne voulez pas accepter ?",
+    "declineBody": "Sans accord, vous ne pouvez pas jouer, mais vous ne perdez rien tout de suite : le compte reste, et vous pouvez télécharger vos données ou supprimer le compte.",
+    "leave": "Se déconnecter de cet appareil"
+  },
+  "secure": {
+    "title": "Ce n’était pas vous ?",
+    "body": "Nous sécurisons le garage : nous annulons le changement d’adresse e-mail s’il est en attente, nous remettons l’ancienne adresse si quelqu’un l’a changée, nous déconnectons tous les appareils et supprimons le code de récupération. Vous revenez avec un lien envoyé à l’ancienne adresse.",
+    "action": "Sécuriser le garage",
+    "working": "Sécurisation en cours…",
+    "doneTitle": "Garage sécurisé",
+    "doneRestored": "Nous avons remis l’ancienne adresse e-mail et déconnecté tous les appareils.",
+    "doneKept": "Tous les appareils sont déconnectés et aucun changement d’adresse e-mail n’est plus en attente. Si l’adresse du garage n’est pas la vôtre, écrivez à l’exploitant du jeu.",
+    "signIn": "Se connecter avec un lien par e-mail",
+    "failedTitle": "Ce lien ne fonctionne pas",
+    "invalid": "Il a déjà été utilisé, il a expiré ou il est incomplet."
   }
 }

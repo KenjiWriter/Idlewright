@@ -10,6 +10,18 @@ export interface AccountIdentity {
   email: string | null
 }
 
+/**
+ * Whether the terms and the privacy policy changed since the driver accepted them. While `required` is true the server answers
+ * every call but a few with 403 `consent_required`, and the app shows the screen that asks. A server that does not send this
+ * is as good as one that does not ask.
+ */
+export interface ConsentState {
+  required: boolean
+  /** The version (a day, 2026-10-23) the driver accepted; null when they accepted before the texts had one, or have accepted nothing. */
+  accepted_version: string | null
+  current_version: string
+}
+
 /** Profile of the signed-in driver (GET /api/v1/me). */
 export interface Me {
   id: number
@@ -18,6 +30,7 @@ export interface Me {
   is_guest: boolean
   has_recovery_code: boolean
   identities: AccountIdentity[]
+  consent?: ConsentState
 }
 
 export interface MeResponse {
@@ -255,16 +268,36 @@ export interface ProviderStart {
   verifier: string
 }
 
-/** Finishing a sign-in with a provider. A `login` carries a token for this device, a `link` does not. */
+/** Finishing a sign-in with a provider. A `login` carries a token for this device, a `link` does not, a `reauth` proves who the driver is. */
 export interface ProviderFinish extends MeResponse {
-  purpose: 'link' | 'login'
+  purpose: 'link' | 'login' | 'reauth'
   token?: string
 }
 
-/** Using the link of an e-mail. A `claim` secures the account the link was asked for, a `login` signs in. */
+/**
+ * Using the link of an e-mail. A `claim` secures the account the link was asked for, a `login` signs in, an `email_change` makes
+ * the address the link went to the one of the account, a `reauth` proves who the driver is on the device that asked for the link.
+ */
 export interface EmailConfirmation extends MeResponse {
-  purpose: 'claim' | 'login'
+  purpose: 'claim' | 'login' | 'email_change' | 'reauth'
   token?: string
+}
+
+/** Whether this device has just proved who the driver is, for how many more seconds, and with which of the sign-ins of the account it can. */
+export interface ReauthState {
+  valid: boolean
+  expires_in: number
+  methods: AccountProvider[]
+}
+
+export interface ReauthResponse {
+  data: ReauthState
+}
+
+/** "This was not me": whether the old address of the account was put back. */
+export interface RevokeResponse {
+  purpose: 'revoke'
+  restored: boolean
 }
 
 /** What a definition of the pack says about a part. The name is in the language of the driver. */

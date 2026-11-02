@@ -1,12 +1,28 @@
 <script setup lang="ts">
+import { watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { RouterLink, RouterView, useRoute } from 'vue-router'
+import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
 
 import BrandMark from '@/components/BrandMark.vue'
 import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
+import { OPEN_WITHOUT_CONSENT } from '@/router/guards'
+import { useSessionStore } from '@/stores/session'
 
 const { t } = useI18n()
 const route = useRoute()
+const router = useRouter()
+const session = useSessionStore()
+
+// The terms can change while the app is open, or a call can find out before the profile does: wherever the driver is, they are taken to the screen that asks.
+watch(
+  () => session.needsConsent,
+  (needs) => {
+    if (needs && !OPEN_WITHOUT_CONSENT.has(String(route.name))) {
+      void router.replace({ name: 'consent' })
+    }
+  },
+  { immediate: true },
+)
 </script>
 
 <template>

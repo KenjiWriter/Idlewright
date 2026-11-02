@@ -227,7 +227,11 @@
     "invalid": "Er wurde schon benutzt, ist abgelaufen oder unvollständig. Fordere einen neuen an.",
     "garage": "Zur Garage",
     "newLink": "Neuen Link anfordern",
-    "home": "Zurück zum Start"
+    "home": "Zurück zum Start",
+    "changeTitle": "E-Mail-Adresse geändert",
+    "changeBody": "Ab jetzt meldest du dich mit einem Link an, der an die neue Adresse geht. Die alte Adresse wurde über die Änderung informiert.",
+    "reauthTitle": "Bestätigt",
+    "reauthBody": "Geh zurück zur Garage auf dem Gerät, auf dem du eine Anmeldemethode entfernst. Es bemerkt die Bestätigung von selbst."
   },
   "provider": {
     "email": "E-Mail",
@@ -281,7 +285,11 @@
     "title": "Deine Anmeldemethoden",
     "add": "Weitere Anmeldemethode hinzufügen",
     "addDescription": "Verknüpfe eine weitere Möglichkeit, in diese Garage zu kommen, damit du nicht ausgesperrt bist, wenn du eine davon verlierst.",
-    "close": "Schließen"
+    "close": "Schließen",
+    "unlink": "Entfernen",
+    "changeEmail": "Adresse ändern",
+    "lastHint": "Das ist die einzige Anmeldemethode dieser Garage, sie kann also nicht entfernt werden. Füge eine weitere hinzu, wenn du sie ersetzen willst.",
+    "unlinked": "Entfernt: {provider}."
   },
   "legal": {
     "version": "Version vom {date}",
@@ -1122,5 +1130,64 @@
     "rare": "Selten",
     "epic": "Episch",
     "legendary": "Legendär"
+  },
+  "unlink": {
+    "title": "{provider} entfernen?",
+    "doneTitle": "Entfernt: {provider}",
+    "checking": "Wir prüfen, ob du das tun kannst…",
+    "proveIntro": "Das Entfernen lässt sich nicht mit einem Klick rückgängig machen. Bestätige deshalb zuerst, dass du es bist. Die Bestätigung gilt kurz und nur auf diesem Gerät.",
+    "proveEmailTo": "Link an {email} senden",
+    "proveEmail": "Link an die E-Mail-Adresse der Garage senden",
+    "proveProvider": "Erneut mit {provider} anmelden",
+    "noMethod": "Im Moment lässt sich das auf keinem Weg bestätigen. Versuche es später erneut.",
+    "waiting": "Öffne den Link in deinem Postfach, in diesem oder einem anderen Browser. Diese Seite bemerkt die Bestätigung von selbst.",
+    "resend": "Link erneut senden",
+    "confirmIntro": "Nach dem Entfernen lässt {provider} niemanden mehr in diese Garage.",
+    "consequenceDevices": "Geräte, die auf diesem Weg angemeldet wurden, werden abgemeldet. Das Gerät, von dem du entfernst, bleibt angemeldet.",
+    "consequenceEmail": "Die E-Mail-Adresse verlässt die Garage, und die an sie gesendeten Links funktionieren nicht mehr.",
+    "consequenceProvider": "Das {provider}-Konto und seine Daten bleiben bei {provider}: Wir löschen sie nicht. Die Erlaubnis für das Spiel nimmst du in den Einstellungen deines {provider}-Kontos zurück.",
+    "consequenceNotice": "Wir senden eine kurze Mitteilung über das Entfernen an die E-Mail-Adresse der Garage.",
+    "action": "{provider} entfernen",
+    "unlinking": "Wird entfernt…",
+    "cancel": "Abbrechen",
+    "doneBody": "{provider} meldet nicht mehr an dieser Garage an.",
+    "close": "Schließen"
+  },
+  "changeEmail": {
+    "title": "E-Mail-Adresse ändern",
+    "intro": "Wir senden einen Link an die neue Adresse. Bis er benutzt wird, ändert sich nichts, und die aktuelle Adresse bekommt eine Mitteilung mit der Schaltfläche „Das war ich nicht“. Die nächste Änderung ist erst nach einer Pause möglich.",
+    "label": "Neue E-Mail-Adresse",
+    "send": "Link senden",
+    "sending": "Wird gesendet…",
+    "afterSent": "Öffne den Link in deinem Postfach unter der neuen Adresse. Die aktuelle Adresse funktioniert, bis du das tust.",
+    "another": "Andere Adresse verwenden",
+    "close": "Schließen"
+  },
+  "consent": {
+    "title": "Unsere Bedingungen haben sich geändert",
+    "intro": "Die Nutzungsbedingungen oder die Datenschutzerklärung haben sich geändert. Um weiterzuspielen, lies sie und akzeptiere die neue Fassung. Deine Garage wartet unberührt.",
+    "changesTitle": "Was sich geändert hat",
+    "noList": "Wir haben die Texte der Nutzungsbedingungen und der Datenschutzerklärung geändert. Lies sie vollständig, bevor du akzeptierst.",
+    "accepted": "Zuvor akzeptierte Fassung: {date}",
+    "acceptedBefore": "Zuvor akzeptierte Fassung: aus der Zeit vor der Nummerierung der Fassungen",
+    "current": "Gültige Fassung: {date}",
+    "read": "Lies die {terms} und die {privacy}.",
+    "accept": "Ich akzeptiere und spiele weiter",
+    "accepting": "Wird gespeichert…",
+    "declineTitle": "Du willst nicht zustimmen?",
+    "declineBody": "Ohne Zustimmung kannst du nicht spielen, verlierst aber nicht sofort etwas: Das Konto bleibt, und du kannst deine Daten herunterladen oder das Konto löschen.",
+    "leave": "Von diesem Gerät abmelden"
+  },
+  "secure": {
+    "title": "Das warst du nicht?",
+    "body": "Wir sichern die Garage: Wir brechen die E-Mail-Änderung ab, falls eine wartet, setzen die alte Adresse wieder ein, falls jemand sie geändert hat, melden alle Geräte ab und löschen den Wiederherstellungscode. Du kommst mit einem Link an die alte Adresse wieder hinein.",
+    "action": "Garage sichern",
+    "working": "Wird gesichert…",
+    "doneTitle": "Garage gesichert",
+    "doneRestored": "Wir haben die alte E-Mail-Adresse wieder eingesetzt und alle Geräte abgemeldet.",
+    "doneKept": "Alle Geräte sind abgemeldet, und keine E-Mail-Änderung wartet mehr. Wenn die Adresse der Garage nicht deine ist, schreibe dem Betreiber des Spiels.",
+    "signIn": "Mit einem E-Mail-Link anmelden",
+    "failedTitle": "Dieser Link funktioniert nicht",
+    "invalid": "Er wurde schon benutzt, ist abgelaufen oder unvollständig."
   }
 }
