@@ -47,9 +47,14 @@ const SURFACE: Display = { scale: 100, digits: 0, unit: '%' }
 /** The prefix of the key of a change of the grip on a surface, which is set apart from the statistics: `surface:asphalt_wet`. */
 export const SURFACE_PREFIX = 'surface:'
 
+/** The prefix of the key of a change of a bonus of the tuning, which is set apart from the statistics: `bonus:gravel-grip`. */
+export const BONUS_PREFIX = 'bonus:'
+
 /** One statistic that is not the same on the two parts: by how much (in the units it is shown in), and whether the part set against the fitted one is the better for it. */
 export interface StatChange {
   key: string
+  /** The words to show instead of the name of a statistic: the name of a bonus, which the server says in the language of the driver. */
+  label?: string
   /** The part less the fitted part, rounded to what is shown; never 0. */
   delta: number
   digits: number
@@ -64,10 +69,12 @@ export interface Comparison {
   changes: StatChange[]
 }
 
-/** What a part has to be set against another: its statistics, and the grip of its tires on the surfaces when it has them. */
+/** What a part has to be set against another: its statistics, the grip of its tires on the surfaces when it has them, and the bonuses it holds. */
 export interface PartLike {
   stats: Record<string, number>
   surfaces?: Record<string, number> | null
+  /** The bonuses the driver put on it (an empty place is null): they stay with the part, so a part that is fitted in place of another leaves its bonuses behind. */
+  tuning?: ({ key: string; name: string; percent: number } | null)[] | null
 }
 
 /** Where a comparison leaves the part: better than the fitted one, worse, better in some things and worse in others, or no different. */
@@ -103,6 +110,27 @@ function gain(part: number, fitted: number, lowerIsBetter: boolean): number {
   const share = (part - fitted) / base
 
   return Math.max(-GAIN_LIMIT, Math.min(GAIN_LIMIT, lowerIsBetter ? -share : share))
+}
+
+/**
+ * The bonuses the two parts hold set against each other, by bonus: what the part has that the fitted one does not is a gain, what the fitted one has and the part does not is a
+ * loss (it stays on the old part), and a bonus that both have is compared by its amount.
+ */
+function bonusChanges(part: PartLike, fitted: PartLike): StatChange[] {
+  const held = (one: PartLike): Map<string, { name: string; percent: number }> => new Map((one.tuning ?? []).flatMap((bonus) => (bonus ? [[bonus.key, bonus] as const] : [])))
+  const mine = held(part)
+  const theirs = held(fitted)
+  const changes: StatChange[] = []
+
+  for (const key of new Set([...mine.keys(), ...theirs.keys()])) {
+    const delta = Math.round(((mine.get(key)?.percent ?? 0) - (theirs.get(key)?.percent ?? 0)) * 10) / 10
+
+    if (delta !== 0) {
+      changes.push({ key: `${BONUS_PREFIX}${key}`, label: (mine.get(key) ?? theirs.get(key))!.name, delta, digits: 1, unit: '%', better: delta > 0 })
+    }
+  }
+
+  return changes
 }
 
 interface Walked {
@@ -162,7 +190,8 @@ export function comparePart(part: PartLike, fitted: PartLike, speed: ShownSpeedU
     return null
   }
 
-  const changes = [...stats.changes, ...surfaces.changes]
+  const bonuses = bonusChanges(part, fitted)
+  const changes = [...stats.changes, ...surfaces.changes, ...bonuses]
   const gains = [...stats.gains, ...surfaces.gains]
   const improved = changes.filter((change) => change.better).length
   const worsened = changes.length - improved
@@ -181,6 +210,19 @@ export function comparePart(part: PartLike, fitted: PartLike, speed: ShownSpeedU
     kind = 'mixed'
   } else {
     kind = net > 0 ? 'better' : 'worse'
+  }
+
+  // The bonuses are not on the scale of the statistics, but a part that leaves a bonus behind is not simply better, and one that brings a bonus is not simply worse:
+  // which is worth fitting is a matter of the track that is driven.
+  if (bonuses.length > 0) {
+    const lost = bonuses.some((change) => !change.better)
+    const gained = bonuses.some((change) => change.better)
+
+    if (kind === 'same') {
+      kind = lost && gained ? 'mixed' : lost ? 'worse' : 'better'
+    } else if ((kind === 'better' && lost) || (kind === 'worse' && gained)) {
+      kind = 'mixed'
+    }
   }
 
   return { shared, changes, verdict: { kind, net, improved, worsened } }

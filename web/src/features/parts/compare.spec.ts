@@ -228,3 +228,35 @@ describe('comparing a part with the one that is fitted', () => {
     })
   })
 })
+
+describe('the bonuses of the tuning in a comparison', () => {
+  const stats = { grip: 100, handling: 98, braking: 100 }
+  const bonus = (key: string, name: string, percent: number) => ({ key, name, percent })
+
+  it('shows what the part brings and what it leaves behind, by the name of the bonus', () => {
+    const comparison = comparePart({ stats, tuning: [bonus('dry-grip', 'Dry grip', 6), null] }, { stats, tuning: [bonus('gravel-grip', 'Gravel grip', 4.5)] })!
+
+    expect(comparison.changes).toEqual([
+      { key: 'bonus:dry-grip', label: 'Dry grip', delta: 6, digits: 1, unit: '%', better: true },
+      { key: 'bonus:gravel-grip', label: 'Gravel grip', delta: -4.5, digits: 1, unit: '%', better: false },
+    ])
+    // A bonus that comes and one that goes: which is worth more is a matter of the track.
+    expect(comparison.verdict!.kind).toBe('mixed')
+  })
+
+  it('sets a bonus that both parts hold by its amount, and ignores one that is the same', () => {
+    const better = comparePart({ stats, tuning: [bonus('dry-grip', 'Dry grip', 7.5), bonus('rain-handling', 'Rain handling', 3)] }, { stats, tuning: [bonus('dry-grip', 'Dry grip', 6), bonus('rain-handling', 'Rain handling', 3)] })!
+
+    expect(better.changes.map((change) => [change.key, change.delta])).toEqual([['bonus:dry-grip', 1.5]])
+    expect(better.verdict!.kind).toBe('better')
+  })
+
+  it('does not make a part that is better in its statistics simply better when it leaves a bonus behind, and the other way round', () => {
+    const faster = { stats: { grip: 120, handling: 110, braking: 120 } }
+
+    expect(comparePart({ ...faster, tuning: null }, { stats, tuning: [bonus('dry-grip', 'Dry grip', 6)] })!.verdict!.kind).toBe('mixed')
+    expect(comparePart({ stats, tuning: [bonus('dry-grip', 'Dry grip', 6)] }, faster)!.verdict!.kind).toBe('mixed')
+    // Nothing changes for parts that hold no bonuses.
+    expect(comparePart(faster, { stats })!.verdict!.kind).toBe('better')
+  })
+})

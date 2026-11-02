@@ -19,8 +19,14 @@ const { speedUnit } = useUnits()
 
 const comparison = computed(() => (props.fitted ? comparePart(props.offer, props.fitted, speedUnit.value) : null))
 
-/** The name of a statistic without its value (or the name of a surface, for the grip on it), or its key where the messages do not know it. */
-function label(key: string): string {
+/** The name of a statistic without its value (or the name of a surface, for the grip on it), or its key where the messages do not know it. A bonus has its own name. */
+function label(change: StatChange): string {
+  const key = change.key
+
+  if (change.label !== undefined) {
+    return change.label
+  }
+
   if (key.startsWith(SURFACE_PREFIX)) {
     const surface = key.slice(SURFACE_PREFIX.length)
 
@@ -41,7 +47,7 @@ const text = (change: StatChange): string => `${change.delta > 0 ? '+' : '−'}$
     <ul v-if="comparison.changes.length > 0" class="flex flex-wrap gap-1">
       <li v-for="change in comparison.changes" :key="change.key" class="cmp" :class="change.better ? 'cmp-up' : 'cmp-down'" :data-test="`compare-${change.key}`">
         <span aria-hidden="true">{{ change.delta > 0 ? '▲' : '▼' }}</span>
-        {{ label(change.key) }} {{ text(change) }}
+        {{ label(change) }} {{ text(change) }}
         <span class="sr-only">({{ change.better ? t('shop.compare.better') : t('shop.compare.worse') }})</span>
       </li>
     </ul>
