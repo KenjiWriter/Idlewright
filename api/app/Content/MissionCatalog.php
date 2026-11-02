@@ -14,7 +14,7 @@ final class MissionCatalog
     public const PERIODS = ['daily', 'weekly', 'monthly'];
 
     /** The goals that are counted over a period and that a template can have. */
-    public const PERIODIC_OBJECTIVES = ['laps', 'cash_earned', 'wet_laps', 'fuel_spent', 'upgrade', 'mount', 'service', 'crate', 'parts_bought', 'journey', 'car_bought'];
+    public const PERIODIC_OBJECTIVES = ['laps', 'cash_earned', 'wet_laps', 'fuel_spent', 'upgrade', 'mount', 'service', 'crate', 'parts_bought', 'journey', 'gig', 'car_bought'];
 
     /** The goals of a template that are a part of a tank of the best car, not a number of times. */
     public const TANK_OBJECTIVES = ['laps', 'wet_laps', 'cash_earned', 'fuel_spent'];

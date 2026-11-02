@@ -904,6 +904,7 @@
       "crate": "Abra {n} caixa | Abra {n} caixas",
       "parts_bought": "Compre {n} peça na loja | Compre {n} peças na loja",
       "journey": "Conclua {n} viagem | Conclua {n} viagens",
+      "gig": "Conclua {n} corrida | Conclua {n} corridas",
       "car_bought": "Compre {n} carro | Compre {n} carros"
     }
   },

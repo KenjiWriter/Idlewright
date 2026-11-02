@@ -904,6 +904,7 @@
       "crate": "Open {n} crate | Open {n} crates",
       "parts_bought": "Buy {n} part in the shop | Buy {n} parts in the shop",
       "journey": "Finish {n} journey | Finish {n} journeys",
+      "gig": "Finish {n} gig | Finish {n} gigs",
       "car_bought": "Buy {n} car | Buy {n} cars"
     }
   },

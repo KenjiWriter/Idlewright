@@ -46,7 +46,7 @@
     "objective": {
       "description": "What a mission counts. Counted over the period: laps (every car of the driver, also while they are away), cash_earned (what the laps paid, in cents; what a mission paid does not count), wet_laps (laps on a wet ground), fuel_spent (cents paid for fuel), upgrade, mount and service (jobs of the workshop that were done), crate (crates of the shop opened; the crates that missions give do not count), parts_bought, journey (journeys that ended) and car_bought (cars bought on the exchange or at the dealer). In a chain they are counted over all the time, and a chain also has repair (repairs after a breakdown), merge (attempts at merging parts), player_level, car_level (the best car), cars_owned, garages_owned, rarity_owned (parts of the rarity in param, or better, owned) and tires_mounted (tires of the kind in param on the car that is played).",
       "enum": [
-        "laps", "cash_earned", "wet_laps", "fuel_spent", "upgrade", "mount", "service", "crate", "parts_bought", "journey", "car_bought",
+        "laps", "cash_earned", "wet_laps", "fuel_spent", "upgrade", "mount", "service", "crate", "parts_bought", "journey", "gig", "car_bought",
         "repair", "merge", "player_level", "car_level", "cars_owned", "garages_owned", "rarity_owned", "tires_mounted"
       ]
     },

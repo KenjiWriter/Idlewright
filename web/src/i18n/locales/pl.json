@@ -904,6 +904,7 @@
       "crate": "Otwórz {n} skrzynkę | Otwórz {n} skrzynki | Otwórz {n} skrzynek",
       "parts_bought": "Kup {n} część w sklepie | Kup {n} części w sklepie | Kup {n} części w sklepie",
       "journey": "Zakończ {n} podróż | Zakończ {n} podróże | Zakończ {n} podróży",
+      "gig": "Zakończ {n} zlecenie | Zakończ {n} zlecenia | Zakończ {n} zleceń",
       "car_bought": "Kup {n} auto | Kup {n} auta | Kup {n} aut"
     }
   },

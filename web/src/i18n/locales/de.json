@@ -904,6 +904,7 @@
       "crate": "Öffne {n} Kiste | Öffne {n} Kisten",
       "parts_bought": "Kaufe {n} Teil im Shop | Kaufe {n} Teile im Shop",
       "journey": "Beende {n} Reise | Beende {n} Reisen",
+      "gig": "Beende {n} Auftrag | Beende {n} Aufträge",
       "car_bought": "Kaufe {n} Auto | Kaufe {n} Autos"
     }
   },

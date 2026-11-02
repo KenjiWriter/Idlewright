@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Content\Rules;
 use App\Models\CrateOpening;
+use App\Models\Gig;
 use App\Models\LedgerEntry;
 use App\Models\MergeAttempt;
 use App\Models\RaceRun;
@@ -34,7 +35,7 @@ final class MissionProgress
     /** Whether the goal is one that this class can count over a window. */
     public function counts(string $objective): bool
     {
-        return in_array($objective, ['laps', 'cash_earned', 'wet_laps', 'fuel_spent', 'upgrade', 'mount', 'service', 'crate', 'parts_bought', 'journey', 'car_bought', 'repair', 'merge'], true);
+        return in_array($objective, ['laps', 'cash_earned', 'wet_laps', 'fuel_spent', 'upgrade', 'mount', 'service', 'crate', 'parts_bought', 'journey', 'gig', 'car_bought', 'repair', 'merge'], true);
     }
 
     /** How much of a goal the driver reached in the window: laps, cents or times. */
@@ -53,6 +54,7 @@ final class MissionProgress
             'service' => $this->jobs($userId, WorkshopJob::KIND_SERVICE, $fromMs, $toMs),
             'merge' => MergeAttempt::query()->where('user_id', $userId)->where('success', true)->where('finished_ms', '>=', $fromMs)->where('finished_ms', '<', $toMs)->count(),
             'journey' => Travel::query()->where('user_id', $userId)->where('status', Travel::STATUS_ARRIVED)->where('arrive_ms', '>=', $fromMs)->where('arrive_ms', '<', $toMs)->count(),
+            'gig' => Gig::query()->where('user_id', $userId)->where('status', Gig::STATUS_DONE)->where('done_ms', '>=', $fromMs)->where('done_ms', '<', $toMs)->count(),
             'crate' => CrateOpening::query()->where('user_id', $userId)->where('pity_group', 'not like', self::CRATE_STREAM_PREFIX.'%')
                 ->where('created_at', '>=', $this->at($fromMs))->where('created_at', '<', $this->at($toMs))->count(),
             default => 0,

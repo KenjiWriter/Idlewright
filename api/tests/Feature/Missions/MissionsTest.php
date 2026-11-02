@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Models\CrateOpening;
+use App\Models\Gig;
 use App\Models\LedgerEntry;
 use App\Models\RaceRun;
 use App\Models\TutorialProgress;
@@ -217,6 +218,28 @@ describe('the progress', function () {
         Carbon::setTestNow(missionNoon()->addHours(2));
 
         expect(collect(missionsOf($driver)->json('data.periods.daily.missions'))->firstWhere('key', 't-laps')['progress'])->toBeGreaterThanOrEqual($once);
+    });
+
+    it('counts the gigs that ended in the window, and not the ones that were taken back, nor those of yesterday', function () {
+        $driver = missionDriver();
+        theMissionsAre(daily: [['key' => 'gigs', 'templates' => ['t-gigs' => missionTemplate('gig', ['count' => 2])]]]);
+        missionsOf($driver);
+
+        $run = RaceRun::query()->where('user_id', $driver->id)->firstOrFail();
+        $now = Carbon::now()->getTimestampMs();
+        $gig = fn (array $extra) => Gig::factory()->create(['user_id' => $driver->id, 'race_run_id' => $run->id, ...$extra]);
+
+        $gig(['status' => Gig::STATUS_DONE, 'done_ms' => $now - 60_000]);
+        $gig(['status' => Gig::STATUS_CANCELLED, 'done_ms' => $now - 50_000]);
+        $gig(['status' => Gig::STATUS_DONE, 'done_ms' => $now - 86_400_000 - 60_000]);
+
+        $mission = collect(missionsOf($driver)->json('data.periods.daily.missions'))->firstWhere('key', 't-gigs');
+        expect($mission['progress'])->toBe(1)->and($mission['status'])->toBe('open');
+
+        $gig(['status' => Gig::STATUS_DONE, 'done_ms' => $now - 30_000]);
+
+        $mission = collect(missionsOf($driver)->json('data.periods.daily.missions'))->firstWhere('key', 't-gigs');
+        expect($mission['progress'])->toBe(2)->and($mission['status'])->toBe('completed');
     });
 
     it('counts the jobs of the workshop that the mechanic finished in the window, and not the ones that the tutorial arranged', function () {
