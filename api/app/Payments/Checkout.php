@@ -71,7 +71,7 @@ final class Checkout
         $provider = $this->payments->provider();
 
         try {
-            $attempt = DB::transaction(function () use ($user, $userId, $product, $requestId, $offer, $provider, $same, $consents): array {
+            $made = DB::transaction(function () use ($user, $userId, $product, $requestId, $offer, $provider, $same, $consents): array {
                 // The same lock as every posting of the driver: two requests of one driver are one after the other, so the limits cannot be passed by asking twice at once.
                 $wallet = $this->ledger->lockWallet($userId);
 
@@ -110,7 +110,7 @@ final class Checkout
             return [$this->sameRequest($same() ?? throw new RuleRefusedException('payments_unavailable'), $product), false];
         }
 
-        [$attempt, $created] = $attempt;
+        [$attempt, $created] = $made;
 
         if ($created) {
             $this->openPage($attempt, $provider, $offer['name']);
