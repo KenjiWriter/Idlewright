@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Content\Catalog;
+use App\Content\GigCatalog;
 use App\Content\Rules;
 use App\Domain\Settlement\EventType;
+use App\Models\Gig;
 use App\Models\RaceRun;
 use App\Models\Settlement;
 use App\Models\Travel;
@@ -69,7 +71,7 @@ final class AwaySummary
      * The summary of the break that waits for the driver, or `pending: false` when there is none. What is due is carried out first and every car is settled, so the
      * earnings are current.
      *
-     * @return array{pending: bool, from_ms?: int, to_ms?: int, away_minutes?: int, earned_cents?: int, bonus_cents?: int, auto_refills?: int, auto_refill_charges?: int, cars?: list<array<string, mixed>>, jobs?: list<array<string, mixed>>, journeys?: list<array<string, mixed>>, missions?: array{done: int, collected: int, cash_cents: int, xp: int, coins: int}|null}
+     * @return array{pending: bool, from_ms?: int, to_ms?: int, away_minutes?: int, earned_cents?: int, bonus_cents?: int, auto_refills?: int, auto_refill_charges?: int, cars?: list<array<string, mixed>>, jobs?: list<array<string, mixed>>, journeys?: list<array<string, mixed>>, gigs?: list<array<string, mixed>>, gigs_cents?: int, missions?: array{done: int, collected: int, cash_cents: int, xp: int, coins: int}|null}
      */
     public function summary(User $user): array
     {
@@ -98,6 +100,7 @@ final class AwaySummary
         $toMs = $to->getTimestampMs();
         $played = $user->selected_car_id;
         $cars = $this->cars($runs, $fromMs, $toMs, $played);
+        $gigs = $this->gigs($userId, $fromMs, $toMs);
 
         return [
             'pending' => true,
@@ -112,6 +115,8 @@ final class AwaySummary
             'cars' => $cars,
             'jobs' => $this->jobs($userId, $fromMs, $toMs),
             'journeys' => $this->journeys($userId, $fromMs, $toMs),
+            'gigs' => $gigs,
+            'gigs_cents' => array_sum(array_column($gigs, 'reward_cents')),
             'missions' => $this->missions->awayReport($userId, $from),
         ];
     }
@@ -220,6 +225,34 @@ final class AwaySummary
 
                 return ['kind' => $job->kind, 'part' => $definition === null ? null : I18nText::from($definition['name'])->for(), 'finished_ms' => (int) $job->finish_ms];
             })
+            ->all();
+    }
+
+    /**
+     * The gigs that ended in the break, what each paid (the bonus of the VIP account is in it) and where the car went. The pay is not in `earned_cents`, which is the pay of
+     * the laps.
+     *
+     * @return list<array{kind: string, kind_name: string, to: string, finished_ms: int, reward_cents: int, bonus_cents: int}>
+     */
+    private function gigs(int $userId, int $fromMs, int $toMs): array
+    {
+        $kinds = GigCatalog::fromConfig()->kinds();
+
+        return Gig::query()
+            ->where('user_id', $userId)
+            ->where('status', Gig::STATUS_DONE)
+            ->where('done_ms', '>=', $fromMs)
+            ->where('done_ms', '<=', $toMs)
+            ->orderBy('done_ms')
+            ->get()
+            ->map(fn (Gig $gig): array => [
+                'kind' => $gig->kind,
+                'kind_name' => I18nText::from($kinds[$gig->kind]['name'] ?? [])->for(),
+                'to' => $this->rules->cityName($gig->to_region ?? $gig->region),
+                'finished_ms' => (int) $gig->done_ms,
+                'reward_cents' => (int) $gig->reward_cents,
+                'bonus_cents' => (int) $gig->bonus_cents,
+            ])
             ->all();
     }
 

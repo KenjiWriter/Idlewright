@@ -359,6 +359,23 @@ describe('a gig on the road', function () {
             ->and($part->fresh()->wear_ppb)->toBe(10 * 25_000);
     });
 
+    it('is told in the summary of the break, apart from what the laps earned, with the pay and where the car went', function () {
+        [$driver] = gigDriver();
+        boardOf();
+        takeGig($driver, firstOffer($driver))->assertCreated();
+        $gig = Gig::query()->firstOrFail();
+
+        Carbon::setTestNow(Carbon::createFromTimestampMs($gig->finish_ms + 60_000));
+        $driver->forceFill(['away_from' => Carbon::createFromTimestampMs(RUN_T0 - 3_600_000), 'away_to' => Carbon::createFromTimestampMs($gig->finish_ms + 60_000)])->save();
+
+        $summary = test()->getJson('/api/v1/away', bearerFor($driver))->assertOk();
+
+        expect($summary->json('data.pending'))->toBeTrue()
+            ->and($summary->json('data.gigs'))->toHaveCount(1)
+            ->and($summary->json('data.gigs.0'))->toMatchArray(['kind' => 'taxi', 'kind_name' => 'Taxi', 'to' => 'Złomowo', 'reward_cents' => $gig->reward_cents, 'finished_ms' => $gig->finish_ms])
+            ->and($summary->json('data.gigs_cents'))->toBe($gig->reward_cents);
+    });
+
     it('keeps the workshop from a car that is out', function () {
         [$driver] = gigDriver();
         boardOf();
