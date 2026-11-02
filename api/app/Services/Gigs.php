@@ -523,6 +523,7 @@ final class Gigs
             'kind' => $gig->kind,
             'kind_name' => I18nText::from($this->catalog->kinds()[$gig->kind]['name'] ?? [])->for(),
             'region' => $gig->region,
+            'region_name' => $this->rules->cityName($gig->region),
             'to' => $gig->to_region,
             'to_name' => $gig->to_region === null ? null : $this->rules->cityName($gig->to_region),
             'km' => $gig->distance_km,
