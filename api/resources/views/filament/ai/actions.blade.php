@@ -49,7 +49,5 @@
         <span class="text-sm text-gray-500" x-text="note" data-ai-note></span>
     </div>
 
-    <p class="text-xs text-gray-500">{{ __('admin.ai.paste_later') }}</p>
-
     <textarea x-show="open" x-cloak readonly rows="18" x-model="text" class="w-full rounded-lg border border-gray-300 bg-white p-2 font-mono text-xs dark:border-white/10 dark:bg-white/5" data-ai-text></textarea>
 </div>
