@@ -87,6 +87,7 @@ sudo env DOMAIN=raceidle.cerasusdigital.pl ADMIN_EMAIL=twoj@adres.pl bash provis
 | `MAIL_FROM_ADDRESS` | nadawca maili; domyślnie `no-reply@cerasusdigital.pl` |
 | `MAIL_HOST`, `MAIL_PORT`, `MAIL_SCHEME`, `MAIL_USERNAME` | serwer SMTP (port 587 + `smtp`, albo 465 + `smtps`) |
 | `LEGAL_OPERATOR_NAME`, `LEGAL_OPERATOR_ADDRESS`, `LEGAL_CONTACT_EMAIL` | kto prowadzi grę; pokazują to regulamin i polityka prywatności |
+| `PREMIUM_PROVIDER`, `STRIPE_SECRET`, `STRIPE_WEBHOOK_SECRET`, `PAYMENTS_ALLOW_TEST` | płatności prawdziwymi pieniędzmi; **jeszcze wyłączone** (strona płatności Stripe powstaje z kluczami testowymi, a teksty czyta prawnik). Klucze wpisuje właściciel na serwerze; adres webhooka Stripe to `https://<domena>/api/v1/webhooks/stripe` (nginx nie wymaga zmian: to część `/api/`), a stan pokazuje `sudo -u www-data php8.4 artisan payments:status` |
 | `SSH_PORT` | port SSH, który zapora zostawia otwarty (domyślnie 22) |
 | `DEPLOY_USER`, `APP_DIR`, `PHP_VERSION`, `NODE_MAJOR` | użytkownik wydań (`deploy`), folder gry, wersje |
 | `CERTBOT_STAGING=1` | testowy certyfikat, który nie zużywa limitów Let's Encrypt |

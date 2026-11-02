@@ -9,6 +9,7 @@ Kierowca zaczyna jako **gość**: konto powstaje od razu, bez e-maila, a urządz
 - **Nigdy nie szukamy konta po adresie, który podaje dostawca.** Cudze konto Google, które twierdzi, że ma adres właściciela, nie wpuszcza do jego garażu. Tożsamość znajdujemy po `(dostawca, subject)` i tylko tak.
 - **Dwóch kont nie łączymy.** Jeśli tożsamość należy już do innego garażu, odpowiedź to 409 `identity_taken` i nic się nie zmienia; gracz wybiera, na którym gra. Łączenie walut i aut z dwóch kont otworzyłoby drogę do nadużyć.
 - **Logowanie nieznanym dostawcą nie zakłada konta.** Odpowiedź to 404 `no_account`. Konto powstaje tylko przy „Utwórz kierowcę”.
+- **Za prawdziwe pieniądze kupuje tylko konto zabezpieczone** (nie gość): gość, który zgubi urządzenie, traci opłacony garaż, a zgody na regulamin i wiek składa się dopiero przy zabezpieczaniu. Gość dostaje 422 `account_not_secured` (`POST /premium/checkout`, `docs/api-runs.md`).
 - **Sekrety jednorazowe** (`account_tokens`): 32 losowe bajty, w bazie tylko skrót HMAC (klucz aplikacji), ważność, jedno użycie wymuszone jednym `UPDATE … WHERE nieużyty AND niewygasły AND cel`. Zły cel albo zły weryfikator nie zużywa sekretu.
 
 ## Okno „Zapisz swój garaż” (web)
