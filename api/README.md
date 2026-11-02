@@ -1,4 +1,4 @@
-# RideIdle: API
+# Idlewright: API
 
 Laravel 13: logika gry, rozliczanie, API pod `/api/v1` i panel operatora (Filament 5) pod `/admin`.
 
