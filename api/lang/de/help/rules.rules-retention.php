@@ -99,5 +99,33 @@ return [
             'range' => '0 – 100000 % (ein Vielfaches).',
             'tip' => 'Prüfe mit dem Befehl economy:transmute: Er schlägt fehl, wenn das Geld eines Schritts unter etwa der Hälfte der Kosten des Kombinierens liegt.',
         ],
+        '/push/ttl_ms/car_stopped' => [
+            'label' => 'Wie lange ein Push-Dienst eine Nachricht aufbewahrt: Auto steht',
+            'help' => 'Wie lange der Benachrichtigungsdienst des Browsers eine Nachricht dieser Art (Auto steht) für ein Gerät aufbewahrt, das aus ist oder keinen Empfang hat. Danach wird sie verworfen, damit ein Spieler nicht über etwas informiert wird, das nicht mehr stimmt.',
+            'example' => '14400 s: vier Stunden; danach wird die Nachricht verworfen.',
+            'range' => '60 – 86400 s.',
+            'tip' => 'Kurz für das, was schnell veraltet (ein Auftrag ist fertig), länger für das, was wartet (ein Auto steht).',
+        ],
+        '/push/ttl_ms/car_arrived' => [
+            'label' => 'Wie lange ein Push-Dienst eine Nachricht aufbewahrt: Auto angekommen',
+            'help' => 'Wie lange der Benachrichtigungsdienst des Browsers eine Nachricht dieser Art (Auto angekommen) für ein Gerät aufbewahrt, das aus ist oder keinen Empfang hat. Danach wird sie verworfen, damit ein Spieler nicht über etwas informiert wird, das nicht mehr stimmt.',
+            'example' => '7200 s: zwei Stunden; danach wird die Nachricht verworfen.',
+            'range' => '60 – 86400 s.',
+            'tip' => 'Kurz für das, was schnell veraltet (ein Auftrag ist fertig), länger für das, was wartet (ein Auto steht).',
+        ],
+        '/push/ttl_ms/job_done' => [
+            'label' => 'Wie lange ein Push-Dienst eine Nachricht aufbewahrt: Auftrag fertig',
+            'help' => 'Wie lange der Benachrichtigungsdienst des Browsers eine Nachricht dieser Art (Auftrag fertig) für ein Gerät aufbewahrt, das aus ist oder keinen Empfang hat. Danach wird sie verworfen, damit ein Spieler nicht über etwas informiert wird, das nicht mehr stimmt.',
+            'example' => '3600 s: eine Stunde; danach wird die Nachricht verworfen.',
+            'range' => '60 – 86400 s.',
+            'tip' => 'Kurz für das, was schnell veraltet (ein Auftrag ist fertig), länger für das, was wartet (ein Auto steht).',
+        ],
+        '/push/ttl_ms/test' => [
+            'label' => 'Wie lange ein Push-Dienst eine Nachricht aufbewahrt: Testnachricht',
+            'help' => 'Wie lange der Benachrichtigungsdienst des Browsers eine Nachricht dieser Art (Testnachricht) für ein Gerät aufbewahrt, das aus ist oder keinen Empfang hat. Danach wird sie verworfen, damit ein Spieler nicht über etwas informiert wird, das nicht mehr stimmt.',
+            'example' => '600 s: zehn Minuten; danach wird die Nachricht verworfen.',
+            'range' => '60 – 86400 s.',
+            'tip' => 'Kurz für das, was schnell veraltet (ein Auftrag ist fertig), länger für das, was wartet (ein Auto steht).',
+        ],
     ],
 ];

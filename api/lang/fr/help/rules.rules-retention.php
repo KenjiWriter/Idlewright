@@ -99,5 +99,33 @@ return [
             'range' => '0 – 100000 % (un multiple).',
             'tip' => 'Vérifiez avec la commande economy:transmute : elle échoue quand l’argent d’une étape est sous environ la moitié du coût de la fusion.',
         ],
+        '/push/ttl_ms/car_stopped' => [
+            'label' => 'Durée de conservation d’un message push : voiture arrêtée',
+            'help' => 'Combien de temps le service de notifications du navigateur garde un message de ce type (voiture arrêtée) pour un appareil éteint ou sans réseau. Passé ce délai, le message est abandonné, et le joueur n’est pas prévenu de ce qui n’est plus vrai.',
+            'example' => '14400 s : quatre heures ; ensuite le message est abandonné.',
+            'range' => '60 – 86400 s.',
+            'tip' => 'Court pour ce qui vieillit vite (un travail terminé), plus long pour ce qui attend (une voiture arrêtée).',
+        ],
+        '/push/ttl_ms/car_arrived' => [
+            'label' => 'Durée de conservation d’un message push : voiture arrivée',
+            'help' => 'Combien de temps le service de notifications du navigateur garde un message de ce type (voiture arrivée) pour un appareil éteint ou sans réseau. Passé ce délai, le message est abandonné, et le joueur n’est pas prévenu de ce qui n’est plus vrai.',
+            'example' => '7200 s : deux heures ; ensuite le message est abandonné.',
+            'range' => '60 – 86400 s.',
+            'tip' => 'Court pour ce qui vieillit vite (un travail terminé), plus long pour ce qui attend (une voiture arrêtée).',
+        ],
+        '/push/ttl_ms/job_done' => [
+            'label' => 'Durée de conservation d’un message push : travail terminé',
+            'help' => 'Combien de temps le service de notifications du navigateur garde un message de ce type (travail terminé) pour un appareil éteint ou sans réseau. Passé ce délai, le message est abandonné, et le joueur n’est pas prévenu de ce qui n’est plus vrai.',
+            'example' => '3600 s : une heure ; ensuite le message est abandonné.',
+            'range' => '60 – 86400 s.',
+            'tip' => 'Court pour ce qui vieillit vite (un travail terminé), plus long pour ce qui attend (une voiture arrêtée).',
+        ],
+        '/push/ttl_ms/test' => [
+            'label' => 'Durée de conservation d’un message push : message d’essai',
+            'help' => 'Combien de temps le service de notifications du navigateur garde un message de ce type (message d’essai) pour un appareil éteint ou sans réseau. Passé ce délai, le message est abandonné, et le joueur n’est pas prévenu de ce qui n’est plus vrai.',
+            'example' => '600 s : dix minutes ; ensuite le message est abandonné.',
+            'range' => '60 – 86400 s.',
+            'tip' => 'Court pour ce qui vieillit vite (un travail terminé), plus long pour ce qui attend (une voiture arrêtée).',
+        ],
     ],
 ];

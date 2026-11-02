@@ -26,6 +26,7 @@ use App\Http\Controllers\Api\V1\PaymentController;
 use App\Http\Controllers\Api\V1\PaymentWebhookController;
 use App\Http\Controllers\Api\V1\PlayerController;
 use App\Http\Controllers\Api\V1\PremiumController;
+use App\Http\Controllers\Api\V1\PushController;
 use App\Http\Controllers\Api\V1\RunController;
 use App\Http\Controllers\Api\V1\RunProfileController;
 use App\Http\Controllers\Api\V1\ShopController;
@@ -87,6 +88,11 @@ Route::prefix('v1')->group(function (): void {
     Route::middleware(['auth:sanctum', TouchLastSeen::class, ApplyVocabulary::class, EnsureConsent::class])->group(function (): void {
         Route::get('/me', [MeController::class, 'show']);
         Route::patch('/me/locale', [MeController::class, 'updateLocale']);
+        // Web push: what the app needs to subscribe, the subscription of a device, and a message to the driver's own devices to see that it works.
+        Route::get('/push/config', [PushController::class, 'config']);
+        Route::put('/push/subscription', [PushController::class, 'save'])->middleware('throttle:push-subscription');
+        Route::delete('/push/subscription', [PushController::class, 'destroy'])->middleware('throttle:push-subscription');
+        Route::post('/push/test', [PushController::class, 'test'])->middleware('throttle:push-test');
         // A copy of the data of the account, and, in the same place, having the account deleted.
         Route::get('/account/export', [AccountDataController::class, 'export'])->middleware('throttle:account-data');
         Route::delete('/account', [AccountDataController::class, 'destroy'])->middleware('throttle:account-erase');

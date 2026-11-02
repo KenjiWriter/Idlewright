@@ -776,6 +776,27 @@
       "required": ["enabled", "coins_enabled", "max_rarity", "min_player_level", "limit_per_day", "merge_input", "coin_base", "coin_tier_growth_ppm", "cash_ppm"],
       "additionalProperties": false
     },
+    "push": {
+      "description": "Web push: the game sends a short message to the device of a driver (a car stopped, a car arrived, a job is done) through the push service of the browser, when the driver has agreed. The messages are encrypted, so the push service cannot read them.",
+      "type": "object",
+      "properties": {
+        "enabled": { "description": "Whether the game sends push messages at all. The emergency switch: when it is off nothing is sent and the app does not ask for the permission.", "type": "boolean" },
+        "ttl_ms": {
+          "description": "How long the push service keeps a message for a device that is off or has no signal, per kind of message (car_stopped, car_arrived, job_done, test), in milliseconds. After that the message is dropped, so a driver is not told of what is no longer true.",
+          "type": "object",
+          "properties": {
+            "car_stopped": { "type": "integer", "minimum": 60000, "maximum": 86400000 },
+            "car_arrived": { "type": "integer", "minimum": 60000, "maximum": 86400000 },
+            "job_done": { "type": "integer", "minimum": 60000, "maximum": 86400000 },
+            "test": { "type": "integer", "minimum": 60000, "maximum": 86400000 }
+          },
+          "required": ["car_stopped", "car_arrived", "job_done", "test"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["enabled", "ttl_ms"],
+      "additionalProperties": false
+    },
     "slots": {
       "description": "The cars that drive: a driver has only so many cars active at a time (the slots), and the others stand in the garage in storage, where they do not drive, burn no fuel and wear nothing. A car in storage keeps its place in the garage and can be worked on. The VIP account adds slots for as long as it lasts. Everything a driver has when the limit is made is kept: they keep the cars that drive until they put one in storage.",
       "type": "object",

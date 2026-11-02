@@ -22,6 +22,7 @@ use App\Models\TutorialProgress;
 use App\Models\User;
 use App\Models\Wallet;
 use App\Models\WorkshopJob;
+use App\Push\P256;
 use App\Services\ContentPacks;
 use App\Services\Ledger;
 use App\Services\RunService;
@@ -546,4 +547,22 @@ function signedInAdmin(string $role = Admin::ROLE_EDITOR, string $email = 'boss@
 function repositoryDocument(string $key): array
 {
     return json_decode((string) repositoryContent()->raw($key), true);
+}
+
+/** What a browser does with a message: reads the header, agrees on the secret with its own key, and decrypts. */
+function receivePush(string $body, string $browserPrivate, string $browserPoint, string $authSecret): ?string
+{
+    $salt = substr($body, 0, 16);
+    $keyLength = ord($body[20]);
+    $senderPoint = substr($body, 21, $keyLength);
+    $record = substr($body, 21 + $keyLength);
+
+    $shared = P256::agree($browserPrivate, $browserPoint, $senderPoint);
+    $keyMaterial = hash_hkdf('sha256', $shared, 32, "WebPush: info\0".$browserPoint.$senderPoint, $authSecret);
+    $key = hash_hkdf('sha256', $keyMaterial, 16, "Content-Encoding: aes128gcm\0", $salt);
+    $nonce = hash_hkdf('sha256', $keyMaterial, 12, "Content-Encoding: nonce\0", $salt);
+
+    $plain = openssl_decrypt(substr($record, 0, -16), 'aes-128-gcm', $key, OPENSSL_RAW_DATA, $nonce, substr($record, -16));
+
+    return $plain === false ? null : substr($plain, 0, -1);
 }

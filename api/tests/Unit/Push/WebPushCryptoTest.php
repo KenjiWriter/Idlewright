@@ -14,24 +14,6 @@ const RFC8291_BODY = 'DGv6ra1nlYgDCS1FRnbzlwAAEABBBP4z9KsN6nGRTbVYI_c7VJSPQTBtkg
     .'mlMoZIIgDll6e3vCYLocInmYWAmS6TlzAC8wEqKK6PBru3jl7A_yl95bQpu6cVPT'
     .'pK4Mqgkf1CXztLVBSt2Ks3oZwbuwXPXLWyouBWLVWGNWQexSgSxsj_Qulcy4a-fN';
 
-/** What a browser does with a message: reads the header, agrees on the secret with its own key, and decrypts. */
-function receivePush(string $body, string $browserPrivate, string $browserPoint, string $authSecret): ?string
-{
-    $salt = substr($body, 0, 16);
-    $keyLength = ord($body[20]);
-    $senderPoint = substr($body, 21, $keyLength);
-    $record = substr($body, 21 + $keyLength);
-
-    $shared = P256::agree($browserPrivate, $browserPoint, $senderPoint);
-    $keyMaterial = hash_hkdf('sha256', $shared, 32, "WebPush: info\0".$browserPoint.$senderPoint, $authSecret);
-    $key = hash_hkdf('sha256', $keyMaterial, 16, "Content-Encoding: aes128gcm\0", $salt);
-    $nonce = hash_hkdf('sha256', $keyMaterial, 12, "Content-Encoding: nonce\0", $salt);
-
-    $plain = openssl_decrypt(substr($record, 0, -16), 'aes-128-gcm', $key, OPENSSL_RAW_DATA, $nonce, substr($record, -16));
-
-    return $plain === false ? null : substr($plain, 0, -1);
-}
-
 /** A signature of a token (the 32 bytes of r and the 32 of s) as the DER that OpenSSL verifies. */
 function signatureAsDer(string $raw): string
 {

@@ -157,6 +157,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Web push
+    |--------------------------------------------------------------------------
+    |
+    | The server sends to the address a browser gives it when it subscribes, so it only takes addresses on the hosts of the push services of the browsers (a host and every
+    | name under it). PUSH_HOSTS replaces the list (comma separated) for a service that is not here.
+    */
+    'push' => [
+        'hosts' => array_filter(array_map('trim', explode(',', (string) env('PUSH_HOSTS', 'fcm.googleapis.com,android.googleapis.com,push.services.mozilla.com,push.apple.com,notify.windows.com')))),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Płatności za prawdziwe pieniądze
     |--------------------------------------------------------------------------
     |

@@ -722,6 +722,31 @@ final class Rules
     }
 
     /**
+     * Web push as the rules give it: the switch and how long the push service keeps a message of each kind (in milliseconds). Null when the rules do not mention it, which is
+     * the same as off.
+     *
+     * @return array{enabled: bool, ttl_ms: array<string, int>}|null
+     */
+    public function push(): ?array
+    {
+        $push = $this->data['push'] ?? null;
+
+        return $push === null ? null : ['enabled' => (bool) $push['enabled'], 'ttl_ms' => array_map('intval', $push['ttl_ms'])];
+    }
+
+    /** Whether the game sends push messages: it is in the rules and switched on. */
+    public function pushOn(): bool
+    {
+        return ($this->push()['enabled'] ?? false) === true;
+    }
+
+    /** How many seconds the push service keeps a message of this kind (the `TTL` of the request). */
+    public function pushTtlSeconds(string $kind): int
+    {
+        return intdiv($this->push()['ttl_ms'][$kind] ?? 3_600_000, 1000);
+    }
+
+    /**
      * The limit of active cars as the rules give it: the switch, how many cars a driver can have on the road, how many more with the VIP account, how long a car taken
      * out of storage takes to be ready and what a swap costs (a part of a tank). Null when the rules do not mention it, which is the same as off.
      *

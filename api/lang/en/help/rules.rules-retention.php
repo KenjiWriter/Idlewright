@@ -99,5 +99,33 @@ return [
             'range' => '0 – 100000% (a multiple).',
             'tip' => 'Check with the command economy:transmute: it fails when the cash of a step is below about half of what merging costs.',
         ],
+        '/push/ttl_ms/car_stopped' => [
+            'label' => 'How long a push service keeps a message: car stopped',
+            'help' => 'How long the push service of the browser keeps a message of this kind (car stopped) for a device that is off or has no signal. After that the message is dropped, so a driver is not told of what is no longer true.',
+            'example' => '14400 s: four hours; later the message is dropped.',
+            'range' => '60 – 86400 s.',
+            'tip' => 'Short for what ages quickly (a job is done), longer for what waits (a car that stopped).',
+        ],
+        '/push/ttl_ms/car_arrived' => [
+            'label' => 'How long a push service keeps a message: car arrived',
+            'help' => 'How long the push service of the browser keeps a message of this kind (car arrived) for a device that is off or has no signal. After that the message is dropped, so a driver is not told of what is no longer true.',
+            'example' => '7200 s: two hours; later the message is dropped.',
+            'range' => '60 – 86400 s.',
+            'tip' => 'Short for what ages quickly (a job is done), longer for what waits (a car that stopped).',
+        ],
+        '/push/ttl_ms/job_done' => [
+            'label' => 'How long a push service keeps a message: job done',
+            'help' => 'How long the push service of the browser keeps a message of this kind (job done) for a device that is off or has no signal. After that the message is dropped, so a driver is not told of what is no longer true.',
+            'example' => '3600 s: an hour; later the message is dropped.',
+            'range' => '60 – 86400 s.',
+            'tip' => 'Short for what ages quickly (a job is done), longer for what waits (a car that stopped).',
+        ],
+        '/push/ttl_ms/test' => [
+            'label' => 'How long a push service keeps a message: test message',
+            'help' => 'How long the push service of the browser keeps a message of this kind (test message) for a device that is off or has no signal. After that the message is dropped, so a driver is not told of what is no longer true.',
+            'example' => '600 s: ten minutes; later the message is dropped.',
+            'range' => '60 – 86400 s.',
+            'tip' => 'Short for what ages quickly (a job is done), longer for what waits (a car that stopped).',
+        ],
     ],
 ];

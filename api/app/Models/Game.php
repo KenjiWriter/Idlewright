@@ -19,10 +19,19 @@ class Game extends Model
 
     protected $guarded = [];
 
+    /** The private key of web push signs what the game sends: it is read by the server and by nobody else. */
+    protected $hidden = ['push_private_key'];
+
     /** @return array<string, string> */
     protected function casts(): array
     {
-        return ['is_default' => 'boolean', 'payments' => 'array'];
+        return ['is_default' => 'boolean', 'payments' => 'array', 'push_private_key' => 'encrypted'];
+    }
+
+    /** Whether the game has the key pair that web push needs (made with `push:keys`). */
+    public function hasPushKeys(): bool
+    {
+        return $this->push_public_key !== null && $this->push_private_key !== null;
     }
 
     public function isLive(): bool

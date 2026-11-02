@@ -824,6 +824,10 @@
     "coin_tier_growth_ppm": 1300000,
     "cash_ppm": [800000, 2800000, 14000000]
   },
+  "push": {
+    "enabled": true,
+    "ttl_ms": { "car_stopped": 14400000, "car_arrived": 7200000, "job_done": 3600000, "test": 600000 }
+  },
   "slots": {
     "enabled": true,
     "base": 2,

@@ -99,5 +99,33 @@ return [
             'range' => '0 – 100000% (um múltiplo).',
             'tip' => 'Confira com o comando economy:transmute: ele falha quando o dinheiro de uma etapa fica abaixo de cerca da metade do custo de combinar.',
         ],
+        '/push/ttl_ms/car_stopped' => [
+            'label' => 'Por quanto tempo o serviço de push guarda uma mensagem: carro parou',
+            'help' => 'Por quanto tempo o serviço de notificações do navegador guarda uma mensagem deste tipo (carro parou) para um aparelho desligado ou sem sinal. Depois disso a mensagem é descartada, e o jogador não é avisado do que já não é verdade.',
+            'example' => '14400 s: quatro horas; depois a mensagem é descartada.',
+            'range' => '60 – 86400 s.',
+            'tip' => 'Curto para o que envelhece rápido (um trabalho pronto), mais longo para o que espera (um carro que parou).',
+        ],
+        '/push/ttl_ms/car_arrived' => [
+            'label' => 'Por quanto tempo o serviço de push guarda uma mensagem: carro chegou',
+            'help' => 'Por quanto tempo o serviço de notificações do navegador guarda uma mensagem deste tipo (carro chegou) para um aparelho desligado ou sem sinal. Depois disso a mensagem é descartada, e o jogador não é avisado do que já não é verdade.',
+            'example' => '7200 s: duas horas; depois a mensagem é descartada.',
+            'range' => '60 – 86400 s.',
+            'tip' => 'Curto para o que envelhece rápido (um trabalho pronto), mais longo para o que espera (um carro que parou).',
+        ],
+        '/push/ttl_ms/job_done' => [
+            'label' => 'Por quanto tempo o serviço de push guarda uma mensagem: trabalho pronto',
+            'help' => 'Por quanto tempo o serviço de notificações do navegador guarda uma mensagem deste tipo (trabalho pronto) para um aparelho desligado ou sem sinal. Depois disso a mensagem é descartada, e o jogador não é avisado do que já não é verdade.',
+            'example' => '3600 s: uma hora; depois a mensagem é descartada.',
+            'range' => '60 – 86400 s.',
+            'tip' => 'Curto para o que envelhece rápido (um trabalho pronto), mais longo para o que espera (um carro que parou).',
+        ],
+        '/push/ttl_ms/test' => [
+            'label' => 'Por quanto tempo o serviço de push guarda uma mensagem: mensagem de teste',
+            'help' => 'Por quanto tempo o serviço de notificações do navegador guarda uma mensagem deste tipo (mensagem de teste) para um aparelho desligado ou sem sinal. Depois disso a mensagem é descartada, e o jogador não é avisado do que já não é verdade.',
+            'example' => '600 s: dez minutos; depois a mensagem é descartada.',
+            'range' => '60 – 86400 s.',
+            'tip' => 'Curto para o que envelhece rápido (um trabalho pronto), mais longo para o que espera (um carro que parou).',
+        ],
     ],
 ];

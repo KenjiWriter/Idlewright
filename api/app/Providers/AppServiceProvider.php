@@ -106,6 +106,12 @@ class AppServiceProvider extends ServiceProvider
         // A copy of the data is a query over everything the account did, and deleting is not to be tried over and over.
         RateLimiter::for('account-data', fn (Request $request) => Limit::perHour(10)->by('user:'.$request->user()?->getAuthIdentifier()));
 
+        // A browser renews its subscription now and then, and the app asks the server to keep up with it at every start: that is cheap, so it is limited loosely. A test message
+        // reaches the push service, so a driver gets three an hour.
+        RateLimiter::for('push-subscription', fn (Request $request) => Limit::perHour(60)->by('user:'.$request->user()?->getAuthIdentifier()));
+
+        RateLimiter::for('push-test', fn (Request $request) => Limit::perHour(3)->by('user:'.$request->user()?->getAuthIdentifier()));
+
         RateLimiter::for('account-erase', fn (Request $request) => Limit::perHour(5)->by('user:'.$request->user()?->getAuthIdentifier()));
 
         RateLimiter::for('account-login-link', fn (Request $request) => [

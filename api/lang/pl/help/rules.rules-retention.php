@@ -99,5 +99,33 @@ return [
             'range' => '0 – 100000% (krotność).',
             'tip' => 'Sprawdź poleceniem economy:transmute: kończy się błędem, gdy gotówka kroku jest poniżej mniej więcej połowy kosztu scalania.',
         ],
+        '/push/ttl_ms/car_stopped' => [
+            'label' => 'Jak długo usługa push trzyma wiadomość: auto stanęło',
+            'help' => 'Jak długo usługa powiadomień przeglądarki trzyma wiadomość tego rodzaju (auto stanęło) dla urządzenia, które jest wyłączone albo nie ma zasięgu. Po tym czasie wiadomość przepada, więc gracz nie dowiaduje się o czymś, co już nie jest prawdą.',
+            'example' => '14400 s: cztery godziny; później wiadomość przepada.',
+            'range' => '60 – 86400 s.',
+            'tip' => 'Krótko dla tego, co szybko się starzeje (zlecenie gotowe), dłużej dla tego, co czeka (auto, które stanęło).',
+        ],
+        '/push/ttl_ms/car_arrived' => [
+            'label' => 'Jak długo usługa push trzyma wiadomość: auto dojechało',
+            'help' => 'Jak długo usługa powiadomień przeglądarki trzyma wiadomość tego rodzaju (auto dojechało) dla urządzenia, które jest wyłączone albo nie ma zasięgu. Po tym czasie wiadomość przepada, więc gracz nie dowiaduje się o czymś, co już nie jest prawdą.',
+            'example' => '7200 s: dwie godziny; później wiadomość przepada.',
+            'range' => '60 – 86400 s.',
+            'tip' => 'Krótko dla tego, co szybko się starzeje (zlecenie gotowe), dłużej dla tego, co czeka (auto, które stanęło).',
+        ],
+        '/push/ttl_ms/job_done' => [
+            'label' => 'Jak długo usługa push trzyma wiadomość: zlecenie gotowe',
+            'help' => 'Jak długo usługa powiadomień przeglądarki trzyma wiadomość tego rodzaju (zlecenie gotowe) dla urządzenia, które jest wyłączone albo nie ma zasięgu. Po tym czasie wiadomość przepada, więc gracz nie dowiaduje się o czymś, co już nie jest prawdą.',
+            'example' => '3600 s: godzina; później wiadomość przepada.',
+            'range' => '60 – 86400 s.',
+            'tip' => 'Krótko dla tego, co szybko się starzeje (zlecenie gotowe), dłużej dla tego, co czeka (auto, które stanęło).',
+        ],
+        '/push/ttl_ms/test' => [
+            'label' => 'Jak długo usługa push trzyma wiadomość: wiadomość próbna',
+            'help' => 'Jak długo usługa powiadomień przeglądarki trzyma wiadomość tego rodzaju (wiadomość próbna) dla urządzenia, które jest wyłączone albo nie ma zasięgu. Po tym czasie wiadomość przepada, więc gracz nie dowiaduje się o czymś, co już nie jest prawdą.',
+            'example' => '600 s: dziesięć minut; później wiadomość przepada.',
+            'range' => '60 – 86400 s.',
+            'tip' => 'Krótko dla tego, co szybko się starzeje (zlecenie gotowe), dłużej dla tego, co czeka (auto, które stanęło).',
+        ],
     ],
 ];
