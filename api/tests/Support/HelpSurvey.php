@@ -6,6 +6,7 @@ namespace Tests\Support;
 
 use App\Filament\Pages\BrandingPage;
 use App\Filament\Pages\ModelPage;
+use App\Filament\Pages\PremiumPage;
 use App\Filament\Pages\RulesJsonPage;
 use App\Filament\Pages\StudioPage;
 use App\Filament\Pages\TutorialPage;
@@ -41,6 +42,7 @@ final class HelpSurvey
             'tutorial' => TutorialPage::class,
             'model' => ModelPage::class,
             'branding' => BrandingPage::class,
+            'premium' => PremiumPage::class,
             'vocabulary' => VocabularyPage::class,
             'rules_text' => RulesJsonPage::class,
             'studio' => StudioPage::class,
