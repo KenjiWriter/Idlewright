@@ -169,7 +169,38 @@ return [
     */
 
     'premium' => [
+        // `stripe` (the card provider, stage S2) or `fake` (a provider that takes no money, for development and tests; never in production). Empty: nothing is sold.
         'provider' => env('PREMIUM_PROVIDER'),
+
+        'payments' => [
+            // Test money in production (a demonstration installation), and live money outside it, are refused unless this says so: the mode comes from the key (sk_test_ / sk_live_).
+            'allow_test' => (bool) env('PAYMENTS_ALLOW_TEST', false),
+
+            // A page of a provider that nobody paid in this long is over, in minutes. Stripe allows 30 minutes to 24 hours after the page is made, so this is a little over the least.
+            'attempt_minutes' => 35,
+
+            // A driver who came back from the provider's page and was not told yet that they paid makes the game ask the provider after this many seconds.
+            'reconcile_after_seconds' => 15,
+
+            // Purchases are kept this many calendar years after the year they were made in (the books and the time claims can be made); then `purchases:prune` removes them.
+            'retention_years' => 6,
+
+            // What a game that says nothing about it has. `withdrawal`: `until_used` (a driver may withdraw within 14 days while the coins are not spent) or `waived` (the driver
+            // agrees to get the coins at once and loses the right of withdrawal). That is the lawyer's choice, and the safer one for the shop is the first.
+            'defaults' => [
+                'withdrawal' => 'until_used',
+                'limits' => ['per_day_minor' => 50_000, 'per_month_minor' => 150_000, 'max_open_attempts' => 3],
+            ],
+
+            'stripe' => [
+                // The key of the account (a restricted key is enough). Never in the repository: the environment of the server only.
+                'secret' => env('STRIPE_SECRET'),
+                // The secret of the webhook endpoint (whsec_...); several, comma separated, while a secret is being changed.
+                'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
+                // How old a signed event may be, in seconds. Never 0.
+                'webhook_tolerance' => 300,
+            ],
+        ],
     ],
 
     /*

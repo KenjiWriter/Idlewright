@@ -28,6 +28,7 @@ class Wallet extends Model
             'auto_refill_enabled' => 'boolean',
             'vip_until' => 'datetime',
             'infinity_until' => 'datetime',
+            'purchases_blocked_at' => 'datetime',
         ];
     }
 

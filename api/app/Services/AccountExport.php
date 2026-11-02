@@ -13,6 +13,7 @@ use App\Models\CrateOpening;
 use App\Models\LedgerEntry;
 use App\Models\MergeAttempt;
 use App\Models\Part;
+use App\Models\PaymentAttempt;
 use App\Models\Purchase;
 use App\Models\RaceRun;
 use App\Models\Settlement;
@@ -147,7 +148,9 @@ final class AccountExport
             'visits' => UserVisit::query()->where('user_id', $user->id)->orderBy('id')->get()
                 ->map(fn (UserVisit $visit): array => ['at' => $this->day($visit->at), 'gap_minutes' => $visit->gap_minutes])->all(),
             'purchases' => Purchase::query()->where('user_id', $user->id)->orderBy('id')->get()
-                ->map(fn (Purchase $purchase): array => $purchase->makeHidden(['id', 'user_id'])->toArray())->all(),
+                ->map(fn (Purchase $purchase): array => $purchase->makeHidden(['id', 'user_id', 'game_id', 'attempt_id'])->toArray())->all(),
+            'payment_attempts' => PaymentAttempt::query()->where('user_id', $user->id)->orderBy('id')->get()
+                ->map(fn (PaymentAttempt $attempt): array => $attempt->makeHidden(['id', 'user_id', 'game_id', 'checkout_url'])->toArray())->all(),
             'ledger' => LedgerEntry::query()->where('user_id', $user->id)->orderBy('id')->get()
                 ->map(fn (LedgerEntry $entry): array => $entry->makeHidden(['user_id', 'settlement_id', 'idem_key'])->toArray())->all(),
         ];

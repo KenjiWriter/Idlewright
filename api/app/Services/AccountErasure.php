@@ -14,6 +14,7 @@ use App\Models\CrateOpening;
 use App\Models\LedgerEntry;
 use App\Models\MergeAttempt;
 use App\Models\Part;
+use App\Models\PaymentAttempt;
 use App\Models\Purchase;
 use App\Models\RaceRun;
 use App\Models\Settlement;
@@ -82,6 +83,7 @@ final class AccountErasure
             'settlement events' => SettlementEvent::query()->whereIn('settlement_id', $settlements)->count(),
             'ledger entries' => LedgerEntry::query()->where('user_id', $user->id)->count(),
             'visits' => UserVisit::query()->where('user_id', $user->id)->count(),
+            'payment attempts' => PaymentAttempt::query()->where('user_id', $user->id)->where('state', '!=', PaymentAttempt::STATE_PAID)->count(),
             'queued e-mails' => count($this->mailsTo($user, 'jobs')),
             'failed e-mails' => count($this->mailsTo($user, 'failed_jobs')),
         ];
@@ -125,6 +127,9 @@ final class AccountErasure
             MergeAttempt::query()->where('user_id', $user->id)->delete();
             // What was paid for stays in the books of the shop; only the account is cut off from it.
             Purchase::query()->where('user_id', $user->id)->update(['user_id' => null]);
+            // A page of payment that nothing was paid on says nothing about money and goes; a paid one is the other half of its purchase, and stays with it.
+            PaymentAttempt::query()->where('user_id', $user->id)->where('state', '!=', PaymentAttempt::STATE_PAID)->delete();
+            PaymentAttempt::query()->where('user_id', $user->id)->update(['user_id' => null]);
             Wallet::query()->where('user_id', $user->id)->delete();
             AccountToken::query()->where('user_id', $user->id)->delete();
             ConsentRecord::query()->where('user_id', $user->id)->delete();

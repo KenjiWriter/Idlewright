@@ -22,7 +22,7 @@ class Game extends Model
     /** @return array<string, string> */
     protected function casts(): array
     {
-        return ['is_default' => 'boolean'];
+        return ['is_default' => 'boolean', 'payments' => 'array'];
     }
 
     public function isLive(): bool

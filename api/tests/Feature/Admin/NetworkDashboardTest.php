@@ -62,6 +62,7 @@ function networkPurchase(User $account, int $minor, string $currency, string $be
 {
     Purchase::query()->create([
         'user_id' => $account->id,
+        'game_id' => $account->game_id,
         'product' => 'coins-100',
         'coins' => 100,
         'amount_minor' => $minor,
@@ -144,6 +145,22 @@ describe('what a game has in it, for the home of the panel', function () {
         expect(networkStatsOf($first)['revenue_total'])->toBe(['PLN' => 3500, 'USD' => 500])
             ->and(networkStatsOf($first)['revenue_month'])->toBe(['PLN' => 1500, 'USD' => 500])
             ->and(networkStatsOf($second)['revenue_total'])->toBe(['EUR' => 700]);
+    });
+
+    it('counts a purchase whose account was erased in its own game, less what was given back, and never one paid with test money', function () {
+        $second = networkGame();
+
+        networkPurchase(networkAccount($second), 1000, 'PLN', '2 days');
+        // The account of this one was erased: the purchase has no account, and still belongs to its game.
+        Purchase::query()->withoutGlobalScopes()->update(['user_id' => null]);
+        networkPurchase(networkAccount($second), 800, 'PLN', '1 day', Purchase::STATUS_PARTIALLY_REFUNDED);
+        Purchase::query()->withoutGlobalScopes()->latest('id')->firstOrFail()->forceFill(['refunded_amount_minor' => 300])->save();
+        networkPurchase(networkAccount($second), 600, 'PLN', '1 day');
+        Purchase::query()->withoutGlobalScopes()->latest('id')->firstOrFail()->forceFill(['livemode' => false])->save();
+        networkPurchase(networkAccount($second), 400, 'PLN', '1 day', Purchase::STATUS_DISPUTED);
+
+        expect(networkStatsOf($second)['revenue_total'])->toBe(['PLN' => 1500])
+            ->and(networkStatsOf(Game::query()->where('is_default', true)->firstOrFail())['revenue_total'])->toBe([]);
     });
 
     it('is zeros for a game with nothing in it, and for no games at all', function () {

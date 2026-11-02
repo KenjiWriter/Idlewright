@@ -73,9 +73,10 @@ final class NetworkStats
         }
 
         // What was bought and paid for, in the currency it was paid in: a game may be sold in any, so the sums are never added across currencies.
-        $revenue = Purchase::query()->withoutGlobalScopes()->join('users', 'users.id', '=', 'purchases.user_id')->whereIn('users.game_id', $ids)->where('purchases.status', Purchase::STATUS_PAID)
-            ->selectRaw('users.game_id as game_id, purchases.currency as currency, sum(purchases.amount_minor) as total, sum(case when purchases.created_at >= ? then purchases.amount_minor else 0 end) as month', [$month])
-            ->groupBy('users.game_id', 'purchases.currency')->get();
+        // What the shop kept, less what it gave back: a purchase knows its game, so one whose account was erased still counts, and one paid with test money never does.
+        $revenue = Purchase::query()->withoutGlobalScopes()->whereIn('game_id', $ids)->where('livemode', true)->whereIn('status', Purchase::KEPT_STATUSES)
+            ->selectRaw('game_id, currency, sum(amount_minor - refunded_amount_minor) as total, sum(case when created_at >= ? then amount_minor - refunded_amount_minor else 0 end) as month', [$month])
+            ->groupBy('game_id', 'currency')->get();
 
         foreach ($revenue as $row) {
             $stats[(int) $row->game_id]['revenue_total'][(string) $row->currency] = (int) $row->total;
