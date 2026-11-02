@@ -19,6 +19,8 @@ final readonly class ResolvedChange
 
     public const CREATE = 'create';
 
+    public const ADD = 'add';
+
     /**
      * @param  string  $document  `rules:starter`, `part:engine-r4-1-6-t2`
      * @param  list<string|int>  $path  the keys from the top of the document

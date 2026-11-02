@@ -68,6 +68,7 @@ final class ChangeResolver
                 'scale' => $this->scale($number, $id, $operation),
                 'text' => $this->text($number, $id, $operation),
                 'create' => $this->create($number, $id, $operation),
+                'add' => $this->add($number, $id, $operation),
             };
 
             if (count($this->changes) > self::MAX_CHANGES) {

@@ -155,4 +155,87 @@ trait ResolvesTextsAndCreations
             type: ResolvedChange::CREATE,
         );
     }
+
+    /** @param  array<string, mixed>  $operation */
+    private function add(int $number, ?string $id, array $operation): void
+    {
+        $key = $this->targetKey($operation['target']);
+        $path = $this->pointerOf($operation['path'], $number, $id);
+
+        if ($path === null || ! $this->usable($key, $number, $id)) {
+            return;
+        }
+
+        $where = $key.' '.DocumentPointer::join($path);
+        $sections = $this->sectionsOf($key);
+
+        if ($sections !== null && ! in_array((string) $path[0], $sections, true)) {
+            $this->issues[] = BridgeIssue::error('out_of_scope', 'This collection is in a part of the rules that the instruction did not contain.', $number, $id, $where);
+
+            return;
+        }
+
+        $definition = $this->definition($key);
+        $document = $this->documents[$key] ?? $definition->workingDocument();
+        $collection = DocumentPointer::get($document, $path);
+        $entries = SchemaCollections::isEmptyObject($collection) ? [] : $collection;
+
+        if (! SchemaCollections::isCollection(explode(':', $key, 2)[1], $path) || ! is_array($entries)) {
+            $this->issues[] = BridgeIssue::error('not_a_collection', DocumentPointer::join($path).' is not a collection of named entries that an entry can be added to. Use a place the COLLECTIONS line lists.', $number, $id, $where);
+
+            return;
+        }
+
+        $name = (string) $operation['key'];
+
+        if (array_key_exists($name, $entries)) {
+            $this->issues[] = BridgeIssue::error('key_taken', "There is an entry called {$name} in this collection already.", $number, $id, $where);
+
+            return;
+        }
+
+        if ($this->mentionsRealMoney($operation['value'])) {
+            $this->issues[] = BridgeIssue::error('real_money_field', 'An entry has no price in real money here. Change those in the panel.', $number, $id, $where);
+
+            return;
+        }
+
+        $entries[$name] = $operation['value'];
+        $this->documents[$key] = DocumentPointer::set($document, $path, $entries);
+        $this->touched[$key] ??= ['draft' => $definition->hasDraft(), 'saved_at' => $definition->draft_saved_at?->toIso8601String()];
+
+        $translated = collect(TextIndex::of($operation['value']))->contains(fn (array $texts): bool => array_diff(array_keys($texts), ['en', 'pl']) !== []);
+        $texts = TextIndex::of($operation['value']);
+        $shown = (string) ($texts['/name']['en'] ?? $texts['/name']['pl'] ?? $name);
+
+        $this->changes[] = new ResolvedChange(
+            op: $number,
+            opId: $id,
+            document: $key,
+            path: [...$path, $name],
+            label: ucfirst(str_replace('_', ' ', implode(' › ', array_map('strval', [...$path, $name])))),
+            unit: null,
+            published: null,
+            before: null,
+            after: $shown,
+            notes: ['new', ...($translated ? ['unreviewed'] : [])],
+            type: ResolvedChange::ADD,
+        );
+    }
+
+    /** Whether a value has, anywhere in it, a field that is a price in real money. */
+    private function mentionsRealMoney(mixed $value): bool
+    {
+        if (! is_array($value)) {
+            return false;
+        }
+
+        foreach ($value as $field => $inner) {
+            if ((is_string($field) && str_ends_with($field, '_minor')) || $this->mentionsRealMoney($inner)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

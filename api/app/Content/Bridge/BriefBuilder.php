@@ -73,7 +73,9 @@ final class BriefBuilder
 
         [$rules, $held, $picked] = $selection->rules ? $this->rules($selection) : [[], [], []];
         $scope = $selection->scope($held);
-        $texts = $selection->texts ? $this->texts($selection, $held) : [];
+        // The design of a game is a talk about the words of it, so the texts are in the data whatever was asked.
+        $texts = $selection->texts || $selection->design ? $this->texts($selection, $held) : [];
+        $collections = $selection->rules ? $this->collections($held) : [];
 
         $lines = [
             'GAME '.$this->json(['slug' => (string) $game?->slug, 'name' => (string) $game?->name, 'descriptions_in' => $selection->locale]),
@@ -81,12 +83,13 @@ final class BriefBuilder
             'SCOPE '.$this->json($scope),
             ...$tables,
             ...$rules,
+            ...$collections,
             ...$texts,
         ];
 
         $envelope = ['format' => 'ride-changes/1', 'game' => (string) $game?->slug, 'base' => $base, 'summary' => 'One sentence saying what the block does', 'ops' => $this->examples($scope, $base, (string) $game?->slug, $picked)];
 
-        $text = BriefTexts::role()."\n\n"
+        $text = ($selection->design ? BriefTexts::designRole() : BriefTexts::role())."\n\n"
             .BriefTexts::format($this->schema(), json_encode($envelope, self::JSON | JSON_PRETTY_PRINT))."\n\n"
             .BriefTexts::dataIntro($nonce)."\n".implode("\n", $lines)."\n"
             .BriefTexts::dataEnd($nonce)."\n";
@@ -239,6 +242,28 @@ final class BriefBuilder
         }
 
         return $lines;
+    }
+
+    /**
+     * The collections of the sections of the rules that the instruction holds: the places a new entry can be added to.
+     *
+     * @param  list<string>  $held
+     * @return list<string>
+     */
+    private function collections(array $held): array
+    {
+        $rules = $this->rulesDocument();
+
+        if ($rules === null) {
+            return [];
+        }
+
+        $places = array_values(array_filter(
+            SchemaCollections::of(BriefSelection::RULES, $rules),
+            static fn (string $pointer): bool => in_array(explode('/', $pointer)[1], $held, true),
+        ));
+
+        return $places === [] ? [] : ['COLLECTIONS '.$this->json($places)];
     }
 
     /** @return array<string, mixed>|null */
