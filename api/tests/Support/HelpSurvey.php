@@ -10,6 +10,7 @@ use App\Filament\Pages\ModelPage;
 use App\Filament\Pages\PremiumPage;
 use App\Filament\Pages\RulesJsonPage;
 use App\Filament\Pages\StudioPage;
+use App\Filament\Pages\ThreadPage;
 use App\Filament\Pages\TutorialPage;
 use App\Filament\Pages\VocabularyPage;
 use App\Filament\Pages\WorldPage;
@@ -40,6 +41,7 @@ final class HelpSurvey
             'game' => EditGame::class,
             'wizard' => CreateGame::class,
             'world' => WorldPage::class,
+            'thread' => ThreadPage::class,
             'tutorial' => TutorialPage::class,
             'model' => ModelPage::class,
             'branding' => BrandingPage::class,
