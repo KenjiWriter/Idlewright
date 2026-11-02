@@ -84,6 +84,18 @@ function rulesSchemaErrors(array $rules): array
         }
     }
 
+    foreach ((array) ($data->tuning->definitions ?? []) as $bonus) {
+        if (isset($bonus->slots) && is_object($bonus->slots)) {
+            $bonus->slots = array_values((array) $bonus->slots);
+        }
+
+        foreach (['kinds', 'surfaces', 'weathers'] as $key) {
+            if (isset($bonus->context->{$key}) && is_object($bonus->context->{$key})) {
+                $bonus->context->{$key} = array_values((array) $bonus->context->{$key});
+            }
+        }
+    }
+
     foreach ((array) ($data->affixes->unique ?? []) as $unique) {
         if (isset($unique->mods) && is_object($unique->mods)) {
             $unique->mods = array_values((array) $unique->mods);

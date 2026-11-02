@@ -339,6 +339,7 @@ final class PackValidator
         $this->checkPremium($rules, $result);
         $this->checkWithdrawn($source, $parts, $vehicles, $result);
         $this->checkAffixes($rules, $result);
+        $this->checkTuning($rules, $result);
     }
 
     /**
@@ -357,6 +358,35 @@ final class PackValidator
         foreach ($rules['affixes']['definitions'] ?? [] as $key => $affix) {
             if (($affix['max_ppm'] ?? 0) < ($affix['min_ppm'] ?? 0)) {
                 $result->addError('rules/starter.json', "/affixes/definitions/{$key}/max_ppm", 'The most an affix gives is less than the least.');
+            }
+        }
+    }
+
+    /**
+     * What the schema cannot say about the tuning: the amounts of a bonus keep their order (the least, the mean, the most), a bonus never gives more at its best than the
+     * rules allow for one with its kind of context (none, or a kind of track, a surface, a weather).
+     *
+     * @param  array<string, mixed>  $rules
+     */
+    private function checkTuning(array $rules, PackValidationResult $result): void
+    {
+        $tuning = $rules['tuning'] ?? null;
+
+        if (! is_array($tuning)) {
+            return;
+        }
+
+        foreach ($tuning['definitions'] ?? [] as $key => $bonus) {
+            $where = "/tuning/definitions/{$key}";
+
+            if (($bonus['mean_ppm'] ?? 0) < ($bonus['min_ppm'] ?? 0) || ($bonus['mean_ppm'] ?? 0) > ($bonus['max_ppm'] ?? 0)) {
+                $result->addError('rules/starter.json', "{$where}/mean_ppm", 'The mean of a bonus lies between the least it gives and the most it gives.');
+            }
+
+            $limit = (int) ($tuning[empty($bonus['context']) ? 'max_ppm_plain' : 'max_ppm_context'] ?? 1_000_000);
+
+            if (($bonus['max_ppm'] ?? 0) > $limit) {
+                $result->addError('rules/starter.json', "{$where}/max_ppm", 'The most a bonus gives is more than the rules allow for a bonus '.(empty($bonus['context']) ? 'with no context' : 'with a context').' ('.$limit.' ppm).');
             }
         }
     }

@@ -75,6 +75,7 @@ final class PartForm
                 Grid::make(3)->schema([
                     TextInput::make('requires_min_cylinders')->helpKey('part.requires_min_cylinders')->numeric(),
                     Toggle::make('requires_booster')->helpKey('part.requires_booster'),
+                    TextInput::make('tuning_slots')->helpKey('part.tuning_slots')->numeric()->integer()->minValue(0)->maxValue(3),
                     Select::make('fits_powertrain')->helpKey('part.fits_powertrain')->options(FieldHelp::options('part.fits_powertrain', ['ice', 'ev']))->placeholder('-'),
                 ]),
                 CheckboxList::make('fits_classes')->helpKey('part.fits_classes')->options(FieldHelp::options('part.fits_classes', ['hatchback', 'hot_hatch', 'sedan', 'coupe', 'muscle', 'pickup', 'van', 'gt', 'super', 'hyper']))->columns(5),

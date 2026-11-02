@@ -1000,6 +1000,17 @@ final class Rules
     }
 
     /**
+     * The tuning of the rules: the bonuses that the player puts on a part, what a try costs and takes, and how the amounts are drawn. A pack that has none (an older
+     * one) has no places for bonuses: the definitions are empty.
+     *
+     * @return array<string, mixed>
+     */
+    public function tuning(): array
+    {
+        return $this->data['tuning'] ?? ['slots' => 0, 'definitions' => []];
+    }
+
+    /**
      * What the affixes that are about a statistic add to it, in ppm, by statistic (`grip`, `handling`, `braking`, `clearance`, `power`), as much as the condition
      * of the part lets them give. An affix that the rules do not know (a pack that took it out) gives nothing.
      *

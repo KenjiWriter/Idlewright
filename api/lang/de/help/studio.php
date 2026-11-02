@@ -26,6 +26,7 @@ return [
                 'bots' => ['label' => 'Bots', 'help' => 'Die Zeiten der Rivalen im Vergleich zur Referenzstrecke und die Multiplikatoren der Belohnung nach Platz.'],
                 'shop' => ['label' => 'Shop', 'help' => 'Kisten und Seltenheit der Teile: Chancen, Stärke und Preise.'],
                 'affixes' => ['label' => 'Affixe', 'help' => 'Stärke, Chancen und Effekte der Affixe von Teilen, auch derer, die vom Untergrund abhängen.'],
+                'tuning' => ['label' => 'Teile-Boni (Abstimmung)', 'help' => 'Die Plätze für Boni, Preis und Dauer der Versuche, die Ziehung der Werte und die Definitionen der Boni.'],
                 'wear' => ['label' => 'Verschleiß und Service', 'help' => 'Die Lebensdauer der Teile in Kilometern, die Kosten von Reparatur und Service.'],
                 'premium' => ['label' => 'Premiumwährung', 'help' => 'Die Preise der RideCoin-Pakete, das Beschleunigen mit Münzen, der Preis des Anwalts, das automatische Tanken (Ladungspakete), das VIP-Konto und der Pass für unbegrenztes Tanken.'],
                 'workshop' => ['label' => 'Werkstatt', 'help' => 'Die Zeiten von Einbau, Aufwerten und Verschmelzen, die Preise von Plätzen und Mechanikern, die Länge der Warteschlange.'],

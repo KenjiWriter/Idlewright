@@ -116,6 +116,11 @@ return [
             'help' => 'Activez-le pour les pièces qui ne fonctionnent qu’avec une suralimentation (intercoolers). L’atelier ne la montera pas sur une voiture sans suralimentation (celle qu’on est en train de monter compte). Une suralimentation retirée plus tard ne bloque rien, mais la pièce cesse de fonctionner, sauf pour sa masse.',
             'example' => 'Intercooler d’origine T2, intercooler eau-air T6.',
         ],
+        'tuning_slots' => [
+            'label' => 'Emplacements de bonus',
+            'help' => 'Combien d’emplacements de bonus a cette pièce (0 à 3). Un champ vide prend le nombre des règles du jeu ; 0 désactive le réglage de cette pièce.',
+            'example' => '0 pour les pneus d’origine que vous ne voulez pas régler ; vide pour les autres.',
+        ],
         'fits_powertrain' => [
             'label' => 'Convient seulement à (motorisation)',
             'help' => 'Limite la pièce aux voitures d’une seule motorisation ; un champ vide veut dire aucune limite. Aujourd’hui, seul le simulateur de circuits lit cette limite (avec quelles voitures il essaie la pièce) ; la boutique et l’atelier ne la vérifient pas.',

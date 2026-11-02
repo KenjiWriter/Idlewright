@@ -273,6 +273,7 @@ return [
             'bots' => 'Das ändert sich: die Zeiten der Rivalen gegenüber der Referenz und der Belohnungsfaktor für den Platz, also was jede Runde einbringt.',
             'shop' => 'Das ändert sich: die Kisten und die Seltenheit der Teile: Chancen auf Teile, ihre Stärke und die Preise der Kisten.',
             'affixes' => 'Das ändert sich: Stärke, Chancen und Wirkungen der Affixe von Teilen, auch derer, die vom Untergrund abhängen.',
+            'tuning' => 'Das ändert sich: die Plätze für Boni auf Teilen, Preis und Dauer der Abstimm-Versuche und wie selten hohe Bonuswerte fallen.',
             'wear' => 'Das ändert sich: wie lange Teile halten, was Reparatur und Wartung kosten und wie Vernachlässigung ein Auto verdirbt.',
             'premium' => 'Das ändert sich: die Preise der Münzpakete, das Beschleunigen mit Münzen und der Preis des Anwalts.',
             'missions' => 'Das ändert sich: wann der Missionstag beginnt, welchen Teil des Wertes der verlangten Arbeit die Missionen in Geld und in XP zahlen (Sets und Hauptmissionen) und den Bonus in Münzen für ein ganzes Set. Das sind die einzigen kostenlosen Münzen im Spiel.',

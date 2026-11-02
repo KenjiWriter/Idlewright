@@ -116,6 +116,11 @@ return [
             'help' => 'Schalte es für Teile ein, die nur mit einer Aufladung funktionieren (Ladeluftkühler). Die Werkstatt baut es nicht in ein Auto ohne Aufladung ein (eine, die gerade eingebaut wird, zählt). Eine später ausgebaute Aufladung blockiert nichts, aber das Teil hört auf zu wirken, außer mit seiner Masse.',
             'example' => 'Ladeluftkühler Serie T2, Wasser-Luft-Ladeluftkühler T6.',
         ],
+        'tuning_slots' => [
+            'label' => 'Plätze für Boni',
+            'help' => 'Wie viele Plätze für Boni dieses Teil hat (0 bis 3). Ein leeres Feld nimmt die Zahl aus den Regeln des Spiels; 0 schaltet das Abstimmen dieses Teils aus.',
+            'example' => '0 für Serienreifen, die nicht abgestimmt werden sollen; leer für den Rest.',
+        ],
         'fits_powertrain' => [
             'label' => 'Passt nur zu (Antriebsart)',
             'help' => 'Beschränkt das Teil auf Autos einer Antriebsart; ein leeres Feld heißt keine Beschränkung. Heute liest nur der Streckensimulator sie (an welchen Autos er das Teil probiert); Shop und Werkstatt prüfen sie nicht.',

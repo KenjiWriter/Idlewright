@@ -116,6 +116,11 @@ return [
             'help' => 'Turn it on for parts that work only with a booster (intercoolers). The workshop will not fit it on a car with no booster (one that is just being fitted counts). A booster taken off later blocks nothing, but the part stops working, except for its mass.',
             'example' => 'Intercooler factory T2, intercooler water-air T6.',
         ],
+        'tuning_slots' => [
+            'label' => 'Places for bonuses',
+            'help' => 'How many places for bonuses this part has (0 to 3). An empty field takes the number from the rules of the game; 0 turns tuning off for this part.',
+            'example' => '0 for stock tires that you do not want tuned; empty for the rest.',
+        ],
         'fits_powertrain' => [
             'label' => 'Fits only (powertrain)',
             'help' => 'Limits the part to cars of one powertrain; an empty field means no limit. Today only the track simulator reads this (which cars it tries the part on); the shop and the workshop do not check it.',

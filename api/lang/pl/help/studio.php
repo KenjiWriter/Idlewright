@@ -26,6 +26,7 @@ return [
                 'bots' => ['label' => 'Boty', 'help' => 'Czasy rywali względem toru odniesienia i mnożniki nagrody za miejsce.'],
                 'shop' => ['label' => 'Sklep', 'help' => 'Skrzynki i rzadkość części: szanse, siła i ceny.'],
                 'affixes' => ['label' => 'Afiksy', 'help' => 'Siła, szanse i efekty afiksów części, także zależnych od nawierzchni.'],
+                'tuning' => ['label' => 'Bonusy części (dostrajanie)', 'help' => 'Miejsca na bonusy, ceny i czas prób, rozkład wartości i definicje bonusów.'],
                 'wear' => ['label' => 'Zużycie i serwis', 'help' => 'Życie części w kilometrach, koszt naprawy i serwisu.'],
                 'premium' => ['label' => 'Waluta premium', 'help' => 'Ceny paczek RideCoin, przyspieszanie za monety, cena prawnika, auto-tankowanie (paczki ładunków), konto VIP i przepustka bez limitu tankowania.'],
                 'workshop' => ['label' => 'Warsztat', 'help' => 'Czasy montażu, ulepszeń i łączenia, ceny stanowisk i mechaników, długość kolejki.'],

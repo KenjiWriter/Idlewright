@@ -273,6 +273,7 @@ return [
             'bots' => 'Ce que cela change : les temps des rivaux par rapport à la référence et le multiplicateur de gain selon la place, donc ce que rapporte chaque tour.',
             'shop' => 'Ce que cela change : les caisses et la rareté des pièces : les chances d’obtenir des pièces, leur force et le prix des caisses.',
             'affixes' => 'Ce que cela change : la force, les chances et les effets des affixes des pièces, y compris ceux qui dépendent de la surface.',
+            'tuning' => 'Ce que cela change  les emplacements de bonus des pièces, le prix et la durée des essais de réglage, et la rareté des valeurs élevées d’un bonus.',
             'wear' => 'Ce que cela change : la durée de vie des pièces, le coût de la réparation et de l’entretien et la façon dont la négligence abîme une voiture.',
             'premium' => 'Ce que cela change : le prix des lots de pièces, l’accélération contre des pièces et le prix de l’avocat.',
             'missions' => 'Ce que cela change : l’heure à laquelle commence le jour des missions, la part de la valeur du travail que demandent les missions qu’elles paient en argent et en XP (séries et missions principales), et le bonus en pièces pour une série complète. Ce sont les seules pièces gratuites du jeu.',

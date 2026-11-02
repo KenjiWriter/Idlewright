@@ -361,6 +361,391 @@
       }
     }
   },
+  "tuning": {
+    "slots": 3,
+    "unlock_level": 3,
+    "cost_random_ppm": 30000,
+    "cost_pick_ppm": 100000,
+    "cost_min_cents": 500,
+    "time_ppm_of_mount": 500000,
+    "floor_sigma_ppm": 1000000,
+    "pity_step_ppm": 0,
+    "pity_max_ppm": 0,
+    "car_cap_ppm": 250000,
+    "max_ppm_plain": 80000,
+    "max_ppm_context": 120000,
+    "definitions": {
+      "sprint-launch": {
+        "name": {
+          "pl": "Start na sprincie",
+          "en": "Sprint launch",
+          "fr": "Départ en sprint",
+          "de": "Sprintstart",
+          "pt-BR": "Largada em sprint"
+        },
+        "description": {
+          "pl": "Więcej przyspieszenia na krótkich torach sprinterskich.",
+          "en": "More acceleration on short sprint tracks.",
+          "fr": "Plus d’accélération sur les pistes de sprint courtes.",
+          "de": "Mehr Beschleunigung auf kurzen Sprintstrecken.",
+          "pt-BR": "Mais aceleração em pistas curtas de sprint."
+        },
+        "effect": "stat",
+        "stat": "accel",
+        "context": {
+          "kinds": [
+            "sprint"
+          ]
+        },
+        "slots": [
+          "engine",
+          "boost",
+          "gearbox"
+        ],
+        "weight": 3,
+        "from_level": 1,
+        "mean_ppm": 50000,
+        "sigma_ppm": 23000,
+        "min_ppm": 10000,
+        "max_ppm": 120000
+      },
+      "sprint-brake": {
+        "name": {
+          "pl": "Hamowanie na sprincie",
+          "en": "Sprint braking",
+          "fr": "Freinage en sprint",
+          "de": "Sprintbremsung",
+          "pt-BR": "Frenagem em sprint"
+        },
+        "description": {
+          "pl": "Mocniej hamujesz na torach sprinterskich.",
+          "en": "Stronger braking on sprint tracks.",
+          "fr": "Freinage plus fort sur les pistes de sprint.",
+          "de": "Stärkeres Bremsen auf Sprintstrecken.",
+          "pt-BR": "Frenagem mais forte em pistas de sprint."
+        },
+        "effect": "stat",
+        "stat": "braking",
+        "context": {
+          "kinds": [
+            "sprint"
+          ]
+        },
+        "slots": [
+          "brakes",
+          "tires"
+        ],
+        "weight": 3,
+        "from_level": 1,
+        "mean_ppm": 50000,
+        "sigma_ppm": 23000,
+        "min_ppm": 10000,
+        "max_ppm": 120000
+      },
+      "endurance-economy": {
+        "name": {
+          "pl": "Oszczędność na dystansie",
+          "en": "Endurance economy",
+          "fr": "Sobriété sur la distance",
+          "de": "Sparsamkeit auf der Distanz",
+          "pt-BR": "Economia na longa distância"
+        },
+        "description": {
+          "pl": "Mniej paliwa na torach długodystansowych.",
+          "en": "Less fuel on endurance tracks.",
+          "fr": "Moins de carburant sur les pistes d’endurance.",
+          "de": "Weniger Kraftstoff auf Langstrecken.",
+          "pt-BR": "Menos combustível em pistas de longa distância."
+        },
+        "effect": "fuel",
+        "context": {
+          "kinds": [
+            "endurance"
+          ]
+        },
+        "slots": [
+          "exhaust",
+          "engine",
+          "gearbox",
+          "ecu"
+        ],
+        "weight": 3,
+        "from_level": 4,
+        "mean_ppm": 50000,
+        "sigma_ppm": 23000,
+        "min_ppm": 10000,
+        "max_ppm": 120000
+      },
+      "endurance-wear": {
+        "name": {
+          "pl": "Trwałość na dystansie",
+          "en": "Endurance durability",
+          "fr": "Durabilité sur la distance",
+          "de": "Haltbarkeit auf der Distanz",
+          "pt-BR": "Durabilidade na longa distância"
+        },
+        "description": {
+          "pl": "Część zużywa się wolniej na torach długodystansowych.",
+          "en": "The part wears slower on endurance tracks.",
+          "fr": "La pièce s’use plus lentement sur les pistes d’endurance.",
+          "de": "Das Teil verschleißt auf Langstrecken langsamer.",
+          "pt-BR": "A peça se desgasta mais devagar em pistas de longa distância."
+        },
+        "effect": "wear",
+        "context": {
+          "kinds": [
+            "endurance"
+          ]
+        },
+        "slots": [
+          "tires",
+          "suspension",
+          "brakes",
+          "engine",
+          "boost",
+          "gearbox",
+          "exhaust",
+          "cooling",
+          "tank",
+          "ecu"
+        ],
+        "weight": 2,
+        "from_level": 4,
+        "mean_ppm": 50000,
+        "sigma_ppm": 23000,
+        "min_ppm": 10000,
+        "max_ppm": 120000
+      },
+      "endurance-reliability": {
+        "name": {
+          "pl": "Niezawodność na dystansie",
+          "en": "Endurance reliability",
+          "fr": "Fiabilité sur la distance",
+          "de": "Zuverlässigkeit auf der Distanz",
+          "pt-BR": "Confiabilidade na longa distância"
+        },
+        "description": {
+          "pl": "Rzadsze awarie na torach długodystansowych.",
+          "en": "Fewer breakdowns on endurance tracks.",
+          "fr": "Moins de pannes sur les pistes d’endurance.",
+          "de": "Weniger Pannen auf Langstrecken.",
+          "pt-BR": "Menos quebras em pistas de longa distância."
+        },
+        "effect": "reliability",
+        "context": {
+          "kinds": [
+            "endurance"
+          ]
+        },
+        "slots": [
+          "suspension",
+          "brakes",
+          "engine",
+          "cooling"
+        ],
+        "weight": 2,
+        "from_level": 4,
+        "mean_ppm": 50000,
+        "sigma_ppm": 23000,
+        "min_ppm": 10000,
+        "max_ppm": 120000
+      },
+      "dry-grip": {
+        "name": {
+          "pl": "Przyczepność na suchym",
+          "en": "Dry grip",
+          "fr": "Adhérence sur le sec",
+          "de": "Haftung bei Trockenheit",
+          "pt-BR": "Aderência no seco"
+        },
+        "description": {
+          "pl": "Lepsza przyczepność opon na suchym asfalcie.",
+          "en": "Better tire grip on dry asphalt.",
+          "fr": "Meilleure adhérence des pneus sur asphalte sec.",
+          "de": "Bessere Reifenhaftung auf trockenem Asphalt.",
+          "pt-BR": "Melhor aderência dos pneus em asfalto seco."
+        },
+        "effect": "surface",
+        "context": {
+          "surfaces": [
+            "asphalt_dry"
+          ]
+        },
+        "slots": [
+          "tires"
+        ],
+        "weight": 3,
+        "from_level": 1,
+        "mean_ppm": 50000,
+        "sigma_ppm": 23000,
+        "min_ppm": 10000,
+        "max_ppm": 120000
+      },
+      "gravel-grip": {
+        "name": {
+          "pl": "Przyczepność na żwirze",
+          "en": "Gravel grip",
+          "fr": "Adhérence sur gravier",
+          "de": "Haftung auf Schotter",
+          "pt-BR": "Aderência no cascalho"
+        },
+        "description": {
+          "pl": "Lepsza przyczepność opon na żwirze i błocie.",
+          "en": "Better tire grip on gravel and mud.",
+          "fr": "Meilleure adhérence des pneus sur gravier et boue.",
+          "de": "Bessere Reifenhaftung auf Schotter und Schlamm.",
+          "pt-BR": "Melhor aderência dos pneus em cascalho e lama."
+        },
+        "effect": "surface",
+        "context": {
+          "surfaces": [
+            "gravel_dry",
+            "mud"
+          ]
+        },
+        "slots": [
+          "tires"
+        ],
+        "weight": 3,
+        "from_level": 3,
+        "mean_ppm": 50000,
+        "sigma_ppm": 23000,
+        "min_ppm": 10000,
+        "max_ppm": 120000
+      },
+      "snow-grip": {
+        "name": {
+          "pl": "Przyczepność na śniegu",
+          "en": "Snow grip",
+          "fr": "Adhérence sur neige",
+          "de": "Haftung auf Schnee",
+          "pt-BR": "Aderência na neve"
+        },
+        "description": {
+          "pl": "Lepsza przyczepność opon na śniegu.",
+          "en": "Better tire grip on snow.",
+          "fr": "Meilleure adhérence des pneus sur la neige.",
+          "de": "Bessere Reifenhaftung auf Schnee.",
+          "pt-BR": "Melhor aderência dos pneus na neve."
+        },
+        "effect": "surface",
+        "context": {
+          "surfaces": [
+            "snow"
+          ]
+        },
+        "slots": [
+          "tires"
+        ],
+        "weight": 2,
+        "from_level": 8,
+        "mean_ppm": 50000,
+        "sigma_ppm": 23000,
+        "min_ppm": 10000,
+        "max_ppm": 120000
+      },
+      "rain-handling": {
+        "name": {
+          "pl": "Prowadzenie w deszczu",
+          "en": "Rain handling",
+          "fr": "Tenue de route sous la pluie",
+          "de": "Fahrverhalten bei Regen",
+          "pt-BR": "Dirigibilidade na chuva"
+        },
+        "description": {
+          "pl": "Lepsze prowadzenie w deszczu i ulewie.",
+          "en": "Better handling in rain and downpour.",
+          "fr": "Meilleure tenue de route sous la pluie et l’averse.",
+          "de": "Besseres Fahrverhalten bei Regen und Starkregen.",
+          "pt-BR": "Melhor dirigibilidade na chuva e no temporal."
+        },
+        "effect": "stat",
+        "stat": "handling",
+        "context": {
+          "weathers": [
+            "rain",
+            "downpour"
+          ]
+        },
+        "slots": [
+          "tires",
+          "suspension"
+        ],
+        "weight": 3,
+        "from_level": 3,
+        "mean_ppm": 50000,
+        "sigma_ppm": 23000,
+        "min_ppm": 10000,
+        "max_ppm": 120000
+      },
+      "fog-speed": {
+        "name": {
+          "pl": "Prędkość we mgle",
+          "en": "Fog speed",
+          "fr": "Vitesse dans le brouillard",
+          "de": "Tempo im Nebel",
+          "pt-BR": "Velocidade na neblina"
+        },
+        "description": {
+          "pl": "Wyższa prędkość maksymalna we mgle.",
+          "en": "Higher top speed in fog.",
+          "fr": "Vitesse maximale plus élevée dans le brouillard.",
+          "de": "Höhere Höchstgeschwindigkeit im Nebel.",
+          "pt-BR": "Velocidade máxima mais alta na neblina."
+        },
+        "effect": "stat",
+        "stat": "top_speed",
+        "context": {
+          "weathers": [
+            "fog"
+          ]
+        },
+        "slots": [
+          "engine",
+          "exhaust"
+        ],
+        "weight": 2,
+        "from_level": 5,
+        "mean_ppm": 50000,
+        "sigma_ppm": 23000,
+        "min_ppm": 10000,
+        "max_ppm": 120000
+      },
+      "gravel-clearance": {
+        "name": {
+          "pl": "Prześwit na żwirze",
+          "en": "Gravel clearance",
+          "fr": "Garde au sol sur gravier",
+          "de": "Bodenfreiheit auf Schotter",
+          "pt-BR": "Altura do solo no cascalho"
+        },
+        "description": {
+          "pl": "Większy prześwit na żwirze i błocie.",
+          "en": "More ground clearance on gravel and mud.",
+          "fr": "Plus de garde au sol sur gravier et boue.",
+          "de": "Mehr Bodenfreiheit auf Schotter und Schlamm.",
+          "pt-BR": "Mais altura do solo em cascalho e lama."
+        },
+        "effect": "stat",
+        "stat": "clearance",
+        "context": {
+          "surfaces": [
+            "gravel_dry",
+            "mud"
+          ]
+        },
+        "slots": [
+          "suspension"
+        ],
+        "weight": 2,
+        "from_level": 3,
+        "mean_ppm": 50000,
+        "sigma_ppm": 23000,
+        "min_ppm": 10000,
+        "max_ppm": 120000
+      }
+    }
+  },
   "wear": {
     "life_km": { "tires": 40000, "suspension": 80000, "brakes": 50000, "exhaust": 80000, "engine": 120000, "boost": 120000, "gearbox": 120000, "cooling": 120000, "tank": 200000, "ecu": 120000 },
     "rough_ppm": { "tires": 2000000, "suspension": 2000000 },

@@ -489,6 +489,31 @@
       "required": ["parts", "rarity_stat_ppm", "crates"],
       "additionalProperties": false
     },
+    "tuning": {
+      "description": "The second layer of bonuses on a part: the places that the player fills and changes in the workshop (the affixes are drawn once and kept). A part has `slots` places unless its model says otherwise (tuning_slots). A try at a place costs a share of the price of the model and half the time of putting the part on; the amount of a bonus is drawn from a bell curve (the sum of twelve even draws, so the same part always gets the same result), cut between min_ppm and max_ppm: the higher the amount, the rarer it is. A try at the same bonus keeps the better of the two amounts; a new bonus starts no lower than floor_sigma_ppm of sigma below its mean.",
+      "type": "object",
+      "properties": {
+        "slots": { "description": "How many places for bonuses a part has, unless its model says otherwise.", "type": "integer", "minimum": 0, "maximum": 3 },
+        "unlock_level": { "description": "The player level from which the workshop does this work.", "type": "integer", "minimum": 1, "maximum": 30 },
+        "cost_random_ppm": { "description": "The price of a try with a random bonus, as a share of the price of the model of the part.", "type": "integer", "minimum": 0, "maximum": 1000000 },
+        "cost_pick_ppm": { "description": "The price of a try with the bonus that the player picks, as a share of the price of the model of the part.", "type": "integer", "minimum": 0, "maximum": 1000000 },
+        "cost_min_cents": { "description": "The least a try costs, in cents.", "type": "integer", "minimum": 0 },
+        "time_ppm_of_mount": { "description": "How long a try takes, as a share of the time of putting the part on.", "type": "integer", "minimum": 1, "maximum": 4000000 },
+        "floor_sigma_ppm": { "description": "The first amount of a bonus that is new at a place is not lower than this much below its mean, in millionths of sigma (1 000 000 is one sigma).", "type": "integer", "minimum": 0, "maximum": 6000000 },
+        "pity_step_ppm": { "description": "Protection from bad luck: every try at a place that did not make it better moves the mean up by this much of sigma (0 is off), in millionths of sigma.", "type": "integer", "minimum": 0, "maximum": 1000000 },
+        "pity_max_ppm": { "description": "The most that the protection from bad luck moves the mean, in millionths of sigma.", "type": "integer", "minimum": 0, "maximum": 3000000 },
+        "car_cap_ppm": { "description": "The most that the bonuses of all the parts on a car add to one statistic in one context, in ppm.", "type": "integer", "minimum": 1, "maximum": 1000000 },
+        "max_ppm_plain": { "description": "The most a bonus with no context (it works on every track) may give at its best.", "type": "integer", "minimum": 1, "maximum": 1000000 },
+        "max_ppm_context": { "description": "The most a bonus with a context (a kind of track, a surface, a weather) may give at its best.", "type": "integer", "minimum": 1, "maximum": 1000000 },
+        "definitions": {
+          "type": "object",
+          "propertyNames": { "$ref": "common.schema.json#/$defs/slug" },
+          "additionalProperties": { "$ref": "#/$defs/tuningBonus" }
+        }
+      },
+      "required": ["slots", "unlock_level", "cost_random_ppm", "cost_pick_ppm", "cost_min_cents", "time_ppm_of_mount", "floor_sigma_ppm", "pity_step_ppm", "pity_max_ppm", "car_cap_ppm", "max_ppm_plain", "max_ppm_context", "definitions"],
+      "additionalProperties": false
+    },
     "affixes": {
       "description": "The bonuses that a part above common has (Systemy I), drawn once when the part gets its rarity and kept: how many a rarity gives, and what an affix is. A part never has the same affix twice. An affix changes one thing: a statistic of the part (stat), how fast the part wears (wear), how much fuel the car burns (fuel), or how likely the car is to break down (reliability). The amount is drawn between min_ppm and max_ppm, in ppm.",
       "type": "object",
@@ -1128,6 +1153,38 @@
       "allOf": [
         { "if": { "properties": { "effect": { "const": "stat" } } }, "then": { "required": ["stat"] }, "else": { "not": { "required": ["stat"] } } },
         { "if": { "properties": { "effect": { "const": "surface" } } }, "then": { "required": ["surfaces"] }, "else": { "not": { "required": ["surfaces"] } } }
+      ],
+      "additionalProperties": false
+    },
+    "tuningBonus": {
+      "description": "One kind of bonus that a part can be tuned with. stat multiplies a statistic of the car by 1 + the amount, surface multiplies the grip of the tires on the surfaces it names, fuel, wear and reliability take the amount off the fuel that the car burns, how fast the part wears and how likely the car is to break down. The context says where it works: on tracks of these kinds, on these surfaces, in this weather (every name it lists is one of the ways to match, and all the lists it has must match); none is every track. The amount is drawn from a bell curve with mean_ppm and sigma_ppm, cut between min_ppm and max_ppm.",
+      "type": "object",
+      "properties": {
+        "name": { "$ref": "common.schema.json#/$defs/i18n" },
+        "description": { "$ref": "common.schema.json#/$defs/i18n" },
+        "effect": { "enum": ["stat", "surface", "fuel", "wear", "reliability"] },
+        "stat": { "enum": ["accel", "top_speed", "grip", "handling", "braking", "clearance", "power"] },
+        "context": {
+          "type": "object",
+          "properties": {
+            "kinds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "enum": ["sprint", "standard", "endurance", "rally"] } },
+            "surfaces": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "enum": ["asphalt_dry", "asphalt_wet", "gravel_dry", "mud", "snow"] } },
+            "weathers": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "enum": ["dry", "cloudy", "rain", "downpour", "fog", "snow"] } }
+          },
+          "additionalProperties": false
+        },
+        "slots": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "pattern": "^[a-z][a-z0-9_]{0,31}$" } },
+        "weight": { "description": "How often it is drawn among the bonuses that fit the slot, when the player does not pick one.", "type": "integer", "minimum": 1 },
+        "from_level": { "description": "The player level from which the bonus is on offer.", "type": "integer", "minimum": 1, "maximum": 30 },
+        "mean_ppm": { "description": "The most common amount, in ppm.", "type": "integer", "minimum": 1, "maximum": 1000000 },
+        "sigma_ppm": { "description": "How far the amounts spread round the mean, in ppm.", "type": "integer", "minimum": 1, "maximum": 1000000 },
+        "min_ppm": { "description": "The least the bonus gives, in ppm.", "type": "integer", "minimum": 1, "maximum": 1000000 },
+        "max_ppm": { "description": "The most the bonus gives, in ppm.", "type": "integer", "minimum": 1, "maximum": 1000000 }
+      },
+      "required": ["name", "description", "effect", "slots", "weight", "from_level", "mean_ppm", "sigma_ppm", "min_ppm", "max_ppm"],
+      "allOf": [
+        { "if": { "properties": { "effect": { "const": "stat" } } }, "then": { "required": ["stat"] }, "else": { "not": { "required": ["stat"] } } },
+        { "if": { "properties": { "effect": { "const": "surface" } } }, "then": { "required": ["context"], "properties": { "context": { "required": ["surfaces"] } } } }
       ],
       "additionalProperties": false
     },

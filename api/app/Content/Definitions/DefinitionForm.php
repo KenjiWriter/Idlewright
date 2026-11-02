@@ -150,6 +150,7 @@ final class DefinitionForm
             'engine_displacement_l' => $document['engine']['displacement_l'] ?? null,
             'requires_min_cylinders' => $document['requires']['min_cylinders'] ?? null,
             'requires_booster' => (bool) ($document['requires']['booster'] ?? false),
+            'tuning_slots' => $document['tuning_slots'] ?? null,
             'fits_powertrain' => $document['fits']['powertrain'] ?? null,
             'fits_classes' => $document['fits']['classes'] ?? [],
         ];
@@ -205,6 +206,12 @@ final class DefinitionForm
 
         if ($requires !== []) {
             $document['requires'] = $requires;
+        }
+
+        $tuningSlots = self::number($state['tuning_slots'] ?? null);
+
+        if ($tuningSlots !== null) {
+            $document['tuning_slots'] = $tuningSlots;
         }
 
         $fits = [];

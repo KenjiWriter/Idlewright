@@ -273,6 +273,7 @@ return [
             'bots' => 'O que muda: os tempos dos rivais em relação à referência e o multiplicador da recompensa pela posição, ou seja, o que cada volta rende.',
             'shop' => 'O que muda: as caixas e a raridade das peças: as chances de peças, sua força e os preços das caixas.',
             'affixes' => 'O que muda: a força, as chances e os efeitos dos afixos das peças, inclusive os que dependem do piso.',
+            'tuning' => 'O que muda: os espaços para bônus das peças, o preço e o tempo das tentativas de ajuste e o quão raros são os valores altos de um bônus.',
             'wear' => 'O que muda: quanto tempo duram as peças, quanto custam o reparo e a revisão e como o descuido estraga um carro.',
             'premium' => 'O que muda: os preços dos pacotes de moedas, a aceleração com moedas e o preço do advogado.',
             'missions' => 'O que muda: quando o dia de missões começa, que parte do valor do trabalho que as missões pedem elas pagam em dinheiro e em XP (conjuntos e missões principais) e o bônus em moedas por um conjunto completo. São as únicas moedas grátis do jogo.',

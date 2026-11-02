@@ -48,6 +48,12 @@
       "minProperties": 1,
       "additionalProperties": false
     },
+    "tuning_slots": {
+      "description": "How many places for bonuses (tuning) the part has, from none to three; the rules give the number of a part that does not say.",
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 3
+    },
     "fits": {
       "description": "Optional restriction to vehicle classes or powertrains. Only the simulator of the tracks keeps the part off the cars it does not fit; the workshop, the shop and the preview do not, and the validator warns about it.",
       "type": "object",

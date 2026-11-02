@@ -26,6 +26,7 @@ return [
                 'bots' => ['label' => 'Bots', 'help' => 'Les temps des rivaux par rapport au circuit de référence et les multiplicateurs de récompense selon la place.'],
                 'shop' => ['label' => 'Boutique', 'help' => 'Les caisses et la rareté des pièces : chances, puissance et prix.'],
                 'affixes' => ['label' => 'Affixes', 'help' => 'La puissance, les chances et les effets des affixes des pièces, y compris ceux qui dépendent de la surface.'],
+                'tuning' => ['label' => 'Bonus de pièces (réglage)', 'help' => 'Les emplacements de bonus, le prix et la durée des essais, le tirage des valeurs et les définitions des bonus.'],
                 'wear' => ['label' => 'Usure et entretien', 'help' => 'La durée de vie des pièces en kilomètres, le coût de la réparation et de l’entretien.'],
                 'premium' => ['label' => 'Monnaie premium', 'help' => 'Les prix des packs de RideCoin, l’accélération contre des pièces, le prix de l’avocat, le ravitaillement automatique (packs de charges), le compte VIP et le pass de ravitaillement illimité.'],
                 'workshop' => ['label' => 'Atelier', 'help' => 'Les durées de montage, d’amélioration et de fusion, les prix des postes et des mécaniciens, la longueur de la file.'],

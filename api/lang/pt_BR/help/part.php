@@ -116,6 +116,11 @@ return [
             'help' => 'Ative para peças que só funcionam com sobrealimentação (intercoolers). A oficina não a monta num carro sem sobrealimentação (vale também a que está sendo montada). Uma sobrealimentação retirada depois não bloqueia nada, mas a peça deixa de funcionar, exceto pela massa.',
             'example' => 'Intercooler de fábrica T2, intercooler água-ar T6.',
         ],
+        'tuning_slots' => [
+            'label' => 'Espaços para bônus',
+            'help' => 'Quantos espaços para bônus esta peça tem (0 a 3). Um campo vazio usa o número das regras do jogo; 0 desliga o ajuste desta peça.',
+            'example' => '0 para pneus de fábrica que você não quer ajustar; vazio para o resto.',
+        ],
         'fits_powertrain' => [
             'label' => 'Serve só para (motorização)',
             'help' => 'Limita a peça a carros de uma motorização; campo vazio significa sem limite. Hoje só o simulador de pistas lê isso (com quais carros ele testa a peça); a loja e a oficina não verificam.',

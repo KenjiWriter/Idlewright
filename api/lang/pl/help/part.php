@@ -116,6 +116,11 @@ return [
             'help' => 'Włącz dla części, które działają tylko z doładowaniem (intercoolery). Warsztat nie założy jej na auto bez doładowania (liczy się też to, które właśnie jest zakładane). Doładowanie zdjęte później niczego nie blokuje, ale część przestaje działać, poza masą.',
             'example' => 'Intercooler fabryczny T2, intercooler wodno-powietrzny T6.',
         ],
+        'tuning_slots' => [
+            'label' => 'Miejsca na bonusy',
+            'help' => 'Ile miejsc na bonusy ma ta część (0 – 3). Puste pole bierze liczbę z reguł gry; 0 wyłącza dostrajanie tej części.',
+            'example' => '0 dla opon fabrycznych, których nie chcesz dostrajać; puste dla reszty.',
+        ],
         'fits_powertrain' => [
             'label' => 'Pasuje tylko do (układ napędowy)',
             'help' => 'Ogranicza część do aut jednego układu napędowego; puste pole oznacza brak ograniczenia. Dziś ograniczenie czyta tylko symulator torów (z którymi autami próbuje tej części); sklep i warsztat go nie sprawdzają.',

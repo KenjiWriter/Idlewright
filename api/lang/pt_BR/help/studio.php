@@ -26,6 +26,7 @@ return [
                 'bots' => ['label' => 'Bots', 'help' => 'Os tempos dos rivais em relação à pista de referência e os multiplicadores da recompensa por posição.'],
                 'shop' => ['label' => 'Loja', 'help' => 'As caixas e a raridade das peças: chances, força e preços.'],
                 'affixes' => ['label' => 'Afixos', 'help' => 'A força, as chances e os efeitos dos afixos das peças, inclusive os que dependem do piso.'],
+                'tuning' => ['label' => 'Bônus de peças (ajuste)', 'help' => 'Os espaços para bônus, o preço e o tempo das tentativas, o sorteio dos valores e as definições dos bônus.'],
                 'wear' => ['label' => 'Desgaste e revisão', 'help' => 'A vida das peças em quilômetros, o custo do reparo e da revisão.'],
                 'premium' => ['label' => 'Moeda premium', 'help' => 'Os preços dos pacotes de RideCoin, a aceleração com moedas, o preço do advogado, o reabastecimento automático (pacotes de cargas), a conta VIP e o passe de reabastecimento ilimitado.'],
                 'workshop' => ['label' => 'Oficina', 'help' => 'Os tempos de instalação, melhoria e fusão, os preços de baias e mecânicos, o tamanho da fila.'],
