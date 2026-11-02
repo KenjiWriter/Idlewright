@@ -54,6 +54,8 @@ it('draws the line of the thread with the speed of the car and how far through t
         ->and($data['sections'][1]['radius_m'])->toEqual(70)
         ->and(count($data['points']))->toBe(count($data['speed_kmh']))
         ->and(count($data['points']))->toBe(count($data['time']))
+        ->and(count($data['points']))->toBe(count($data['distance_m']))
+        ->and($data['distance_m'][array_key_last($data['distance_m'])])->toEqualWithDelta(2_599.2, 0.2)
         ->and(count($data['points']))->toBeBetween(150, 220)
         ->and($data['time'][0])->toEqual(0)
         ->and($data['time'][array_key_last($data['time'])])->toEqual(1)

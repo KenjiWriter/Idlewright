@@ -27,7 +27,7 @@ final class RunProfile
     public function __construct(private readonly RunInputsFactory $inputs) {}
 
     /**
-     * @return array{track: string, mode: string, length_m: int, weather: string, lap_s: float, drive_fraction: float, sections: list<array<string, mixed>>, points: list<array{0: float, 1: float}>, speed_kmh: list<float>, time: list<float>}|null null for a track that has no thread
+     * @return array{track: string, mode: string, length_m: int, weather: string, lap_s: float, drive_fraction: float, sections: list<array<string, mixed>>, points: list<array{0: float, 1: float}>, distance_m: list<float>, speed_kmh: list<float>, time: list<float>}|null null for a track that has no thread
      */
     public function of(RaceRun $run, string $weather): ?array
     {
@@ -47,9 +47,11 @@ final class RunProfile
         $points = [];
         $speeds = [];
         $times = [];
+        $distances = [];
 
         foreach ($outline['points'] as $index => $point) {
             $points[] = [round($point['x'], 1), round($point['y'], 1)];
+            $distances[] = round($point['distance_m'], 1);
             $speeds[] = $aligned ? round($samples[$index]['speed_kmh'], 1) : 0.0;
             $times[] = $aligned ? round($samples[$index]['elapsed_s'] / $total, 5) : round($point['distance_m'] / max(1e-9, $length), 5);
         }
@@ -81,6 +83,7 @@ final class RunProfile
             'drive_fraction' => round(($seconds - $result->returnSeconds) / max(1e-9, $seconds), 5),
             'sections' => $sections,
             'points' => $points,
+            'distance_m' => $distances,
             'speed_kmh' => $speeds,
             'time' => $times,
         ];
