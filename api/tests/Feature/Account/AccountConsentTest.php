@@ -210,6 +210,16 @@ describe('accepting again', function () {
         Carbon::setTestNow();
     });
 
+    it('gives an account that never confirmed its age the moment it confirms it now', function () {
+        Carbon::setTestNow('2026-11-02 12:00:00');
+        $user = acceptedIn('2026-10-23', ['age_confirmed_at' => null]);
+
+        acceptAgain(bearerFor($user))->assertOk();
+
+        expect($user->fresh()->age_confirmed_at->toDateTimeString())->toBe('2026-11-02 12:00:00');
+        Carbon::setTestNow();
+    });
+
     it('changes nothing when nothing needs accepting, so that a double click is harmless', function () {
         $user = acceptedIn('2026-10-23');
         $headers = bearerFor($user);

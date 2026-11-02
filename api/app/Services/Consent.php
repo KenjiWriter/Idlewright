@@ -48,7 +48,8 @@ final class Consent
         $at ??= now();
 
         DB::transaction(function () use ($user, $source, $at): void {
-            $user->forceFill(['terms_version' => self::current()])->save();
+            // The driver says again that they have the age, so an account that had no moment for it gets one.
+            $user->forceFill(['terms_version' => self::current(), 'age_confirmed_at' => $user->age_confirmed_at ?? $at])->save();
 
             $user->consents()->create(['terms_version' => self::current(), 'source' => $source, 'accepted_at' => $at]);
         });
