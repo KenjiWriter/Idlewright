@@ -7,6 +7,7 @@ namespace App\Content\Bridge;
 use App\Content\Definitions\JsonDocument;
 use App\Content\Publishing\CandidatePack;
 use App\Games\CurrentGame;
+use App\Models\AiExchange;
 use App\Models\Game;
 use App\Services\ContentPacks;
 
@@ -42,6 +43,16 @@ final class ChangeChecker
 
         if ($block['game'] !== $game) {
             return ChangeCheck::refused([BridgeIssue::error('wrong_game', "The block is for the game {$block['game']}, and this is the game {$game}. Nothing was changed.", where: 'game')])->withBlock($block);
+        }
+
+        if ($scope === null) {
+            $brief = AiExchange::query()->where('kind', AiExchange::KIND_BRIEF)->where('code', $block['base']['brief'])->first();
+
+            if ($brief === null) {
+                return ChangeCheck::refused([BridgeIssue::error('unknown_brief', 'The code in base.brief is not one this game gave an instruction. Copy base exactly as the instruction has it.', where: 'base.brief')])->withBlock($block);
+            }
+
+            $scope = $brief->scope;
         }
 
         $check = $this->resolver->resolve($block, $scope)->withIssues($this->baseRemarks($block));

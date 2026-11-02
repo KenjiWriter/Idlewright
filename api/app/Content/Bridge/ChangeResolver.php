@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace App\Content\Bridge;
 
 use App\Content\Studio\Parameter;
-use App\Content\Studio\Unit;
 use App\Models\ContentDefinition;
 use InvalidArgumentException;
 
@@ -21,9 +20,6 @@ final class ChangeResolver
     public const MAX_TARGETS = 200;
 
     public const MAX_CHANGES = 500;
-
-    /** The names the block uses for the units of the studio. */
-    private const UNITS = ['plain' => Unit::Plain, 'percent' => Unit::Percent, 'seconds' => Unit::Seconds, 'dollars' => Unit::Dollars, 'liters' => Unit::Liters];
 
     /** @var array<string, ContentDefinition|null> */
     private array $definitions = [];
@@ -101,13 +97,19 @@ final class ChangeResolver
             return;
         }
 
+        if (! $this->inScope($key, $parameter)) {
+            $this->issues[] = $this->outOfScope($key, $parameter, $number, $id);
+
+            return;
+        }
+
         if ($this->isRealMoney($parameter)) {
             $this->issues[] = $this->realMoney($key, $parameter, $number, $id);
 
             return;
         }
 
-        $expected = array_search($parameter->unit, self::UNITS, true);
+        $expected = BridgeUnits::token($parameter->unit);
 
         if ($operation['unit'] !== $expected) {
             $this->issues[] = BridgeIssue::error('unit_mismatch', "This number is counted in {$expected}, not in {$operation['unit']}. Give the value in {$expected}.", $number, $id, $this->where($key, $parameter));
@@ -174,6 +176,12 @@ final class ChangeResolver
             }
 
             foreach ($found as $parameter) {
+                if (! $this->inScope($key, $parameter)) {
+                    $this->issues[] = $this->outOfScope($key, $parameter, $number, $id);
+
+                    return;
+                }
+
                 if ($this->isRealMoney($parameter)) {
                     if ($literalEnd) {
                         $this->issues[] = $this->realMoney($key, $parameter, $number, $id);
@@ -413,7 +421,7 @@ final class ChangeResolver
      */
     private function usable(string $key, int $number, ?string $id): bool
     {
-        if ($this->scope !== null && ! in_array($key, $this->scope, true) && ! in_array('kind:'.explode(':', $key, 2)[0], $this->scope, true)) {
+        if ($this->sectionsOf($key) === []) {
             $this->issues[] = BridgeIssue::error('out_of_scope', "{$key} was not in the instruction this block answers.", $number, $id, $key);
 
             return false;
@@ -426,6 +434,41 @@ final class ChangeResolver
         }
 
         return true;
+    }
+
+    /**
+     * The sections of a document that the instruction held when it held only some of them: null when it held the whole document (or there is no limit), an empty list when it
+     * held none of it.
+     *
+     * @return list<string>|null
+     */
+    private function sectionsOf(string $key): ?array
+    {
+        if ($this->scope === null || in_array($key, $this->scope, true) || in_array('kind:'.explode(':', $key, 2)[0], $this->scope, true)) {
+            return null;
+        }
+
+        $sections = [];
+
+        foreach ($this->scope as $entry) {
+            if (str_starts_with($entry, $key.'#')) {
+                $sections[] = substr($entry, strlen($key) + 1);
+            }
+        }
+
+        return $sections;
+    }
+
+    private function inScope(string $key, Parameter $parameter): bool
+    {
+        $sections = $this->sectionsOf($key);
+
+        return $sections === null || in_array((string) $parameter->path[0], $sections, true);
+    }
+
+    private function outOfScope(string $key, Parameter $parameter, int $number, ?string $id): BridgeIssue
+    {
+        return BridgeIssue::error('out_of_scope', 'This number is in a part of the rules that the instruction did not contain.', $number, $id, $this->where($key, $parameter));
     }
 
     /** @return list<string>|null */

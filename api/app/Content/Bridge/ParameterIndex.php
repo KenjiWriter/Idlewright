@@ -43,6 +43,16 @@ final class ParameterIndex
     }
 
     /**
+     * Every number of the document, in the order of the document.
+     *
+     * @return list<Parameter>
+     */
+    public function all(): array
+    {
+        return array_values($this->byPointer);
+    }
+
+    /**
      * Every number whose place is the pattern, where a `*` stands for exactly one name.
      *
      * @param  list<string>  $pattern
