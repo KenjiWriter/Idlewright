@@ -390,7 +390,7 @@
     "bonus": {
       "title": "Bonuses",
       "empty": "Empty place",
-      "tries": "{count} tries"
+      "tries": "tries: {count}"
     },
     "affix": {
       "title": "Affixes",
@@ -537,7 +537,7 @@
     "mergeOpen": "Merge",
     "tune": "Tuning: {part}",
     "bonus": {
-      "open": "Bonuses",
+      "open": "Tune",
       "close": "Close",
       "place": "Place {place}",
       "draw": "Draw ({price})",

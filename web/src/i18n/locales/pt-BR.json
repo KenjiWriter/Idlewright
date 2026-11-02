@@ -390,7 +390,7 @@
     "bonus": {
       "title": "Bônus",
       "empty": "Lugar vazio",
-      "tries": "{count} tentativas"
+      "tries": "tentativas: {count}"
     },
     "affix": {
       "title": "Afixos",
@@ -537,7 +537,7 @@
     "mergeOpen": "Fundir",
     "tune": "Ajuste: {part}",
     "bonus": {
-      "open": "Bônus",
+      "open": "Ajustar",
       "close": "Fechar",
       "place": "Lugar {place}",
       "draw": "Sortear ({price})",

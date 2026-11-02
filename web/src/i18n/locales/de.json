@@ -390,7 +390,7 @@
     "bonus": {
       "title": "Boni",
       "empty": "Leerer Platz",
-      "tries": "{count} Versuche"
+      "tries": "Versuche: {count}"
     },
     "affix": {
       "title": "Affixe",
@@ -537,7 +537,7 @@
     "mergeOpen": "Verschmelzen",
     "tune": "Tuning: {part}",
     "bonus": {
-      "open": "Boni",
+      "open": "Tunen",
       "close": "Schließen",
       "place": "Platz {place}",
       "draw": "Auslosen ({price})",

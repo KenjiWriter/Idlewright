@@ -537,7 +537,7 @@
     "mergeOpen": "Połącz",
     "tune": "Dostrajanie: {part}",
     "bonus": {
-      "open": "Bonusy",
+      "open": "Dostrajaj",
       "close": "Zamknij",
       "place": "Miejsce {place}",
       "draw": "Losuj ({price})",

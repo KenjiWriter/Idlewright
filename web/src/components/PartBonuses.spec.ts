@@ -25,7 +25,7 @@ describe('PartBonuses', () => {
     const wrapper = show(tires())
 
     expect(wrapper.get('[data-test="bonus-text-21-1"]').text()).toBe('◆ Gravel grip +6.2% (Gravel, Mud)')
-    expect(wrapper.get('[data-test="bonus-21-1"]').text()).toContain('7 tries')
+    expect(wrapper.get('[data-test="bonus-21-1"]').text()).toContain('tries: 7')
     expect(wrapper.get('[data-test="bonus-21-2"]').text()).toContain('Empty place')
     expect(wrapper.findAll('[data-test^="bonus-"][data-test$="-3"]').length).toBeGreaterThan(0)
   })
