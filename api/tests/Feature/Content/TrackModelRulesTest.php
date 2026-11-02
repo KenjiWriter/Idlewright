@@ -183,7 +183,7 @@ describe('the rules that say them', function () {
 
         $byHand = validatedRules(function (array $rules): array {
             $rules['tracks']['zlomowo-yard-dash'] = [
-                ...array_diff_key($rules['tracks']['zlomowo-yard-dash'], array_flip(['speed_kmh', 'pay_cents_per_hour', 'xp_per_hour'])),
+                ...array_diff_key($rules['tracks']['zlomowo-yard-dash'], array_flip(['speed_kmh', 'pay_cents_per_hour', 'xp_per_hour', 'thread'])),
                 'length_m' => 150,
                 'base_lap_ms' => 4_000,
                 'fuel_per_lap_ml' => 48,
