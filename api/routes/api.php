@@ -30,6 +30,7 @@ use App\Http\Controllers\Api\V1\RunProfileController;
 use App\Http\Controllers\Api\V1\ShopController;
 use App\Http\Controllers\Api\V1\SocialAuthController;
 use App\Http\Controllers\Api\V1\StarterCarController;
+use App\Http\Controllers\Api\V1\TransmuteController;
 use App\Http\Controllers\Api\V1\TutorialController;
 use App\Http\Controllers\Api\V1\VocabularyController;
 use App\Http\Controllers\Api\V1\WorldController;
@@ -129,6 +130,8 @@ Route::prefix('v1')->group(function (): void {
         Route::delete('/garage/jobs/{job}', [GarageController::class, 'cancelJob'])->whereNumber('job');
         Route::post('/garage/jobs/{job}/finish', [GarageController::class, 'finishJob'])->whereNumber('job');
         Route::post('/garage/equipment', [GarageController::class, 'buyEquipment']);
+        Route::get('/parts/{part}/transmute', [TransmuteController::class, 'show'])->whereNumber('part');
+        Route::post('/parts/{part}/transmute', [TransmuteController::class, 'store'])->whereNumber('part');
 
         Route::get('/tutorial', [TutorialController::class, 'show']);
         Route::post('/tutorial/reply', [TutorialController::class, 'reply']);

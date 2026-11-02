@@ -27,6 +27,7 @@ class Part extends Model
             'rarity' => 'integer',
             'affixes' => 'array',
             'tuning' => 'array',
+            'transmuted_at' => 'datetime',
             'upgrade_level' => 'integer',
             'wear_ppb' => 'integer',
         ];
@@ -42,6 +43,12 @@ class Part extends Model
     public function car(): BelongsTo
     {
         return $this->belongsTo(Car::class);
+    }
+
+    /** Whether the part was made a rarity better by transmutation: it is not used to merge (`transmute.merge_input`). */
+    public function wasTransmuted(): bool
+    {
+        return $this->transmuted_at !== null;
     }
 
     /** How much of its condition the part has left, in ppm (1 000 000 is new, 0 is worn out). */

@@ -67,5 +67,37 @@ return [
             'example' => '2 %: Bei einem Auto, das 375 $ pro Füllung verdient, kostet ein Tausch 8 $.',
             'range' => '0 – 100 % (ein Teil einer Füllung).',
         ],
+        '/transmute/min_player_level' => [
+            'label' => 'Stufe, ab der Teile umgewandelt werden können',
+            'help' => 'Die Stufe des Spielers, ab der ein Teil des Inventars mit Geld und Münzen eine Seltenheit besser gemacht werden kann. Darunter ist der Knopf da und sagt, warum er nicht gedrückt werden kann.',
+            'example' => '6: die Stufe, die die Premium-Kiste öffnet, sodass die erste Umwandlung nach den ersten Kombinationen kommt.',
+            'range' => '1 – 100 (die Stufe).',
+        ],
+        '/transmute/limit_per_day' => [
+            'label' => 'Teile, die ein Spieler am Tag umwandeln kann',
+            'help' => 'Wie viele Teile ein Spieler in den letzten 24 Stunden umwandeln kann. Das ist eine Sicherung gegen Skripte, keine Grenze für Spieler: Der Preis begrenzt sie.',
+            'example' => '10: das elfte Teil wartet, bis das erste einen Tag alt ist.',
+            'range' => '1 – 1000 (Teile).',
+        ],
+        '/transmute/coin_base/*' => [
+            'label' => 'Münzen eines Schritts (Teil der ersten Stufe)',
+            'help' => 'Die Premium-Münzen des Schritts (die erste Zahl ist Common zu Uncommon, die zweite Uncommon zu Rare, die dritte Rare zu Epic) für ein Teil der ersten Stufe. Ein Teil einer höheren Stufe kostet die Münzen des Schritts mal das Wachstum der Stufe, einmal für jede Stufe über der ersten.',
+            'example' => '20: Rare zu Epic für ein Teil der ersten Stufe; für die fünfte Stufe 20 mal 1,3 hoch 4, also 57.',
+            'range' => '0 – 100000 (Münzen).',
+            'tip' => 'Eine Münze kostet in den Paketen 0,08 bis 0,10 zl: Der Befehl economy:transmute zeigt, was ein Teil in Geld kostet.',
+        ],
+        '/transmute/coin_tier_growth_ppm' => [
+            'label' => 'Wachstum der Münzen mit der Stufe',
+            'help' => 'Wie viel mal mehr Münzen ein Teil der nächsten Stufe kostet: 130 % sind das 1,3-Fache. Die Münzen eines Schritts sind die Basis des Schritts mal dies, einmal für jede Stufe über der ersten.',
+            'example' => '130 %: ein Teil der fünften Stufe kostet das 2,86-Fache der Münzen der ersten.',
+            'range' => '100 – 300 % (ein Vielfaches).',
+        ],
+        '/transmute/cash_ppm/*' => [
+            'label' => 'Geld eines Schritts (Vielfaches des Preises)',
+            'help' => 'Das Geld des Schritts (Common zu Uncommon, Uncommon zu Rare, Rare zu Epic) als Vielfaches des Preises des Modells des Teils: 100 % ist der Preis des Teils. Die Regel dieser Zahlen ist etwa die Hälfte dessen, was das Kombinieren für denselben Schritt kostet.',
+            'example' => '1400 %: Rare zu Epic kostet das Vierzehnfache des Modellpreises, die Hälfte dessen, was das Kombinieren für diesen Schritt kostet.',
+            'range' => '0 – 100000 % (ein Vielfaches).',
+            'tip' => 'Prüfe mit dem Befehl economy:transmute: Er schlägt fehl, wenn das Geld eines Schritts unter etwa der Hälfte der Kosten des Kombinierens liegt.',
+        ],
     ],
 ];

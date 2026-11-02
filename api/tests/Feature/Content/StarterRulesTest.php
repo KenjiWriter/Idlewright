@@ -102,6 +102,13 @@ function rulesSchemaErrors(array $rules): array
         }
     }
 
+    // The prices of the three steps of transmutation are lists.
+    foreach (['coin_base', 'cash_ppm'] as $key) {
+        if (isset($data->transmute->{$key}) && is_object($data->transmute->{$key})) {
+            $data->transmute->{$key} = array_values((array) $data->transmute->{$key});
+        }
+    }
+
     // The cycle of the streak and its milestones are lists of objects, and so are the crates that they give.
     foreach (['cycle', 'milestones'] as $key) {
         if (isset($data->streaks->{$key}) && is_object($data->streaks->{$key})) {

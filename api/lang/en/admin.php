@@ -277,6 +277,8 @@ return [
             'wear' => 'What it changes: how long parts last, what repair and service cost, and how neglect spoils a car.',
             'premium' => 'What it changes: the prices of coin packs, speeding up for coins, and the price of the lawyer.',
             'missions' => 'What it changes: when the day of the missions starts, what part of the worth of the work that the missions ask they pay in cash and in XP (the sets and the main missions), and the bonus in coins for a whole set. These are the only free coins in the game.',
+            'transmute' => 'Transmutation of parts',
+            'transmute' => 'What it changes: what a part costs to make one rarity better with cash and coins (the coins grow with the tier, the cash is a multiple of the price of the model), from which level a driver can do it and how many parts a day. The cash is set against what merging costs, so that merging stays worth it.',
             'streaks' => 'Streak of days',
             'slots' => 'Cars on the road',
             'streaks' => 'What it changes: how many missions of the day make the goal that keeps the streak, how often a shield is earned and how many are kept, and what the days of the streak pay (a part of a tank of the best car, and crates). It pays no coins and is on top of the earnings of the cars.',

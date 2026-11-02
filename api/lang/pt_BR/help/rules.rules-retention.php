@@ -67,5 +67,37 @@ return [
             'example' => '2%: para um carro que ganha $375 por tanque, uma troca custa $8.',
             'range' => '0 – 100% (uma parte de um tanque).',
         ],
+        '/transmute/min_player_level' => [
+            'label' => 'Nível a partir do qual se pode transmutar peças',
+            'help' => 'O nível do jogador a partir do qual uma peça do inventário pode ser feita uma raridade melhor com dinheiro e moedas. Abaixo dele o botão está lá e diz por que não pode ser apertado.',
+            'example' => '6: o nível que abre a caixa premium, então a primeira transmutação vem depois das primeiras combinações.',
+            'range' => '1 – 100 (o nível).',
+        ],
+        '/transmute/limit_per_day' => [
+            'label' => 'Peças que o jogador pode transmutar por dia',
+            'help' => 'Quantas peças o jogador pode transmutar nas últimas 24 horas. É uma trava contra scripts, não um limite para jogadores: o preço é o que os limita.',
+            'example' => '10: a décima primeira peça espera até a primeira ter um dia.',
+            'range' => '1 – 1000 (peças).',
+        ],
+        '/transmute/coin_base/*' => [
+            'label' => 'Moedas de uma etapa (peça do primeiro tier)',
+            'help' => 'As moedas premium da etapa (o primeiro número é comum para incomum, o segundo incomum para raro, o terceiro raro para épico) para uma peça do primeiro tier. Uma peça de tier mais alto custa as moedas da etapa vezes o crescimento do tier, uma vez para cada tier acima do primeiro.',
+            'example' => '20: raro para épico para uma peça do primeiro tier; para o quinto tier 20 vezes 1,3 elevado a 4, ou seja, 57.',
+            'range' => '0 – 100000 (moedas).',
+            'tip' => 'Uma moeda custa de 0,08 a 0,10 zl nos pacotes: o comando economy:transmute mostra quanto uma peça custa em dinheiro.',
+        ],
+        '/transmute/coin_tier_growth_ppm' => [
+            'label' => 'Crescimento das moedas com o tier',
+            'help' => 'Quantas vezes mais moedas custa uma peça do tier seguinte: 130% é 1,3 vez. As moedas de uma etapa são a base da etapa vezes isso, uma vez para cada tier acima do primeiro.',
+            'example' => '130%: uma peça do quinto tier custa 2,86 vezes as moedas do primeiro.',
+            'range' => '100 – 300% (um múltiplo).',
+        ],
+        '/transmute/cash_ppm/*' => [
+            'label' => 'Dinheiro de uma etapa (múltiplo do preço)',
+            'help' => 'O dinheiro da etapa (comum para incomum, incomum para raro, raro para épico) como múltiplo do preço do modelo da peça: 100% é o preço da peça. A regra desses números é cerca de metade do que custa combinar para a mesma etapa.',
+            'example' => '1400%: raro para épico custa catorze vezes o preço do modelo, metade do que custa combinar para essa etapa.',
+            'range' => '0 – 100000% (um múltiplo).',
+            'tip' => 'Confira com o comando economy:transmute: ele falha quando o dinheiro de uma etapa fica abaixo de cerca da metade do custo de combinar.',
+        ],
     ],
 ];

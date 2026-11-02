@@ -663,6 +663,11 @@ final class Workshop
             throw new RuleRefusedException('merge_max');
         }
 
+        // A part that was transmuted is not used to merge: with it the coins would buy epic parts that merging turns into legendary ones.
+        if (! ($this->rules->transmute()['merge_input'] ?? true) && ($part->wasTransmuted() || $partner->wasTransmuted())) {
+            throw new RuleRefusedException('part_transmuted');
+        }
+
         return [[WorkshopJob::KIND_MERGE, $part]];
     }
 

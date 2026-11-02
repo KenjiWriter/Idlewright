@@ -618,6 +618,52 @@ final class Rules
     }
 
     /**
+     * Transmutation as the rules give it: the switches, the best rarity it makes, the level of the driver it opens at, the guard of a day, whether a transmuted part can be
+     * merged, and the price of the three steps (the coins of a part of the first tier and how they grow with the tier, and the cash as a multiple of the price of the
+     * model). Null when the rules do not mention it, which is the same as off.
+     *
+     * @return array{enabled: bool, coins_enabled: bool, max_rarity: string, min_player_level: int, limit_per_day: int, merge_input: bool, coin_base: list<int>, coin_tier_growth_ppm: int, cash_ppm: list<int>}|null
+     */
+    public function transmute(): ?array
+    {
+        $transmute = $this->data['transmute'] ?? null;
+
+        return $transmute === null ? null : [
+            'enabled' => (bool) $transmute['enabled'],
+            'coins_enabled' => (bool) $transmute['coins_enabled'],
+            'max_rarity' => (string) $transmute['max_rarity'],
+            'min_player_level' => (int) $transmute['min_player_level'],
+            'limit_per_day' => (int) $transmute['limit_per_day'],
+            'merge_input' => (bool) $transmute['merge_input'],
+            'coin_base' => array_map('intval', array_values($transmute['coin_base'])),
+            'coin_tier_growth_ppm' => (int) $transmute['coin_tier_growth_ppm'],
+            'cash_ppm' => array_map('intval', array_values($transmute['cash_ppm'])),
+        ];
+    }
+
+    /** Whether the game transmutes parts: it is in the rules and switched on. */
+    public function transmuteOn(): bool
+    {
+        return ($this->transmute()['enabled'] ?? false) === true;
+    }
+
+    /**
+     * What a step of transmutation costs for a part of this tier and this model price: the premium coins (none when the rules do not ask for them, or the game has no premium
+     * currency) and the cash in cents. A step is 0 for common to uncommon, 1 for uncommon to rare and 2 for rare to epic.
+     *
+     * @return array{coins: int, cash_cents: int}
+     */
+    public function transmuteCost(int $step, int $tier, int $priceCents): array
+    {
+        $rules = $this->transmute() ?? throw new \LogicException('The rules have no transmutation.');
+        $coins = $rules['coins_enabled'] && $this->premiumCurrency() !== null
+            ? (int) round($rules['coin_base'][$step] * ($rules['coin_tier_growth_ppm'] / 1_000_000) ** max(0, $tier - 1))
+            : 0;
+
+        return ['coins' => $coins, 'cash_cents' => (int) round($priceCents * $rules['cash_ppm'][$step] / 1_000_000)];
+    }
+
+    /**
      * The limit of active cars as the rules give it: the switch, how many cars a driver can have on the road, how many more with the VIP account, how long a car taken
      * out of storage takes to be ready and what a swap costs (a part of a tank). Null when the rules do not mention it, which is the same as off.
      *

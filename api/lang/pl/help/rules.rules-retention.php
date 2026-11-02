@@ -67,5 +67,37 @@ return [
             'example' => '2%: dla auta, które zarabia $375 na baku, zamiana kosztuje $8.',
             'range' => '0 – 100% (część baku).',
         ],
+        '/transmute/min_player_level' => [
+            'label' => 'Poziom, od którego można przerabiać części',
+            'help' => 'Poziom gracza, od którego część z inwentarza można zrobić o rzadkość lepszą za gotówkę i monety. Poniżej przycisk jest i mówi, dlaczego nie można go nacisnąć.',
+            'example' => '6: poziom, który otwiera skrzynkę premium, więc pierwsza przeróbka przychodzi po pierwszych scalaniach.',
+            'range' => '1 – 100 (poziom).',
+        ],
+        '/transmute/limit_per_day' => [
+            'label' => 'Części, które gracz może przerobić na dobę',
+            'help' => 'Ile części gracz może przerobić w ostatnich 24 godzinach. To bezpiecznik przeciw skryptom, nie ograniczenie dla graczy: ogranicza ich cena.',
+            'example' => '10: jedenasta część czeka, aż pierwsza będzie miała dobę.',
+            'range' => '1 – 1000 (części).',
+        ],
+        '/transmute/coin_base/*' => [
+            'label' => 'Monety kroku (część pierwszego tieru)',
+            'help' => 'Monety premium za krok (pierwsza liczba to common na uncommon, druga uncommon na rare, trzecia rare na epic) dla części pierwszego tieru. Część wyższego tieru kosztuje monety kroku razy wzrost tieru, raz za każdy tier ponad pierwszy.',
+            'example' => '20: rare na epic dla części pierwszego tieru; dla piątego tieru 20 razy 1,3 do potęgi 4, czyli 57.',
+            'range' => '0 – 100000 (monet).',
+            'tip' => 'Moneta kosztuje w paczkach 0,08 do 0,10 zł: polecenie economy:transmute pokazuje, ile część kosztuje w pieniądzach.',
+        ],
+        '/transmute/coin_tier_growth_ppm' => [
+            'label' => 'Wzrost monet z tierem',
+            'help' => 'Ile razy więcej monet kosztuje część następnego tieru: 130% to 1,3 raza. Monety kroku to baza kroku razy to, raz za każdy tier ponad pierwszy.',
+            'example' => '130%: część piątego tieru kosztuje 2,86 raza tyle monet co pierwszego.',
+            'range' => '100 – 300% (krotność).',
+        ],
+        '/transmute/cash_ppm/*' => [
+            'label' => 'Gotówka kroku (wielokrotność ceny)',
+            'help' => 'Gotówka kroku (common na uncommon, uncommon na rare, rare na epic) jako wielokrotność ceny modelu części: 100% to cena części. Zasadą, wedle której ustawiono te liczby, jest mniej więcej połowa tego, ile kosztuje scalanie na ten sam krok.',
+            'example' => '1400%: rare na epic kosztuje czternaście cen modelu, połowę tego, ile kosztuje scalanie na ten krok.',
+            'range' => '0 – 100000% (krotność).',
+            'tip' => 'Sprawdź poleceniem economy:transmute: kończy się błędem, gdy gotówka kroku jest poniżej mniej więcej połowy kosztu scalania.',
+        ],
     ],
 ];

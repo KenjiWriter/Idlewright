@@ -67,5 +67,37 @@ return [
             'example' => '2 % : pour une voiture qui gagne 375 $ par plein, un échange coûte 8 $.',
             'range' => '0 – 100 % (une part d’un plein).',
         ],
+        '/transmute/min_player_level' => [
+            'label' => 'Niveau à partir duquel on peut transmuter des pièces',
+            'help' => 'Le niveau du joueur à partir duquel une pièce de l’inventaire peut être rendue une rareté meilleure contre argent et pièces. En dessous, le bouton est là et dit pourquoi on ne peut pas l’appuyer.',
+            'example' => '6 : le niveau qui ouvre la caisse premium, si bien que la première transmutation vient après les premières fusions.',
+            'range' => '1 – 100 (le niveau).',
+        ],
+        '/transmute/limit_per_day' => [
+            'label' => 'Pièces qu’un joueur peut transmuter par jour',
+            'help' => 'Combien de pièces un joueur peut transmuter durant les dernières 24 heures. C’est une garde contre les scripts, pas une limite pour les joueurs : c’est le prix qui les limite.',
+            'example' => '10 : la onzième pièce attend que la première ait un jour.',
+            'range' => '1 – 1000 (pièces).',
+        ],
+        '/transmute/coin_base/*' => [
+            'label' => 'Pièces d’une étape (pièce du premier tier)',
+            'help' => 'Les pièces premium de l’étape (le premier nombre est commune vers peu commune, le deuxième peu commune vers rare, le troisième rare vers épique) pour une pièce du premier tier. Une pièce d’un tier plus haut coûte les pièces de l’étape fois la croissance du tier, une fois pour chaque tier au-dessus du premier.',
+            'example' => '20 : rare vers épique pour une pièce du premier tier ; pour le cinquième tier 20 fois 1,3 à la puissance 4, soit 57.',
+            'range' => '0 – 100000 (pièces).',
+            'tip' => 'Une pièce coûte 0,08 à 0,10 zl dans les packs : la commande economy:transmute montre ce que coûte une pièce en argent.',
+        ],
+        '/transmute/coin_tier_growth_ppm' => [
+            'label' => 'Croissance des pièces avec le tier',
+            'help' => 'Combien de fois plus de pièces coûte une pièce du tier suivant : 130 % est 1,3 fois. Les pièces d’une étape sont la base de l’étape fois cela, une fois pour chaque tier au-dessus du premier.',
+            'example' => '130 % : une pièce du cinquième tier coûte 2,86 fois les pièces du premier.',
+            'range' => '100 – 300 % (un multiple).',
+        ],
+        '/transmute/cash_ppm/*' => [
+            'label' => 'Argent d’une étape (multiple du prix)',
+            'help' => 'L’argent de l’étape (commune vers peu commune, peu commune vers rare, rare vers épique) en multiple du prix du modèle de la pièce : 100 % est le prix de la pièce. La règle de ces nombres est environ la moitié de ce que coûte la fusion pour la même étape.',
+            'example' => '1400 % : rare vers épique coûte quatorze fois le prix du modèle, la moitié de ce que coûte la fusion pour cette étape.',
+            'range' => '0 – 100000 % (un multiple).',
+            'tip' => 'Vérifiez avec la commande economy:transmute : elle échoue quand l’argent d’une étape est sous environ la moitié du coût de la fusion.',
+        ],
     ],
 ];

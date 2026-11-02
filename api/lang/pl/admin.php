@@ -277,6 +277,8 @@ return [
             'wear' => 'Co to zmieni: jak długo żyją części, ile kosztuje naprawa i serwis oraz jak zaniedbanie psuje auto.',
             'premium' => 'Co to zmieni: ceny paczek monet, przyspieszanie za monety i cenę prawnika.',
             'missions' => 'Co to zmieni: kiedy zaczyna się dzień misji i jaką część wartości pracy, której misje chcą, płacą w gotówce i w XP (zestawy i misje główne), oraz premię w monetach za komplet. To jedyne darmowe monety w grze.',
+            'transmute' => 'Przeróbka części',
+            'transmute' => 'Co to zmieni: ile kosztuje przeróbka części na rzadkość wyżej w gotówce i monetach (monety rosną z tierem, gotówka to wielokrotność ceny modelu), od jakiego poziomu gracz może ją zrobić i ile części na dobę. Gotówkę ustawia się względem kosztu scalania, żeby scalanie zostało opłacalne.',
             'streaks' => 'Seria dni',
             'slots' => 'Auta na drodze',
             'streaks' => 'Co to zmieni: ile misji dnia daje cel, który utrzymuje serię, jak często zdobywa się tarczę i ile się ich trzyma oraz ile płacą dni serii (część baku najlepszego auta i skrzynki). Nie płaci monet i jest ponad zarobkiem aut.',

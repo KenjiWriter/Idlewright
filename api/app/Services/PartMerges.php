@@ -107,7 +107,8 @@ final class PartMerges
      */
     public function quotes(int $userId, Collection $inventory, array $busy, ?WorkshopGear $gear = null): array
     {
-        $groups = $inventory->reject(fn (Part $part): bool => in_array($part->id, $busy, true))
+        $transmutedOut = ! ($this->rules->transmute()['merge_input'] ?? true);
+        $groups = $inventory->reject(fn (Part $part): bool => in_array($part->id, $busy, true) || ($transmutedOut && $part->wasTransmuted()))
             ->groupBy(fn (Part $part): string => $part->slot.'|'.($this->catalog->part($part->part_slug)['tier'] ?? 0).'|'.$part->rarity);
 
         $quotes = [];

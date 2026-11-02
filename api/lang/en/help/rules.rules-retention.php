@@ -67,5 +67,37 @@ return [
             'example' => '2%: for a car that earns $375 a tank a swap costs $8.',
             'range' => '0 – 100% (a part of a tank).',
         ],
+        '/transmute/min_player_level' => [
+            'label' => 'Level from which parts can be transmuted',
+            'help' => 'The level of the driver from which a part of the inventory can be made one rarity better with cash and coins. Below it the button is there and says why it cannot be pressed.',
+            'example' => '6: the level that opens the premium crate, so that the first transmutation comes after the first merges.',
+            'range' => '1 – 100 (the level).',
+        ],
+        '/transmute/limit_per_day' => [
+            'label' => 'Parts a driver can transmute in a day',
+            'help' => 'How many parts a driver can transmute in the last 24 hours. It is a guard against scripts, not a limit for players: the price is what limits them.',
+            'example' => '10: the eleventh part waits until the first one is a day old.',
+            'range' => '1 – 1000 (parts).',
+        ],
+        '/transmute/coin_base/*' => [
+            'label' => 'Coins of a step (part of the first tier)',
+            'help' => 'The premium coins of the step (the first number is common to uncommon, the second uncommon to rare, the third rare to epic) for a part of the first tier. A part of a higher tier costs the coins of the step times the growth of the tier, once for every tier above the first.',
+            'example' => '20: rare to epic for a part of the first tier; for the fifth tier 20 times 1.3 to the power of 4, which is 57.',
+            'range' => '0 – 100000 (coins).',
+            'tip' => 'A coin costs 0.08 to 0.10 zl in the packs: the command economy:transmute shows what a part costs in money.',
+        ],
+        '/transmute/coin_tier_growth_ppm' => [
+            'label' => 'Growth of the coins with the tier',
+            'help' => 'How many times more coins a part of the next tier costs: 130% is 1.3 times. The coins of a step are the base of the step times this, once for every tier above the first.',
+            'example' => '130%: a part of the fifth tier costs 2.86 times the coins of the first.',
+            'range' => '100 – 300% (a multiple).',
+        ],
+        '/transmute/cash_ppm/*' => [
+            'label' => 'Cash of a step (multiple of the price)',
+            'help' => 'The cash of the step (common to uncommon, uncommon to rare, rare to epic) as a multiple of the price of the model of the part: 100% is the price of the part. About half of what merging costs for the same step is the rule these numbers were set by.',
+            'example' => '1400%: rare to epic costs fourteen times the price of the model, half of what merging costs for that step.',
+            'range' => '0 – 100000% (a multiple).',
+            'tip' => 'Check with the command economy:transmute: it fails when the cash of a step is below about half of what merging costs.',
+        ],
     ],
 ];

@@ -813,6 +813,17 @@
       { "day": 30, "items": [{ "type": "crate", "kind": "mixed" }] }
     ]
   },
+  "transmute": {
+    "enabled": true,
+    "coins_enabled": true,
+    "max_rarity": "epic",
+    "min_player_level": 6,
+    "limit_per_day": 10,
+    "merge_input": false,
+    "coin_base": [3, 8, 20],
+    "coin_tier_growth_ppm": 1300000,
+    "cash_ppm": [800000, 2800000, 14000000]
+  },
   "slots": {
     "enabled": true,
     "base": 2,

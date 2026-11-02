@@ -747,6 +747,35 @@
       "required": ["enabled", "goal", "shield", "cycle", "milestones"],
       "additionalProperties": false
     },
+    "transmute": {
+      "description": "Transmutation: a part of the inventory is made one rarity better for cash and premium coins, at once and with no draw (the affixes are the ones the part would get by any other way, from a seed that is made of the part and the rarity, so the result is known before it is paid). It does what merging does, for a price and without luck, so the price is set against what merging costs (`economy:transmute`). A transmuted part is marked, and is not used to merge (see `merge_input`), so the premium coins cannot buy a legendary part through merging.",
+      "type": "object",
+      "properties": {
+        "enabled": { "description": "Whether the game has transmutation. When it is off nothing is offered.", "type": "boolean" },
+        "coins_enabled": { "description": "Whether premium coins are part of the price. When it is off, a transmutation costs cash only (the coins of the table below are not asked for).", "type": "boolean" },
+        "max_rarity": { "description": "The best rarity that a transmutation makes. Legendary parts come from merging and from crates only, so it is never legendary.", "enum": ["uncommon", "rare", "epic"] },
+        "min_player_level": { "description": "The level of the driver from which a part can be transmuted.", "type": "integer", "minimum": 1, "maximum": 100 },
+        "limit_per_day": { "description": "How many parts a driver can transmute in a day (the last 24 hours). A guard against scripts, not against players.", "type": "integer", "minimum": 1, "maximum": 1000 },
+        "merge_input": { "description": "Whether a transmuted part can be used to merge. Leave it off: with it on, the coins buy epic parts that merging turns into legendary ones.", "type": "boolean" },
+        "coin_base": {
+          "description": "The premium coins of the three steps (common to uncommon, uncommon to rare, rare to epic) for a part of the first tier. A step that is not made (above `max_rarity`) is not asked for.",
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": { "type": "integer", "minimum": 0, "maximum": 100000 }
+        },
+        "coin_tier_growth_ppm": { "description": "How many times more coins a part of the next tier costs (1 300 000 is 1.3 times): the coins of a step are the base of the step times this, once for every tier above the first.", "type": "integer", "minimum": 1000000, "maximum": 3000000 },
+        "cash_ppm": {
+          "description": "The cash of the three steps, as a multiple of the price of the model of the part (1 000 000 is the price of the part). Half of what merging costs for the same step is the rule the numbers were set by (see `economy:transmute`).",
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": { "type": "integer", "minimum": 0, "maximum": 1000000000 }
+        }
+      },
+      "required": ["enabled", "coins_enabled", "max_rarity", "min_player_level", "limit_per_day", "merge_input", "coin_base", "coin_tier_growth_ppm", "cash_ppm"],
+      "additionalProperties": false
+    },
     "slots": {
       "description": "The cars that drive: a driver has only so many cars active at a time (the slots), and the others stand in the garage in storage, where they do not drive, burn no fuel and wear nothing. A car in storage keeps its place in the garage and can be worked on. The VIP account adds slots for as long as it lasts. Everything a driver has when the limit is made is kept: they keep the cars that drive until they put one in storage.",
       "type": "object",
