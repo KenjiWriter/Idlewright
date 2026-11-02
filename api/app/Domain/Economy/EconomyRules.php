@@ -151,6 +151,24 @@ final readonly class EconomyRules
         return new PlayerXpCurve($xp['base'], $xp['exponent'], $xp['early'], $xp['catch_up_level']);
     }
 
+    /** The share of the profit of an hour that the service, the repairs and the tires take (0.1 is a tenth). */
+    public function upkeepShare(): float
+    {
+        return (float) $this->data['model']['upkeep'];
+    }
+
+    /** What an hour of driving pays before the fuel is paid: the profit of the hour and the fuel it burns, in dollars. */
+    public function grossPerHour(int $rung): float
+    {
+        return $this->netPerHour($rung) + $this->fuelPerHour($rung);
+    }
+
+    /** What the fuel of an hour of driving costs at this rung, in dollars. */
+    public function fuelPerHour(int $rung): float
+    {
+        return $this->fuelLitersPerLap($rung) * $this->fuelPrice() * $this->lapsPerHour($rung);
+    }
+
     /** The experience of an hour of driving, which the activity of the player multiplies. */
     public function xpPerHour(PlayerType $player): float
     {

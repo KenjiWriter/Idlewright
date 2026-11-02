@@ -20,5 +20,9 @@ final readonly class DayState
         public float $income,
         /** The cash the player had when the day began, before today's income. */
         public float $cash,
+        /** The experience that the driving of today gave, before the factor of the extras. */
+        public float $xpToday = 0.0,
+        /** What the other cars of the player (the wrecks of the garages) earn today, in dollars. */
+        public float $otherIncome = 0.0,
     ) {}
 }

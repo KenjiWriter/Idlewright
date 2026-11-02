@@ -413,3 +413,45 @@ describe('economy:simulate', function () {
             ->and($extras['sales']['B']['days'])->toHaveCount(8);
     });
 });
+
+describe('economy:simulate --payers', function () {
+    it('adds the payers table, each extra against a player who pays nothing, and fails nothing', function () {
+        Artisan::call('economy:simulate', ['--payers' => true, '--player' => ['B']]);
+        $output = Artisan::output();
+
+        expect($output)->toContain('Payers and missions, on top of the game scenario')
+            ->and($output)->toContain('missions, 100% done')
+            ->and($output)->toContain('missions, 60% done')
+            ->and($output)->toContain('VIP account')
+            ->and($output)->toContain('auto-refill, 3 a day')
+            ->and($output)->toContain('pass of the endless refill')
+            ->and($output)->toContain('everything: missions 100%, VIP and the pass')
+            ->and($output)->toContain('19.99 PLN')
+            ->and($output)->toContain('Payers that buy a car more than 25% of the days sooner');
+    });
+
+    it('prints the payers in the JSON report only when it is asked to, with the days of every car and the days saved against the player who pays nothing', function () {
+        Artisan::call('economy:simulate', ['--json' => true]);
+        $plain = json_decode(Artisan::output(), true, 512, JSON_THROW_ON_ERROR);
+
+        Artisan::call('economy:simulate', ['--json' => true, '--payers' => true, '--player' => ['A']]);
+        $report = json_decode(Artisan::output(), true, 512, JSON_THROW_ON_ERROR);
+
+        expect($plain)->not->toHaveKey('payers')
+            ->and(array_keys($report['payers']['variants']))->toBe(['missions-100', 'missions-60', 'vip', 'refill-1', 'refill-3', 'pass', 'all-in'])
+            ->and($report['payers']['baseline']['A']['days'])->toHaveCount(8)
+            ->and($report['payers']['variants']['pass']['players']['A']['notes']['pass']['price_per_30d'])->toBe(19.99)
+            ->and($report['payers']['variants']['missions-100']['players']['A']['notes']['missions']['coins_per_30d'])->toBeGreaterThan(100.0)
+            ->and($report['payers']['saved']['vip']['A'][7])->toBeGreaterThan(0.0)
+            ->and($report['payers'])->toHaveKey('beyond_tolerance');
+    });
+
+    it('leaves every other line of the report as it was and the exit code as it was', function () {
+        Artisan::call('economy:simulate');
+        $plain = Artisan::output();
+        $code = Artisan::call('economy:simulate', ['--payers' => true]);
+        $with = Artisan::output();
+
+        expect($code)->toBe(0)->and(str_starts_with($with, $plain))->toBeTrue();
+    });
+});

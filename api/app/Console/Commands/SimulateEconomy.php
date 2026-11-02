@@ -4,9 +4,12 @@ declare(strict_types=1);
 
 namespace App\Console\Commands;
 
+use App\Console\Commands\Concerns\PrintsPayers;
 use App\Content\Catalog;
 use App\Content\GameCrates;
 use App\Content\GameIncome;
+use App\Content\GameMissions;
+use App\Content\GamePerks;
 use App\Content\GameUnits;
 use App\Content\Rules;
 use App\Content\RunInputsFactory;
@@ -22,6 +25,7 @@ use App\Domain\Economy\GateRow;
 use App\Domain\Economy\LadderRow;
 use App\Domain\Economy\MergeEconomy;
 use App\Domain\Economy\PaceGate;
+use App\Domain\Economy\PayerStudy;
 use App\Domain\Economy\PlayerRun;
 use App\Domain\Economy\Purchase;
 use App\Domain\Economy\RulesConsistency;
@@ -54,9 +58,14 @@ use Opis\JsonSchema\Validator;
  * Merging two parts is worked out exactly from the rules of the game (the chances with the protection from bad luck, the fee and the scrap) and set
  * against the crates: how many common parts and how much cash a part of each rarity takes by merging, and what the same rarity costs from crates.
  * It is a report only, with no gate of its own: the design says merging cannot be the only way to the rare parts.
+ *
+ * With `--payers` the report ends with what the gates deliberately do not measure: the missions (a player who does all of them and one who does most), the VIP account,
+ * the auto-refill and the pass, each against the same player who pays nothing. It is a report too, and nothing else of the output changes with it.
  */
 final class SimulateEconomy extends Command
 {
+    use PrintsPayers;
+
     /** The exit code for a ruleset that cannot be read, which is not the same as one that does not pass. */
     private const INVALID_INPUT = 2;
 
@@ -65,13 +74,14 @@ final class SimulateEconomy extends Command
     protected $signature = 'economy:simulate
         {--ruleset= : The ruleset to play, a file of the shape of content/rules/economy.json (that file when left out)}
         {--player=* : Play only these kinds of players, by their keys (A, B or C)}
+        {--payers : Add the payers table: the missions, the VIP account, the auto-refill and the pass against a player who pays nothing}
         {--json : Print the report as JSON}
         {--strict : Fail also when a number of the rules of the game is off the anchors}
         {--strict-game : Fail also when the fleet of the game is out of the pace of the design, or the ladder of the game is off the anchors}';
 
     protected $description = 'Simulate three kinds of players up the ladder of cars and check the pace against the design (the gate), and the rules of the game against the anchors';
 
-    public function handle(Rules $game, Catalog $catalog, Simulator $simulator, PaceGate $gate, RulesConsistency $consistency, GameLadder $ladder, GameIncome $income, ExtrasStudy $study, GameCrates $crates, GameUnits $units, TutorialSteps $tutorial, RunInputsFactory $factory): int
+    public function handle(Rules $game, Catalog $catalog, Simulator $simulator, PaceGate $gate, RulesConsistency $consistency, GameLadder $ladder, GameIncome $income, ExtrasStudy $study, GameCrates $crates, GameUnits $units, TutorialSteps $tutorial, RunInputsFactory $factory, PayerStudy $payerStudy, GameMissions $gameMissions, GamePerks $gamePerks): int
     {
         $path = (string) ($this->option('ruleset') ?: config('ride.content_path').'/rules/economy.json');
 
@@ -109,11 +119,23 @@ final class SimulateEconomy extends Command
         $extras = $study->run($economy, $crateEconomy, $units->economy(), array_map('strval', array_keys($runs)));
         $gameOk = $fleetReport->passed() && $unreachable === [] && array_filter($rows, static fn (LadderRow $row): bool => ! $row->ok || ! $row->xpOk) === [] && $extras->passed();
 
+        $payers = $this->option('payers') ? $payerStudy->run($economy, $gameMissions->economy(), $gamePerks->economy(), array_map('strval', array_keys($runs))) : null;
+
         if ($this->option('json')) {
-            $this->line((string) json_encode($this->asArray($economy, $runs, $report, $findings, $game, $extras, $merge, $upkeep), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR));
+            $document = $this->asArray($economy, $runs, $report, $findings, $game, $extras, $merge, $upkeep);
+
+            if ($payers !== null) {
+                $document['payers'] = $this->payersAsArray($economy, $payers);
+            }
+
+            $this->line((string) json_encode($document, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR));
         } else {
             $this->print($economy, $runs, $report, $findings, $game, $extras, $merge, $upkeep);
             $this->printLaterGifts($tutorial);
+
+            if ($payers !== null) {
+                $this->printPayers($economy, $payers);
+            }
         }
 
         $strict = (bool) $this->option('strict');

@@ -117,17 +117,28 @@ final class Simulator
             $day++;
 
             $hours = $player->hoursPerDay($rules->offlineWindowHours($rung)) + $fleet->otherCarsXpShare * $wrecks * $wreckHours;
-            $xp += $rules->xpPerHour($player) * $hours;
+            $xpToday = $rules->xpPerHour($player) * $hours;
+            $xp += $xpToday;
             $level = $rules->levelAt($xp);
 
             $income = $rules->carDailyIncome($player, $rung);
             $factor = 1.0;
             $brought = 0.0;
+            $xpFactor = 1.0;
+            $xpBrought = 0.0;
 
             foreach ($extras as $extra) {
-                $effect = $extra->day(new DayState($rules, $player, $day, $rung, $level, $income, $cash));
+                $effect = $extra->day(new DayState($rules, $player, $day, $rung, $level, $income, $cash, $xpToday, $wrecks * $wreckDaily));
                 $factor *= $effect->incomeFactor;
                 $brought += $effect->cash;
+                $xpFactor *= $effect->xpFactor;
+                $xpBrought += $effect->xp;
+            }
+
+            // The extras were asked at the level that the driving gave; what they add to the experience counts for the purchases of the day.
+            if ($xpFactor !== 1.0 || $xpBrought !== 0.0) {
+                $xp += $xpToday * ($xpFactor - 1.0) + $xpBrought;
+                $level = $rules->levelAt($xp);
             }
 
             $cash += $income * $factor + $wrecks * $wreckDaily + $brought;
