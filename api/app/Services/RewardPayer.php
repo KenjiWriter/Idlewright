@@ -64,13 +64,13 @@ final class RewardPayer
      * @param  array{cash_cents?: int, xp?: int, car_xp?: int, items?: list<array{type: string, kind?: string, rarity?: string}>}  $reward
      * @return array{cash_cents: int, xp: int, car_xp: int, parts: list<int>, crates: list<string>}
      */
-    public function payMission(int $userId, array $reward, string $cashKey, string $seedKey): array
+    public function payMission(int $userId, array $reward, string $cashKey, string $seedKey, string $reason = 'mission'): array
     {
         $cents = (int) ($reward['cash_cents'] ?? 0);
         $xp = (int) ($reward['xp'] ?? 0);
 
         if ($cents > 0) {
-            $this->ledger->post($userId, $cents, 'mission', $cashKey);
+            $this->ledger->post($userId, $cents, $reason, $cashKey);
         }
 
         $this->ledger->grantXp($userId, $xp);

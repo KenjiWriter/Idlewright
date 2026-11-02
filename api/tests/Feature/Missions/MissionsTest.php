@@ -370,8 +370,9 @@ describe('the bonus for a whole set', function () {
         doneJob($driver);
         Carbon::setTestNow(missionNoon()->addHours(3));
 
-        // Two missions of the day and the bonus of the day, and the laps of the week and of the month, each of which is a whole set with a bonus.
-        expect(missionsOf($driver)->json('data.claimable'))->toBe(2 + 1 + (1 + 1) * 2);
+        // Two missions of the day and the bonus of the day, and the laps of the week and of the month, each of which is a whole set with a bonus, and the day of the streak,
+        // which the whole set of the day makes count.
+        expect(missionsOf($driver)->json('data.claimable'))->toBe(2 + 1 + (1 + 1) * 2 + 1);
     });
 
     it('is paid for the driver, once, when the period ends without them taking it', function () {

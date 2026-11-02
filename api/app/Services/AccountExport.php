@@ -18,11 +18,13 @@ use App\Models\Purchase;
 use App\Models\RaceRun;
 use App\Models\Settlement;
 use App\Models\StorageOpening;
+use App\Models\StreakDay;
 use App\Models\Travel;
 use App\Models\TutorialProgress;
 use App\Models\User;
 use App\Models\UserMission;
 use App\Models\UserMissionPeriod;
+use App\Models\UserStreak;
 use App\Models\UserVisit;
 use App\Models\Wallet;
 use App\Models\WorkshopJob;
@@ -145,6 +147,9 @@ final class AccountExport
                 ->map(fn (UserMission $mission): array => $mission->makeHidden(['user_id'])->toArray())->all(),
             'mission_sets' => UserMissionPeriod::query()->where('user_id', $user->id)->orderBy('id')->get()
                 ->map(fn (UserMissionPeriod $set): array => $set->makeHidden(['user_id'])->toArray())->all(),
+            'streak' => UserStreak::query()->where('user_id', $user->id)->get()->map(fn (UserStreak $streak): array => $streak->makeHidden(['user_id'])->toArray())->first(),
+            'streak_days' => StreakDay::query()->where('user_id', $user->id)->orderBy('id')->get()
+                ->map(fn (StreakDay $day): array => $day->makeHidden(['user_id'])->toArray())->all(),
             'visits' => UserVisit::query()->where('user_id', $user->id)->orderBy('id')->get()
                 ->map(fn (UserVisit $visit): array => ['at' => $this->day($visit->at), 'gap_minutes' => $visit->gap_minutes])->all(),
             'purchases' => Purchase::query()->where('user_id', $user->id)->orderBy('id')->get()

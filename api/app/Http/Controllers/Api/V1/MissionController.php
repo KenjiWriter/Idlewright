@@ -54,6 +54,15 @@ final class MissionController extends Controller
         return $this->respond($userId, ['repeated' => $claimed['repeated'], 'bonus_coins' => $claimed['coins']]);
     }
 
+    /** Takes what the days of the streak that count paid. Taking again takes nothing (`repeated`). */
+    public function claimStreak(Request $request): JsonResponse
+    {
+        $userId = $this->userId($request);
+        $claimed = $this->missions->claimStreak($userId);
+
+        return $this->respond($userId, ['repeated' => $claimed['repeated'], 'claimed' => $this->told([], $claimed['result'])]);
+    }
+
     private function userId(Request $request): int
     {
         return (int) $request->user()->getAuthIdentifier();

@@ -580,6 +580,43 @@ final class Rules
         return ($this->missions()['enabled'] ?? false) === true;
     }
 
+    /**
+     * The streak of days as the rules give it: the switch, how many missions of the daily set make the goal of a day, the shield (every how many days one is earned, and
+     * how many are kept), what the days of the cycle pay and what the milestones pay on top. Null when the rules do not mention it, which is the same as off.
+     *
+     * @return array{enabled: bool, daily_done: int, shield_every_days: int, shield_cap: int, cycle: list<array{cash_ppm: int, xp_ppm: int, items: list<array<string, string>>}>, milestones: array<int, array{cash_ppm: int, xp_ppm: int, items: list<array<string, string>>}>}|null
+     */
+    public function streaks(): ?array
+    {
+        $streaks = $this->data['streaks'] ?? null;
+
+        if ($streaks === null) {
+            return null;
+        }
+
+        $reward = static fn (array $entry): array => ['cash_ppm' => (int) ($entry['cash_ppm'] ?? 0), 'xp_ppm' => (int) ($entry['xp_ppm'] ?? 0), 'items' => $entry['items'] ?? []];
+        $milestones = [];
+
+        foreach ($streaks['milestones'] as $milestone) {
+            $milestones[(int) $milestone['day']] = $reward($milestone);
+        }
+
+        return [
+            'enabled' => (bool) $streaks['enabled'],
+            'daily_done' => (int) $streaks['goal']['daily_done'],
+            'shield_every_days' => (int) $streaks['shield']['every_days'],
+            'shield_cap' => (int) $streaks['shield']['cap'],
+            'cycle' => array_map($reward, array_values($streaks['cycle'])),
+            'milestones' => $milestones,
+        ];
+    }
+
+    /** Whether the game has a streak of days: it is in the rules and switched on, and so are the missions it is counted from. */
+    public function streaksOn(): bool
+    {
+        return ($this->streaks()['enabled'] ?? false) === true && $this->missionsOn();
+    }
+
     /** How many cars a garage holds. */
     public function garageCapacity(): int
     {

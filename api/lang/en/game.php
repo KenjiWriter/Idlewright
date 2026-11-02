@@ -87,6 +87,7 @@ return [
         'mission_not_completed' => 'This mission is not done yet.',
         'mission_bonus_unavailable' => 'This set of missions pays no bonus.',
         'mission_bonus_not_ready' => 'The bonus is yours when you have done every mission of the set.',
+        'streak_unavailable' => 'This game has no streak of days.',
         'no_car' => 'You have no car yet.',
         'request_reused' => 'This request was already used for something else.',
         'tutorial_step_required' => 'That step cannot be left for later.',

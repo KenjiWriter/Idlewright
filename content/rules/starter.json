@@ -795,6 +795,24 @@
     },
     "main": { "cash_ppm": 150000, "xp_ppm": 90000 }
   },
+  "streaks": {
+    "enabled": true,
+    "goal": { "daily_done": 3 },
+    "shield": { "every_days": 7, "cap": 2 },
+    "cycle": [
+      { "cash_ppm": 20000, "xp_ppm": 0 },
+      { "cash_ppm": 20000, "xp_ppm": 10000 },
+      { "cash_ppm": 30000, "xp_ppm": 15000 },
+      { "cash_ppm": 30000, "xp_ppm": 0 },
+      { "cash_ppm": 40000, "xp_ppm": 20000 },
+      { "cash_ppm": 40000, "xp_ppm": 0 },
+      { "cash_ppm": 80000, "xp_ppm": 40000, "items": [{ "type": "crate", "kind": "slot" }] }
+    ],
+    "milestones": [
+      { "day": 14, "items": [{ "type": "crate", "kind": "mixed" }] },
+      { "day": 30, "items": [{ "type": "crate", "kind": "mixed" }] }
+    ]
+  },
   "workshop": {
     "mechanic_level": 1,
     "time_cut_ppm_per_level": 20000,

@@ -337,6 +337,7 @@ final class PackValidator
         $this->checkTutorial($source, $parts, $vehicles, $regions, $result);
         $this->checkMissions($source, $rules, $result);
         $this->checkPremium($rules, $result);
+        $this->checkStreaks($rules, $result);
         $this->checkWithdrawn($source, $parts, $vehicles, $result);
         $this->checkAffixes($rules, $result);
         $this->checkTuning($rules, $result);
@@ -971,6 +972,45 @@ final class PackValidator
         foreach (array_slice($products, 1, null, true) as $slug => $product) {
             if (is_numeric($product['coins'] ?? null) && is_numeric($product['price_minor'] ?? null) && $product['coins'] * $first['price_minor'] < $product['price_minor'] * $first['coins']) {
                 $result->addWarning('rules/starter.json', "/premium/products/{$slug}", 'The pack gives fewer coins for its price than the first pack, so it has no bonus (the first pack is the reference price of a coin).');
+            }
+        }
+    }
+
+    /**
+     * What the schema cannot say about the streak of days: a milestone is named once, the crates it and the cycle give are crates of the game, and the streak is counted
+     * out of the missions, so a game that has one and no missions pays nothing.
+     *
+     * @param  array<string, mixed>  $rules
+     */
+    private function checkStreaks(array $rules, PackValidationResult $result): void
+    {
+        $section = $rules['streaks'] ?? null;
+
+        if ($section === null) {
+            return;
+        }
+
+        if ($section['enabled'] && ! ($rules['missions']['enabled'] ?? false)) {
+            $result->addWarning('rules/starter.json', '/streaks/enabled', 'The streak is on, and it is counted out of the missions, which are off or missing: nothing is counted.');
+        }
+
+        $days = array_column($section['milestones'], 'day');
+
+        foreach ($days as $index => $day) {
+            if (array_search($day, $days, true) !== $index) {
+                $result->addError('rules/starter.json', "/streaks/milestones/{$index}/day", "The milestone of {$day} days is named twice.");
+            }
+        }
+
+        $kinds = array_keys($rules['shop']['crates']['kinds'] ?? []);
+
+        foreach (['cycle' => $section['cycle'], 'milestones' => $section['milestones']] as $where => $entries) {
+            foreach ($entries as $index => $entry) {
+                foreach ($entry['items'] ?? [] as $position => $item) {
+                    if (! in_array($item['kind'], $kinds, true)) {
+                        $result->addError('rules/starter.json', "/streaks/{$where}/{$index}/items/{$position}/kind", "The streak gives a crate of a kind the shop does not have: {$item['kind']}.");
+                    }
+                }
             }
         }
     }

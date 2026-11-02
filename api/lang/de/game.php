@@ -87,6 +87,7 @@ return [
         'mission_not_completed' => 'Diese Mission ist noch nicht geschafft.',
         'mission_bonus_unavailable' => 'Dieses Missionsset zahlt keinen Bonus.',
         'mission_bonus_not_ready' => 'Den Bonus bekommst du, wenn du alle Missionen des Sets geschafft hast.',
+        'streak_unavailable' => 'Dieses Spiel hat keine Serie von Tagen.',
         'no_car' => 'Du hast noch kein Auto.',
         'request_reused' => 'Diese Anfrage wurde bereits für etwas anderes verwendet.',
         'tutorial_step_required' => 'Dieser Schritt lässt sich nicht auf später verschieben.',

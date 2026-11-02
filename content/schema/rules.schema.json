@@ -698,6 +698,55 @@
       "required": ["enabled", "timezone", "reset_hour", "unlock_after_step", "periods", "main"],
       "additionalProperties": false
     },
+    "streaks": {
+      "description": "The streak of days: the days in a row (the days of the missions, see missions.reset_hour) on which a driver did the goal of the day, which is a number of the missions of the daily set. A day of the streak pays a small reward that comes round every few days, with more on the milestones. What it pays is on top of the earnings of the cars and does not count in the economy of the game, as the missions do not. It pays no premium coins.",
+      "type": "object",
+      "properties": {
+        "enabled": { "description": "Whether the game has a streak. When it is off nothing is counted, shown or paid; what the drivers have not taken stays where it is.", "type": "boolean" },
+        "goal": {
+          "type": "object",
+          "properties": {
+            "daily_done": { "description": "How many missions of the daily set a driver has to do (done, not taken) for the day to count. A set of fewer missions asks for all of them.", "type": "integer", "minimum": 1, "maximum": 20 }
+          },
+          "required": ["daily_done"],
+          "additionalProperties": false
+        },
+        "shield": {
+          "description": "The shield saves a streak from a day that was missed: the streak stands where it is, and the day pays nothing. A driver earns one every few days of the streak.",
+          "type": "object",
+          "properties": {
+            "every_days": { "description": "A driver earns a shield when the streak reaches a multiple of this many days.", "type": "integer", "minimum": 1, "maximum": 365 },
+            "cap": { "description": "How many shields a driver can keep. A shield that would be above it is lost; 0 means the game has no shields.", "type": "integer", "minimum": 0, "maximum": 10 }
+          },
+          "required": ["every_days", "cap"],
+          "additionalProperties": false
+        },
+        "cycle": {
+          "description": "What the days of the streak pay, one entry for each day of the cycle, which comes round again after the last one (a streak of eight days pays the first entry on the eighth).",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 31,
+          "items": { "$ref": "#/$defs/streakReward" }
+        },
+        "milestones": {
+          "description": "What a streak pays once, on top of the day of the cycle, on the day it reaches the length.",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "day": { "description": "The length of the streak, in days, on which the milestone pays.", "type": "integer", "minimum": 2, "maximum": 3650 },
+              "cash_ppm": { "description": "The cash of the milestone, as a part of the net earnings of a tank of the best car of the driver.", "type": "integer", "minimum": 0, "maximum": 10000000 },
+              "xp_ppm": { "description": "The XP of the milestone, as a part of the XP of a tank of the best car of the driver.", "type": "integer", "minimum": 0, "maximum": 10000000 },
+              "items": { "$ref": "#/$defs/streakItems" }
+            },
+            "required": ["day"],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": ["enabled", "goal", "shield", "cycle", "milestones"],
+      "additionalProperties": false
+    },
     "workshop": {
       "description": "Jobs of the workshop: putting a part on a car and taking it off. One mechanic, and no equipment yet, so a job takes base_time_ms of the slot times the tier, cut by the level of the mechanic.",
       "type": "object",
@@ -1089,6 +1138,26 @@
         }
       },
       "required": ["mode", "sections"],
+      "additionalProperties": false
+    },
+    "streakItems": {
+      "description": "What a streak day gives besides cash and XP: a crate, opened for the driver when the reward is taken (the same draw as the shop, with the odds of its kind, but it costs nothing).",
+      "type": "array",
+      "maxItems": 3,
+      "items": {
+        "type": "object",
+        "properties": { "type": { "const": "crate" }, "kind": { "enum": ["slot", "mixed", "premium"] } },
+        "required": ["type", "kind"],
+        "additionalProperties": false
+      }
+    },
+    "streakReward": {
+      "type": "object",
+      "properties": {
+        "cash_ppm": { "description": "The cash of the day, as a part of the net earnings of a tank of the best car of the driver (1 000 000 is a whole tank).", "type": "integer", "minimum": 0, "maximum": 1000000 },
+        "xp_ppm": { "description": "The XP of the day, as a part of the XP of a tank of the best car of the driver (1 000 000 is a whole tank). The level of a driver is a gate of the game, so keep it small.", "type": "integer", "minimum": 0, "maximum": 1000000 },
+        "items": { "$ref": "#/$defs/streakItems" }
+      },
       "additionalProperties": false
     },
     "distance_unit": {

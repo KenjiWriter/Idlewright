@@ -87,6 +87,7 @@ return [
         'mission_not_completed' => 'Ta misja nie jest jeszcze wykonana.',
         'mission_bonus_unavailable' => 'Za ten zestaw misji nie ma premii.',
         'mission_bonus_not_ready' => 'Premia będzie, gdy wykonasz wszystkie misje zestawu.',
+        'streak_unavailable' => 'W tej grze nie ma serii dni.',
         'no_car' => 'Nie masz jeszcze auta.',
         'request_reused' => 'To żądanie zostało już użyte do czegoś innego.',
         'tutorial_step_required' => 'Tego kroku nie można odłożyć na później.',

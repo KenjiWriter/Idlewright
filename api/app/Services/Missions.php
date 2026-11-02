@@ -51,6 +51,7 @@ final class Missions
         private readonly TutorialSteps $steps,
         private readonly MissionCatalog $catalog,
         private readonly DriverFacts $facts,
+        private readonly Streaks $streaks,
     ) {}
 
     /**
@@ -97,6 +98,32 @@ final class Missions
             $result = $this->pay($row, auto: false);
 
             return ['repeated' => false, 'mission' => $this->missionView($row), 'result' => $result];
+        }, Ledger::DEADLOCK_ATTEMPTS);
+    }
+
+    /**
+     * Takes what the days of the streak that count paid and the driver has not taken. Nothing to take is not an error.
+     *
+     * @return array{repeated: bool, result: array<string, mixed>}
+     *
+     * @throws RuleRefusedException `missions_unavailable`, `streak_unavailable`
+     */
+    public function claimStreak(int $userId): array
+    {
+        $this->ensureOn();
+
+        if (! $this->rules->streaksOn()) {
+            throw new RuleRefusedException('streak_unavailable');
+        }
+
+        $this->evaluate($userId);
+
+        return DB::transaction(function () use ($userId): array {
+            $this->ledger->lockWallet($userId);
+
+            $result = $this->streaks->claim($userId);
+
+            return ['repeated' => $result['days'] === 0, 'result' => $result];
         }, Ledger::DEADLOCK_ATTEMPTS);
     }
 
@@ -207,6 +234,11 @@ final class Missions
                 }
             }
 
+            // The streak is counted out of the daily sets, so after they are drawn and counted.
+            if ($locked === null) {
+                $this->streaks->settle($userId, $now);
+            }
+
             $mainLocked = $this->mainLockedBy($userId);
 
             if ($mainLocked === null) {
@@ -223,7 +255,7 @@ final class Missions
      * What the missions of the driver did while they were away, from the moment the break began: how many were noticed done, and what the server took for the driver
      * when a period ended (the cash, the XP and the coins of a whole set). Null when there is nothing to tell. The caller has brought the missions up to date.
      *
-     * @return array{done: int, collected: int, cash_cents: int, xp: int, coins: int}|null
+     * @return array{done: int, collected: int, cash_cents: int, xp: int, coins: int, streak: array<string, mixed>|null}|null
      */
     public function awayReport(int $userId, CarbonInterface $from): ?array
     {
@@ -240,9 +272,10 @@ final class Missions
             'cash_cents' => (int) $taken->sum(fn (UserMission $row): int => (int) ($row->claim_result['cash_cents'] ?? 0)),
             'xp' => (int) $taken->sum(fn (UserMission $row): int => (int) ($row->claim_result['xp'] ?? 0)),
             'coins' => $coins,
+            'streak' => $this->streaks->awayReport($userId, $from),
         ];
 
-        return $done === 0 && $report['collected'] === 0 && $coins === 0 ? null : $report;
+        return $done === 0 && $report['collected'] === 0 && $coins === 0 && $report['streak'] === null ? null : $report;
     }
 
     /** Why a driver has no main missions yet: the tutorial is not over. A driver who left it has them. */
@@ -567,8 +600,10 @@ final class Missions
             ];
         }
 
+        $streak = $locked === null ? $this->streaks->view($userId, $now) : null;
         $takeable = UserMission::query()->where('user_id', $userId)->whereNotNull('completed_at')->whereNull('claimed_at')->count()
-            + UserMissionPeriod::query()->where('user_id', $userId)->whereNotNull('completed_at')->whereNull('bonus_claimed_at')->where('bonus_coins', '>', 0)->count();
+            + UserMissionPeriod::query()->where('user_id', $userId)->whereNotNull('completed_at')->whereNull('bonus_claimed_at')->where('bonus_coins', '>', 0)->count()
+            + ($streak === null ? 0 : $this->streaks->takeable($userId));
 
         return [
             'available' => true,
@@ -576,6 +611,7 @@ final class Missions
             'locked' => $locked,
             'main_locked' => $mainLocked,
             'claimable' => $takeable,
+            'streak' => $streak,
             'periods' => $periods,
             'main' => $mainLocked === null ? $this->mainView($userId) : [],
             'auto_collected' => $collected,

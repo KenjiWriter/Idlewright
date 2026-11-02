@@ -143,6 +143,7 @@ Route::prefix('v1')->group(function (): void {
         // The sets of missions of a day, a week and a month, and taking what they pay.
         Route::get('/missions', [MissionController::class, 'show'])->middleware('throttle:missions');
         Route::post('/missions/claim', [MissionController::class, 'claimAll']);
+        Route::post('/missions/streak/claim', [MissionController::class, 'claimStreak']);
         Route::post('/missions/{mission}/claim', [MissionController::class, 'claim'])->whereNumber('mission');
         Route::post('/missions/{kind}/bonus', [MissionController::class, 'bonus'])->whereIn('kind', ['daily', 'weekly', 'monthly']);
 

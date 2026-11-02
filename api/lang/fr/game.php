@@ -87,6 +87,7 @@ return [
         'mission_not_completed' => 'Cette mission n’est pas encore terminée.',
         'mission_bonus_unavailable' => 'Cette série de missions ne rapporte pas de bonus.',
         'mission_bonus_not_ready' => 'Le bonus sera à vous quand vous aurez terminé toutes les missions de la série.',
+        'streak_unavailable' => 'Ce jeu n’a pas de série de jours.',
         'no_car' => 'Vous n’avez pas encore de voiture.',
         'request_reused' => 'Cette requête a déjà été utilisée pour autre chose.',
         'tutorial_step_required' => 'Cette étape ne peut pas être remise à plus tard.',

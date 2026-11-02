@@ -20,6 +20,7 @@ use App\Models\RaceRun;
 use App\Models\Settlement;
 use App\Models\SettlementEvent;
 use App\Models\StorageOpening;
+use App\Models\StreakDay;
 use App\Models\Travel;
 use App\Models\TutorialProgress;
 use App\Models\User;
@@ -78,6 +79,7 @@ final class AccountErasure
             'tutorial steps' => TutorialProgress::query()->where('user_id', $user->id)->count(),
             'missions' => UserMission::query()->where('user_id', $user->id)->count(),
             'mission sets' => UserMissionPeriod::query()->where('user_id', $user->id)->count(),
+            'streak days' => StreakDay::query()->where('user_id', $user->id)->count(),
             'runs' => $runs->count(),
             'settlements' => $settlements->count(),
             'settlement events' => SettlementEvent::query()->whereIn('settlement_id', $settlements)->count(),

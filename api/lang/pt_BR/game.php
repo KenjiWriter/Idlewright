@@ -87,6 +87,7 @@ return [
         'mission_not_completed' => 'Essa missão ainda não foi cumprida.',
         'mission_bonus_unavailable' => 'Este conjunto de missões não paga bônus.',
         'mission_bonus_not_ready' => 'O bônus é seu quando você cumprir todas as missões do conjunto.',
+        'streak_unavailable' => 'Este jogo não tem sequência de dias.',
         'no_car' => 'Você ainda não tem um carro.',
         'request_reused' => 'Esta solicitação já foi usada para outra coisa.',
         'tutorial_step_required' => 'Esta etapa não pode ser deixada para depois.',
