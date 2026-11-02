@@ -17,6 +17,9 @@ use Illuminate\Http\Resources\Json\JsonResource;
  */
 final class TutorialResource extends JsonResource
 {
+    /** The button of a step whose pack gave it no words for one (the schema and the validator ask for them, a pack from before did not): the same in every language. */
+    private const DEFAULT_REPLY = 'OK';
+
     /** @return array<string, mixed> */
     public function toArray(Request $request): array
     {
@@ -32,7 +35,7 @@ final class TutorialResource extends JsonResource
                 'number' => $step['number'],
                 'sender' => $step['sender'],
                 'sms' => array_map(static fn (array $text): string => I18nText::from($text)->for(), $step['sms']),
-                'reply' => I18nText::from($step['reply'])->for(),
+                'reply' => I18nText::from($step['reply'] ?? null)->for() ?: self::DEFAULT_REPLY,
                 'optional' => (bool) ($step['optional'] ?? false),
                 'decline' => isset($step['decline']) ? I18nText::from($step['decline'])->for() : null,
                 'target' => $step['target'],

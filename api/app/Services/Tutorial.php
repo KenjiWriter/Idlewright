@@ -66,14 +66,17 @@ final class Tutorial
         }, attempts: 3);
     }
 
-    /** The driver answered the messages of the step that waits: the phone is put away, and a step that ends with it is done. */
+    /**
+     * The driver answered the messages of the step that waits: the phone is put away, and a step that ends with it is done. Only the step that was shown is
+     * answered: when a step added to the tutorial started for a driver who is further along, two steps wait, and the second has not been read.
+     */
     public function reply(User $user): TutorialState
     {
-        TutorialProgress::query()
-            ->where('user_id', $user->getKey())
-            ->where('state', TutorialProgress::STATE_ACTIVE)
-            ->whereNull('acknowledged_at')
-            ->update(['acknowledged_at' => now()]);
+        $row = $this->activeRow($this->rows((int) $user->getKey()));
+
+        if ($row !== null && $row->acknowledged_at === null) {
+            $row->update(['acknowledged_at' => now()]);
+        }
 
         return $this->evaluate($user);
     }
@@ -86,7 +89,7 @@ final class Tutorial
         DB::transaction(function () use ($userId): void {
             Wallet::query()->where('user_id', $userId)->lockForUpdate()->first();
 
-            $row = TutorialProgress::query()->where('user_id', $userId)->where('state', TutorialProgress::STATE_ACTIVE)->first();
+            $row = $this->activeRow($this->rows($userId));
             $step = $row === null ? null : $this->steps->find($row->step_key);
 
             if ($row === null || ! ($step['optional'] ?? false)) {
@@ -134,6 +137,49 @@ final class Tutorial
         return TutorialProgress::query()->where('user_id', $userId)->get()->keyBy('step_key');
     }
 
+    /** The step that waits for the driver and is shown: the first of the steps that have started and are not done, in the order of the tutorial and not of the rows. */
+    private function activeRow(Collection $rows): ?TutorialProgress
+    {
+        foreach ($this->steps->all() as $step) {
+            $row = $rows->get($step['key']);
+
+            if ($row?->state === TutorialProgress::STATE_ACTIVE) {
+                return $row;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * The steps that have not started although the driver is further along in the tutorial than they are (they were added behind the driver), by key. They are not
+     * counted, are not the goal, and do not hold up the steps after them; each starts when its trigger holds.
+     *
+     * @param  Collection<string, TutorialProgress>  $rows
+     * @return array<string, true>
+     */
+    private function behind(Collection $rows): array
+    {
+        $steps = $this->steps->all();
+        $furthest = -1;
+
+        foreach ($steps as $index => $step) {
+            if ($rows->has($step['key'])) {
+                $furthest = $index;
+            }
+        }
+
+        $behind = [];
+
+        foreach (array_slice($steps, 0, max(0, $furthest)) as $step) {
+            if (! $rows->has($step['key'])) {
+                $behind[$step['key']] = true;
+            }
+        }
+
+        return $behind;
+    }
+
     private function advance(int $userId, ?RaceRun $run): TutorialState
     {
         $rows = $this->rows($userId);
@@ -144,6 +190,8 @@ final class Tutorial
             return $this->state($userId, $rewarded);
         }
 
+        $behind = $this->behind($rows);
+
         foreach ($this->steps->all() as $step) {
             $row = $rows->get($step['key']);
 
@@ -153,6 +201,11 @@ final class Tutorial
 
             if ($row === null) {
                 if (! $this->facts->holdsAll($step['trigger'], $userId, $run, null)) {
+                    // A step added behind a driver who is further along does not hold the steps after it back: it starts when its trigger holds.
+                    if (isset($behind[$step['key']])) {
+                        continue;
+                    }
+
                     break;
                 }
 
@@ -210,10 +263,10 @@ final class Tutorial
     private function state(int $userId, array $rewarded): TutorialState
     {
         $rows = $this->rows($userId);
-        $total = $this->steps->count();
+        $total = $this->steps->count() - count($this->behind($rows));
         $done = $rows->whereIn('state', [TutorialProgress::STATE_DONE, TutorialProgress::STATE_DECLINED])->count();
 
-        $active = $rows->first(fn (TutorialProgress $row): bool => $row->state === TutorialProgress::STATE_ACTIVE);
+        $active = $this->activeRow($rows);
         $step = $active === null ? null : $this->steps->find($active->step_key);
 
         // A step with no messages is carried out without being shown.
@@ -237,10 +290,12 @@ final class Tutorial
      */
     private function goal(Collection $rows): ?array
     {
+        $behind = $this->behind($rows);
+
         foreach ($this->steps->all() as $step) {
             $row = $rows->get($step['key']);
 
-            if ($row !== null && $row->state !== TutorialProgress::STATE_ACTIVE) {
+            if (($row !== null && $row->state !== TutorialProgress::STATE_ACTIVE) || isset($behind[$step['key']])) {
                 continue;
             }
 
