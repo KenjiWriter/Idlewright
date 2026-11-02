@@ -42,7 +42,8 @@
           { "$ref": "#/$defs/set" },
           { "$ref": "#/$defs/scale" },
           { "$ref": "#/$defs/text" },
-          { "$ref": "#/$defs/create" }
+          { "$ref": "#/$defs/create" },
+          { "$ref": "#/$defs/add" }
         ]
       }
     }
@@ -163,6 +164,29 @@
         }
       },
       "required": ["op", "kind", "slug", "fields"],
+      "additionalProperties": false
+    },
+    "rulesTarget": {
+      "description": "One document of the rules.",
+      "type": "object",
+      "properties": {
+        "rules": { "enum": ["starter", "tutorial", "vocabulary", "model", "branding", "missions"] }
+      },
+      "required": ["rules"],
+      "additionalProperties": false
+    },
+    "add": {
+      "description": "Adds a NEW entry to a collection of the rules, which is a set of named entries (the COLLECTIONS line of the data lists them: a track, a bonus, a template). `path` is the place of the collection, `key` is the name of the new entry (lower case words joined by dashes, not used in that collection) and `value` is the whole entry, as the entries beside it are written. Give a text as an object with all its languages. Never give a price in real money.",
+      "type": "object",
+      "properties": {
+        "op": { "const": "add" },
+        "id": { "$ref": "#/$defs/id" },
+        "target": { "$ref": "#/$defs/rulesTarget" },
+        "path": { "$ref": "#/$defs/pointer" },
+        "key": { "$ref": "#/$defs/slug" },
+        "value": { "type": "object", "minProperties": 1 }
+      },
+      "required": ["op", "target", "path", "key", "value"],
       "additionalProperties": false
     },
     "set": {
