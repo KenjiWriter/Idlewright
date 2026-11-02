@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 use App\Content\TutorialSteps;
+use App\Models\Gig;
+use App\Models\RaceRun;
 use App\Models\TutorialProgress;
 use App\Models\User;
 use App\Models\UserMission;
@@ -79,7 +81,7 @@ describe('the first reward', function () {
 
         $left = test()->postJson('/api/v1/tutorial/decline', [], bearerFor($driver))->assertOk();
 
-        expect($left->json('data.goal.key'))->toBe('main-missions')->and((int) Wallet::query()->find($driver->id)?->cash_cents)->toBe(0);
+        expect($left->json('data.goal.key'))->toBe('first-gig')->and((int) Wallet::query()->find($driver->id)?->cash_cents)->toBe(0);
     });
 
     it('is done when the driver has taken the reward of a mission, and pays $100 once', function () {
@@ -95,7 +97,7 @@ describe('the first reward', function () {
         $done = missionsTutorialGet($driver)->assertOk();
 
         expect($done->json('data.rewarded.0.key'))->toBe('first-mission')->and($done->json('data.rewarded.0.cash_cents'))->toBe(10_000)
-            ->and($done->json('data.goal.key'))->toBe('main-missions')
+            ->and($done->json('data.goal.key'))->toBe('first-gig')
             ->and((int) Wallet::query()->find($driver->id)?->cash_cents)->toBe(10_000);
 
         missionsTutorialGet($driver);
@@ -110,6 +112,46 @@ describe('the first reward', function () {
         $waiting = test()->postJson('/api/v1/tutorial/reply', [], bearerFor($driver))->assertOk();
 
         expect($waiting->json('data.goal.key'))->toBe('first-mission')->and($waiting->json('data.rewarded'))->toBe([]);
+    });
+});
+
+describe('the first gig', function () {
+    it('is optional, points at the gigs, and the driver may leave it for later', function () {
+        $driver = missionsTutorialDriver('first-gig');
+
+        $shown = missionsTutorialGet($driver, ['X-Locale' => 'pl'])->assertOk();
+
+        expect($shown->json('data.current.key'))->toBe('first-gig')
+            ->and($shown->json('data.current.optional'))->toBeTrue()
+            ->and($shown->json('data.current.decline'))->toBe('Później')
+            ->and($shown->json('data.current.target'))->toBe('gigs');
+
+        $left = test()->postJson('/api/v1/tutorial/decline', [], bearerFor($driver))->assertOk();
+
+        expect($left->json('data.goal.key'))->toBe('main-missions')->and((int) Wallet::query()->find($driver->id)?->cash_cents)->toBe(0);
+    });
+
+    it('is done when the driver has taken a gig, and not when they took it back, and pays $100 once', function () {
+        $driver = missionsTutorialDriver('first-gig');
+        missionsTutorialGet($driver);
+
+        $waiting = test()->postJson('/api/v1/tutorial/reply', [], bearerFor($driver))->assertOk();
+        expect($waiting->json('data.goal.key'))->toBe('first-gig');
+
+        $run = RaceRun::query()->where('user_id', $driver->id)->value('id');
+        Gig::factory()->create(['user_id' => $driver->id, 'race_run_id' => $run, 'status' => Gig::STATUS_CANCELLED]);
+        expect(missionsTutorialGet($driver)->json('data.goal.key'))->toBe('first-gig');
+
+        Gig::factory()->create(['user_id' => $driver->id, 'race_run_id' => $run, 'status' => Gig::STATUS_DONE]);
+        $done = missionsTutorialGet($driver)->assertOk();
+
+        expect($done->json('data.rewarded.0.key'))->toBe('first-gig')->and($done->json('data.rewarded.0.cash_cents'))->toBe(10_000)
+            ->and($done->json('data.goal.key'))->toBe('main-missions')
+            ->and((int) Wallet::query()->find($driver->id)?->cash_cents)->toBe(10_000);
+
+        // Asked again, it pays nothing more.
+        missionsTutorialGet($driver)->assertOk();
+        expect((int) Wallet::query()->find($driver->id)?->cash_cents)->toBe(10_000);
     });
 });
 

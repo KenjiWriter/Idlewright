@@ -25,6 +25,7 @@ $tutorialFacts = [
     'garage_bought' => ['label' => 'Garagem comprada', 'help' => 'Desde o início da etapa o piloto comprou uma garagem numa cidade. Uma garagem dada como recompensa de uma etapa não é compra e não conta.'],
     'city_open' => ['label' => 'Cidade sem garagem aberta', 'help' => 'O nível do piloto abre uma cidade com pista onde ele ainda não tem garagem.'],
     'mission_taken' => ['label' => 'Recompensa de missão recebida', 'help' => 'O piloto recebeu a recompensa de alguma missão (diária, semanal, mensal ou principal) em qualquer momento, também antes de o passo começar, como “crate_opened” conta qualquer caixa.'],
+    'gig_taken' => ['label' => 'Corrida pega', 'help' => 'O piloto pegou uma corrida em qualquer momento (uma desfeita nos primeiros segundos não conta).'],
     'tires_mounted:' => ['label' => 'Pneus de um tipo no carro', 'help' => 'O tipo vai depois dos dois-pontos: tires_mounted:rain. O carro que o piloto dirige está com pneus desse tipo: all_season, street, slick, rain, offroad ou winter.'],
     'car_level:' => ['label' => 'Nível do carro no mínimo', 'help' => 'Um número inteiro depois dos dois-pontos: car_level:6. O carro que o piloto dirige está nesse nível ou acima.'],
     'cash:' => ['label' => 'Dinheiro no mínimo', 'help' => 'Dólares inteiros depois dos dois-pontos, sem centavos e sem o sinal $: cash:450. O piloto tem pelo menos essa quantia.'],
@@ -161,6 +162,7 @@ return [
                 'profile' => ['label' => 'Perfil', 'help' => 'O banner e a janela que ligam a conta a um e-mail (Garagem); em outro lugar, a aba “Garagem”.'],
                 'garages' => ['label' => 'Garagens', 'help' => 'O botão de comprar uma garagem na ficha da cidade no Mapa; em outro lugar, a aba “Mapa”.'],
                 'missions' => ['label' => 'Missões', 'help' => 'A plaquinha de Missões na barra de cima, visível em toda tela do jogo; o botão “Mostrar” da barra de objetivo leva à tela das missões.'],
+                'gigs' => ['label' => 'Corridas', 'help' => 'A primeira oferta que o carro pode pegar na aba Corridas da cidade; em outro lugar, a aba “Cidade”.'],
             ],
         ],
         'goal' => [

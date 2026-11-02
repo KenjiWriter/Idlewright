@@ -25,6 +25,7 @@ $tutorialFacts = [
     'garage_bought' => ['label' => 'Garage bought', 'help' => 'Since the step started the driver has bought a garage in a city. A garage given as the reward of a step is not a purchase and does not count.'],
     'city_open' => ['label' => 'A city without a garage is open', 'help' => 'The driver’s level opens a city with a track where the driver has no garage yet.'],
     'mission_taken' => ['label' => 'A mission reward was taken', 'help' => 'The driver has taken the reward of any mission (daily, weekly, monthly or main) at any time, also before the step started, as “crate_opened” counts any crate.'],
+    'gig_taken' => ['label' => 'A gig was taken', 'help' => 'The driver has taken a gig, at any time (one that was taken back in the first seconds does not count).'],
     'tires_mounted:' => ['label' => 'Tires of a kind on the car', 'help' => 'You write the kind after the colon: tires_mounted:rain. The car the driver plays has tires of that kind on: all_season, street, slick, rain, offroad or winter.'],
     'car_level:' => ['label' => 'Car level at least', 'help' => 'A whole number after the colon: car_level:6. The car the driver plays is at that level or higher.'],
     'cash:' => ['label' => 'Cash at least', 'help' => 'Whole dollars after the colon, without cents and without the $ sign: cash:450. The driver holds at least that much.'],
@@ -161,6 +162,7 @@ return [
                 'profile' => ['label' => 'Profile', 'help' => 'The banner and the dialog that link the account to an e-mail (Garage); elsewhere the “Garage” tab.'],
                 'garages' => ['label' => 'Garages', 'help' => 'The button to buy a garage in the city sheet on the Map; elsewhere the “Map” tab.'],
                 'missions' => ['label' => 'Missions', 'help' => 'The Missions plate in the top bar, visible on every screen of the game; the “Show” button of the goal bar leads to the missions screen.'],
+                'gigs' => ['label' => 'Gigs', 'help' => 'The first offer the car can take on the Gigs tab of the city; elsewhere the “City” tab.'],
             ],
         ],
         'goal' => [

@@ -21,6 +21,7 @@ export const TARGET_SCREEN: Record<TutorialTarget, string> = {
   equipment: 'workshop',
   profile: 'garage',
   garages: 'map',
+  gigs: 'gigs',
   // The plate of the missions is in the bar at the top of every screen: the goal leads to the screen it opens.
   missions: 'missions',
 }

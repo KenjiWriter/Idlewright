@@ -11,6 +11,7 @@ use App\Content\TutorialSteps;
 use App\Domain\Run\SeededWeather;
 use App\Domain\Settlement\Settler;
 use App\Models\CrateOpening;
+use App\Models\Gig;
 use App\Models\LedgerEntry;
 use App\Models\MergeAttempt;
 use App\Models\RaceRun;
@@ -93,6 +94,7 @@ final class DriverFacts
             'equipment_bought' => $this->bought($userId, 'workshop_gear', $since),
             'garage_bought' => $this->bought($userId, 'garage', $since),
             'mission_taken' => UserMission::query()->where('user_id', $userId)->whereNotNull('claimed_at')->exists(),
+            'gig_taken' => Gig::query()->where('user_id', $userId)->where('status', '!=', Gig::STATUS_CANCELLED)->exists(),
             'email_confirmed' => User::query()->whereKey($userId)->whereNotNull('email_verified_at')->exists(),
             'city_open' => $this->cityOpen($userId),
             'tires_mounted' => $this->tiresMounted($userId, (string) $argument),

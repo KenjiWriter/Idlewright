@@ -963,6 +963,55 @@
       }
     },
     {
+      "key": "first-gig",
+      "phase": 4,
+      "trigger": "none",
+      "completion": "gig_taken",
+      "target": "gigs",
+      "goal": {
+        "pl": "Weź pierwszy kurs w mieście",
+        "en": "Take your first gig in the city",
+        "fr": "Prends ta première course en ville",
+        "de": "Nimm deinen ersten Auftrag in der Stadt an",
+        "pt-BR": "Pegue sua primeira corrida na cidade"
+      },
+      "sender": "+48 555 010 701",
+      "sms": [
+        {
+          "pl": "W mieście jest tablica kursów. Weź jeden: auto zawiezie pasażera albo paczkę po mieście i wróci z wypłatą.",
+          "en": "There is a board of gigs in the city. Take one: your car drives a passenger or a parcel across town and comes back with the pay.",
+          "fr": "Il y a un tableau de courses en ville. Prends-en une : ta voiture emmène un passager ou un colis à travers la ville et revient avec la paie.",
+          "de": "In der Stadt hängt eine Auftragstafel. Nimm einen an: Dein Auto bringt einen Fahrgast oder ein Paket durch die Stadt und kommt mit dem Lohn zurück.",
+          "pt-BR": "Há um quadro de corridas na cidade. Pegue uma: seu carro leva um passageiro ou uma encomenda pela cidade e volta com o pagamento."
+        },
+        {
+          "pl": "Wejdź w Miasto, zakładka Kursy, i dotknij „Weź”. Gdy auto wróci, wypłata wpada sama, nawet gdy Cię nie ma. Dorzucam $100. — K.",
+          "en": "Open City, the Gigs tab, and tap “Take”. When the car is back, the pay comes by itself, even when you’re away. I’m adding $100. — K.",
+          "fr": "Ouvre Ville, l’onglet Courses, et touche « Prendre ». Quand la voiture est de retour, la paie arrive toute seule, même en ton absence. Je t’ajoute 100 $. — K.",
+          "de": "Öffne Stadt, den Reiter Aufträge, und tippe auf „Annehmen“. Ist das Auto zurück, kommt der Lohn von allein, auch wenn du nicht da bist. Ich lege 100 $ drauf. — K.",
+          "pt-BR": "Abra Cidade, a aba Corridas, e toque em “Pegar”. Quando o carro voltar, o pagamento cai sozinho, mesmo quando você não está. Estou somando $ 100. — K."
+        }
+      ],
+      "reply": {
+        "pl": "OK, wezmę kurs",
+        "en": "OK, I’ll take one",
+        "fr": "OK, j’en prends une",
+        "de": "OK, ich nehme einen",
+        "pt-BR": "OK, vou pegar uma"
+      },
+      "decline": {
+        "pl": "Później",
+        "en": "Later",
+        "fr": "Plus tard",
+        "de": "Später",
+        "pt-BR": "Depois"
+      },
+      "optional": true,
+      "reward": {
+        "cash_cents": 10000
+      }
+    },
+    {
       "key": "main-missions",
       "phase": 4,
       "trigger": "none",

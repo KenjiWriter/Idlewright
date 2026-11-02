@@ -135,6 +135,8 @@ function blockedText(blocked: GigBlocked): string {
 }
 
 const rarityText = (rarity: string): string | null => (te(`gigs.rarity.${rarity}`) ? t(`gigs.rarity.${rarity}`) : null)
+/** The first offer that the car can take: the one the tutorial points at. */
+const firstTakeable = computed(() => offers.value.find((offer) => offer.eligible)?.key ?? null)
 const phaseText = computed(() => (board.value ? t(`gigs.phase.${board.value.phase}`) : ''))
 </script>
 
@@ -185,7 +187,7 @@ const phaseText = computed(() => (board.value ? t(`gigs.phase.${board.value.phas
           </div>
           <div class="flex-none text-right">
             <div class="font-display text-[26px] font-bold leading-none text-amber" data-test="pay">{{ money(offer.reward_cents) }}</div>
-            <button type="button" class="btn btn-primary btn-sm mt-1" :disabled="busy || !offer.eligible || active !== null" data-test="take" @click="take(offer)">{{ t('gigs.take') }}</button>
+            <button type="button" class="btn btn-primary btn-sm mt-1" :disabled="busy || !offer.eligible || active !== null" :data-tutorial="offer.key === firstTakeable ? 'gig' : undefined" data-test="take" @click="take(offer)">{{ t('gigs.take') }}</button>
           </div>
         </div>
 

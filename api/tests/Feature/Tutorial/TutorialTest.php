@@ -69,7 +69,7 @@ describe('the tutorial', function () {
             ->assertOk()
             ->assertHeader('Cache-Control', 'no-store, private')
             ->assertExactJson(['data' => [
-                'status' => 'in_progress', 'total' => 23, 'done' => 0, 'current' => null, 'rewarded' => [],
+                'status' => 'in_progress', 'total' => 24, 'done' => 0, 'current' => null, 'rewarded' => [],
                 // The goal is in front of the driver from the first screen: the wreck is the first thing to do.
                 'goal' => ['key' => 'wreck', 'number' => 1, 'phase' => 1, 'title' => 'Pick your wreck', 'waiting' => null, 'target' => null, 'tire_kind' => null, 'optional' => false, 'reward' => ['cash_cents' => 0, 'car_xp' => 0, 'xp' => 0, 'part' => null, 'garage' => null]],
             ]]);
@@ -312,8 +312,8 @@ describe('the tutorial', function () {
         getTutorial($driver)->assertJsonPath('data.status', 'skipped')->assertJsonPath('data.current', null)->assertJsonPath('data.rewarded', []);
 
         expect(driverCash($driver))->toBe(1_550)
-            // Every step but the first, which was done: the twenty-two of the twenty-three.
-            ->and(TutorialProgress::query()->where('user_id', $driver->id)->where('state', 'skipped')->count())->toBe(22);
+            // Every step but the first, which was done: the twenty-three of the twenty-four.
+            ->and(TutorialProgress::query()->where('user_id', $driver->id)->where('state', 'skipped')->count())->toBe(23);
     });
 
     it('keeps what was done when the driver skips, and what it was paid', function () {

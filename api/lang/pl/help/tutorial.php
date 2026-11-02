@@ -25,6 +25,7 @@ $tutorialFacts = [
     'garage_bought' => ['label' => 'Garaż kupiony', 'help' => 'Od startu kroku kierowca kupił garaż w mieście. Garaż dany w nagrodzie kroku nie jest zakupem i się nie liczy.'],
     'city_open' => ['label' => 'Jest miasto bez garażu', 'help' => 'Poziom kierowcy otwiera miasto z torem, w którym kierowca nie ma jeszcze garażu.'],
     'mission_taken' => ['label' => 'Odebrana nagroda misji', 'help' => 'Kierowca odebrał kiedykolwiek nagrodę jakiejś misji (dziennej, tygodniowej, miesięcznej albo głównej), także przed startem kroku, tak jak „crate_opened” liczy każdą skrzynkę.'],
+    'gig_taken' => ['label' => 'Wzięte zlecenie', 'help' => 'Kierowca wziął kiedykolwiek zlecenie (wycofane w pierwszych sekundach się nie liczy).'],
     'tires_mounted:' => ['label' => 'Opony danego rodzaju na aucie', 'help' => 'Rodzaj piszesz po dwukropku: tires_mounted:rain. Auto, którym gra kierowca, ma założone opony tego rodzaju: all_season (całoroczne), street (uliczne), slick, rain (deszczowe), offroad (terenowe) albo winter (zimowe).'],
     'car_level:' => ['label' => 'Poziom auta co najmniej', 'help' => 'Liczba całkowita po dwukropku: car_level:6. Auto, którym gra kierowca, ma ten poziom albo wyższy.'],
     'cash:' => ['label' => 'Gotówka co najmniej', 'help' => 'Pełne dolary po dwukropku, bez groszy i bez znaku $: cash:450. Kierowca ma w portfelu co najmniej tyle.'],
@@ -161,6 +162,7 @@ return [
                 'profile' => ['label' => 'Profil', 'help' => 'Baner i okno łączenia konta z e-mailem (Garaż); gdzie indziej zakładka „Garaż”.'],
                 'garages' => ['label' => 'Garaże', 'help' => 'Przycisk kupna garażu w arkuszu miasta na Mapie; gdzie indziej zakładka „Mapa”.'],
                 'missions' => ['label' => 'Misje', 'help' => 'Płytka Misji w górnym pasku, widoczna na każdym ekranie gry; przycisk „Pokaż” w pasku celu prowadzi na ekran misji.'],
+                'gigs' => ['label' => 'Kursy', 'help' => 'Pierwsza oferta, którą auto może wziąć, w zakładce Kursy w mieście; gdzie indziej zakładka „Miasto”.'],
             ],
         ],
         'goal' => [

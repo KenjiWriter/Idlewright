@@ -61,6 +61,7 @@ const TARGETS: Record<string, string[]> = {
   equipment: ['equipment', 'workshop'],
   profile: ['profile', 'garage'],
   garages: ['garages', 'map'],
+  gigs: ['gig', 'shop'],
 }
 
 function targetElement(): HTMLElement | null {
