@@ -44,5 +44,12 @@ return [
             'range' => 'De 1 a 1000 ml por segundo (do esquema).',
             'tip' => 'Mudar este número move de uma vez o combustível de todas as pistas do tipo. Um tanque dura a capacidade ÷ este número, em segundos: 45 l a 12 ml dão cerca de uma hora, a 32 ml cerca de 23 minutos.',
         ],
+        '/track_model/fuel_ml_per_s/rally' => [
+            'label' => 'Combustível por segundo de volta: rali',
+            'help' => 'Quanto combustível o motor de um carro de sede normal queima a cada segundo de uma volta numa pista do tipo "rali". O combustível de uma volta do carro de referência é este número vezes o tempo da volta, e um carro mais sedento queima mais.',
+            'example' => 'Rali 26 ml por segundo: o Rali da floresta de Kruszyn (cerca de 190 s) queima cerca de 4,9 l por volta.',
+            'range' => 'De 1 a 1000 ml por segundo (do esquema).',
+            'tip' => 'Mudar isso move o combustível de todos os ralis de uma vez. Fica entre a pista padrão (20) e a de resistência (32), porque um rali exige do motor sem ser uma corrida longa.',
+        ],
     ],
 ];

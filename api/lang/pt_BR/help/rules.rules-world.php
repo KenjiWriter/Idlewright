@@ -153,6 +153,13 @@ return [
             'range' => 'No mínimo 1 m, no máximo 10^11 m (do esquema).',
             'tip' => 'Com a mesma velocidade, uma pista mais longa tem mais quilômetros por volta, mas não por hora: os quilômetros por hora são a velocidade da pista. A revisão é a cada 5000 km, então o desgaste das peças e a revisão decorrem da velocidade, não da extensão.',
         ],
+        '/tracks/*/surface_mix/*/share_ppm' => [
+            'label' => 'Parte da volta numa superfície (milionésimos)',
+            'help' => 'Quanto da volta de um rali é numa superfície, em milionésimos: 600 000 são 60% da volta. As duas partes de uma pista somam 1 000 000, e os pneus do carro aderem à pista segundo elas.',
+            'example' => 'Um rali de floresta com 630 000 de cascalho e 370 000 de asfalto: 63% no cascalho, 37% no asfalto.',
+            'range' => 'De 1 a 1 000 000 (do esquema); as partes de uma pista somam 1 000 000.',
+            'tip' => 'O formulário do mundo escreve em porcentagem. Mover uma parte para o cascalho dá mais valor aos pneus off-road nesse rali; a porta do simulador confere que nenhum carro vença mais de dois ralis.',
+        ],
         '/tracks/*/demand/*' => [
             'label' => 'Peso da estatística na pista (%)',
             'help' => 'Que parcela esta estatística do carro (o nome do campo diz qual: aceleração, velocidade máxima, aderência, dirigibilidade, frenagem, off-road) tem no tempo de volta desta pista, em porcentagem. Quanto maior o peso, mais essa estatística decide qual carro é rápido na pista. Os pesos de todas as estatísticas de uma pista devem somar exatamente 100, e uma estatística sem peso não conta nada nessa pista.',

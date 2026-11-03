@@ -44,5 +44,12 @@ return [
             'range' => 'Von 1 bis 1000 ml pro Sekunde (aus dem Schema).',
             'tip' => 'Wer diese Zahl ändert, verschiebt den Kraftstoff aller Strecken dieser Art auf einmal. Ein Tank hält Fassungsvermögen ÷ diese Zahl in Sekunden: 45 l bei 12 ml sind etwa eine Stunde, bei 32 ml etwa 23 Minuten.',
         ],
+        '/track_model/fuel_ml_per_s/rally' => [
+            'label' => 'Kraftstoff pro Rundensekunde: Rallye',
+            'help' => 'Wie viel Kraftstoff der Motor eines Autos mit normalem Durst in jeder Sekunde einer Runde auf einer Strecke der Art „Rallye“ verbrennt. Der Verbrauch einer Runde des Referenzautos ist diese Zahl mal die Rundenzeit, und ein durstigeres Auto verbraucht mehr.',
+            'example' => 'Rallye 26 ml pro Sekunde: Die Waldrallye Kruszyn (etwa 190 s) verbraucht etwa 4,9 l pro Runde.',
+            'range' => 'Von 1 bis 1000 ml pro Sekunde (aus dem Schema).',
+            'tip' => 'Eine Änderung verschiebt den Verbrauch aller Rallyes auf einmal. Er liegt zwischen der Standardstrecke (20) und der Langstrecke (32), weil eine Rallye den Motor fordert, ohne ein langer Lauf zu sein.',
+        ],
     ],
 ];

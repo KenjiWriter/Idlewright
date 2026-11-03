@@ -123,6 +123,10 @@ return [
         'mix_surface' => [
             'label' => 'Surface',
             'help' => 'Une des surfaces dont la piste est faite, asphalte ou gravier. La météo la mouille ou la boue comme le reste du tour.',
+            'options' => [
+                'asphalt' => ['label' => 'Asphalte', 'help' => 'Asphalte sec ; la pluie le rend mouillé, la neige le recouvre. Les slicks et les pneus route sont les meilleurs au sec, les pneus pluie au mouillé.'],
+                'gravel' => ['label' => 'Gravier', 'help' => 'Gravier meuble ; la pluie le change en boue, la neige le recouvre. Les pneus tout-terrain sont les meilleurs, et la statistique Tout-terrain compte le plus.'],
+            ],
         ],
         'mix_percent' => [
             'label' => 'Part du tour (%)',

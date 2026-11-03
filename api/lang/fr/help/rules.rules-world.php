@@ -153,6 +153,13 @@ return [
             'range' => 'Au moins 1 m, au plus 10^11 m (d’après le schéma).',
             'tip' => 'À vitesse égale, un circuit plus long fait plus de kilomètres par tour, mais pas par heure : les kilomètres à l’heure sont la vitesse du circuit. L’entretien est tous les 5000 km : l’usure des pièces et l’entretien découlent donc de la vitesse, pas de la longueur.',
         ],
+        '/tracks/*/surface_mix/*/share_ppm' => [
+            'label' => 'Part du tour sur une surface (millionièmes)',
+            'help' => 'La part du tour d’un rallye sur une surface, en millionièmes. 600 000 font 60 % du tour. Les deux parts d’une piste font 1 000 000 ensemble, et les pneus d’une voiture adhèrent à la piste selon elles.',
+            'example' => 'Un rallye de forêt de 630 000 de gravier et 370 000 d’asphalte, soit 63 % sur gravier et 37 % sur asphalte.',
+            'range' => 'De 1 à 1 000 000 (d’après le schéma). Les parts d’une piste font 1 000 000 ensemble.',
+            'tip' => 'Le formulaire du monde l’écrit en pourcents. Déplacer une part vers le gravier donne plus de valeur aux pneus tout-terrain sur ce rallye. La porte du simulateur vérifie qu’aucune voiture ne gagne plus de deux rallyes.',
+        ],
         '/tracks/*/demand/*' => [
             'label' => 'Poids de la statistique sur la piste (%)',
             'help' => 'Quelle part cette statistique de la voiture (le nom du champ dit laquelle : accélération, vitesse max., adhérence, tenue de route, freinage, tout-terrain) a dans le temps au tour de cette piste, en pourcentage. Plus le poids est grand, plus cette statistique décide de la voiture rapide sur la piste. Les poids de toutes les statistiques d’une piste doivent faire exactement 100 au total, et une statistique sans poids ne compte pas du tout sur cette piste.',

@@ -153,6 +153,13 @@ return [
             'range' => 'Co najmniej 1 m, najwyżej 10^11 m (ze schematu).',
             'tip' => 'Przy tej samej prędkości dłuższy tor to więcej kilometrów na okrążenie, ale nie na godzinę: kilometry na godzinę to prędkość toru. Serwis jest co 5000 km, więc wymiana części i serwis wynikają z prędkości, nie z długości.',
         ],
+        '/tracks/*/surface_mix/*/share_ppm' => [
+            'label' => 'Udział okrążenia na nawierzchni (miliontne)',
+            'help' => 'Jaka część okrążenia rajdu jest na jednej nawierzchni, w milionowych częściach: 600 000 to 60% okrążenia. Dwa udziały toru dają razem 1 000 000, a opony auta chwytają tor według nich.',
+            'example' => 'Rajd leśny, 630 000 żwiru i 370 000 asfaltu: 63% na żwirze, 37% na asfalcie.',
+            'range' => 'Od 1 do 1 000 000 (ze schematu); udziały jednego toru dają razem 1 000 000.',
+            'tip' => 'Formularz świata zapisuje to w procentach. Przesunięcie udziału w stronę żwiru podnosi wartość opon terenowych na tym rajdzie; bramka symulatora pilnuje, żeby żadne auto nie wygrywało więcej niż dwóch rajdów.',
+        ],
         '/tracks/*/demand/*' => [
             'label' => 'Waga statystyki na torze (%)',
             'help' => 'Jaki udział ma ta statystyka auta (nazwa pola mówi którą: przyspieszenie, prędkość maks., przyczepność, prowadzenie, hamowanie, terenowość) w czasie okrążenia tego toru, w procentach. Im większa waga, tym bardziej ta statystyka decyduje o tym, które auto jest na torze szybkie. Wagi wszystkich statystyk toru muszą dawać razem dokładnie 100, a statystyka bez wagi nie liczy się na tym torze wcale.',

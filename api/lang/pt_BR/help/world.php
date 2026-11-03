@@ -123,6 +123,10 @@ return [
         'mix_surface' => [
             'label' => 'Superfície',
             'help' => 'Uma das superfícies de que a pista é feita, asfalto ou cascalho. O clima a molha ou a transforma em lama como no resto da volta.',
+            'options' => [
+                'asphalt' => ['label' => 'Asfalto', 'help' => 'Asfalto seco; a chuva o deixa molhado, a neve o cobre. Slicks e pneus de rua vão melhor no seco, pneus de chuva no molhado.'],
+                'gravel' => ['label' => 'Cascalho', 'help' => 'Cascalho solto; a chuva o transforma em lama, a neve o cobre. Pneus off-road vão melhor, e o atributo Off-road é o que mais conta.'],
+            ],
         ],
         'mix_percent' => [
             'label' => 'Parte da volta (%)',

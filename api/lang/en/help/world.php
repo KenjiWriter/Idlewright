@@ -123,6 +123,10 @@ return [
         'mix_surface' => [
             'label' => 'Surface',
             'help' => 'One of the surfaces the track is made of, asphalt or gravel. The weather wets or muds it as it does the rest of the lap.',
+            'options' => [
+                'asphalt' => ['label' => 'Asphalt', 'help' => 'Dry asphalt; rain makes it wet asphalt, snow covers it. Slicks and street tires do best when it is dry, rain tires when it is wet.'],
+                'gravel' => ['label' => 'Gravel', 'help' => 'Loose gravel; rain turns it into mud, snow covers it. Off-road tires do best, and the Off-road statistic counts for the most.'],
+            ],
         ],
         'mix_percent' => [
             'label' => 'Share of the lap (%)',

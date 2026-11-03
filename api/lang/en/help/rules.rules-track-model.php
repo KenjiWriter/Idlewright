@@ -44,5 +44,12 @@ return [
             'range' => 'From 1 to 1000 ml a second (from the schema).',
             'tip' => 'Changing this moves the fuel of every track of the kind at once. A tank lasts the capacity ÷ this number in seconds: 45 l at 12 ml is about an hour, at 32 ml about 23 minutes.',
         ],
+        '/track_model/fuel_ml_per_s/rally' => [
+            'label' => 'Fuel per second of a lap: rally',
+            'help' => 'How much fuel the engine of a car of normal thirst burns in every second of a lap on a track of the kind “rally”. The fuel of a lap of the reference car is this number times the time of the lap, and a thirstier car burns more.',
+            'example' => 'Rally 26 ml a second: the Kruszyn Forest Rally (about 190 s) burns about 4.9 l a lap.',
+            'range' => 'From 1 to 1000 ml a second (from the schema).',
+            'tip' => 'Changing this moves the fuel of every rally at once. It sits between the standard track (20) and the endurance track (32), because a rally is hard on the engine without being a long run.',
+        ],
     ],
 ];

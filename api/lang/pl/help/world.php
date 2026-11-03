@@ -123,6 +123,10 @@ return [
         'mix_surface' => [
             'label' => 'Nawierzchnia',
             'help' => 'Jedna z nawierzchni, z których jest tor: asfalt albo żwir. Pogoda moczy ją albo robi z niej błoto tak samo jak resztę okrążenia.',
+            'options' => [
+                'asphalt' => ['label' => 'Asfalt', 'help' => 'Suchy asfalt; deszcz robi z niego mokry asfalt, śnieg go przykrywa. Na sucho najlepsze są slicki i opony uliczne, na mokro opony deszczowe.'],
+                'gravel' => ['label' => 'Żwir', 'help' => 'Luźny żwir; deszcz zamienia go w błoto, śnieg go przykrywa. Najlepsze są opony terenowe, a najwięcej liczy się Terenowość.'],
+            ],
         ],
         'mix_percent' => [
             'label' => 'Udział okrążenia (%)',

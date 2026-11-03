@@ -44,5 +44,12 @@ return [
             'range' => 'Od 1 do 1000 ml na sekundę (ze schematu).',
             'tip' => 'Zmiana tej liczby rusza paliwo wszystkich torów tego rodzaju naraz. Zbiornik starcza na pojemność ÷ tę liczbę sekund: 45 l przy 12 ml to ok. godzina, przy 32 ml ok. 23 minuty.',
         ],
+        '/track_model/fuel_ml_per_s/rally' => [
+            'label' => 'Paliwo na sekundę okrążenia: rajd',
+            'help' => 'Ile paliwa spala silnik auta o zwykłym apetycie w każdej sekundzie okrążenia na torze rodzaju „rajd”. Paliwo okrążenia auta wzorcowego to ta liczba razy czas okrążenia, a bardziej żarłoczne auto spala więcej.',
+            'example' => 'Rajd 26 ml na sekundę: Rajd leśny pod Kruszynem (około 190 s) spala około 4,9 l na okrążenie.',
+            'range' => 'Od 1 do 1000 ml na sekundę (ze schematu).',
+            'tip' => 'Zmiana przesuwa paliwo każdego rajdu naraz. Leży między zwykłym torem (20) a dystansem (32), bo rajd obciąża silnik, ale nie jest długim biegiem.',
+        ],
     ],
 ];

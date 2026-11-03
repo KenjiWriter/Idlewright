@@ -44,5 +44,12 @@ return [
             'range' => 'De 1 à 1000 ml par seconde (d’après le schéma).',
             'tip' => 'Changer ce nombre déplace d’un coup le carburant de tous les circuits de ce type. Un réservoir dure sa capacité ÷ ce nombre, en secondes : 45 l à 12 ml font environ une heure, à 32 ml environ 23 minutes.',
         ],
+        '/track_model/fuel_ml_per_s/rally' => [
+            'label' => 'Carburant par seconde de tour : rallye',
+            'help' => 'Quantité de carburant que le moteur d’une voiture à la soif normale brûle chaque seconde d’un tour sur une piste du type « rallye ». Le carburant d’un tour de la voiture de référence est ce nombre multiplié par la durée du tour, et une voiture plus gourmande en brûle plus.',
+            'example' => 'Rallye 26 ml par seconde : le Rallye de la forêt de Kruszyn (environ 190 s) brûle environ 4,9 l par tour.',
+            'range' => 'De 1 à 1000 ml par seconde (d’après le schéma).',
+            'tip' => 'Changer ce nombre déplace le carburant de tous les rallyes à la fois. Il se place entre la piste standard (20) et l’endurance (32), car un rallye use le moteur sans être une longue course.',
+        ],
     ],
 ];

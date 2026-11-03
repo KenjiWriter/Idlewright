@@ -123,6 +123,10 @@ return [
         'mix_surface' => [
             'label' => 'Untergrund',
             'help' => 'Einer der Untergründe, aus denen die Strecke besteht: Asphalt oder Schotter. Das Wetter macht ihn nass oder matschig wie den Rest der Runde.',
+            'options' => [
+                'asphalt' => ['label' => 'Asphalt', 'help' => 'Trockener Asphalt; Regen macht ihn nass, Schnee bedeckt ihn. Slicks und Straßenreifen sind trocken am besten, Regenreifen nass.'],
+                'gravel' => ['label' => 'Schotter', 'help' => 'Loser Schotter; Regen macht ihn zu Schlamm, Schnee bedeckt ihn. Geländereifen sind am besten, und der Wert Gelände zählt am meisten.'],
+            ],
         ],
         'mix_percent' => [
             'label' => 'Anteil der Runde (%)',

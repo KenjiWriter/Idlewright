@@ -153,6 +153,13 @@ return [
             'range' => 'Mindestens 1 m, höchstens 10^11 m (aus dem Schema).',
             'tip' => 'Bei gleichem Tempo sind es auf einer längeren Strecke mehr Kilometer pro Runde, aber nicht pro Stunde: Die Kilometer pro Stunde sind das Tempo der Strecke. Die Wartung ist alle 5000 km, Teileverschleiß und Wartung folgen also aus dem Tempo, nicht aus der Länge.',
         ],
+        '/tracks/*/surface_mix/*/share_ppm' => [
+            'label' => 'Anteil der Runde auf einem Untergrund (Millionstel)',
+            'help' => 'Wie viel der Runde einer Rallye auf einem Untergrund liegt, in Millionsteln: 600 000 sind 60 % der Runde. Die zwei Anteile einer Strecke ergeben zusammen 1 000 000, und die Reifen eines Autos haften nach ihnen.',
+            'example' => 'Eine Waldrallye mit 630 000 Schotter und 370 000 Asphalt: 63 % auf Schotter, 37 % auf Asphalt.',
+            'range' => 'Von 1 bis 1 000 000 (aus dem Schema); die Anteile einer Strecke ergeben zusammen 1 000 000.',
+            'tip' => 'Das Formular der Welt schreibt es in Prozent. Ein Anteil mehr Schotter macht Geländereifen auf dieser Rallye wertvoller; das Tor des Simulators prüft, dass kein Auto mehr als zwei Rallyes gewinnt.',
+        ],
         '/tracks/*/demand/*' => [
             'label' => 'Gewicht der Statistik auf der Strecke (%)',
             'help' => 'Welchen Anteil diese Statistik des Autos (der Feldname sagt welche: Beschleunigung, Höchsttempo, Haftung, Fahrverhalten, Bremsen, Gelände) an der Rundenzeit dieser Strecke hat, in Prozent. Je größer das Gewicht, desto mehr entscheidet diese Statistik darüber, welches Auto auf der Strecke schnell ist. Die Gewichte aller Statistiken einer Strecke müssen zusammen genau 100 ergeben, und eine Statistik ohne Gewicht zählt auf dieser Strecke gar nicht.',

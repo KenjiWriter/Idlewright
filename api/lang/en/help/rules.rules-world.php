@@ -153,6 +153,13 @@ return [
             'range' => 'At least 1 m, at most 10^11 m (from the schema).',
             'tip' => 'At the same speed a longer track is more kilometres a lap, but not more an hour: the kilometres an hour are the speed of the track. The service is every 5000 km, so the wear of the parts and the service follow from the speed, not from the length.',
         ],
+        '/tracks/*/surface_mix/*/share_ppm' => [
+            'label' => 'Share of the lap on a surface (millionths)',
+            'help' => 'How much of the lap of a rally is on one surface, in millionths: 600 000 is 60% of the lap. The two shares of a track add up to 1 000 000, and the tires of a car grip the track by them.',
+            'example' => 'A forest rally of 630 000 gravel and 370 000 asphalt: 63% on gravel, 37% on asphalt.',
+            'range' => 'From 1 to 1 000 000 (from the schema); the shares of one track add up to 1 000 000.',
+            'tip' => 'The form of the world writes it in percent. Moving a share toward gravel makes off-road tires worth more on that rally; the gate of the simulator checks that no car wins more than two rallies.',
+        ],
         '/tracks/*/demand/*' => [
             'label' => 'Weight of the statistic on the track (%)',
             'help' => 'How big a share this statistic of the car (the name of the field says which: acceleration, top speed, grip, handling, braking, off-road) has in the lap time of this track, in percent. The bigger the weight, the more this statistic decides which car is fast on the track. The weights of all statistics of a track must add up to exactly 100, and a statistic with no weight does not count on that track at all.',
