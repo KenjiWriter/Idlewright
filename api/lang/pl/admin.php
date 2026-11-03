@@ -1002,8 +1002,8 @@ return [
             'track' => 'Tor',
             'lap' => 'Okrążenie',
             'best' => 'Z bonusami',
-            'lap_percent' => 'Okrążenie',
-            'income_percent' => 'Dochód',
+            'lap_percent' => 'Zmiana okrążenia',
+            'income_percent' => 'Zmiana dochodu',
         ],
     ],
     'pending' => [

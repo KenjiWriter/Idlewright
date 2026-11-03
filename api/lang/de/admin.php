@@ -966,8 +966,8 @@ return [
             'track' => 'Strecke',
             'lap' => 'Runde',
             'best' => 'Beste Runde',
-            'lap_percent' => 'Runde',
-            'income_percent' => 'Einnahmen',
+            'lap_percent' => 'Rundenänderung',
+            'income_percent' => 'Einnahmenänderung',
         ],
     ],
     'pending' => [

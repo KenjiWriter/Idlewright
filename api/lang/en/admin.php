@@ -1002,8 +1002,8 @@ return [
             'track' => 'Track',
             'lap' => 'Lap',
             'best' => 'Best lap',
-            'lap_percent' => 'Lap',
-            'income_percent' => 'Income',
+            'lap_percent' => 'Lap change',
+            'income_percent' => 'Income change',
         ],
     ],
     'pending' => [

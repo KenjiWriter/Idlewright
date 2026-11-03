@@ -966,8 +966,8 @@ return [
             'track' => 'Piste',
             'lap' => 'Tour',
             'best' => 'Meilleur tour',
-            'lap_percent' => 'Tour',
-            'income_percent' => 'Revenu',
+            'lap_percent' => 'Écart du tour',
+            'income_percent' => 'Écart de revenu',
         ],
     ],
     'pending' => [

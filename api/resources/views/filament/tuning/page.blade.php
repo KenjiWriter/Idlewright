@@ -12,8 +12,10 @@
     $muted = 'font-size: 13px; opacity: .7;';
     $cell = 'padding: 6px 10px; text-align: left; border-bottom: 1px solid rgba(128, 128, 128, .2); font-size: .875rem; vertical-align: top;';
     $locales = ['pl', 'en', 'fr', 'de', 'pt-BR'];
-    $percent = fn (int $ppm): string => rtrim(rtrim(number_format($ppm / 10_000, 1, '.', ''), '0'), '.').'%';
-    $tries = fn (?float $value): string => $value === null ? '—' : ($value < 10 ? number_format($value, 1, '.', '') : number_format(round($value), 0, '.', ' '));
+    // The decimal mark of the language of the panel: a point in English, a comma in the others.
+    $dec = app()->getLocale() === 'en' ? '.' : ',';
+    $percent = fn (int $ppm): string => rtrim(rtrim(number_format($ppm / 10_000, 1, $dec, ''), '0'), $dec).'%';
+    $tries = fn (?float $value): string => $value === null ? '—' : ($value < 10 ? number_format($value, 1, $dec, '') : number_format(round($value), 0, '.', ' '));
 @endphp
 
 <x-filament-panels::page>
@@ -87,7 +89,7 @@
                     <svg width="{{ max(12, count($bonus['bars'])) * 22 + 8 }}" height="86" role="img" aria-label="{{ __('admin.tuning.chart') }}" data-test="tuning-chart">
                         @foreach ($bonus['bars'] as $index => $bar)
                             @php($height = (int) round($bar['chance'] / $peak * 56))
-                            <rect x="{{ 4 + $index * 22 }}" y="{{ 62 - $height }}" width="18" height="{{ $height }}" rx="2" fill="currentColor" opacity=".55"><title>{{ $bar['percent'] }}%: {{ number_format($bar['chance'] * 100, 2, '.', '') }}%</title></rect>
+                            <rect x="{{ 4 + $index * 22 }}" y="{{ 62 - $height }}" width="18" height="{{ $height }}" rx="2" fill="currentColor" opacity=".55"><title>{{ $bar['percent'] }}%: {{ number_format($bar['chance'] * 100, 2, $dec, '') }}%</title></rect>
                             <text x="{{ 13 + $index * 22 }}" y="78" font-size="9" text-anchor="middle" fill="currentColor" opacity=".7">{{ $bar['percent'] }}</text>
                         @endforeach
                     </svg>
@@ -116,13 +118,13 @@
             @elseif ($budget !== null)
                 @php($drop = -$budget['worst']['lap_percent'])
                 @if ($drop > $budget['target'] && $drop <= $budget['approved'])
-                    <div style="color: rgb(217, 119, 6);" data-test="tuning-budget-warning">⚠ {{ __('admin.tuning.budget.warning', ['drop' => number_format($drop, 1, '.', ''), 'car' => $budget['worst']['car'], 'track' => $budget['worst']['track'], 'target' => $budget['target'], 'approved' => $budget['approved']]) }}</div>
+                    <div style="color: rgb(217, 119, 6);" data-test="tuning-budget-warning">⚠ {{ __('admin.tuning.budget.warning', ['drop' => number_format($drop, 1, $dec, ''), 'car' => $budget['worst']['car'], 'track' => $budget['worst']['track'], 'target' => $budget['target'], 'approved' => $budget['approved']]) }}</div>
                 @endif
                 @if ($budget['richest']['income_percent'] > $budget['income_target'] && $budget['richest']['income_percent'] <= $budget['income_approved'])
-                    <div style="color: rgb(217, 119, 6);" data-test="tuning-budget-warning">⚠ {{ __('admin.tuning.budget.income_warning', ['value' => number_format($budget['richest']['income_percent'], 1, '.', ''), 'car' => $budget['richest']['car'], 'track' => $budget['richest']['track'], 'target' => $budget['income_target'], 'approved' => $budget['income_approved']]) }}</div>
+                    <div style="color: rgb(217, 119, 6);" data-test="tuning-budget-warning">⚠ {{ __('admin.tuning.budget.income_warning', ['value' => number_format($budget['richest']['income_percent'], 1, $dec, ''), 'car' => $budget['richest']['car'], 'track' => $budget['richest']['track'], 'target' => $budget['income_target'], 'approved' => $budget['income_approved']]) }}</div>
                 @endif
                 @foreach ($budget['checks'] as $check)
-                    <div style="{{ $check['ok'] ? '' : 'color: rgb(220, 38, 38);' }}" data-test="tuning-budget-check">{{ $check['ok'] ? '✓' : '✗' }} {{ __($loop->first ? 'admin.tuning.budget.check' : 'admin.tuning.budget.income_check', ['value' => number_format($check['value'], 1, '.', ''), 'max' => $check['max']]) }}</div>
+                    <div style="{{ $check['ok'] ? '' : 'color: rgb(220, 38, 38);' }}" data-test="tuning-budget-check">{{ $check['ok'] ? '✓' : '✗' }} {{ __($loop->first ? 'admin.tuning.budget.check' : 'admin.tuning.budget.income_check', ['value' => number_format($check['value'], 1, $dec, ''), 'max' => $check['max']]) }}</div>
                 @endforeach
                 <div style="{{ $muted }}" data-test="tuning-budget-tries">{{ __('admin.tuning.budget.tries', ['to8' => $budget['tries']['to_8'] ?? '—', 'to10' => $budget['tries']['to_10'] ?? '—']) }}</div>
                 <table style="border-collapse: collapse;">
@@ -138,10 +140,10 @@
                             <tr data-test="tuning-budget-row">
                                 <td style="{{ $cell }}">{{ $row['car'] }}</td>
                                 <td style="{{ $cell }}">{{ $row['track'] }}</td>
-                                <td style="{{ $cell }}">{{ number_format($row['lap_ms'] / 1000, 1, '.', '') }} s</td>
-                                <td style="{{ $cell }}">{{ number_format($row['best_lap_ms'] / 1000, 1, '.', '') }} s</td>
-                                <td style="{{ $cell }}">{{ sprintf('%+.1f', $row['lap_percent']) }}%</td>
-                                <td style="{{ $cell }}">{{ sprintf('%+.1f', $row['income_percent']) }}%</td>
+                                <td style="{{ $cell }}">{{ number_format($row['lap_ms'] / 1000, 1, $dec, '') }} s</td>
+                                <td style="{{ $cell }}">{{ number_format($row['best_lap_ms'] / 1000, 1, $dec, '') }} s</td>
+                                <td style="{{ $cell }}">{{ str_replace('.', $dec, sprintf('%+.1f', $row['lap_percent'])) }}%</td>
+                                <td style="{{ $cell }}">{{ str_replace('.', $dec, sprintf('%+.1f', $row['income_percent'])) }}%</td>
                                 <td style="{{ $cell }}">{{ $row['hours_to_8'] ?? '—' }}</td>
                                 <td style="{{ $cell }}">{{ $row['hours_to_10'] ?? '—' }}</td>
                             </tr>

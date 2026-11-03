@@ -966,8 +966,8 @@ return [
             'track' => 'Pista',
             'lap' => 'Volta',
             'best' => 'Melhor volta',
-            'lap_percent' => 'Volta',
-            'income_percent' => 'Renda',
+            'lap_percent' => 'Variação da volta',
+            'income_percent' => 'Variação da renda',
         ],
     ],
     'pending' => [
