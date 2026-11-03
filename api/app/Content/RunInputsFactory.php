@@ -147,12 +147,14 @@ final class RunInputsFactory
         return $this->threadLap($trackSlug, $track, $car, $region, $tireKind, $tireAffixes, $tireCondition, $surfaceLossPpm, $tractionPpm, $mounted, $kind);
     }
 
-    /** The thread of the track of a run for the car it has now, as `forRun` makes the run. */
-    public function threadForRun(RaceRun $run): ?ThreadLap
+    /** The thread of the track of a run (or of another track, for the car of the run) for the car it has now, as `forRun` makes the run. */
+    public function threadForRun(RaceRun $run, ?string $trackSlug = null): ?ThreadLap
     {
+        $trackSlug ??= $run->track_slug;
+
         return $run->car === null
-            ? $this->threadFor($run->car_slug, $run->track_slug)
-            : $this->threadFor($run->car->vehicle_slug, $run->track_slug, $run->car->mountedParts(), $run->car->odometer());
+            ? $this->threadFor($run->car_slug, $trackSlug)
+            : $this->threadFor($run->car->vehicle_slug, $trackSlug, $run->car->mountedParts(), $run->car->odometer());
     }
 
     /**

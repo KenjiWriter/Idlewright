@@ -319,7 +319,7 @@ final class Travel
                     'demand' => $track['demand'],
                 ],
                 // Every track of the city, with what each is for the car that is played: the driver chooses among them where the car stands.
-                'tracks' => $this->choices->forCity($slug, $run, $level),
+                'tracks' => $this->choices->forCity($slug, $run, $level, $slug === $here),
                 // How the car, with the parts it has, runs this track in the dry against the lap of a car that matches its reference.
                 'fit_percent' => $run === null ? null : (int) round(100 * $track['base_lap_ms'] / $freezer->freeze($this->inputs->forRun($run, $trackSlug), 'map', 0)->config['lap_ms']['dry']),
                 'route' => $km === null || $stats === null ? null : ['km' => $km, ...$this->journeyOf($km, $stats), 'boost' => $this->boostRoute($km, $stats)],

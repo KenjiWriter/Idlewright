@@ -18,16 +18,17 @@ use App\Support\I18nText;
  */
 final class TrackChoices
 {
-    public function __construct(private readonly Rules $rules, private readonly RunInputsFactory $inputs) {}
+    public function __construct(private readonly Rules $rules, private readonly RunInputsFactory $inputs, private readonly TrackCharacter $character) {}
 
     /**
      * The tracks of a city, in the order of the rules (the first is the one a car drives on when it arrives).
      *
      * @param  RaceRun|null  $run  the run of the car that is played: without it there is nothing to say about the car
      * @param  int  $playerLevel  the level of the driver
+     * @param  bool  $explain  whether to say what the thread of each track asks and what the car does well on it (the city where the car stands: that is where it chooses)
      * @return list<array<string, mixed>>
      */
-    public function forCity(string $region, ?RaceRun $run, int $playerLevel): array
+    public function forCity(string $region, ?RaceRun $run, int $playerLevel, bool $explain = false): array
     {
         $choices = [];
 
@@ -48,6 +49,8 @@ final class TrackChoices
                 'base_lap_ms' => $track['base_lap_ms'],
                 'demand' => $track['demand'],
                 'car' => $run === null ? null : $this->forCar($run, $slug),
+                // The line of the track, where the time of its lap goes, and what the car does better or worse than the one the track is made for.
+                'thread' => $run === null || ! $explain ? null : $this->character->of($run, $slug),
             ];
         }
 
