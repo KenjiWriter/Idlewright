@@ -1104,6 +1104,7 @@
       "straight": "Prosta, {length} m",
       "corner": "Zakręt R{radius}, {angle}°",
       "returning": "Powrót na start",
+      "byHand": "Czas okrążenia tego toru jest ustalony ręcznie: pokazane prędkości to prędkości modelu.",
       "speed": "{speed} km/h",
       "title": "Tor"
     },

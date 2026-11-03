@@ -1104,6 +1104,7 @@
       "straight": "Gerade, {length} m",
       "corner": "Kurve R{radius}, {angle}°",
       "returning": "Zurück zum Start",
+      "byHand": "Die Rundenzeit dieser Strecke ist von Hand festgelegt: die gezeigten Geschwindigkeiten sind die des Modells.",
       "speed": "{speed} km/h",
       "title": "Die Strecke"
     },

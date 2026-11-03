@@ -134,6 +134,8 @@ export interface ProfileSection {
  */
 export interface RunProfile {
   track: string
+  /** `stats`: the lap time of the track is set by hand, and the speeds of the picture are those of the model. */
+  lap_from: 'stats' | 'thread'
   mode: 'circuit' | 'run'
   length_m: number
   weather: string

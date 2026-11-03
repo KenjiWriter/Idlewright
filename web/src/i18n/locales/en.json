@@ -1104,6 +1104,7 @@
       "straight": "Straight, {length} m",
       "corner": "Corner R{radius}, {angle}°",
       "returning": "Back to the start",
+      "byHand": "The lap time of this track is set by hand: the speeds shown are those of the model.",
       "speed": "{speed} km/h",
       "title": "The track"
     },

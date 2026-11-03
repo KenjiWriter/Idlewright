@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Content\Rules;
 use App\Content\RunInputsFactory;
 use App\Domain\Run\LapSimulator;
 use App\Domain\Run\ThreadPath;
@@ -24,10 +25,10 @@ final class RunProfile
 
     private const MIN_STEP_M = 10.0;
 
-    public function __construct(private readonly RunInputsFactory $inputs) {}
+    public function __construct(private readonly RunInputsFactory $inputs, private readonly Rules $rules) {}
 
     /**
-     * @return array{track: string, mode: string, length_m: int, weather: string, lap_s: float, drive_fraction: float, sections: list<array<string, mixed>>, points: list<array{0: float, 1: float}>, distance_m: list<float>, speed_kmh: list<float>, time: list<float>}|null null for a track that has no thread
+     * @return array{track: string, lap_from: string, mode: string, length_m: int, weather: string, lap_s: float, drive_fraction: float, sections: list<array<string, mixed>>, points: list<array{0: float, 1: float}>, distance_m: list<float>, speed_kmh: list<float>, time: list<float>}|null null for a track that has no thread
      */
     public function of(RaceRun $run, string $weather): ?array
     {
@@ -75,6 +76,8 @@ final class RunProfile
 
         return [
             'track' => $run->track_slug,
+            // Where the lap time of the track comes from: when it is the formula, the speeds of the picture are those of the model and the screen says so.
+            'lap_from' => $this->rules->lapFrom($run->track_slug),
             'mode' => $lap->thread->mode,
             'length_m' => (int) round($length),
             'weather' => isset($lap->carsByWeather[$weather]) ? $weather : 'dry',

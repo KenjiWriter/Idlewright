@@ -88,7 +88,7 @@ Nie ma osobnego przycisku „ustaw prędkość z nitki”: schemat wymaga dla to
 
 `GET /v1/runs/current/profile?weather=…` (`RunProfile`) daje linię nitki toru biegu (pętlę wygiętą tak, żeby się zamykała, około 180 punktów), dla każdego punktu odległość, prędkość auta **takiego, jakie jest teraz**, w pogodzie z zapytania, i ułamek czasu okrążenia, a do tego odcinki. Odpowiedź jest zawsze świeża (`no-store`), liczy się w poniżej milisekundy i **nigdy w czasie jazdy**: ekran pyta o nią przy wejściu i gdy zmieni się tor, auto, pogoda albo czas okrążenia. Auto na ekranie to **czysta funkcja** profilu i ułamka okrążenia (`trackSpot`): czas profilu jest rozciągnięty na **zamrożony** `lap_ms`, więc auto jest tam, gdzie mówi rozliczenie, co do milisekundy, także gdy model zmienił się po zamrożeniu. Boty jadą jako duchy swoje suche okrążenia z tabeli botów na zegarze serwera liczonym od jednego momentu (u wszystkich graczy w tych samych miejscach). Ekran rysuje linię, auto, boty, prędkość i nazwę odcinka („Zakręt R70, 90°”); osoba, która poprosiła system o mniej ruchu, dostaje ruch raz na sekundę.
 
-Dla toru na `stats` rysunek pokazuje prędkości modelu, a animacja trwa dokładnie tyle, co okrążenie toru (stąd tempo ≠ 1 z propozycji: prędkościomierz pokazuje prędkość modelu).
+Dla toru na `stats` rysunek pokazuje prędkości modelu, a animacja trwa dokładnie tyle, co okrążenie toru (stąd tempo ≠ 1 z propozycji: prędkościomierz pokazuje prędkość modelu). Profil niesie `lap_from`, a pod rysunkiem toru na `stats` stoi jedna krótka linijka: „Czas okrążenia tego toru jest ustalony ręcznie: pokazane prędkości to prędkości modelu” (pięć języków).
 
 ## Nitki piętnastu torów
 

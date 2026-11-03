@@ -1104,6 +1104,7 @@
       "straight": "Reta, {length} m",
       "corner": "Curva R{radius}, {angle}°",
       "returning": "Voltando ao início",
+      "byHand": "O tempo de volta desta pista é definido à mão: as velocidades mostradas são as do modelo.",
       "speed": "{speed} km/h",
       "title": "A pista"
     },

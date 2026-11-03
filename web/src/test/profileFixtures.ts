@@ -7,6 +7,7 @@ import type { RunProfile } from '@/api/types'
 export function aProfile(overrides: Partial<RunProfile> = {}): RunProfile {
   return {
     track: 'zlomowo-street',
+    lap_from: 'thread',
     mode: 'circuit',
     length_m: 400,
     weather: 'dry',

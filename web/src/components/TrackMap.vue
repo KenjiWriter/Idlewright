@@ -135,5 +135,6 @@ const sectionText = computed(() => {
       <span class="text-muted" data-test="track-section">{{ sectionText }}</span>
       <b class="mono text-ink" data-test="track-speed">{{ t('race.track.speed', { speed: Math.round(spot.speedKmh) }) }}</b>
     </div>
+    <p v-if="profile.lap_from === 'stats'" class="sub text-[12px]" data-test="track-by-hand">{{ t('race.track.byHand') }}</p>
   </div>
 </template>

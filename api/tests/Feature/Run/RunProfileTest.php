@@ -46,6 +46,8 @@ it('draws the line of the thread with the speed of the car and how far through t
     $data = $response->json('data');
 
     expect($data['track'])->toBe('zlomowo-street')
+        // The street is driven by the formula in these rules: the picture says so, for the screen to tell that the lap time is set by hand.
+        ->and($data['lap_from'])->toBe('stats')
         ->and($data['mode'])->toBe('circuit')
         ->and($data['length_m'])->toBe(2_599)
         ->and($data['weather'])->toBe('dry')
@@ -100,4 +102,13 @@ it('draws the line of a track whose reference car lacks a statistic of the model
     expect($data['track'])->toBe('kruszyn-quarry')
         ->and(count($data['points']))->toBeGreaterThan(20)
         ->and(max($data['speed_kmh']))->toBeGreaterThan(20.0);
+});
+
+it('says a lap that is driven on the thread is, so that the screen does not tell it is set by hand', function () {
+    $data = json_decode((string) file_get_contents(config('ride.content_path').'/rules/starter.json'), true);
+    $data['tracks']['zlomowo-street']['lap_from'] = 'thread';
+    app()->instance(Rules::class, Rules::fromArray($data));
+    [$driver] = driverWithRun(['track_slug' => 'zlomowo-street']);
+
+    expect(getRun($driver, 'current/profile')->assertOk()->json('data.lap_from'))->toBe('thread');
 });

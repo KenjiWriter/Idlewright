@@ -32,6 +32,14 @@ describe('TrackMap', () => {
     expect(new Set(colours).size).toBeGreaterThan(1)
   })
 
+  it('says the lap time is set by hand when the track is driven by the formula, and nothing when it is driven on its thread', () => {
+    const byHand = show({ profile: aProfile({ lap_from: 'stats' }) })
+    const driven = show({ profile: aProfile({ lap_from: 'thread' }) })
+
+    expect(byHand.get('[data-test="track-by-hand"]').text()).toBe('The lap time of this track is set by hand: the speeds shown are those of the model.')
+    expect(driven.find('[data-test="track-by-hand"]').exists()).toBe(false)
+  })
+
   it('says how fast the car goes and which section it is in', () => {
     const wrapper = show({ player: () => 0.1 })
 

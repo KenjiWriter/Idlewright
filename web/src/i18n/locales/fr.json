@@ -1104,6 +1104,7 @@
       "straight": "Ligne droite, {length} m",
       "corner": "Virage R{radius}, {angle}°",
       "returning": "Retour au départ",
+      "byHand": "Le temps au tour de ce circuit est fixé à la main : les vitesses affichées sont celles du modèle.",
       "speed": "{speed} km/h",
       "title": "Le circuit"
     },
