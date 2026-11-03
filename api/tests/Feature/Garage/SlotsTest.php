@@ -2,9 +2,12 @@
 
 declare(strict_types=1);
 
+use App\Content\Rules;
+use App\Domain\Settlement\Ppm;
 use App\Models\Car;
 use App\Models\LedgerEntry;
 use App\Models\RaceRun;
+use App\Models\Settlement;
 use App\Models\User;
 use App\Models\Wallet;
 use App\Models\WorkshopJob;
@@ -475,5 +478,60 @@ describe('the slots of the VIP account', function () {
             expect($fleet['slots'])->toMatchArray(['active' => 2, 'stored' => 1])
                 ->and(collect($fleet['cars'])->where('stored', true))->toHaveCount(1);
         });
+    });
+});
+
+describe('what a car earns by its slot', function () {
+    /** The rules of the game with the yield of the slots changed (all of it by default). */
+    function theYieldIs(array $yield): void
+    {
+        $data = json_decode((string) file_get_contents(config('ride.content_path').'/rules/starter.json'), true, 512, JSON_THROW_ON_ERROR);
+        $data['slots']['yield_ppm'] = $yield;
+        app()->singleton(Rules::class, fn () => Rules::fromArray($data));
+    }
+
+    /** What the cars of a driver paid in an hour, by the number of the slot. */
+    function paidInAnHourBySlot(User $driver): array
+    {
+        $paid = [];
+        Carbon::setTestNow(missionNoon()->addHour());
+
+        foreach (Car::query()->where('user_id', $driver->id)->orderBy('id')->get() as $car) {
+            $run = runOfCar($car->id);
+            app(RunService::class)->settle($run->id, RunService::nowMs());
+            $paid[$car->refresh()->slot_no] = (int) Settlement::query()->where('race_run_id', $run->id)->sum('cash_cents');
+        }
+
+        return $paid;
+    }
+
+    it('is a part of the pay of the laps of the slot, taken lap by lap, and only for the slots that the rules name', function () {
+        theYieldIs([1_000_000, 1_000_000, 600_000]);
+        $driver = slotDriver(3);
+
+        $paid = paidInAnHourBySlot($driver);
+
+        // The third car drives the same laps for 60% of the pay of each; the first two are paid in full.
+        expect($paid[1])->toBeGreaterThan(0)->and($paid[2])->toBe($paid[1])->and($paid[3])->toBe((int) (intdiv($paid[1], 1_550) * Ppm::mul(1_550, 600_000)));
+    });
+
+    it('is all of it with the rules as they ship, for every slot', function () {
+        $driver = slotDriver(3);
+
+        $paid = paidInAnHourBySlot($driver);
+
+        expect($paid[1])->toBeGreaterThan(0)->and($paid[2])->toBe($paid[1])->and($paid[3])->toBe($paid[1]);
+    });
+
+    it('is all of it when the limit of the cars is off, whatever the slots say', function () {
+        $data = json_decode((string) file_get_contents(config('ride.content_path').'/rules/starter.json'), true, 512, JSON_THROW_ON_ERROR);
+        $data['slots']['enabled'] = false;
+        $data['slots']['yield_ppm'] = [500_000, 500_000, 500_000];
+        app()->singleton(Rules::class, fn () => Rules::fromArray($data));
+        $driver = slotDriver(3);
+
+        $paid = paidInAnHourBySlot($driver);
+
+        expect(array_unique($paid))->toHaveCount(1);
     });
 });

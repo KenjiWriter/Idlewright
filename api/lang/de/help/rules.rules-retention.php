@@ -208,5 +208,12 @@ return [
             'example' => '1140: 19:00 Uhr.',
             'range' => '0 – 1439 (Minuten nach Mitternacht).',
         ],
+        '/slots/yield_ppm/*' => [
+            'label' => 'Was ein Auto verdient, nach Slot',
+            'help' => 'Der Teil der Bezahlung jeder Runde (Geld und Erfahrung), den ein Auto bekommt, nach dem Slot, in dem es steht: Die erste Zahl gilt für den ersten Slot. 100 % ist alles. Es ist der Hebel für den Fall, dass ein VIP-Konto mit fünf Autos zu stark wird: Der vierte und der fünfte Slot mit 70 % sind die Variante B der Tafel. Der VIP-Bonus kommt auf das, was übrig bleibt.',
+            'example' => '70 %: Ein Auto in diesem Slot verdient sieben Zehntel der Bezahlung einer Runde.',
+            'range' => '0 – 100 % (ein Teil der Bezahlung).',
+            'tip' => 'Prüfe mit economy:fleet, was die Änderung mit dem Vorteil des VIP-Kontos macht, bevor du veröffentlichst.',
+        ],
     ],
 ];

@@ -776,7 +776,7 @@ final class Rules
      * The limit of active cars as the rules give it: the switch, how many cars a driver can have on the road, how many more with the VIP account, how long a car taken
      * out of storage takes to be ready and what a swap costs (a part of a tank). Null when the rules do not mention it, which is the same as off.
      *
-     * @return array{enabled: bool, base: int, vip: int, swap_ms: int, swap_fee_ppm: int}|null
+     * @return array{enabled: bool, base: int, vip: int, swap_ms: int, swap_fee_ppm: int, yield_ppm: list<int>}|null
      */
     public function slots(): ?array
     {
@@ -788,6 +788,7 @@ final class Rules
             'vip' => (int) $slots['vip'],
             'swap_ms' => (int) $slots['swap_ms'],
             'swap_fee_ppm' => (int) $slots['swap_fee_ppm'],
+            'yield_ppm' => array_map('intval', array_values($slots['yield_ppm'])),
         ];
     }
 

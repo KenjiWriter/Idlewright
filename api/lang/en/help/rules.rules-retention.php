@@ -208,5 +208,12 @@ return [
             'example' => '1140: 19:00.',
             'range' => '0 – 1439 (minutes after midnight).',
         ],
+        '/slots/yield_ppm/*' => [
+            'label' => 'What a car earns, by slot',
+            'help' => 'The part of the pay of every lap (cash and experience) that a car gets, by the slot it is in: the first number is for the first slot. 100% is all of it. It is the lever for a VIP account that proves too strong with five cars: the fourth and the fifth slot at 70% is the variant B of the board. The VIP bonus is on top of what is left.',
+            'example' => '70%: a car in this slot earns seven tenths of the pay of a lap.',
+            'range' => '0 – 100% (a part of the pay).',
+            'tip' => 'Check with economy:fleet what the change does to the advantage of the VIP account before it is published.',
+        ],
     ],
 ];

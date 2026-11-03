@@ -69,8 +69,9 @@ final class Settler
      * the windows only keep every step (and the transaction around it) small.
      *
      * @param  list<BonusWindow>  $bonus
+     * @param  int  $yieldPpm  the part of the pay of each lap that the car gets (1 000 000 is all of it): see `settle`
      */
-    public function settleInChunks(RunState $state, int $nowMs, RunConfig $config, int $maxWindowMs = self::MAX_WINDOW_MS, ?RefillPolicy $refill = null, array $bonus = []): SettlementResult
+    public function settleInChunks(RunState $state, int $nowMs, RunConfig $config, int $maxWindowMs = self::MAX_WINDOW_MS, ?RefillPolicy $refill = null, array $bonus = [], int $yieldPpm = Ppm::ONE): SettlementResult
     {
         $refill ??= RefillPolicy::none();
         $events = [];
@@ -86,7 +87,7 @@ final class Settler
         // A car whose tank is empty still goes on where the policy fills it.
         while ($windowStart < $nowMs && (self::lapBudget($state, $config) > 0 || $this->refillsAtOnce($state, $config, $refill))) {
             $windowEnd = min($nowMs, $windowStart + $maxWindowMs);
-            $step = $this->settle($state, $windowEnd, $config, $refill, $bonus);
+            $step = $this->settle($state, $windowEnd, $config, $refill, $bonus, $yieldPpm);
 
             $state = $step->state;
             $laps += $step->laps;
@@ -107,8 +108,9 @@ final class Settler
 
     /**
      * @param  list<BonusWindow>  $bonus
+     * @param  int  $yieldPpm  the part of the pay (cash and experience) of each lap that the car gets: 1 000 000 is all of it, and the lap is rounded after it is taken
      */
-    public function settle(RunState $state, int $nowMs, RunConfig $config, ?RefillPolicy $refill = null, array $bonus = []): SettlementResult
+    public function settle(RunState $state, int $nowMs, RunConfig $config, ?RefillPolicy $refill = null, array $bonus = [], int $yieldPpm = Ppm::ONE): SettlementResult
     {
         $refill ??= RefillPolicy::none();
         $cursor = $state->cursorMs;
@@ -150,6 +152,13 @@ final class Settler
 
                 $lapCash = $config->lapCashFor($weather);
                 $lapXp = $config->lapXpFor($weather);
+
+                // The yield of the car (a car in a slot that the game pays less for) is a part of what each lap pays, taken lap by lap, so that settling in steps pays what settling at once
+                // pays. The bonus of the VIP account is on top of what is left.
+                if ($yieldPpm !== Ppm::ONE) {
+                    $lapCash = Ppm::mul($lapCash, $yieldPpm);
+                    $lapXp = Ppm::mul($lapXp, $yieldPpm);
+                }
                 $batchBonusCash = 0;
                 $batchBonusXp = 0;
 

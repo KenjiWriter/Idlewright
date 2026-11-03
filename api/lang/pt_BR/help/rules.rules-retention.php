@@ -208,5 +208,12 @@ return [
             'example' => '1140: 19:00.',
             'range' => '0 – 1439 (minutos depois da meia-noite).',
         ],
+        '/slots/yield_ppm/*' => [
+            'label' => 'Quanto um carro ganha, por vaga',
+            'help' => 'A parte do pagamento de cada volta (dinheiro e experiência) que um carro recebe, conforme a vaga em que está: o primeiro número é da primeira vaga. 100% é tudo. É a alavanca para o caso de uma conta VIP com cinco carros ficar forte demais: a quarta e a quinta vaga com 70% são a variante B do quadro. O bônus VIP vem em cima do que sobra.',
+            'example' => '70%: um carro nesta vaga ganha sete décimos do pagamento de uma volta.',
+            'range' => '0 – 100% (uma parte do pagamento).',
+            'tip' => 'Confira com economy:fleet o que a mudança faz com a vantagem da conta VIP antes de publicar.',
+        ],
     ],
 ];

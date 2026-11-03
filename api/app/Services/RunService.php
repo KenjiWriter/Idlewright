@@ -11,6 +11,7 @@ use App\Domain\Run\FrozenRun;
 use App\Domain\Run\RunFreezer;
 use App\Domain\Run\RunInputs;
 use App\Domain\Settlement\EventType;
+use App\Domain\Settlement\Ppm;
 use App\Domain\Settlement\RefillPolicy;
 use App\Domain\Settlement\RunState;
 use App\Domain\Settlement\SettlementEvent;
@@ -618,7 +619,7 @@ final class RunService
         // What the driver has bought (the auto-refill, the VIP account) comes from the wallet, which is locked by now; the frozen configuration knows nothing of it.
         [$refill, $bonus] = $until > $run->cursor_ms ? $this->perks()->forRun($run) : [RefillPolicy::none(), []];
 
-        $result = $this->settler->settleInChunks($state, $until, $config, refill: $refill, bonus: $bonus);
+        $result = $this->settler->settleInChunks($state, $until, $config, refill: $refill, bonus: $bonus, yieldPpm: $until > $run->cursor_ms ? $this->slots()->yieldPpm($run) : Ppm::ONE);
 
         if ($result->isEmpty()) {
             return new Settled($result, null);

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Content\Rules;
+use App\Domain\Settlement\Ppm;
 use App\Exceptions\RuleRefusedException;
 use App\Models\Car;
 use App\Models\LedgerEntry;
@@ -424,5 +425,20 @@ final class Slots
         }
 
         return (int) $wallet->legacy_slots;
+    }
+
+    /**
+     * What a car earns of the pay of its laps, in ppm, by the slot it is in: the rules give a number for each slot (all of it by default), so that the cars in the last slots can be made
+     * to earn less if a VIP account with five cars proves too strong. All of it when the limit is off, and for a car that has no slot (yet).
+     */
+    public function yieldPpm(RaceRun $run): int
+    {
+        if (! $this->on() || $run->car_id === null) {
+            return Ppm::ONE;
+        }
+
+        $slot = Car::query()->whereKey($run->car_id)->value('slot_no');
+
+        return $slot === null ? Ppm::ONE : ($this->rules->slots()['yield_ppm'][$slot - 1] ?? Ppm::ONE);
     }
 }

@@ -847,7 +847,8 @@
     "base": 2,
     "vip": 3,
     "swap_ms": 120000,
-    "swap_fee_ppm": 20000
+    "swap_fee_ppm": 20000,
+    "yield_ppm": [1000000, 1000000, 1000000, 1000000, 1000000]
   },
   "competition": {
     "enabled": true,

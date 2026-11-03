@@ -109,6 +109,11 @@ function rulesSchemaErrors(array $rules): array
         }
     }
 
+    // What a car earns by its slot is a list.
+    if (isset($data->slots->yield_ppm) && is_object($data->slots->yield_ppm)) {
+        $data->slots->yield_ppm = array_values((array) $data->slots->yield_ppm);
+    }
+
     // The cycle of the streak and its milestones are lists of objects, and so are the crates that they give.
     foreach (['cycle', 'milestones'] as $key) {
         if (isset($data->streaks->{$key}) && is_object($data->streaks->{$key})) {

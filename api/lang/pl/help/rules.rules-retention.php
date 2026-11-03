@@ -208,5 +208,12 @@ return [
             'example' => '1140: 19:00.',
             'range' => '0 – 1439 (minuty po północy).',
         ],
+        '/slots/yield_ppm/*' => [
+            'label' => 'Ile zarabia auto, według slotu',
+            'help' => 'Jaka część wypłaty za każde okrążenie (gotówka i doświadczenie) trafia do auta, według slotu, w którym stoi: pierwsza liczba dotyczy pierwszego slotu. 100% to całość. To dźwignia na wypadek, gdyby konto VIP z pięcioma autami okazało się za mocne: czwarty i piąty slot po 70% to wariant B z planszy. Premia VIP liczy się od tego, co zostało.',
+            'example' => '70%: auto w tym slocie zarabia siedem dziesiątych wypłaty za okrążenie.',
+            'range' => '0 – 100% (część wypłaty).',
+            'tip' => 'Sprawdź poleceniem economy:fleet, co zmiana robi z przewagą konta VIP, zanim ją opublikujesz.',
+        ],
     ],
 ];

@@ -208,5 +208,12 @@ return [
             'example' => '1140 : 19 h.',
             'range' => '0 – 1439 (minutes après minuit).',
         ],
+        '/slots/yield_ppm/*' => [
+            'label' => 'Ce que gagne une voiture, par emplacement',
+            'help' => 'La part de la paie de chaque tour (argent et expérience) qu’une voiture reçoit, selon l’emplacement où elle est : le premier nombre est pour le premier emplacement. 100 % est le tout. C’est le levier si un compte VIP avec cinq voitures se révèle trop fort : les quatrième et cinquième emplacements à 70 % sont la variante B de la planche. Le bonus VIP s’ajoute à ce qui reste.',
+            'example' => '70 % : une voiture à cet emplacement gagne sept dixièmes de la paie d’un tour.',
+            'range' => '0 – 100 % (une part de la paie).',
+            'tip' => 'Vérifiez avec economy:fleet ce que le changement fait à l’avantage du compte VIP avant de publier.',
+        ],
     ],
 ];

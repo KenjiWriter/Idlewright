@@ -836,9 +836,16 @@
         "base": { "description": "How many cars every driver can have active.", "type": "integer", "minimum": 1, "maximum": 50 },
         "vip": { "description": "How many more cars a driver with the VIP account can have active, for as long as it lasts. The cars in these slots stop earning the moment the account ends, and go to storage.", "type": "integer", "minimum": 0, "maximum": 50 },
         "swap_ms": { "description": "How long a car that is put on the road from storage is made ready for, in milliseconds: it drives from that moment on. It keeps a driver from changing cars at every shower.", "type": "integer", "minimum": 0, "maximum": 3600000 },
-        "swap_fee_ppm": { "description": "What it costs to swap a car on the road for one from storage, as a part of the net earnings of a tank of the best car of the driver (1 000 000 is a whole tank). Putting a car on a free slot costs nothing.", "type": "integer", "minimum": 0, "maximum": 1000000 }
+        "swap_fee_ppm": { "description": "What it costs to swap a car on the road for one from storage, as a part of the net earnings of a tank of the best car of the driver (1 000 000 is a whole tank). Putting a car on a free slot costs nothing.", "type": "integer", "minimum": 0, "maximum": 1000000 },
+        "yield_ppm": {
+          "description": "What a car earns of the pay of its laps (cash and experience), by the slot it is in (the first number is for the first slot): 1 000 000 is all of it. The lever for a VIP account that proves too strong with five cars (the fourth and the fifth earning 70% is the variant B of the board): all of it by default. A slot with no number earns all of it.",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "items": { "type": "integer", "minimum": 0, "maximum": 1000000 }
+        }
       },
-      "required": ["enabled", "base", "vip", "swap_ms", "swap_fee_ppm"],
+      "required": ["enabled", "base", "vip", "swap_ms", "swap_fee_ppm", "yield_ppm"],
       "additionalProperties": false
     },
     "competition": {
