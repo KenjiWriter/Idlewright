@@ -145,9 +145,21 @@ final class WorldFields
                         TextInput::make('slug')->helpKey('world.track_slug')->required()->maxLength(64)->regex(self::SLUG)->distinct(),
                         Select::make('region')->helpKey('world.track_region')->options(fn (Get $get): array => ContentOptions::cities($get('../../regions')))->required(),
                         Select::make('surface')->helpKey('world.surface')->options(FieldHelp::options('world.surface', ['asphalt', 'gravel']))->required(),
-                        Select::make('kind')->helpKey('world.kind')->options(FieldHelp::options('world.kind', ['sprint', 'standard', 'endurance']))->placeholder(__('admin.world.kinds.standard')),
+                        Select::make('kind')->helpKey('world.kind')->options(FieldHelp::options('world.kind', ['sprint', 'standard', 'endurance', 'rally']))->placeholder(__('admin.world.kinds.standard')),
                     ]),
                     DefinitionFields::texts('name', __('admin.definitions.name'), 'world.track_name'),
+                    // The mix of surfaces of a rally: how much of the lap is on each surface.
+                    Repeater::make('surface_mix')
+                        ->helpKey('world.surface_mix')
+                        ->maxItems(2)
+                        ->defaultItems(0)
+                        ->addActionLabel(__('admin.world.mix_add'))
+                        ->schema([
+                            Grid::make(2)->schema([
+                                Select::make('surface')->helpKey('world.mix_surface')->options(FieldHelp::options('world.surface', ['asphalt', 'gravel']))->required(),
+                                TextInput::make('percent')->helpKey('world.mix_percent')->numeric()->minValue(1)->maxValue(100)->required(),
+                            ]),
+                        ]),
                     Hidden::make('lap_from'),
                     Hidden::make('thread'),
                     Grid::make(3)->schema([

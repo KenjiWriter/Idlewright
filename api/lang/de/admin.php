@@ -606,6 +606,7 @@ return [
         'to' => 'Nach',
         'km' => 'Länge (km)',
         'tracks_hint' => 'Die erste Strecke ist der Start eines neuen Fahrers: Sie ist ab Stufe 1 offen. Eine Strecke, die Spieler nutzen, kann nicht entfernt werden.',
+        'mix_add' => 'Untergrund hinzufügen',
         'track_add' => 'Strecke hinzufügen',
         'city' => 'Stadt',
         'surface' => 'Untergrund',

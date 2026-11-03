@@ -606,6 +606,7 @@ return [
         'to' => 'Para',
         'km' => 'Extensão (km)',
         'tracks_hint' => 'A primeira pista é onde um novo piloto começa: está aberta desde o nível 1. Uma pista que jogadores usam não pode ser removida.',
+        'mix_add' => 'Adicionar uma superfície',
         'track_add' => 'Adicionar pista',
         'city' => 'Cidade',
         'surface' => 'Piso',

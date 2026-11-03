@@ -113,7 +113,20 @@ return [
                 'sprint' => ['label' => 'Sprint', 'help' => 'Okrążenie 10–15 s, mało wypłaty i mało paliwa za okrążenie; zbiornik starcza na ok. godzinę.'],
                 'standard' => ['label' => 'Standardowy', 'help' => 'Domyślny: okrążenie ok. minuty lub dłuższe, zwykła wypłata i zużycie paliwa.'],
                 'endurance' => ['label' => 'Dystans', 'help' => 'Okrążenie rzędu minut, dużo wypłaty i zbiornik opróżniony w ok. dwadzieścia minut, więc łapczywe auta zarabiają na nim mniej.'],
+                'rally' => ['label' => 'Rajd', 'help' => 'Okrążenie po mieszance asfaltu i żwiru, które dobrze płaci i pali więcej niż zwykły tor; żadne auto nie powinno być najlepsze w więcej niż dwóch rajdach.'],
             ],
+        ],
+        'surface_mix' => [
+            'label' => 'Mieszanka nawierzchni',
+            'help' => 'Tylko dla toru, którym jedzie się po więcej niż jednej nawierzchni, czyli rajdu: jaka część okrążenia jest na której. Opony auta chwytają tor według tych udziałów, więc rajd wymaga opon, które radzą sobie na obu. Zostaw puste dla toru na jednej nawierzchni.',
+        ],
+        'mix_surface' => [
+            'label' => 'Nawierzchnia',
+            'help' => 'Jedna z nawierzchni, z których jest tor: asfalt albo żwir. Pogoda moczy ją albo robi z niej błoto tak samo jak resztę okrążenia.',
+        ],
+        'mix_percent' => [
+            'label' => 'Udział okrążenia (%)',
+            'help' => 'Jaka część okrążenia jest na tej nawierzchni, w procentach. Udziały toru dają razem 100.',
         ],
         'track_name' => [
             'label' => 'Nazwa toru',

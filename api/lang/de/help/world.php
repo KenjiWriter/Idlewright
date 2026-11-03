@@ -113,7 +113,20 @@ return [
                 'sprint' => ['label' => 'Sprint', 'help' => 'Eine Runde von 10 bis 15 Sekunden, wenig Verdienst und wenig Kraftstoff pro Runde; ein Tank hält etwa eine Stunde.'],
                 'standard' => ['label' => 'Standard', 'help' => 'Die Vorgabe: eine Runde von etwa einer Minute oder mehr, üblicher Verdienst und Verbrauch.'],
                 'endurance' => ['label' => 'Langstrecke', 'help' => 'Eine Runde von mehreren Minuten, die viel einbringt und einen Tank in etwa zwanzig Minuten leert; durstige Autos verdienen darauf weniger.'],
+                'rally' => ['label' => 'Rallye', 'help' => 'Eine Runde auf einer Mischung aus Asphalt und Schotter, die gut zahlt und mehr Kraftstoff verbraucht als eine Standardstrecke; kein Auto soll auf mehr als zwei Rallyes das beste sein.'],
             ],
+        ],
+        'surface_mix' => [
+            'label' => 'Untergrund-Mischung',
+            'help' => 'Nur für eine Strecke, die auf mehr als einem Untergrund gefahren wird, eine Rallye: wie viel der Runde auf welchem liegt. Die Reifen eines Autos haften nach diesen Anteilen, eine Rallye verlangt also Reifen, die auf beiden zurechtkommen. Leer lassen für eine Strecke auf einem Untergrund.',
+        ],
+        'mix_surface' => [
+            'label' => 'Untergrund',
+            'help' => 'Einer der Untergründe, aus denen die Strecke besteht: Asphalt oder Schotter. Das Wetter macht ihn nass oder matschig wie den Rest der Runde.',
+        ],
+        'mix_percent' => [
+            'label' => 'Anteil der Runde (%)',
+            'help' => 'Wie viel der Runde auf diesem Untergrund liegt, in Prozent. Die Anteile der Strecke ergeben zusammen 100.',
         ],
         'track_name' => [
             'label' => 'Name der Strecke',

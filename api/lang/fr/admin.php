@@ -606,6 +606,7 @@ return [
         'to' => 'À',
         'km' => 'Longueur (km)',
         'tracks_hint' => 'Le premier circuit est celui où débute un nouveau pilote : il est ouvert dès le niveau 1. Un circuit utilisé par des joueurs ne peut pas être supprimé.',
+        'mix_add' => 'Ajouter une surface',
         'track_add' => 'Ajouter un circuit',
         'city' => 'Ville',
         'surface' => 'Revêtement',

@@ -113,7 +113,20 @@ return [
                 'sprint' => ['label' => 'Sprint', 'help' => 'Un tour de 10 à 15 secondes, peu de gain et peu de carburant par tour ; un réservoir dure environ une heure.'],
                 'standard' => ['label' => 'Standard', 'help' => 'Le choix par défaut : un tour d’une minute environ ou plus, gain et consommation habituels.'],
                 'endurance' => ['label' => 'Endurance', 'help' => 'Un tour de plusieurs minutes qui paie beaucoup et vide un réservoir en une vingtaine de minutes ; les voitures gourmandes y gagnent donc moins.'],
+                'rally' => ['label' => 'Rallye', 'help' => 'Un tour sur un mélange d’asphalte et de gravier qui paie bien et brûle plus qu’une piste standard. Aucune voiture ne devrait être la meilleure sur plus de deux rallyes.'],
             ],
+        ],
+        'surface_mix' => [
+            'label' => 'Mélange de surfaces',
+            'help' => 'Seulement pour une piste roulée sur plus d’une surface, un rallye. La part du tour sur chacune. Les pneus d’une voiture adhèrent à la piste selon ces parts, donc un rallye demande des pneus qui se débrouillent sur les deux. Laissez vide pour une piste sur une seule surface.',
+        ],
+        'mix_surface' => [
+            'label' => 'Surface',
+            'help' => 'Une des surfaces dont la piste est faite, asphalte ou gravier. La météo la mouille ou la boue comme le reste du tour.',
+        ],
+        'mix_percent' => [
+            'label' => 'Part du tour (%)',
+            'help' => 'La part du tour sur cette surface, en pourcents. Les parts de la piste font 100 ensemble.',
         ],
         'track_name' => [
             'label' => 'Nom du circuit',

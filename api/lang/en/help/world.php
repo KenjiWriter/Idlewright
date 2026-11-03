@@ -113,7 +113,20 @@ return [
                 'sprint' => ['label' => 'Sprint', 'help' => 'A lap of 10 to 15 seconds, little pay and little fuel per lap; a tank lasts about an hour.'],
                 'standard' => ['label' => 'Standard', 'help' => 'The default: a lap of about a minute or more, the usual pay and fuel use.'],
                 'endurance' => ['label' => 'Endurance', 'help' => 'A lap of minutes that pays a lot and empties a tank in about twenty minutes, so thirsty cars earn less on it.'],
+                'rally' => ['label' => 'Rally', 'help' => 'A lap on a mix of asphalt and gravel that pays well and burns more fuel than a standard track; no car should be the best on more than two rallies.'],
             ],
+        ],
+        'surface_mix' => [
+            'label' => 'Mix of surfaces',
+            'help' => 'Only for a track that is driven on more than one surface, a rally: how much of the lap is on each. The tires of a car grip the track by these shares, so a rally asks for tires that do well on both. Leave it empty for a track on one surface.',
+        ],
+        'mix_surface' => [
+            'label' => 'Surface',
+            'help' => 'One of the surfaces the track is made of, asphalt or gravel. The weather wets or muds it as it does the rest of the lap.',
+        ],
+        'mix_percent' => [
+            'label' => 'Share of the lap (%)',
+            'help' => 'How much of the lap is on this surface, in percent. The shares of the track add up to 100.',
         ],
         'track_name' => [
             'label' => 'Name of the track',

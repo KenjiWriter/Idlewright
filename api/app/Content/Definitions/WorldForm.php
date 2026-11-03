@@ -42,6 +42,8 @@ final class WorldForm
                 'region' => $track['region'] ?? null,
                 'surface' => $track['surface'] ?? null,
                 'kind' => $track['kind'] ?? null,
+                // The mix of surfaces of a rally, as the person writes it: the surface and its share of the lap in percent.
+                'surface_mix' => array_map(static fn (array $part): array => ['surface' => $part['surface'] ?? null, 'percent' => ($part['share_ppm'] ?? 0) / 10_000], array_values((array) ($track['surface_mix'] ?? []))),
                 'reference_tires' => $track['reference_tires'] ?? null,
                 // The thread of the track is drawn on a page of its own; the form of the tracks keeps it, so that saving the tracks does not lose it.
                 'lap_from' => $track['lap_from'] ?? null,
@@ -110,6 +112,21 @@ final class WorldForm
 
             if (DefinitionForm::text($line['kind'] ?? null) !== null) {
                 $track['kind'] = DefinitionForm::text($line['kind']);
+            }
+
+            $mix = [];
+
+            foreach ((array) ($line['surface_mix'] ?? []) as $part) {
+                $surface = DefinitionForm::text($part['surface'] ?? null);
+                $percent = DefinitionForm::number($part['percent'] ?? null);
+
+                if ($surface !== null && $percent !== null) {
+                    $mix[] = ['surface' => $surface, 'share_ppm' => (int) round($percent * 10_000)];
+                }
+            }
+
+            if ($mix !== []) {
+                $track['surface_mix'] = $mix;
             }
 
             if (DefinitionForm::text($line['reference_tires'] ?? null) !== null) {

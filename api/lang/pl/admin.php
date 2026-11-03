@@ -642,6 +642,7 @@ return [
         'to' => 'Do',
         'km' => 'Długość (km)',
         'tracks_hint' => 'Pierwszy tor to miejsce startu nowego kierowcy: jest otwarty od poziomu 1. Toru, z którego korzystają gracze, nie można usunąć.',
+        'mix_add' => 'Dodaj nawierzchnię',
         'track_add' => 'Dodaj tor',
         'city' => 'Miasto',
         'surface' => 'Nawierzchnia',

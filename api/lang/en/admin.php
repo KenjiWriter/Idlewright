@@ -642,6 +642,7 @@ return [
         'to' => 'To',
         'km' => 'Length (km)',
         'tracks_hint' => 'The first track is where a new driver starts: it is open from level 1. A track that players use cannot be removed.',
+        'mix_add' => 'Add a surface',
         'track_add' => 'Add a track',
         'city' => 'City',
         'surface' => 'Surface',

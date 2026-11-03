@@ -113,7 +113,20 @@ return [
                 'sprint' => ['label' => 'Sprint', 'help' => 'Uma volta de 10 a 15 segundos, pouco pagamento e pouco combustível por volta; um tanque dura cerca de uma hora.'],
                 'standard' => ['label' => 'Padrão', 'help' => 'O normal: uma volta de cerca de um minuto ou mais, pagamento e consumo comuns.'],
                 'endurance' => ['label' => 'Endurance', 'help' => 'Uma volta de vários minutos que paga muito e esvazia um tanque em cerca de vinte minutos; carros sedentos ganham menos nela.'],
+                'rally' => ['label' => 'Rali', 'help' => 'Uma volta numa mistura de asfalto e cascalho que paga bem e gasta mais combustível que uma pista padrão; nenhum carro deve ser o melhor em mais de dois ralis.'],
             ],
+        ],
+        'surface_mix' => [
+            'label' => 'Mistura de superfícies',
+            'help' => 'Só para uma pista que se anda em mais de uma superfície, um rali: quanto da volta é em cada uma. Os pneus do carro aderem à pista segundo essas partes, então um rali pede pneus que se saiam bem nas duas. Deixe vazio para uma pista numa só superfície.',
+        ],
+        'mix_surface' => [
+            'label' => 'Superfície',
+            'help' => 'Uma das superfícies de que a pista é feita, asfalto ou cascalho. O clima a molha ou a transforma em lama como no resto da volta.',
+        ],
+        'mix_percent' => [
+            'label' => 'Parte da volta (%)',
+            'help' => 'Quanto da volta é nesta superfície, em porcentagem. As partes da pista somam 100.',
         ],
         'track_name' => [
             'label' => 'Nome da pista',
