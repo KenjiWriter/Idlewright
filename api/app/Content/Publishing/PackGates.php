@@ -15,8 +15,10 @@ use Illuminate\Support\Str;
 /**
  * The gates of the simulators on the content of a pack: the tracks (every tire asks for its surface, the terrain counts, and no car wins more than two tracks), the
  * economy (the pace of three kinds of players up the ladder of the cars is the one of the design, the numbers of the rules are the anchors', and so are the
- * ladder and the fleet of the game) the value of the rewards of the missions (a month of them is the share of the cash and the XP that the owner approved) and the best set of the bonuses of the tuning (it takes no more off the lap than the owner approved). The simulators read the content as the game does, so the pack is written as the `content/` tree in a folder of its own, the game
- * is pointed at that folder for as long as they run, and everything is put back after.
+ * ladder and the fleet of the game), the value of the rewards of the missions (a month of them is the share of the cash and the XP that the owner approved), the best
+ * set of the bonuses of the tuning (it takes no more off the lap than the owner approved) and the pay of an hour of gigs (it stays inside the bounds against the rung
+ * of the ladder, and no gig beats the laps of a car that is made for them). The simulators read the content as the game does, so the pack is written as the
+ * `content/` tree in a folder of its own, the game is pointed at that folder for as long as they run, and everything is put back after.
  */
 final class PackGates
 {
@@ -26,6 +28,7 @@ final class PackGates
         'economy:simulate --strict --strict-game' => ['economy:simulate', ['--strict' => true, '--strict-game' => true]],
         'missions:budget --strict' => ['missions:budget', ['--strict' => true]],
         'tuning:budget --strict' => ['tuning:budget', ['--strict' => true]],
+        'gigs:report --strict' => ['gigs:report', ['--strict' => true]],
     ];
 
     /** How much of what a gate said is kept when it did not pass. */
@@ -95,6 +98,22 @@ final class PackGates
             Artisan::call('missions:budget', ['--json' => true, '--car' => $car, '--track' => $track, '--level' => $level]);
 
             return json_decode(trim(Artisan::output()), true);
+        });
+    }
+
+    /**
+     * What the gigs of the content of a pack pay an hour, for every car that can take them, as `gigs:report` works it out (the panel shows the same numbers): the rows of the
+     * report and the rows that are out of the bounds.
+     *
+     * @return array{rows: list<array<string, mixed>>, offences: list<array<string, mixed>>}
+     */
+    public function gigsReport(PackContent $content): array
+    {
+        return $this->inContentOf($content, function (): array {
+            Artisan::call('gigs:report', ['--json' => true]);
+            $report = json_decode(trim(Artisan::output()), true) ?? [];
+
+            return ['rows' => (array) ($report['rows'] ?? []), 'offences' => (array) ($report['offences'] ?? [])];
         });
     }
 
