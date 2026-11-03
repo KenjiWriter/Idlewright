@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Domain\Economy;
 
+use App\Domain\Gigs\NightOdds;
 use App\Domain\Run\RoadMap;
 
 /**
@@ -29,6 +30,7 @@ final readonly class GigEconomy
      * @param  array<int, array{seats: int, cargo_kg: int, class: string, level: int, speed_kmh: float}>  $cars  the car that the ladder gives a level, by the level
      * @param  array<string, int>  $cities  the level that opens each city
      * @param  list<array{from: string, to: string, km: int}>  $roads
+     * @param  array<string, mixed>|null  $night  the night run of the document of the gigs, or null when the game has none
      */
     public function __construct(
         public array $bands,
@@ -42,12 +44,59 @@ final readonly class GigEconomy
         public float $xpPerHour,
         public float $fuelMlPerKm,
         public float $fuelCentsPerLiter,
+        public ?array $night = null,
     ) {}
 
     /** The most gigs a driver of this level may take in a day. */
     public function dailyLimit(int $level): int
     {
         return $this->row($this->bands, $level)['daily_limit'];
+    }
+
+    /** The most night runs a driver may take in a day, or 0 when the game has none. */
+    public function nightLimit(): int
+    {
+        return (int) ($this->night['daily_limit'] ?? 0);
+    }
+
+    /**
+     * What a night run is worth on average to a driver of this level, over the ways it ends (the police stop a part of them, and the car of the level has a body class that
+     * changes the part), or null when the game has none, the level is below it, or the main car cannot carry the load or reach a city.
+     *
+     * @return array{cash: float, xp: float, hours: float}|null cash in dollars after the fuel
+     */
+    public function perNightRun(int $level): ?array
+    {
+        if ($this->night === null) {
+            return null;
+        }
+
+        $car = $this->row($this->cars, $level, 'level_key');
+        $band = $this->row($this->bands, $level);
+
+        if ($level < $this->night['min_player_level'] || $car['cargo_kg'] < $this->night['amount']['min']) {
+            return null;
+        }
+
+        $km = $this->tripKm(['mode' => 'intercity'], $level, intdiv($band['max_ref_minutes'] * $this->refSpeedKmh, 60));
+
+        if ($km === null) {
+            return null;
+        }
+
+        $odds = NightOdds::of($this->night, $car['class'], false);
+        $anchor = $this->row($this->anchors, $car['level'])['cents_per_hour'];
+        $refHours = $km / $this->refSpeedKmh;
+        $rarity = ($this->rarities[0]['pay_ppm'] ?? 1_000_000) / 1_000_000;
+        $reward = $anchor * $band['ratio_ppm'] / 1_000_000 * $this->night['pay_ppm'] / 1_000_000 * $rarity * $refHours;
+        $fuel = $km * $this->fuelMlPerKm / 1000 * $this->fuelCentsPerLiter;
+
+        return [
+            'cash' => ($reward * NightOdds::worth($this->night, $odds) - $fuel) / 100,
+            // A driver who is arrested is not given the experience of the gig.
+            'xp' => $this->xpPerHour * $refHours * (1 - $odds['arrested_ppm'] / 1_000_000),
+            'hours' => $refHours,
+        ];
     }
 
     /**

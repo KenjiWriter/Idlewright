@@ -22,9 +22,22 @@ final class GigsExtra extends PerkExtra
     /** How much more than the mean offer a player gets who chooses among the offers of the board (an assumption of the study). */
     public const CHOICE = 1.2;
 
+    /**
+     * How often a player who is playing at night takes the night run (an assumption of the study, not a number of the game): it is a risk, and only a part of the players take it.
+     */
+    public const NIGHT_TAKE = ['A' => 0.5, 'B' => 0.4, 'C' => 0.3];
+
+    /** The part of the day that is night in the game (seven hours of twenty-four): the chance that a visit falls in one. */
+    private const NIGHT_SHARE = 7 / 24;
+
     private float $gigs = 0.0;
 
-    /** @param array<string, float> $adoption the part of the visits that a gig is taken on, by the kind of player */
+    private float $nights = 0.0;
+
+    /**
+     * @param  array<string, float>  $adoption  the part of the visits that a gig is taken on, by the kind of player
+     * @param  array<string, float>  $nightTake  the part of the nights that a night run is taken on, by the kind of player
+     */
     public function __construct(
         private readonly GigEconomy $economy,
         private readonly array $adoption = self::ADOPTION,
@@ -32,6 +45,7 @@ final class GigsExtra extends PerkExtra
         private readonly ?int $perDay = null,
         private readonly bool $everyCar = false,
         private readonly string $label = 'gigs',
+        private readonly array $nightTake = self::NIGHT_TAKE,
     ) {}
 
     public function name(): string
@@ -47,17 +61,31 @@ final class GigsExtra extends PerkExtra
             return $this->record($state, DayEffect::none());
         }
 
-        $taken = $this->perDay !== null
-            ? min($this->perDay, $this->economy->dailyLimit($state->level))
-            : min($state->player->visitsPerDay * ($this->everyCar ? $state->player->fleetAt($state->rung) : ($this->adoption[$state->player->key] ?? 0.5)), $this->economy->dailyLimit($state->level));
+        $limit = $this->economy->dailyLimit($state->level);
+        $night = $this->economy->perNightRun($state->level);
+
+        // A player who takes as many as the rules allow fills the day with the night runs first (they pay most); one who plays normally takes them on the nights that a visit
+        // falls in and that they take the risk on, and the gigs of the day are what is left of the limit.
+        if ($this->perDay !== null) {
+            $nights = $night === null ? 0.0 : (float) min($this->economy->nightLimit(), $limit);
+            $taken = min($this->perDay, $limit) - $nights;
+        } else {
+            $taken = min($state->player->visitsPerDay * ($this->everyCar ? $state->player->fleetAt($state->rung) : ($this->adoption[$state->player->key] ?? 0.5)), $limit);
+            $reach = (1 - (1 - self::NIGHT_SHARE) ** $state->player->visitsPerDay) * ($this->nightTake[$state->player->key] ?? 0.3);
+            $nights = $night === null ? 0.0 : max(0.0, min($this->economy->nightLimit(), $reach, $limit - $taken));
+        }
 
         $this->gigs += $taken;
+        $this->nights += $nights;
 
-        return $this->record($state, new DayEffect(cash: $taken * $this->choice * $worth['cash'], xp: $taken * $this->choice * $worth['xp']));
+        $cash = $taken * $this->choice * $worth['cash'] + ($night === null ? 0.0 : $nights * $night['cash']);
+        $xp = $taken * $this->choice * $worth['xp'] + ($night === null ? 0.0 : $nights * $night['xp']);
+
+        return $this->record($state, new DayEffect(cash: $cash, xp: $xp));
     }
 
     public function report(): array
     {
-        return ['gigs' => round($this->gigs, 1), 'choice' => $this->choice, ...$this->uplift()];
+        return ['gigs' => round($this->gigs, 1), 'nights' => round($this->nights, 1), 'choice' => $this->choice, ...$this->uplift()];
     }
 }

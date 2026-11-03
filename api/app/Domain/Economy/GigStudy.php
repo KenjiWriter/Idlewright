@@ -24,8 +24,8 @@ final class GigStudy
         $baseline = $this->keep($this->simulator->simulateAllGame($rules), $only);
         $plans = [
             'usual' => ['label' => 'a gig on the visits a player takes it on', 'extra' => static fn (): array => [new GigsExtra($gigs)], 'binding' => false],
-            'every-visit' => ['label' => 'a gig on every visit', 'extra' => static fn (): array => [new GigsExtra($gigs, ['A' => 1.0, 'B' => 1.0, 'C' => 1.0])], 'binding' => true],
-            'every-car' => ['label' => 'every car on a gig on every visit', 'extra' => static fn (): array => [new GigsExtra($gigs, everyCar: true)], 'binding' => true],
+            'every-visit' => ['label' => 'a gig on every visit', 'extra' => static fn (): array => [new GigsExtra($gigs, ['A' => 1.0, 'B' => 1.0, 'C' => 1.0], nightTake: ['A' => 1.0, 'B' => 1.0, 'C' => 1.0])], 'binding' => true],
+            'every-car' => ['label' => 'every car on a gig on every visit', 'extra' => static fn (): array => [new GigsExtra($gigs, everyCar: true, nightTake: ['A' => 1.0, 'B' => 1.0, 'C' => 1.0])], 'binding' => true],
             'daily-limit' => ['label' => 'the daily limit every day (a script)', 'extra' => static fn (): array => [new GigsExtra($gigs, perDay: PHP_INT_MAX)], 'binding' => false],
         ];
         $result = [];

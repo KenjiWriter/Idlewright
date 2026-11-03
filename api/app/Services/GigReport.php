@@ -9,6 +9,7 @@ use App\Content\GameIncome;
 use App\Content\GigCatalog;
 use App\Content\Rules;
 use App\Content\RunInputsFactory;
+use App\Domain\Gigs\NightOdds;
 
 /**
  * What an hour of a gig is worth against an hour of laps, for every car of the pack and every template that the car can take: the measure of the rule of the design that a
@@ -28,6 +29,7 @@ final class GigReport
         private readonly Rules $rules,
         private readonly RunInputsFactory $inputs,
         private readonly GameIncome $income,
+        private readonly GigPolice $police,
     ) {}
 
     /**
@@ -72,9 +74,54 @@ final class GigReport
                     'r2' => $trackNet > 0 ? round($net / 100 / $trackNet, 3) : 0.0,
                 ];
             }
+
+            $night = $this->nightRow($slug, $car, $level, $stats->fuelUseMultiplier, $speed, $anchor, $ratio, $track, $trackNet);
+
+            if ($night !== null) {
+                $rows[] = $night;
+            }
         }
 
         return $rows;
+    }
+
+    /**
+     * The row of the night run for a car: what an hour of it pays on average, with the chance that the police stop it and take the pay or fine the driver, against the rung of the
+     * ladder (R1) and against the laps (R2). It pays more than a plain gig by design (it is a risk, and one for a night), so its R1 has a bound of its own.
+     *
+     * @param  array<string, mixed>  $car
+     * @return array<string, mixed>|null
+     */
+    private function nightRow(string $slug, array $car, int $level, float $fuelUse, float $speed, int $anchor, int $ratio, string $track, float $trackNet): ?array
+    {
+        $night = $this->gigs->night();
+        $odds = $this->police->odds((string) ($car['class'] ?? ''), false);
+
+        if ($night === null || $odds === null || ($car['cargo_kg'] ?? 0) < $night['amount']['min'] || $night['min_player_level'] > $level) {
+            return null;
+        }
+
+        $gross = $anchor * $ratio / 1_000_000 * $night['pay_ppm'] / 1_000_000 * $speed / $this->gigs->refSpeedKmh();
+        // What an hour is worth on average: the whole pay when nobody stops the car, a part of it when it gets away, and a fine (of the pay) when the driver is arrested.
+        $worth = NightOdds::worth($night, $odds);
+        $fuelPerHour = $this->rules->travelFuelMlPerKm() * $fuelUse * $speed / 1000 * $this->rules->fuelPriceCentsPerLiter();
+        $net = $gross * $worth - $fuelPerHour;
+
+        return [
+            'car' => $slug,
+            'class' => (string) ($car['class'] ?? ''),
+            'level' => $level,
+            'template' => GigCatalog::NIGHT,
+            'kind' => $night['kind'],
+            'anchor' => $anchor / 100,
+            'speed_kmh' => round($speed, 1),
+            'gross_per_hour' => round($gross / 100, 2),
+            'net_per_hour' => round($net / 100, 2),
+            'r1' => round($net / $anchor, 3),
+            'track' => $track,
+            'track_net' => round($trackNet, 2),
+            'r2' => $trackNet > 0 ? round($net / 100 / $trackNet, 3) : 0.0,
+        ];
     }
 
     /**
@@ -115,7 +162,7 @@ final class GigReport
      * @param  list<array<string, mixed>>  $rows
      * @return list<array<string, mixed>>
      */
-    public function offences(array $rows, float $minR1 = 0.5, float $maxR1 = 0.95, float $maxR2 = 1.3): array
+    public function offences(array $rows, float $minR1 = 0.5, float $maxR1 = 0.95, float $maxR2 = 1.3, float $maxNightR1 = 1.9): array
     {
         $utility = [];
 
@@ -126,6 +173,15 @@ final class GigReport
         $offences = [];
 
         foreach ($rows as $row) {
+            // The night run pays an hour more than a plain gig by design, for a risk: its R1 is the average over the ends of it, against a bound of its own, and the laps do not bound it.
+            if ($row['template'] === GigCatalog::NIGHT) {
+                if ($row['r1'] < $minR1 || $row['r1'] > $maxNightR1) {
+                    $offences[] = [...$row, 'why' => 'r1'];
+                }
+
+                continue;
+            }
+
             if ($row['r1'] < $minR1 || $row['r1'] > $maxR1) {
                 $offences[] = [...$row, 'why' => 'r1'];
             } elseif ($row['r2'] > ($this->rules->wreckPriceCents($row['car']) !== null ? 1.0 : $maxR2) && ! in_array($row['class'], $utility, true)) {

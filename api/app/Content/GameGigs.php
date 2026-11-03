@@ -65,6 +65,7 @@ final class GameGigs
             xpPerHour: (float) $this->catalog->xpPerHour(),
             fuelMlPerKm: (float) $this->rules->travelFuelMlPerKm(),
             fuelCentsPerLiter: (float) $this->rules->fuelPriceCentsPerLiter(),
+            night: $this->catalog->night(),
         );
     }
 }

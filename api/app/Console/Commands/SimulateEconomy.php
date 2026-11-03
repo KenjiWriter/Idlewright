@@ -560,14 +560,14 @@ final class SimulateEconomy extends Command
         foreach (array_keys($gigs->baseline) as $key) {
             $this->newLine();
             $this->line("Player {$key}:");
-            $rows = [['none', ...$days($gigs->baseline[$key]), '-', '-']];
+            $rows = [['none', ...$days($gigs->baseline[$key]), '-', '-', '-']];
 
             foreach ($gigs->plans as $plan) {
                 $note = $plan['runs'][$key]->notes['gigs'];
-                $rows[] = [$plan['label'], ...$days($plan['runs'][$key]), $this->trim($note['gigs']), '+'.$this->trim($note['uplift_cash_30d'] * 100).'%'];
+                $rows[] = [$plan['label'], ...$days($plan['runs'][$key]), $this->trim($note['gigs']), $this->trim($note['nights'] ?? 0), '+'.$this->trim($note['uplift_cash_30d'] * 100).'%'];
             }
 
-            $this->table(['plan', ...$caption, 'gigs', 'cash, 30 days'], $rows);
+            $this->table(['plan', ...$caption, 'gigs', 'night runs', 'cash, 30 days'], $rows);
         }
 
         foreach ($gigs->plans as $plan) {
