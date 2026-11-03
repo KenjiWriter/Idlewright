@@ -68,10 +68,12 @@ Zmienna `PODRECZNIK_BEZ_PACZKI=1` pomija budowanie przykładowej paczki (przyspi
 - `selektor` (+ `zawiera`, `ktory`): dla przycisków i zakładek, które nie mają wpisu w katalogu; legenda bierze wtedy `nazwa` i `opis` z manifestu.
 - `tlumaczenie`: klucz tekstu panelu (`lang`), gdy opisem ma być zdanie z tłumaczeń.
 - `najglebszy: true`: element z tym tekstem, który nie zawiera w sobie innego z tym tekstem (zdanie, a nie blok, który je otacza); `dokladnie: true`: cały tekst elementu ma być tym napisem (nagłówek karty w panelu to element `strong`).
-- `od` (na ekranie, nie w znaczniku): `{ "selektor": "...", "zawiera": "...", "dokladnie": true }`: zrzut zaczyna się tuż nad pierwszym takim elementem, a nie od góry strony (długie formularze, których dół trzeba pokazać).
-- Kroki (każdy może mieć `pauza_po` w ms, domyślnie 500): `kliknij` (selektor, opcjonalnie `zawiera`: tekst elementu), `wpisz` (`{selektor, tekst}`: klawisze wpisywane w pole), `ustaw` (`{selektor, tekst}`: ustawia wartość pola naraz; tekst `@odpowiedz` i `@odpowiedz_z_bledem` bierze odpowiedź AI z `.dane/seed.json`), `czekaj` (selektor, na który trzeba poczekać), `pauza` (ms), `przewin` (selektor do przewinięcia) i `js` (kod do wykonania, na przykład rozwinięcie sekcji).
+- `od` (na ekranie, nie w znaczniku): `{ "selektor": "...", "zawiera": "...", "dokladnie": true, "wyzej": 60 }`: zrzut zaczyna się `wyzej` pikseli (domyślnie 60) nad pierwszym takim elementem, a nie od góry strony (długie formularze, których dół trzeba pokazać). Bez `zawiera` wybiera pierwszy element z selektora, na przykład pole po `data-help`.
+- Kroki (każdy może mieć `pauza_po` w ms, domyślnie 500; `wpisz` ma opcję `enter: true`, która po wpisaniu naciska klawisz Enter; po przełączeniu sekcji Studia dodaj krok `czekaj` na pole z tej sekcji, bo Livewire odpowiada po chwili): `kliknij` (selektor, opcjonalnie `zawiera`: tekst elementu), `wpisz` (`{selektor, tekst}`: klawisze wpisywane w pole), `ustaw` (`{selektor, tekst}`: ustawia wartość pola naraz; tekst `@odpowiedz` i `@odpowiedz_z_bledem` bierze odpowiedź AI z `.dane/seed.json`), `czekaj` (selektor, na który trzeba poczekać), `pauza` (ms), `przewin` (selektor do przewinięcia) i `js` (kod do wykonania, na przykład rozwinięcie sekcji).
 
 3. W podręczniku dodaj w odpowiednim miejscu `![opis](img/podrecznik-nazwa-zrzutu.png)` i pod nim `<!-- legenda:nazwa-zrzutu -->` oraz `<!-- /legenda -->`, a potem uruchom skrypt z `--tylko=nazwa-zrzutu`.
+
+**Kolejność ekranów ma znaczenie w jednym miejscu:** ekran `slownik-klasy` jest ostatni, bo wyszukiwanie w Słowniku zatwierdza się klawiszem Enter, a to zapisuje też (pusty) szkic, który zmieniłby liczbę szkiców na kolejnych ekranach.
 
 ## Katalog `.dane/`
 

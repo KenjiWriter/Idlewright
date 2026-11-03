@@ -25,9 +25,10 @@ rozdzialy.forEach((numer, i) => { if (numer !== i + 1) bledy.push(`numeracja roz
 for (const [, cel] of tresc.matchAll(/\]\(#([^)]+)\)/g)) {
     if (!kotwice.has(cel)) bledy.push(`odnośnik do nagłówka, którego nie ma: #${cel}`);
 }
-const spis = tresc.slice(tresc.indexOf('## Spis treści'), tresc.indexOf('## Najważniejsza zasada'));
-for (const n of naglowki.filter((x) => x.poziom === 2 && (/^\d+\. /.test(x.tekst) || x.tekst.startsWith('Dodatek')))) {
-    if (!spis.includes(`(#${kotwica(n.tekst)})`)) bledy.push(`rozdziału nie ma w spisie treści: ${n.tekst}`);
+const poczatekSpisu = tresc.indexOf('## Spis treści');
+const spis = tresc.slice(poczatekSpisu, tresc.indexOf('\n## ', poczatekSpisu + 5));
+for (const n of naglowki.filter((x) => x.poziom === 2 && x.tekst !== 'Spis treści')) {
+    if (!spis.includes(`(#${kotwica(n.tekst)})`)) bledy.push(`nagłówka nie ma w spisie treści: ${n.tekst}`);
 }
 
 // Numery „rozdział N” w tekście wskazują rozdziały, które są (także „rozdziały N i M” i „N–M”).

@@ -298,6 +298,7 @@ async function krok(akcja) {
         await oblicz(`document.querySelector(${JSON.stringify(akcja.wpisz.selektor)}).focus()`);
         await oblicz(`document.querySelector(${JSON.stringify(akcja.wpisz.selektor)}).select?.()`);
         await wpisz(akcja.wpisz.tekst === '@odpowiedz' ? seed.odpowiedz : akcja.wpisz.tekst === '@odpowiedz_z_bledem' ? seed.odpowiedz_z_bledem : akcja.wpisz.tekst);
+        if (akcja.wpisz.enter) await enter();
     } else if (akcja.ustaw) {
         await czekaj(akcja.ustaw.selektor);
         const tekst = akcja.ustaw.tekst === '@odpowiedz' ? seed.odpowiedz : akcja.ustaw.tekst === '@odpowiedz_z_bledem' ? seed.odpowiedz_z_bledem : akcja.ustaw.tekst;
@@ -337,7 +338,7 @@ async function zrobEkran(ekran) {
     const wysokosc = Math.min(cala, ekran.maks_wysokosc ?? 1900);
     // "od": zrzut zaczyna się tuż nad pierwszym elementem z tym tekstem (długie formularze: pokazujemy ich dół, nie górę); ramki są liczone od góry strony, więc pasują.
     const poczatek = ekran.od
-        ? Math.max(0, Math.floor(await oblicz(`(() => { const e = [...document.querySelectorAll(${JSON.stringify(ekran.od.selektor)})].find((x) => { const tekst = (x.innerText || '').trim().toLowerCase(); const wzor = ${JSON.stringify(String(ekran.od.zawiera ?? '').toLowerCase())}; return ${ekran.od.dokladnie ? 'tekst === wzor' : 'tekst.includes(wzor)'}; }); return e ? e.getBoundingClientRect().top + scrollY - 60 : 0; })()`)))
+        ? Math.max(0, Math.floor(await oblicz(`(() => { const e = [...document.querySelectorAll(${JSON.stringify(ekran.od.selektor)})].find((x) => { const tekst = (x.innerText || '').trim().toLowerCase(); const wzor = ${JSON.stringify(String(ekran.od.zawiera ?? '').toLowerCase())}; return ${ekran.od.dokladnie ? 'tekst === wzor' : 'tekst.includes(wzor)'}; }); return e ? e.getBoundingClientRect().top + scrollY - ${Number(ekran.od.wyzej ?? 60)} : 0; })()`)))
         : 0;
     const wycinek = poczatek === 0 ? Math.max(wysokosc, opcje.wysokosc) : Math.max(Math.min(wysokosc, cala - poczatek), 400);
     const zrzut = await wyslij('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true, clip: { x: 0, y: poczatek, width: opcje.szerokosc, height: wycinek, scale: 1 } });

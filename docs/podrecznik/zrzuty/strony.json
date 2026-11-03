@@ -484,6 +484,10 @@
         {
           "js": "(()=>{const w=document.querySelector('[data-help=\"studio.section\"]'); const s=w.matches('select')?w:w.querySelector('select'); s.value='competition'; s.dispatchEvent(new Event('change',{bubbles:true}));})()",
           "pauza_po": 3000
+        },
+        {
+          "czekaj": "[data-help=\"rules./competition/pi/reference_pi\"]",
+          "pauza_po": 800
         }
       ],
       "znaczniki": [
@@ -513,7 +517,7 @@
       "slug": "studio-boty",
       "url": "/admin/studio",
       "czekaj": "form",
-      "maks_wysokosc": 2600,
+      "maks_wysokosc": 1200,
       "kroki": [
         {
           "js": "(()=>{const w=document.querySelector('[data-help=\"studio.simple\"]'); const b=w.matches('button,input')?w:w.querySelector('button,input'); if(b.getAttribute('aria-checked')==='true'||b.checked) b.click();})()",
@@ -524,20 +528,24 @@
           "pauza_po": 3000
         },
         {
-          "js": "[...document.querySelectorAll('.fi-section')].forEach((s) => { const tresc = s.querySelector('.fi-section-content-ctn'); const naglowek = s.querySelector('.fi-section-header'); if (tresc && naglowek && tresc.offsetParent === null) naglowek.click(); })",
+          "czekaj": "[data-help=\"rules./bots/class_step_ppm\"]",
+          "pauza_po": 800
+        },
+        {
+          "js": "[...document.querySelectorAll('.fi-section')].forEach((s) => { const tresc = s.querySelector('.fi-section-content-ctn'); const naglowek = s.querySelector('.fi-section-header'); if (tresc && naglowek && tresc.offsetParent === null && !/^Jak działa/.test(naglowek.innerText.trim())) naglowek.click(); })",
           "pauza_po": 1200
         }
       ],
       "znaczniki": [
         {
-          "pomoc": "studio.section",
-          "ktory": 0
-        },
-        {
           "pomoc": "rules./bots/class_step_ppm",
           "ktory": 0
         }
-      ]
+      ],
+      "od": {
+        "selektor": "[data-help=\"rules./bots/class_step_ppm\"]",
+        "wyzej": 185
+      }
     },
     {
       "slug": "samouczek",
@@ -1041,6 +1049,77 @@
       ]
     },
     {
+      "slug": "zlecenia-noc",
+      "url": "/admin/gigs",
+      "czekaj": "form",
+      "maks_wysokosc": 3200,
+      "kroki": [
+        {
+          "kliknij": "[role=tab]",
+          "zawiera": "Nocny kurs",
+          "pauza_po": 1500
+        }
+      ],
+      "znaczniki": [
+        {
+          "pomoc": "gigs.night_enabled",
+          "ktory": 0
+        },
+        {
+          "pomoc": "gigs.night_kind",
+          "ktory": 0
+        },
+        {
+          "pomoc": "gigs.night_min_level",
+          "ktory": 0
+        },
+        {
+          "pomoc": "gigs.night_daily_limit",
+          "ktory": 0
+        },
+        {
+          "pomoc": "gigs.night_pay",
+          "ktory": 0
+        },
+        {
+          "pomoc": "gigs.night_control",
+          "ktory": 0
+        },
+        {
+          "pomoc": "gigs.night_escape",
+          "ktory": 0
+        },
+        {
+          "pomoc": "gigs.night_escape_pay",
+          "ktory": 0
+        },
+        {
+          "pomoc": "gigs.night_heat_minutes",
+          "ktory": 0
+        },
+        {
+          "pomoc": "gigs.night_heat_points",
+          "ktory": 0
+        },
+        {
+          "pomoc": "gigs.night_modifiers",
+          "ktory": 0
+        },
+        {
+          "pomoc": "gigs.night_arrest_minutes",
+          "ktory": 0
+        },
+        {
+          "pomoc": "gigs.night_fine",
+          "ktory": 0
+        },
+        {
+          "pomoc": "gigs.night_bail",
+          "ktory": 0
+        }
+      ]
+    },
+    {
       "slug": "push",
       "url": "/admin/push",
       "czekaj": "h1",
@@ -1087,6 +1166,110 @@
           "dokladnie": true,
           "nazwa": "Ostatnie siedem dni",
           "opis": "po dniach: wiadomości w kolejce, otwarte i ogłoszone sprawy, a gdy coś pominięto, to z powodem (gracz to wyłączył, limit na dobę i inne)"
+        }
+      ]
+    },
+    {
+      "slug": "studio-push",
+      "url": "/admin/studio",
+      "czekaj": "form",
+      "maks_wysokosc": 2400,
+      "kroki": [
+        {
+          "js": "(()=>{const w=document.querySelector('[data-help=\"studio.simple\"]'); const b=w.matches('button,input')?w:w.querySelector('button,input'); if(b.getAttribute('aria-checked')==='true'||b.checked) b.click();})()",
+          "pauza_po": 2500
+        },
+        {
+          "js": "(()=>{const w=document.querySelector('[data-help=\"studio.sliders\"]'); const b=w.matches('button,input')?w:w.querySelector('button,input'); if(b.getAttribute('aria-checked')==='true'||b.checked) b.click();})()",
+          "pauza_po": 2500
+        },
+        {
+          "js": "(()=>{const w=document.querySelector('[data-help=\"studio.section\"]'); const s=w.matches('select')?w:w.querySelector('select'); s.value='push'; s.dispatchEvent(new Event('change',{bubbles:true}));})()",
+          "pauza_po": 3000
+        },
+        {
+          "czekaj": "[data-help=\"rules./push/ask_max\"]",
+          "pauza_po": 800
+        },
+        {
+          "js": "[...document.querySelectorAll('.fi-section')].forEach((s) => { const tresc = s.querySelector('.fi-section-content-ctn'); const naglowek = s.querySelector('.fi-section-header'); if (tresc && naglowek && tresc.offsetParent === null && !/^Jak działa/.test(naglowek.innerText.trim())) naglowek.click(); })",
+          "pauza_po": 1200
+        }
+      ],
+      "znaczniki": [
+        {
+          "pomoc": "rules./push/per_day",
+          "ktory": 0
+        },
+        {
+          "pomoc": "rules./push/ask_max",
+          "ktory": 0
+        },
+        {
+          "pomoc": "rules./push/ask_after_ms",
+          "ktory": 0
+        },
+        {
+          "pomoc": "rules./push/streak_risk_min_days",
+          "ktory": 0
+        },
+        {
+          "pomoc": "rules./push/streak_risk_from_min",
+          "ktory": 0
+        },
+        {
+          "pomoc": "rules./push/holdout_ppm",
+          "ktory": 0
+        }
+      ],
+      "od": {
+        "selektor": "[data-help=\"rules./push/per_day\"]",
+        "wyzej": 165
+      }
+    },
+    {
+      "slug": "studio-sloty",
+      "url": "/admin/studio",
+      "czekaj": "form",
+      "maks_wysokosc": 2000,
+      "kroki": [
+        {
+          "js": "(()=>{const w=document.querySelector('[data-help=\"studio.simple\"]'); const b=w.matches('button,input')?w:w.querySelector('button,input'); if(b.getAttribute('aria-checked')==='true'||b.checked) b.click();})()",
+          "pauza_po": 2500
+        },
+        {
+          "js": "(()=>{const w=document.querySelector('[data-help=\"studio.sliders\"]'); const b=w.matches('button,input')?w:w.querySelector('button,input'); if(b.getAttribute('aria-checked')==='true'||b.checked) b.click();})()",
+          "pauza_po": 2500
+        },
+        {
+          "js": "(()=>{const w=document.querySelector('[data-help=\"studio.section\"]'); const s=w.matches('select')?w:w.querySelector('select'); s.value='slots'; s.dispatchEvent(new Event('change',{bubbles:true}));})()",
+          "pauza_po": 3000
+        },
+        {
+          "czekaj": "[data-help=\"rules./slots/yield_ppm/*\"]",
+          "pauza_po": 800
+        },
+        {
+          "js": "[...document.querySelectorAll('.fi-section')].forEach((s) => { const tresc = s.querySelector('.fi-section-content-ctn'); const naglowek = s.querySelector('.fi-section-header'); if (tresc && naglowek && tresc.offsetParent === null && !/^Jak działa/.test(naglowek.innerText.trim())) naglowek.click(); })",
+          "pauza_po": 1200
+        }
+      ],
+      "znaczniki": [
+        {
+          "pomoc": "studio.section",
+          "ktory": 0
+        },
+        {
+          "pomoc": "rules./slots/base",
+          "ktory": 0
+        },
+        {
+          "pomoc": "rules./slots/vip",
+          "ktory": 0
+        },
+        {
+          "pomoc": "rules./slots/yield_ppm/*",
+          "ktory": 0
         }
       ]
     },
@@ -1164,7 +1347,7 @@
       "slug": "bonusy-budzet",
       "url": "/admin/tuning",
       "czekaj": "form",
-      "maks_wysokosc": 1500,
+      "maks_wysokosc": 1700,
       "kroki": [
         {
           "kliknij": "button, a",
@@ -1190,6 +1373,48 @@
           "zawiera": "Policz",
           "nazwa": "Policz",
           "opis": "liczy wartość najlepszego zestawu bonusów dla aut wzorcowych; to samo mierzy bramka tuning:budget przed publikacją"
+        },
+        {
+          "selektor": "div, span, p",
+          "zawiera": "Najlepszy zestaw zdejmuje",
+          "najglebszy": true,
+          "nazwa": "Ostrzeżenie o okrążeniu",
+          "opis": "ile najlepszy zestaw zdejmuje z okrążenia i na którym aucie i torze; ostrzeżenie jest między celem z projektu a pułapem, a powyżej pułapu bramka zatrzymuje paczkę"
+        },
+        {
+          "selektor": "div, span, p",
+          "zawiera": "Najlepszy zestaw podnosi dochód",
+          "najglebszy": true,
+          "nazwa": "Ostrzeżenie o dochodzie",
+          "opis": "o ile najlepszy zestaw podnosi dochód auta; awans o jedno miejsce wśród botów daje więcej za każde okrążenie, więc dochód rośnie skokowo; ma własny cel i własny pułap"
+        },
+        {
+          "selektor": "div, span, p",
+          "zawiera": "Największy spadek okrążenia",
+          "najglebszy": true,
+          "nazwa": "Sprawdzenie okrążenia",
+          "opis": "największy spadek okrążenia najlepszego zestawu i granica, powyżej której bramka zawodzi"
+        },
+        {
+          "selektor": "div, span, p",
+          "zawiera": "Największy wzrost dochodu",
+          "najglebszy": true,
+          "nazwa": "Sprawdzenie dochodu",
+          "opis": "największy wzrost dochodu najlepszego zestawu i granica, powyżej której bramka zawodzi"
+        },
+        {
+          "selektor": "div, span, p",
+          "zawiera": "Bonus potrzebuje średnio",
+          "najglebszy": true,
+          "nazwa": "Cena próby",
+          "opis": "ile prób średnio trzeba, żeby dojść do 8% i do 10% jednego bonusu; godziny to godziny dochodu auta, a próba kosztuje część ceny zwykłej części zestawu"
+        },
+        {
+          "selektor": "th",
+          "zawiera": "Godzin do 8%",
+          "dokladnie": true,
+          "nazwa": "Godzin do 8%",
+          "opis": "ile godzin dochodu auta zabiera dojście jednego miejsca do 8%"
         }
       ]
     },
@@ -1632,6 +1857,39 @@
           "zawiera": "Kopiuj błędy dla AI",
           "nazwa": "Kopiuj błędy dla AI",
           "opis": "daje numerowaną listę do wklejenia z powrotem do czatu; asystent poprawia tylko to i wysyła cały blok jeszcze raz"
+        }
+      ]
+    },
+    {
+      "slug": "slownik-klasy",
+      "url": "/admin/vocabulary",
+      "czekaj": "form",
+      "maks_wysokosc": 1700,
+      "kroki": [
+        {
+          "wpisz": {
+            "selektor": "input[data-help=\"vocabulary.search\"], [data-help=\"vocabulary.search\"] input",
+            "tekst": "className",
+            "enter": true
+          },
+          "pauza_po": 9000
+        }
+      ],
+      "znaczniki": [
+        {
+          "pomoc": "vocabulary.search",
+          "ktory": 0
+        },
+        {
+          "selektor": "div, span, p, h2, h3, h4, td, th, summary, legend, strong",
+          "zawiera": "car.className.F",
+          "dokladnie": true,
+          "nazwa": "Klucz klasy",
+          "opis": "nazwa klasy auta w aplikacji: car.className.F do car.className.SS; puste pole zostawia samą literę klasy"
+        },
+        {
+          "pomoc": "vocabulary.value",
+          "ktory": 0
         }
       ]
     }
