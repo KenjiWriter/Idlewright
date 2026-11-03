@@ -541,6 +541,11 @@ return [
         'template_add' => 'Vorlage hinzufügen',
         'from_level' => 'ab Stufe :level',
         'people' => 'Pers.',
+        'night' => 'Nachtfahrt',
+        'night_risk' => 'Die Polizei',
+        'night_arrest' => 'Die Haft',
+        'modifier_add' => 'Änderung hinzufügen',
+        'points' => 'Pp.',
         'report' => [
             'heading' => 'Was eine Stunde Aufträge zahlt',
             'button' => 'Lohn berechnen',

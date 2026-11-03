@@ -68,7 +68,7 @@ describe('the form of the gigs', function () {
             ->and($state['anchors'][0])->toBe(['from_level' => 1, 'dollars' => 600])
             ->and($state['anchors'][2])->toBe(['from_level' => 6, 'dollars' => 793.5])
             ->and($state['bands'][2])->toBe(['from_level' => 6, 'ratio_percent' => 70, 'max_ref_minutes' => 48, 'daily_limit' => 8])
-            ->and(array_column($state['kinds'], 'key'))->toBe(['taxi', 'freight', 'delivery', 'express', 'bulk'])
+            ->and(array_column($state['kinds'], 'key'))->toBe(['taxi', 'freight', 'delivery', 'express', 'bulk', 'night'])
             ->and($taxi)->toMatchArray(['kind' => 'taxi', 'capacity' => 'seats', 'amount_min' => 1, 'amount_max' => 4, 'class_in' => [], 'mode' => 'local', 'local_min' => 8, 'local_max' => 14, 'pay_percent' => 90, 'deadline_percent' => null, 'min_level' => 1])
             ->and($taxi['phase_pay'])->toBe(['dawn' => 100, 'day' => 100, 'dusk' => 140, 'night' => 125])
             ->and($taxi['phases'])->toBe(['dawn' => 10, 'day' => 10, 'dusk' => 14, 'night' => 8])
@@ -133,6 +133,51 @@ describe('the form of the gigs', function () {
             ->and($result['templates']['express-trip'])->not->toHaveKey('class_in')->and($result['templates']['express-trip'])->not->toHaveKey('deadline_ppm');
     });
 
+    it('shows the night run in percents, in points and in minutes, with the changes by the body class as lines', function () {
+        $night = gigsPageState()['night'];
+
+        expect($night)->toMatchArray([
+            'enabled' => true, 'kind' => 'night', 'amount_min' => 10, 'amount_max' => 60, 'pay_percent' => 250, 'min_level' => 9, 'daily_limit' => 2,
+            'control_percent' => 36, 'escape_percent' => 58, 'heat_minutes' => 360, 'heat_points' => 10,
+            'escape_pay_percent' => 50, 'arrest_minutes' => 25, 'fine_percent' => 30, 'bail_percent' => 50,
+        ])
+            ->and($night['title']['pl'])->toBe('Towar bez faktury')
+            ->and($night['modifiers'][0])->toBe(['classes' => ['hatchback', 'sedan', 'van'], 'delta_points' => -14])
+            ->and($night['modifiers'][1])->toBe(['classes' => ['gt', 'muscle', 'super', 'hyper'], 'delta_points' => 10]);
+    });
+
+    it('turns the night run back into parts per million and milliseconds, and leaves out a change that names no class', function () {
+        $document = GigsForm::apply(gigsPageDocument(), gigsPageState(function (array $state): array {
+            $state['night']['control_percent'] = 42.5;
+            $state['night']['heat_minutes'] = 30;
+            $state['night']['arrest_minutes'] = 10;
+            $state['night']['modifiers'][] = ['classes' => ['coupe'], 'delta_points' => -5];
+            $state['night']['modifiers'][] = ['classes' => [], 'delta_points' => 99];
+
+            return $state;
+        }))['night'];
+
+        expect($document['risk']['control_ppm'])->toBe(425_000)
+            ->and($document['risk']['heat_ms'])->toBe(1_800_000)
+            ->and($document['arrest']['ms'])->toBe(600_000)
+            ->and($document['risk']['modifiers'])->toHaveCount(3)
+            ->and($document['risk']['modifiers'][2])->toBe(['class_in' => ['coupe'], 'delta_ppm' => -50_000]);
+    });
+
+    it('leaves a game that has no night run without one while it is off, and starts it from the numbers that the code ships when it is switched on', function () {
+        $without = gigsPageDocument();
+        unset($without['night']);
+        $state = GigsForm::toState($without);
+
+        expect($state['night']['enabled'])->toBeFalse()
+            ->and(GigsForm::apply($without, $state))->not->toHaveKey('night');
+
+        $state['night']['enabled'] = true;
+        $on = GigsForm::apply($without, $state)['night'];
+
+        expect($on)->toEqual(gigsPageDocument()['night']);
+    });
+
     it('gives a game that never had the document one by its first draft', function () {
         $document = GigsForm::apply([], GigsForm::toState(gigsPageDocument()));
 
@@ -181,6 +226,35 @@ describe('the page', function () {
 
         expect(gigsPageDefinition()->draftDocument())->toEqual($document)
             ->and(gigsPageDefinition()->draft_admin_id)->toBe($admin->id);
+    });
+
+    it('keeps the draft of the night run with what was changed on its tab', function () {
+        signedInAdmin();
+
+        Livewire::test(GigsPage::class)
+            ->set('data.night.control_percent', 40)
+            ->set('data.night.arrest_minutes', 30)
+            ->call('save')
+            ->assertHasNoFormErrors()
+            ->assertNotified(__('admin.definitions.saved'));
+
+        $night = gigsPageDefinition()->draftDocument()['night'];
+
+        expect($night['risk']['control_ppm'])->toBe(400_000)
+            ->and($night['arrest']['ms'])->toBe(1_800_000)
+            ->and($night['pay_ppm'])->toBe(2_500_000);
+    });
+
+    it('does not keep a night run that no car of the pack can carry', function () {
+        signedInAdmin();
+
+        Livewire::test(GigsPage::class)
+            ->set('data.night.amount_min', 9000)
+            ->set('data.night.amount_max', 9000)
+            ->call('save')
+            ->assertNotified(__('admin.definitions.invalid'));
+
+        expect(gigsPageDefinition()->hasDraft())->toBeFalse();
     });
 
     it('does not keep a number that is out of what the form allows', function () {

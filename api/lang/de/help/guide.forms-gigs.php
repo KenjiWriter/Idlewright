@@ -4,7 +4,7 @@ return [
     'entries' => [
         'gigs' => [
             'label' => 'So funktioniert das Formular der Aufträge',
-            'help' => 'Hier stellst du die Nebenaufträge des Spiels ein: die Tafel einer Stadt, was eine Stunde Auftrag auf jeder Stufe zahlt, und die Vorlagen, aus denen die Angebote ausgelost werden. Was du eingibst, wird als Entwurf der Regeln gespeichert und erreicht die Spieler mit dem nächsten veröffentlichten Paket.',
+            'help' => 'Hier stellst du die Nebenaufträge des Spiels ein: die Tafel einer Stadt, was eine Stunde Auftrag auf jeder Stufe zahlt, und die Vorlagen, aus denen die Angebote ausgelost werden. Was du eingibst, wird als Entwurf der Regeln gespeichert und erreicht die Spieler mit dem nächsten veröffentlichten Paket. Die Nachtfahrt, eine Gelegenheit, die die Polizei anhalten kann, hat einen eigenen Reiter.',
             'steps' => [
                 'Reiter Tafel: Schalte die Aufträge an, wähle den Tutorial-Schritt, nach dem sie sich öffnen, und stelle ein, wie lange eine Welle dauert und wie viele Angebote jede Tageszeit hat.',
                 'Reiter Lohn: Stelle die Geschwindigkeiten, die Anker der Leiter und die Bänder der Stufen ein. Diese Zahlen entscheiden, was eine Stunde Auftrag gegenüber einer Stunde Runden wert ist.',

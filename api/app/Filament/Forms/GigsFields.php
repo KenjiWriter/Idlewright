@@ -42,6 +42,7 @@ final class GigsFields
                 Tab::make(__('admin.gigs.pay'))->schema(self::pay()),
                 Tab::make(__('admin.gigs.kinds'))->schema(self::kinds()),
                 Tab::make(__('admin.gigs.templates'))->schema(self::templates()),
+                Tab::make(__('admin.gigs.night'))->schema(self::night()),
             ]),
             ...$below,
         ];
@@ -163,6 +164,52 @@ final class GigsFields
                 ->addActionLabel(__('admin.gigs.template_add'))
                 ->itemLabel(fn (array $state): ?string => self::label($state['key'] ?? null, $state['kind'] ?? null))
                 ->schema(self::template()),
+        ];
+    }
+
+    /** @return list<mixed> */
+    private static function night(): array
+    {
+        $classes = FieldHelp::options('gigs.night_modifier_classes', SchemaChoices::vehicleClasses());
+
+        return [
+            Toggle::make('night.enabled')->helpKey('gigs.night_enabled')->inline(false)->live(),
+            Grid::make(1)->visible(fn (Get $get): bool => (bool) $get('night.enabled'))->schema([
+                Grid::make(4)->schema([
+                    Select::make('night.kind')->helpKey('gigs.night_kind')->options(fn (Get $get): array => self::kindOptions((array) $get('kinds')))->required(),
+                    TextInput::make('night.min_level')->helpKey('gigs.night_min_level')->numeric()->integer()->minValue(1)->maxValue(100)->required(),
+                    TextInput::make('night.daily_limit')->helpKey('gigs.night_daily_limit')->numeric()->integer()->minValue(1)->maxValue(50)->required(),
+                    TextInput::make('night.pay_percent')->helpKey('gigs.night_pay')->numeric()->minValue(10)->maxValue(1000)->suffix('%')->required(),
+                ]),
+                DefinitionFields::texts('night.title', __('admin.definitions.name'), 'gigs.night_title'),
+                Grid::make(2)->schema([
+                    TextInput::make('night.amount_min')->helpKey('gigs.night_amount_min')->numeric()->integer()->minValue(1)->suffix('kg')->required(),
+                    TextInput::make('night.amount_max')->helpKey('gigs.night_amount_max')->numeric()->integer()->minValue(1)->suffix('kg')->required(),
+                ]),
+                Fieldset::make(__('admin.gigs.night_risk'))->columns(3)->schema([
+                    TextInput::make('night.control_percent')->helpKey('gigs.night_control')->numeric()->minValue(0)->maxValue(100)->suffix('%')->required(),
+                    TextInput::make('night.escape_percent')->helpKey('gigs.night_escape')->numeric()->minValue(0)->maxValue(100)->suffix('%')->required(),
+                    TextInput::make('night.escape_pay_percent')->helpKey('gigs.night_escape_pay')->numeric()->minValue(0)->maxValue(100)->suffix('%')->required(),
+                    TextInput::make('night.heat_minutes')->helpKey('gigs.night_heat_minutes')->numeric()->minValue(0)->maxValue(10080)->suffix('min')->required(),
+                    TextInput::make('night.heat_points')->helpKey('gigs.night_heat_points')->numeric()->minValue(0)->maxValue(100)->suffix(__('admin.gigs.points'))->required(),
+                ]),
+                Repeater::make('night.modifiers')
+                    ->helpKey('gigs.night_modifiers')
+                    ->collapsible()
+                    ->reorderableWithButtons()
+                    ->addActionLabel(__('admin.gigs.modifier_add'))
+                    ->itemLabel(fn (array $state): ?string => self::label(implode(', ', (array) ($state['classes'] ?? [])), isset($state['delta_points']) ? ($state['delta_points'] > 0 ? '+' : '').$state['delta_points'] : null, __('admin.gigs.points')))
+                    ->columns(2)
+                    ->schema([
+                        Select::make('classes')->helpKey('gigs.night_modifier_classes')->options($classes)->multiple()->required(),
+                        TextInput::make('delta_points')->helpKey('gigs.night_modifier_delta')->numeric()->minValue(-100)->maxValue(100)->suffix(__('admin.gigs.points'))->required(),
+                    ]),
+                Fieldset::make(__('admin.gigs.night_arrest'))->columns(3)->schema([
+                    TextInput::make('night.arrest_minutes')->helpKey('gigs.night_arrest_minutes')->numeric()->minValue(1)->maxValue(1440)->suffix('min')->required(),
+                    TextInput::make('night.fine_percent')->helpKey('gigs.night_fine')->numeric()->minValue(0)->maxValue(500)->suffix('%')->required(),
+                    TextInput::make('night.bail_percent')->helpKey('gigs.night_bail')->numeric()->minValue(0)->maxValue(500)->suffix('%')->required(),
+                ]),
+            ]),
         ];
     }
 

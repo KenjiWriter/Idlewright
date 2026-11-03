@@ -4,7 +4,7 @@ return [
     'entries' => [
         'gigs' => [
             'label' => 'Jak działa formularz kursów',
-            'help' => 'Tutaj ustawiasz zlecenia poboczne gry: tablicę miasta, ile płaci godzina kursu na każdym poziomie i szablony, z których losowane są oferty. To, co wpiszesz, zapisuje się jako szkic reguł i trafia do graczy z najbliższą opublikowaną paczką.',
+            'help' => 'Tutaj ustawiasz zlecenia poboczne gry: tablicę miasta, ile płaci godzina kursu na każdym poziomie i szablony, z których losowane są oferty. To, co wpiszesz, zapisuje się jako szkic reguł i trafia do graczy z najbliższą opublikowaną paczką. Nocny kurs, okazja, którą może zatrzymać policja, ma własną zakładkę.',
             'steps' => [
                 'Zakładka Tablica: włącz kursy, wybierz krok samouczka, po którym się otwierają, i ustaw, jak długo trwa fala i ile ofert ma każda pora dnia.',
                 'Zakładka Wypłata: ustaw prędkości, kotwice drabiny i przedziały poziomów. Te liczby decydują, ile warta jest godzina kursu wobec godziny okrążeń.',

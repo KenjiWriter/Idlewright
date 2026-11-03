@@ -4,7 +4,7 @@ return [
     'entries' => [
         'gigs' => [
             'label' => 'Como funciona o formulário das corridas',
-            'help' => 'Aqui você ajusta os trabalhos extras do jogo: o quadro de uma cidade, quanto paga uma hora de corrida em cada nível e os modelos de onde as ofertas são sorteadas. O que você digita é salvo como rascunho das regras e chega aos jogadores com o próximo pacote publicado.',
+            'help' => 'Aqui você ajusta os trabalhos extras do jogo: o quadro de uma cidade, quanto paga uma hora de corrida em cada nível e os modelos de onde as ofertas são sorteadas. O que você digita é salvo como rascunho das regras e chega aos jogadores com o próximo pacote publicado. A corrida noturna, uma oportunidade que a polícia pode parar, tem uma aba própria.',
             'steps' => [
                 'Aba Quadro: ligue as corridas, escolha o passo do tutorial depois do qual elas abrem e ajuste quanto dura uma onda e quantas ofertas cada período do dia tem.',
                 'Aba Pagamento: ajuste as velocidades, as âncoras da escada e as faixas dos níveis. Esses números decidem quanto vale uma hora de corrida frente a uma hora de voltas.',

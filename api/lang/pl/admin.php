@@ -577,6 +577,11 @@ return [
         'template_add' => 'Dodaj szablon',
         'from_level' => 'od poziomu :level',
         'people' => 'os.',
+        'night' => 'Nocny kurs',
+        'night_risk' => 'Policja',
+        'night_arrest' => 'Areszt',
+        'modifier_add' => 'Dodaj zmianę',
+        'points' => 'pp',
         'report' => [
             'heading' => 'Ile płaci godzina zleceń',
             'button' => 'Policz wypłatę',

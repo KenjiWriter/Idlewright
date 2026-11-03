@@ -18,6 +18,27 @@ final class GigsForm
     /** A part is entered as a percent and kept as parts per million. */
     private const PERCENT = 10_000;
 
+    /** What the night run starts from when a game that has none switches it on: the numbers that the code ships. */
+    public const NIGHT_STARTING = [
+        'enabled' => false,
+        'kind' => 'night',
+        'title' => ['en' => 'Cargo without an invoice', 'pl' => 'Towar bez faktury', 'fr' => 'Marchandise sans facture', 'de' => 'Ware ohne Rechnung', 'pt-BR' => 'Carga sem nota fiscal'],
+        'amount_min' => 10,
+        'amount_max' => 60,
+        'pay_percent' => 250,
+        'min_level' => 9,
+        'daily_limit' => 2,
+        'control_percent' => 36,
+        'modifiers' => [['classes' => ['hatchback', 'sedan', 'van'], 'delta_points' => -14], ['classes' => ['gt', 'muscle', 'super', 'hyper'], 'delta_points' => 10]],
+        'escape_percent' => 58,
+        'heat_minutes' => 360,
+        'heat_points' => 10,
+        'escape_pay_percent' => 50,
+        'arrest_minutes' => 25,
+        'fine_percent' => 30,
+        'bail_percent' => 50,
+    ];
+
     private const MINUTE_MS = 60_000;
 
     private const SECOND_MS = 1_000;
@@ -87,6 +108,7 @@ final class GigsForm
             'bands' => $bands,
             'kinds' => $kinds,
             'templates' => $templates,
+            'night' => self::nightState($gigs['night'] ?? null),
         ];
     }
 
@@ -184,7 +206,103 @@ final class GigsForm
 
         $gigs['templates'] = $templates;
 
+        // The boxes of the night run are hidden while it is switched off, and a hidden box is not part of what the form gives back: they keep what they had. A game that has none
+        // and is not asked to have one keeps having none.
+        $night = (array) ($state['night'] ?? []) + self::nightState($gigs['night'] ?? null);
+
+        if (isset($gigs['night']) || ! empty($night['enabled'])) {
+            $gigs['night'] = self::nightDocument($night, (array) ($gigs['night'] ?? []));
+        }
+
         return $gigs;
+    }
+
+    /**
+     * @param  array<string, mixed>|null  $night  the night run of the document, or null when it has none
+     * @return array<string, mixed>
+     */
+    private static function nightState(?array $night): array
+    {
+        if ($night === null) {
+            return self::NIGHT_STARTING;
+        }
+
+        $risk = (array) ($night['risk'] ?? []);
+        $arrest = (array) ($night['arrest'] ?? []);
+        $modifiers = [];
+
+        foreach ((array) ($risk['modifiers'] ?? []) as $modifier) {
+            $modifiers[] = ['classes' => array_values((array) ($modifier['class_in'] ?? [])), 'delta_points' => self::percent($modifier['delta_ppm'] ?? null)];
+        }
+
+        return [
+            'enabled' => (bool) ($night['enabled'] ?? false),
+            'kind' => $night['kind'] ?? null,
+            'title' => DefinitionForm::texts((array) ($night['title'] ?? [])),
+            'amount_min' => $night['amount']['min'] ?? null,
+            'amount_max' => $night['amount']['max'] ?? null,
+            'pay_percent' => self::percent($night['pay_ppm'] ?? null),
+            'min_level' => $night['min_player_level'] ?? null,
+            'daily_limit' => $night['daily_limit'] ?? null,
+            'control_percent' => self::percent($risk['control_ppm'] ?? null),
+            'modifiers' => $modifiers,
+            'escape_percent' => self::percent($risk['escape_ppm'] ?? null),
+            'heat_minutes' => self::divided($risk['heat_ms'] ?? null, self::MINUTE_MS),
+            'heat_points' => self::percent($risk['heat_ppm'] ?? null),
+            'escape_pay_percent' => self::percent($night['escape_pay_ppm'] ?? null),
+            'arrest_minutes' => self::divided($arrest['ms'] ?? null, self::MINUTE_MS),
+            'fine_percent' => self::percent($arrest['fine_ppm'] ?? null),
+            'bail_percent' => self::percent($arrest['bail_ppm'] ?? null),
+        ];
+    }
+
+    /**
+     * The night run of the document with what the form holds in it, in the order of the file; what the form does not know about stays where it was.
+     *
+     * @param  array<string, mixed>  $state
+     * @param  array<string, mixed>  $existing
+     * @return array<string, mixed>
+     */
+    private static function nightDocument(array $state, array $existing): array
+    {
+        $modifiers = [];
+
+        foreach ((array) ($state['modifiers'] ?? []) as $line) {
+            $classes = array_values(array_filter(array_map(DefinitionForm::text(...), (array) ($line['classes'] ?? []))));
+
+            if ($classes !== []) {
+                $modifiers[] = ['class_in' => $classes, 'delta_ppm' => self::ppm($line['delta_points'] ?? null)];
+            }
+        }
+
+        $risk = [
+            'control_ppm' => self::ppm($state['control_percent'] ?? null),
+            'modifiers' => $modifiers,
+            'escape_ppm' => self::ppm($state['escape_percent'] ?? null),
+            'heat_ms' => self::multiplied($state['heat_minutes'] ?? null, self::MINUTE_MS),
+            'heat_ppm' => self::ppm($state['heat_points'] ?? null),
+        ];
+
+        $arrest = [
+            'ms' => self::multiplied($state['arrest_minutes'] ?? null, self::MINUTE_MS),
+            'fine_ppm' => self::ppm($state['fine_percent'] ?? null),
+            'bail_ppm' => self::ppm($state['bail_percent'] ?? null),
+        ];
+
+        $document = [
+            'enabled' => ! empty($state['enabled']),
+            'kind' => DefinitionForm::text($state['kind'] ?? null),
+            'title' => DefinitionForm::i18n((array) ($state['title'] ?? [])),
+            'amount' => ['min' => DefinitionForm::number($state['amount_min'] ?? null), 'max' => DefinitionForm::number($state['amount_max'] ?? null)],
+            'pay_ppm' => self::ppm($state['pay_percent'] ?? null),
+            'min_player_level' => DefinitionForm::number($state['min_level'] ?? null),
+            'daily_limit' => DefinitionForm::number($state['daily_limit'] ?? null),
+            'risk' => $risk + array_diff_key((array) ($existing['risk'] ?? []), $risk),
+            'escape_pay_ppm' => self::ppm($state['escape_pay_percent'] ?? null),
+            'arrest' => $arrest + array_diff_key((array) ($existing['arrest'] ?? []), $arrest),
+        ];
+
+        return $document + array_diff_key($existing, $document);
     }
 
     /**

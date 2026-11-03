@@ -541,6 +541,11 @@ return [
         'template_add' => 'Ajouter un modèle',
         'from_level' => 'dès le niveau :level',
         'people' => 'pers.',
+        'night' => 'Course de nuit',
+        'night_risk' => 'La police',
+        'night_arrest' => 'La garde à vue',
+        'modifier_add' => 'Ajouter un changement',
+        'points' => 'pts',
         'report' => [
             'heading' => 'Ce que paie une heure de courses',
             'button' => 'Calculer la paie',

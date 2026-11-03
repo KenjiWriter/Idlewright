@@ -4,7 +4,7 @@ return [
     'entries' => [
         'gigs' => [
             'label' => 'Comment fonctionne le formulaire des courses',
-            'help' => 'Vous réglez ici les petits boulots du jeu : le tableau d’une ville, ce que paie une heure de course à chaque niveau, et les modèles dont les offres sont tirées. Ce que vous saisissez est enregistré comme brouillon des règles et parvient aux joueurs avec le prochain pack publié.',
+            'help' => 'Vous réglez ici les petits boulots du jeu : le tableau d’une ville, ce que paie une heure de course à chaque niveau, et les modèles dont les offres sont tirées. Ce que vous saisissez est enregistré comme brouillon des règles et parvient aux joueurs avec le prochain pack publié. La course de nuit, une occasion que la police peut arrêter, a son propre onglet.',
             'steps' => [
                 'Onglet Tableau : activez les courses, choisissez l’étape du tutoriel après laquelle elles s’ouvrent, et réglez la durée d’une vague et le nombre d’offres de chaque moment de la journée.',
                 'Onglet Paie : réglez les vitesses, les ancres de l’échelle et les tranches des niveaux. Ces chiffres décident de ce que vaut une heure de course face à une heure de tours.',

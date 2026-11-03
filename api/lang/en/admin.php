@@ -577,6 +577,11 @@ return [
         'template_add' => 'Add a template',
         'from_level' => 'from level :level',
         'people' => 'people',
+        'night' => 'Night run',
+        'night_risk' => 'The police',
+        'night_arrest' => 'The arrest',
+        'modifier_add' => 'Add a change',
+        'points' => 'pp',
         'report' => [
             'heading' => 'What an hour of gigs pays',
             'button' => 'Work out the pay',

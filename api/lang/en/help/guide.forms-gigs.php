@@ -4,7 +4,7 @@ return [
     'entries' => [
         'gigs' => [
             'label' => 'How the gigs form works',
-            'help' => 'Here you set the side jobs of the game: the board of a city, what an hour of a gig pays at each level, and the templates that the offers are drawn from. What you type is saved as a draft of the rules and reaches the players with the next published pack.',
+            'help' => 'Here you set the side jobs of the game: the board of a city, what an hour of a gig pays at each level, and the templates that the offers are drawn from. What you type is saved as a draft of the rules and reaches the players with the next published pack. The night run, an opportunity that the police may stop, has a tab of its own.',
             'steps' => [
                 'Board tab: switch the gigs on, choose the tutorial step after which they open, and set how long a wave lasts and how many offers each time of the day has.',
                 'Pay tab: set the speeds, the anchors of the ladder and the bands of the levels. These numbers decide what an hour of a gig is worth against an hour of laps.',

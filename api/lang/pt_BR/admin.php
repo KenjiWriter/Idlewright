@@ -541,6 +541,11 @@ return [
         'template_add' => 'Adicionar modelo',
         'from_level' => 'a partir do nível :level',
         'people' => 'pess.',
+        'night' => 'Corrida noturna',
+        'night_risk' => 'A polícia',
+        'night_arrest' => 'A prisão',
+        'modifier_add' => 'Adicionar mudança',
+        'points' => 'p.p.',
         'report' => [
             'heading' => 'Quanto paga uma hora de corridas',
             'button' => 'Calcular o pagamento',
