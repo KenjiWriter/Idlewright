@@ -31,20 +31,13 @@ Krótka wersja, z tym samym planem, jest w [README](../README.md) (sekcja „Ins
 
 ## Co to jest i co można zrobić w 15 minut
 
-**Idlewright to silnik i panel do budowania przeglądarkowych gier idle.** Serwer liczy postęp gracza także wtedy, gdy gracza nie ma; wszystko, z czego składa się gra (auta, części, tory, liczby, słowa, wygląd, samouczek, misje, płatne dodatki), jest treścią, którą operator zmienia w panelu i publikuje jako paczkę, bez programisty. Jedna instalacja prowadzi wiele gier, każdą na własnej domenie, z własną marką, treścią i graczami. Pierwsza gra, **RideIdle**, to wyścigowa gra idle: gracz odbudowuje wraki, ulepsza auta w warsztacie i wysyła je na tory; druga w tym podręczniku, „Statki”, pokazuje, że ten sam silnik prowadzi inny świat.
+**Panel Idlewright to narzędzie operatora gier.** W jednym miejscu zmieniasz auta i części, świat i tory, liczby, słowa, wygląd, samouczek, misje, płatne funkcje, kursy i powiadomienia gry, a potem bezpiecznie publikujesz zmianę, bez udziału programisty. Jedna instalacja prowadzi wiele gier, każdą na własnej domenie, z własną marką, treścią i graczami; przykłady w tym podręczniku pokazują panel prowadzący pierwszą grę zbudowaną na Idlewright, wyścigową grę RideIdle, i drugą, „Statki”.
 
-<p>
-<img src="img/gra-garaz.jpg" width="170" alt="Garaż">
-<img src="img/gra-warsztat.jpg" width="170" alt="Warsztat">
-<img src="img/gra-wyscig.jpg" width="170" alt="Wyścig z nitką toru">
-<img src="img/gra-mapa.jpg" width="170" alt="Mapa">
-</p>
-
-**Co daje panel:** każda zmiana jest najpierw szkicem, potem przechodzi **pięć bramek symulatorów** (tory, ekonomia, misje, bonusy części i kursy) i dopiero wtedy trafia do graczy; złą paczkę cofa się jednym kliknięciem. Każde pole ma opis, przykład i zakres, a zmiany można też zlecić rozmową z asystentem AI.
+**Jak wygląda praca w panelu:** po zalogowaniu (z kodem z aplikacji) wybierasz grę w sieci gier, a menu „Treść” dotyczy tej jednej gry. Każda zmiana jest najpierw szkicem, potem przechodzi **pięć bramek symulatorów** (tory, ekonomia, misje, bonusy części i kursy) i dopiero wtedy trafia do graczy; złą paczkę cofa się jednym kliknięciem. Każde pole ma opis, przykład i zakres, a zmiany można też zlecić rozmową z asystentem AI.
 
 ### Pokaz w 15 minut: ekrany w kolejności
 
-Poniższa kolejność opowiada całą historię: od wejścia, przez zmianę jednej liczby aż do gry, po to, co gra zyskuje bez kodu. Budowanie paczki trwa kilka minut (bramki liczą ekonomię), więc do pokazu **zrób paczkę wcześniej** i pokaż jej raport oraz „Uruchom”.
+Poniższa kolejność to wycieczka po ekranach panelu: od wejścia, przez zmianę jednej liczby i publikację, po strony, które dają grze nowe możliwości bez kodu. Budowanie paczki trwa kilka minut (bramki liczą ekonomię), więc do pokazu **zrób paczkę wcześniej** i pokaż jej raport oraz „Uruchom”.
 
 | Czas | Ekran (menu) | Co pokazać | Rozdział |
 |---|---|---|---|
@@ -54,7 +47,7 @@ Poniższa kolejność opowiada całą historię: od wejścia, przez zmianę jedn
 | 5:30 | **Auta**, **Części**, **Podgląd części** | formularz, w którym każde pole mówi, co zmienia; skutek części na torze | 3, 4 |
 | 7:30 | **Świat**, **Nitka toru**, Studio „Rywalizacja” | tor: długość wyznacza czas, paliwo i płacę; rajd z mieszanką żwiru i asfaltu; rysunek toru i „Zamknij pętlę”; klasy aut F–SS i PI | 5, 15 |
 | 10:00 | **Most AI** | „wszystkie silniki T3 +12% mocy” rozmową: instrukcja, odpowiedź, tabela zmian, „Zapisz jako szkic” | 17 |
-| 12:00 | **Słownik**, **Marka i strona**, **Model gry** | „Wczytaj motyw”: ta sama gra o statkach; własne kolory i strona startowa | 8 |
+| 12:00 | **Słownik**, **Marka i strona**, **Model gry** | „Wczytaj motyw” (statki zamiast aut), nazwy slotów i statystyk, własne kolory i strona startowa | 8 |
 | 14:00 | **Misje**, **Kursy i zlecenia** (nocny kurs), **Bonusy części**, **Powiadomienia**, **Gracze**, **Dziennik** | co jeszcze jest w panelu i że każda z tych stron też idzie przez szkic i paczkę | 11–16 |
 
 **Czego pokaz nie obiecuje** (to, czego nikt nie próbował na prawdziwym serwerze lub u prawdziwego dostawcy, jest w podręczniku oznaczone „Nie sprawdzono”): ustawienia domeny i certyfikatu na prawdziwym Ubuntu, prawdziwej wysyłki powiadomień push do przeglądarek, płatności prawdziwą kartą (jest dostawca testowy) i pracy z prawdziwym modelem AI (są gotowe odpowiedzi do testów).
@@ -463,7 +456,7 @@ Pod listą odcinków są narzędzia, które oszczędzają ręczne liczenie. Wszy
 
 **Jak sprawdzić, że nowy tor nie psuje tempa gry:** zrób paczkę. Bramka `tracks:simulate --strict` pilnuje, że każde opony pytają o swoją nawierzchnię i że żadne auto nie wygrywa więcej niż dwóch torów, a bramka ekonomii mierzy tempo trzech rodzajów graczy na drabince aut. Ten sam pomiar bez paczki daje „Podgląd balansu” w Studiu (rozdział 7). Dla torów jeżdżonych po nitce `tracks:simulate` liczy też **rozrzut** (najwolniejsze auto podzielone przez najszybsze) i **ostrzega, nie zatrzymując paczki**, gdy jest poniżej 1,15 (tor prawie nic nie wymaga od auta), powyżej 2,2 (większość aut przepada) albo gdy zwycięzca toru wygrywa też co najmniej dwa inne tory. Dlatego przestawiaj tory na nitkę po jednym, patrząc na ostrzeżenia. Jeśli bramka zatrzyma paczkę, raport mówi, który tor i co mu przeszkadza (rozdział 9).
 
-### Co z tego widzi gracz: wybór toru
+### Jak tor widać w grze: wybór toru
 
 Na mapie, w mieście, w którym stoi auto gracza, karta każdego toru pokazuje miniaturę jego linii (z nitki), zdanie o tym, czego tor wymaga (tor zakrętów, limitu, mocy albo zrównoważony, z udziału czasu okrążenia auta wzorcowego w zakrętach, na limicie i w przyspieszaniu) oraz pasek: w których grupach (przyspieszanie, limit, hamowanie, zakręty) auto gracza zyskuje albo traci względem auta wzorcowego, i jedno zdanie, gdzie zyskuje najwięcej, a gdzie traci najwięcej. Pokazywane są grupy, w których różnica wynosi co najmniej 2% okrążenia. Na torze, którego czas okrążenia liczy wzór, pasek mówi, że czas okrążenia jest ustalony ręcznie, a pasek opisuje kształt toru, nie ten czas; tor bez pełnego auta odniesienia ma tylko linię. Obok tytułu „Tory w tym mieście” widać klasę i PI auta, którym gracz gra (rozdział 15); lista nie mówi nic o rywalach, bo boty są dobierane do tieru auta, chyba że właściciel ustawi krok rywali na klasę. Na ekranie wyścigu auto jedzie po linii toru z prędkością auta takiego, jakie jest teraz, a czas okrążenia zostaje ten, który rozliczenie zamroziło na początku biegu.
 
@@ -816,7 +809,7 @@ Strona ma zakładki **Nagrody i okresy**, **Zestawy**, **Misje główne** i **Wa
 
 Menu Treść → Kursy i zlecenia. Strona ma pięć zakładek: **Tablica**, **Wypłata**, **Rodzaje**, **Szablony ofert** i **Nocny kurs**. Ostatnia to nocna okazja, którą może zatrzymać policja (opisana niżej). Jak zwykle: zapis robi szkic, a gracze zobaczą zmianę z następną paczką.
 
-### Jak to działa dla gracza
+### Co te liczby robią w grze
 
 - Kierowca dostaje zakładkę Kursy po kroku samouczka, który wskazuje formularz („Otwierają się po kroku samouczka”); kierowca, który skończył samouczek, ma ją od razu.
 - Każde miasto ma tablicę ofert. Tablica odświeża się **falami** (na zrzucie 22,5 minuty, tyle co kawałek pogody). W każdej fali pojawiają się nowe oferty: każdy kierowca ma własną tablicę losowaną z ziarna, a oferta zostaje tyle fal, ile mówi jej szablon. Ile ofert dochodzi w fali, zależy od pory dnia (świt, dzień, zmierzch, noc).
@@ -884,7 +877,7 @@ Zakładka **Rodzaje** to rodzaje kursów (na przykład taxi, towary, dostawa) z 
 
 **Cel:** ustawić jedną okazję na noc gry w każdym mieście: mały ładunek wożony do innego miasta i z powrotem za wielokrotność zwykłej wypłaty, który policja może zatrzymać.
 
-**Jak to działa dla gracza.** Noc gry trwa od 22:00 do 5:00 zegara gry, czyli 52,5 minuty zegara rzeczywistego (osiem nocy na dobę). Kierowca od 9. poziomu dostaje w nocy w każdym mieście jedną okazję: ładunek od 10 do 60 kg do innego miasta i z powrotem za **250% zwykłej wypłaty tej samej trasy**. Okazja nie jest zwykłą ofertą fali: powstaje raz na noc z ziarna kierowcy, znika o świcie i nie wraca po wzięciu. Kierowca może wziąć najwyżej dwa nocne kursy na dobę (liczą się też do dziennego limitu kursów).
+**Co to robi w grze.** Noc gry trwa od 22:00 do 5:00 zegara gry, czyli 52,5 minuty zegara rzeczywistego (osiem nocy na dobę). Kierowca od 9. poziomu dostaje w nocy w każdym mieście jedną okazję: ładunek od 10 do 60 kg do innego miasta i z powrotem za **250% zwykłej wypłaty tej samej trasy**. Okazja nie jest zwykłą ofertą fali: powstaje raz na noc z ziarna kierowcy, znika o świcie i nie wraca po wzięciu. Kierowca może wziąć najwyżej dwa nocne kursy na dobę (liczą się też do dziennego limitu kursów).
 
 - **Szanse.** Patrole zatrzymują 36% nocnych kursów. Klasa nadwozia to zmienia: cichy hatchback, sedan i van o 14 punktów procentowych mniej, głośne GT, muscle car, superauto i hiperauto o 10 punktów więcej; pościg po ucieczce dokłada 10 punktów w tym samym mieście przez 6 godzin. Z zatrzymań 58% to ucieczka (auto dostaje połowę wypłaty), reszta to areszt. Dla Rdzaka GT-4 (hatchback) wychodzi: czysty przejazd 78%, ucieczka 12,8%, areszt 9,2%.
 - **Los** jest losowany przy wzięciu kursu i zamrożony razem z wypłatą; gracz nie dostaje wyniku przed zatrzymaniem (do połowy trasy). Zmiana liczb w regułach po wzięciu kursu niczego w nim nie zmienia, a wycofanie w pierwszej minucie znosi wszystko.
@@ -1021,7 +1014,7 @@ Studio, sekcja **Boty**, pole **Krok rywali na klasę**: o ile szybsze są boty 
 1. **Krok rywali na klasę (% okrążenia).** O ile szybsze są boty za każdą klasę, o którą auto jest wyżej niż klasa najlepszego seryjnego auta jego tieru (klasa natywna tieru), jako część czasu okrążenia. Seryjne auta nigdy nie są powyżej klasy natywnej, więc spotykają tych samych rywali co zawsze, a auto dotuningowane do wyższej klasy trafia na rywali tej klasy: przeskok klasy nie zawsze się opłaca. Zero (albo gra bez rywalizacji) zostawia boty bez zmian. Zakres: 0% – 30% okrążenia; 0 wyłącza. Przykład: 8%: auto o klasę wyżej niż klasa natywna ma boty szybsze o 8%, o dwie klasy wyżej o 16%. Dla Rdzaka GT-4 przeskok z D do C przy 10% kosztuje 24 – 32% dochodu na czterech torach z pięciu.
 <!-- /legenda -->
 
-### Co z tego widzi gracz
+### Jak klasa widać w grze
 
 Przy aucie gracz widzi odznakę klasy i PI (na przykład „B 612”: nagłówek gry, karta auta, dealer, giełda i flota) oraz na liście torów obok tytułu „Tory w tym mieście”. Klasa i PI są też w sklepie: karta części porównuje ją z założoną i, gdy część wchodzi na auto, mówi, jaką klasę i PI auto pokaże po jej założeniu (liczone dla nowej części, o zwykłej rzadkości i bez ulepszeń). W porównaniu części w warsztacie jest jedna linia o klasie: „Klasa się zmienia: C 480 → B 520” (na bursztynowo), gdy część przenosi auto do innej klasy, albo „Klasa B bez zmian: 512 → 520 PI”. Dzięki temu gracz wie, że tuning, który podnosi klasę, przeniesie go do rywali wyższej klasy (gdy krok rywali jest większy od zera). Polecenie `php artisan competition:pi-report` pokazuje klasy i PI aut paczki.
 
