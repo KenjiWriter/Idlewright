@@ -30,6 +30,7 @@ use App\Push\PushMessage;
 use App\Services\ContentPacks;
 use App\Services\Ledger;
 use App\Services\Push;
+use App\Services\PushArm;
 use App\Services\RunService;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -619,4 +620,22 @@ function thePushRulesAre(array $change): void
 function aMessage(): PushMessage
 {
     return new PushMessage('test', 'Rdzak', 'Skończyło się paliwo.', '/garage', 'test', 600, 'normal', 'pl');
+}
+
+/** Accounts made `$daysAgo` days ago, in the group asked for, `$count` of them (the group is a hash of the number, so they are looked for). */
+function accountsInArm(string $arm, int $count, int $daysAgo = 10): array
+{
+    $found = [];
+
+    while (count($found) < $count) {
+        $user = User::factory()->guest()->create(['created_at' => now()->subDays($daysAgo)]);
+
+        if (app(PushArm::class)->of($user->id) === $arm) {
+            $found[] = $user;
+        } else {
+            $user->delete();
+        }
+    }
+
+    return $found;
 }

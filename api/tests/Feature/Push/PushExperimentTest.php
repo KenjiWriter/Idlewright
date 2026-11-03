@@ -24,24 +24,6 @@ use Illuminate\Support\Facades\Queue;
 
 afterEach(fn () => Carbon::setTestNow());
 
-/** Accounts made `$daysAgo` days ago, in the group asked for, `$count` of them (the group is a hash of the number, so they are looked for). */
-function accountsInArm(string $arm, int $count, int $daysAgo = 10): array
-{
-    $found = [];
-
-    while (count($found) < $count) {
-        $user = User::factory()->guest()->create(['created_at' => now()->subDays($daysAgo)]);
-
-        if (app(PushArm::class)->of($user->id) === $arm) {
-            $found[] = $user;
-        } else {
-            $user->delete();
-        }
-    }
-
-    return $found;
-}
-
 function cameBack(User $user, int $dayAfter): void
 {
     UserVisit::factory()->create(['user_id' => $user->id, 'at' => CarbonImmutable::instance($user->created_at)->startOfDay()->addDays($dayAfter)->addHours(12)]);
