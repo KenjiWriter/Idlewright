@@ -174,7 +174,7 @@ async function choose(track: MapTrack): Promise<void> {
               <b class="mono" :class="row.seconds < 0 ? 'text-ok' : 'text-danger'">{{ signedSeconds(row.seconds) }}</b>
             </li>
           </ul>
-          <p v-if="track.thread!.lap_from === 'stats'" class="sub" data-test="fit-by-hand">{{ t('trackPicker.thread.byHand') }}</p>
+          <p v-if="track.thread!.lap_from === 'stats' && fit(track)!.rows.length" class="sub" data-test="fit-by-hand">{{ t('trackPicker.thread.byHand') }}</p>
         </div>
 
         <p v-if="!track.open" class="sub text-amber" data-test="locked">{{ t('trackPicker.locked', { level: track.level_required }) }}</p>

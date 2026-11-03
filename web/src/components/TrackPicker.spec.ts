@@ -162,16 +162,22 @@ describe('TrackPicker', () => {
     expect(fit.find('[data-test="fit-by-hand"]').exists()).toBe(false)
   })
 
-  it('says the lap time is set by hand when the track is driven by the formula, and that the car drives like the reference when nothing differs', async () => {
+  it('says the lap time is set by hand when a track driven by the formula has differences to tell, and keeps quiet about it when nothing differs', async () => {
     const tracks = [
-      aTrack({ slug: 'zlomowo-street', name: 'Sprint uliczny Złomowo', current: true, thread: aThread({ lap_from: 'stats', car: { accelerating: 0.1, holding: 0, braking: 0, cornering: -0.2 } }) }),
-      ...TRACKS.slice(1),
+      aTrack({ slug: 'zlomowo-street', name: 'Sprint uliczny Złomowo', current: true, thread: aThread({ lap_from: 'stats' }) }),
+      aTrack({ slug: 'zlomowo-yard-dash', name: 'Sprint po złomowisku', kind: 'sprint', thread: aThread({ lap_from: 'stats', car: { accelerating: 0.1, holding: 0, braking: 0, cornering: -0.2 } }) }),
+      ...TRACKS.slice(2),
     ]
     const { wrapper } = await show(aRun(), tracks)
-    const fit = wrapper.get('[data-test="track-fit-zlomowo-street"]')
 
-    expect(fit.get('[data-test="fit-verdict"]').text()).toBe('It drives this track like the car the track is made for.')
-    expect(fit.get('[data-test="fit-by-hand"]').text()).toBe('The lap time of this track is set by hand; this shows how the car handles its shape.')
+    // The street has differences to tell, so it says what they are about.
+    expect(wrapper.get('[data-test="track-fit-zlomowo-street"] [data-test="fit-by-hand"]').text()).toBe('The lap time of this track is set by hand; this shows how the car handles its shape.')
+
+    // The sprint has none: the car drives it like the car the track is made for, and there is nothing to explain.
+    const even = wrapper.get('[data-test="track-fit-zlomowo-yard-dash"]')
+
+    expect(even.get('[data-test="fit-verdict"]').text()).toBe('It drives this track like the car the track is made for.')
+    expect(even.find('[data-test="fit-by-hand"]').exists()).toBe(false)
   })
 
   it('draws only the line when the thread says nothing about the car, and nothing for a track without a thread', async () => {
