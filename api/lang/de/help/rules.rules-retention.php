@@ -165,5 +165,18 @@ return [
             'range' => '0 – 100 % (ein Teil der Konten).',
             'tip' => 'Bei wenigen Spielern zeigt der Vergleich nur eine Richtung: Für einen Unterschied von fünf Punkten braucht man etwa tausend Konten in der Gruppe. 0 % benachrichtigt alle.',
         ],
+        '/push/adapt_digest_after' => [
+            'label' => 'Unbeantwortete Nachrichten, bevor es nur noch eine am Tag gibt',
+            'help' => 'Wie viele Nachrichten hintereinander ein Spieler unbeantwortet lassen kann (weder die Benachrichtigung öffnen noch innerhalb einer Stunde danach ins Spiel kommen), bevor das Spiel ihn höchstens einmal am Tag informiert, alles in einer Nachricht.',
+            'example' => '3: Nach drei unbeantworteten Nachrichten kommt die nächste frühestens nach einem Tag.',
+            'range' => '1 – 50 (Nachrichten).',
+            'tip' => 'Es verhindert, dass Benachrichtigungen für einen Spieler, der sie nicht will, zum Lärm werden.',
+        ],
+        '/push/adapt_pause_after' => [
+            'label' => 'Unbeantwortete Nachrichten, bevor eine Pause beginnt',
+            'help' => 'Wie viele Nachrichten hintereinander unbeantwortet bleiben können, bevor das Spiel den Spieler gar nicht mehr informiert, bis er von selbst ins Spiel kommt.',
+            'example' => '10: Nach zehn unbeantworteten Nachrichten kommt nichts mehr, bis der Spieler zurück ist.',
+            'range' => '1 – 200 (Nachrichten).',
+        ],
     ],
 ];

@@ -165,5 +165,18 @@ return [
             'range' => '0 – 100% (uma parte das contas).',
             'tip' => 'Com poucos jogadores a comparação mostra só uma direção: para ver uma diferença de cinco pontos são necessárias cerca de mil contas no grupo. 0% avisa todos.',
         ],
+        '/push/adapt_digest_after' => [
+            'label' => 'Mensagens sem resposta antes de só uma por dia',
+            'help' => 'Quantas mensagens seguidas um jogador pode deixar sem resposta (sem abrir a notificação nem entrar no jogo dentro de uma hora depois dela) antes de o jogo avisá-lo no máximo uma vez por dia, tudo em uma só mensagem.',
+            'example' => '3: depois de três mensagens sem resposta, a próxima vem, no mínimo, um dia depois.',
+            'range' => '1 – 50 (mensagens).',
+            'tip' => 'Evita que as notificações virem barulho para um jogador que não as quer.',
+        ],
+        '/push/adapt_pause_after' => [
+            'label' => 'Mensagens sem resposta antes de uma pausa',
+            'help' => 'Quantas mensagens seguidas podem ficar sem resposta antes de o jogo parar de avisar o jogador por completo, até ele entrar no jogo por conta própria.',
+            'example' => '10: depois de dez mensagens sem resposta, nada vem até o jogador voltar.',
+            'range' => '1 – 200 (mensagens).',
+        ],
     ],
 ];

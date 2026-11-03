@@ -1259,6 +1259,7 @@ return [
             'off' => 'der Spieler hat es ausgeschaltet',
             'known' => 'der Spieler hatte es gesehen',
             'limit' => 'Grenze des Tages',
+            'paused' => 'pausiert, bis der Spieler zurückkommt',
             'no_device' => 'kein Gerät',
             'other' => 'anderes',
         ],

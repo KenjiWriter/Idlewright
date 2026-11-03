@@ -165,5 +165,18 @@ return [
             'range' => '0 – 100% (część kont).',
             'tip' => 'Przy niewielu graczach porównanie pokazuje tylko kierunek: żeby zobaczyć różnicę pięciu punktów, trzeba około tysiąca kont w grupie. 0% powiadamia wszystkich.',
         ],
+        '/push/adapt_digest_after' => [
+            'label' => 'Wiadomości bez odpowiedzi, po których tylko jedna na dobę',
+            'help' => 'Ile wiadomości z rzędu gracz może zostawić bez odpowiedzi (ani nie otworzyć powiadomienia, ani nie wejść do gry w ciągu godziny po nim), zanim gra zacznie mu mówić najwyżej raz na dobę, wszystko w jednej wiadomości.',
+            'example' => '3: po trzech wiadomościach bez odpowiedzi następna przyjdzie najwcześniej po dobie.',
+            'range' => '1 – 50 (wiadomości).',
+            'tip' => 'Chroni przed tym, żeby powiadomienia zamieniły się w hałas dla gracza, który ich nie chce.',
+        ],
+        '/push/adapt_pause_after' => [
+            'label' => 'Wiadomości bez odpowiedzi, po których pauza',
+            'help' => 'Ile wiadomości z rzędu może zostać bez odpowiedzi, zanim gra przestanie powiadamiać gracza w ogóle, dopóki sam nie wejdzie do gry.',
+            'example' => '10: po dziesięciu wiadomościach bez odpowiedzi nic nie przyjdzie, dopóki gracz nie wróci.',
+            'range' => '1 – 200 (wiadomości).',
+        ],
     ],
 ];

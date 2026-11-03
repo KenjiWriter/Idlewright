@@ -834,6 +834,8 @@
     "seen_ms": 180000,
     "quiet_from_min": 1320,
     "quiet_to_min": 480,
+    "adapt_digest_after": 3,
+    "adapt_pause_after": 10,
     "holdout_ppm": 200000
   },
   "slots": {

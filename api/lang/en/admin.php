@@ -1295,6 +1295,7 @@ return [
             'off' => 'the driver switched it off',
             'known' => 'the driver had seen it',
             'limit' => 'limit of a day',
+            'paused' => 'paused until the driver comes back',
             'no_device' => 'no device',
             'other' => 'other',
         ],

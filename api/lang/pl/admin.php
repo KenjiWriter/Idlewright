@@ -1295,6 +1295,7 @@ return [
             'off' => 'gracz to wyłączył',
             'known' => 'gracz sam to widział',
             'limit' => 'limit na dobę',
+            'paused' => 'wstrzymane do powrotu gracza',
             'no_device' => 'brak urządzenia',
             'other' => 'inne',
         ],

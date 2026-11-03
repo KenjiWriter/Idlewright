@@ -165,5 +165,18 @@ return [
             'range' => '0 – 100% (a part of the accounts).',
             'tip' => 'With few drivers the comparison shows a direction only: it takes about a thousand accounts in the group to see a difference of five points. 0% tells everybody.',
         ],
+        '/push/adapt_digest_after' => [
+            'label' => 'Unanswered messages before only one a day',
+            'help' => 'How many messages in a row a driver can leave without an answer (neither opening the notification nor coming into the game within an hour of it) before the game tells them at most once a day, with everything that happened in one message.',
+            'example' => '3: after three unanswered messages the next one comes after a day at the earliest.',
+            'range' => '1 – 50 (messages).',
+            'tip' => 'It keeps the notifications from turning into noise for a driver who does not want them.',
+        ],
+        '/push/adapt_pause_after' => [
+            'label' => 'Unanswered messages before a pause',
+            'help' => 'How many messages in a row can stay unanswered before the game stops telling the driver at all, until they come into the game by themselves.',
+            'example' => '10: after ten unanswered messages nothing comes until the driver is back.',
+            'range' => '1 – 200 (messages).',
+        ],
     ],
 ];

@@ -1259,6 +1259,7 @@ return [
             'off' => 'le joueur l’a désactivé',
             'known' => 'le joueur l’avait vu',
             'limit' => 'limite du jour',
+            'paused' => 'en pause jusqu’au retour du joueur',
             'no_device' => 'aucun appareil',
             'other' => 'autre',
         ],

@@ -165,5 +165,18 @@ return [
             'range' => '0 – 100 % (une part des comptes).',
             'tip' => 'Avec peu de joueurs, la comparaison ne montre qu’une direction : il faut environ mille comptes dans le groupe pour voir un écart de cinq points. 0 % prévient tout le monde.',
         ],
+        '/push/adapt_digest_after' => [
+            'label' => 'Messages sans réponse avant un seul par jour',
+            'help' => 'Combien de messages de suite un joueur peut laisser sans réponse (sans ouvrir la notification ni entrer dans le jeu dans l’heure qui suit) avant que le jeu ne le prévienne au plus une fois par jour, tout en un seul message.',
+            'example' => '3 : après trois messages sans réponse, le suivant vient au plus tôt après un jour.',
+            'range' => '1 – 50 (messages).',
+            'tip' => 'Cela évite que les notifications ne deviennent du bruit pour un joueur qui n’en veut pas.',
+        ],
+        '/push/adapt_pause_after' => [
+            'label' => 'Messages sans réponse avant une pause',
+            'help' => 'Combien de messages de suite peuvent rester sans réponse avant que le jeu ne prévienne plus du tout le joueur, jusqu’à ce qu’il revienne de lui-même.',
+            'example' => '10 : après dix messages sans réponse, rien ne vient tant que le joueur n’est pas revenu.',
+            'range' => '1 – 200 (messages).',
+        ],
     ],
 ];

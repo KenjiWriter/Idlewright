@@ -3,10 +3,12 @@
 declare(strict_types=1);
 
 use App\Jobs\SendPush;
+use App\Models\PushDelivery;
 use App\Models\PushEvent;
 use App\Models\RaceRun;
 use App\Models\Travel;
 use App\Models\User;
+use App\Models\UserVisit;
 use App\Models\WorkshopJob;
 use App\Push\PushKeys;
 use App\Services\Push;
@@ -286,6 +288,87 @@ describe('telling the driver', function () {
         expect(dispatchAt(600_000))->toBe(['sent' => 0, 'skipped' => 0, 'deferred' => 0]);
         expect(PushEvent::query()->count())->toBe(0);
         Queue::assertNothingPushed();
+    });
+});
+
+describe('a driver who does not answer', function () {
+    /** `$count` messages that were sent hours ago and not answered: not opened, and the driver did not come in within the hour after them. The last one was sent `$lastHoursAgo` hours ago. */
+    function unansweredMessages(User $driver, int $count, int $lastHoursAgo = 3, bool $opened = false): void
+    {
+        foreach (range(0, $count - 1) as $index) {
+            $at = Carbon::createFromTimestampMs(RUN_T0)->subHours($lastHoursAgo + $index * 2);
+            $delivery = PushDelivery::query()->create(['user_id' => $driver->id, 'nid' => "u-{$index}-".$driver->id, 'kind' => 'car_stopped', 'opened_at' => $opened && $index === 0 ? $at : null]);
+            PushDelivery::query()->whereKey($delivery->id)->update(['created_at' => $at]);
+        }
+    }
+
+    it('is told at most once a day after three messages in a row that were not answered, and in the morning gets what came', function () {
+        Queue::fake();
+        [$driver] = awayDriver();
+        unansweredMessages($driver, 3);
+        // The last of them was sent two hours before the dispatcher looks; the gap of the rules (half an hour) is over, the day is not.
+        PushEvent::query()->create(['user_id' => $driver->id, 'kind' => 'car_stopped', 'ref_type' => 'race_run', 'ref_id' => 900, 'due_ms' => RUN_T0, 'state' => 'sent', 'sent_at' => Carbon::createFromTimestampMs(RUN_T0 + 300_000 - 2 * 3_600_000)]);
+
+        expect(dispatchAt(600_000))->toBe(['sent' => 0, 'skipped' => 0, 'deferred' => 1]);
+        expect(PushEvent::query()->where('kind', 'car_stopped')->where('state', 'planned')->sole()->due_ms)->toBe(RUN_T0 + 300_000 - 2 * 3_600_000 + 86_400_000);
+        Queue::assertNothingPushed();
+    });
+
+    it('is told as usual when the driver answered one of them: opened it, or came into the game within the hour', function () {
+        Queue::fake();
+        [$driver] = awayDriver();
+        unansweredMessages($driver, 3, opened: true);
+
+        expect(dispatchAt(600_000))->toBe(['sent' => 1, 'skipped' => 0, 'deferred' => 0]);
+
+        Queue::fake();
+        [$other] = awayDriver();
+        unansweredMessages($other, 3);
+        $newest = PushDelivery::query()->where('user_id', $other->id)->orderByDesc('id')->first();
+        UserVisit::factory()->create(['user_id' => $other->id, 'at' => Carbon::parse($newest->created_at)->addMinutes(20)]);
+
+        expect(dispatchAt(700_000))->toBe(['sent' => 1, 'skipped' => 0, 'deferred' => 0]);
+    });
+
+    it('is not told at all after ten messages that were not answered, until the driver comes into the game by themselves', function () {
+        Queue::fake();
+        [$driver] = awayDriver();
+
+        // Ten messages, one after another from an hour after the driver was last in the game (they were in at the start), none of them answered.
+        foreach (range(0, 9) as $index) {
+            $delivery = PushDelivery::query()->create(['user_id' => $driver->id, 'nid' => "p-{$index}", 'kind' => 'car_stopped']);
+            PushDelivery::query()->whereKey($delivery->id)->update(['created_at' => Carbon::createFromTimestampMs(RUN_T0)->addHour()->addMinutes($index * 10)]);
+        }
+
+        expect(dispatchAt(4 * 3_600_000))->toBe(['sent' => 0, 'skipped' => 1, 'deferred' => 0]);
+        expect(PushEvent::query()->where('kind', 'car_stopped')->sole())->state->toBe('skipped')->reason->toBe('paused');
+        Queue::assertNothingPushed();
+
+        // The driver comes back by themselves: from then on they are told, once a day at most.
+        $this->getJson('/api/v1/push/config', bearerFor($driver))->assertOk();
+        $second = RaceRun::factory()->create(['user_id' => $driver->id, 'fuel_ml' => 1_500, 'cursor_ms' => RUN_T0 + 4 * 3_600_000 + 60_000]);
+        app(RunService::class)->settle($second->id, RunService::nowMs());
+        clockAt(4 * 3_600_000 + 60_000 + 3_600_000 + 400_000);
+
+        expect(app(PushDispatcher::class)->run(RunService::nowMs()))->toBe(['sent' => 0, 'skipped' => 0, 'deferred' => 1]);
+    });
+
+    it('counts one message for the devices it went to, and does not count the test message or one that has not had its hour', function () {
+        Queue::fake();
+        [$driver] = awayDriver();
+
+        // Ten deliveries, but of two messages (five devices each), and a test message: nowhere near ten messages.
+        foreach ([0, 1] as $message) {
+            foreach (range(1, 5) as $device) {
+                $delivery = PushDelivery::query()->create(['user_id' => $driver->id, 'nid' => "d-{$message}-{$device}", 'kind' => 'car_stopped']);
+                PushDelivery::query()->whereKey($delivery->id)->update(['created_at' => Carbon::createFromTimestampMs(RUN_T0)->subHours(3 + $message * 3)]);
+            }
+        }
+
+        $test = PushDelivery::query()->create(['user_id' => $driver->id, 'nid' => 'test-1', 'kind' => 'test']);
+        PushDelivery::query()->whereKey($test->id)->update(['created_at' => Carbon::createFromTimestampMs(RUN_T0)->subHours(1)]);
+
+        expect(dispatchAt(600_000))->toBe(['sent' => 1, 'skipped' => 0, 'deferred' => 0]);
     });
 });
 

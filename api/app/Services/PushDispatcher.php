@@ -7,11 +7,13 @@ namespace App\Services;
 use App\Content\Catalog;
 use App\Content\Rules;
 use App\Domain\Settlement\EventType;
+use App\Models\PushDelivery;
 use App\Models\PushEvent;
 use App\Models\PushSubscription;
 use App\Models\RaceRun;
 use App\Models\Travel;
 use App\Models\User;
+use App\Models\UserVisit;
 use App\Models\WorkshopJob;
 use App\Support\I18nText;
 use Closure;
@@ -29,6 +31,15 @@ use Illuminate\Support\Collection;
  */
 final class PushDispatcher
 {
+    /** A day, in milliseconds: the gap after the last message for a driver who leaves the messages unanswered. */
+    private const DAY_MS = 86_400_000;
+
+    /** A message has this long to be answered (the notification opened, or the driver in the game) before it counts as unanswered. */
+    private const ANSWER_WINDOW_MS = 3_600_000;
+
+    /** Messages that were queued within this time of each other (one for each device) are one message. */
+    private const SAME_MESSAGE_MS = 60_000;
+
     /** How many events one run takes: the rest wait for the next minute. */
     private const BATCH = 500;
 
@@ -138,6 +149,19 @@ final class PushDispatcher
             return;
         }
 
+        // A driver who leaves the messages unanswered is told less: after a few only once a day, and after many not at all until they come back.
+        $unanswered = $this->unanswered($user, $nowMs);
+
+        if ($unanswered['count'] >= $settings['adapt_pause_after'] && ($seenMs === null || $seenMs <= $unanswered['last_ms'])) {
+            foreach ($items as [$event]) {
+                $this->skip($event, 'paused', $report);
+            }
+
+            return;
+        }
+
+        $gapMs = $unanswered['count'] >= $settings['adapt_digest_after'] ? self::DAY_MS : $settings['min_gap_ms'];
+
         $now = Carbon::createFromTimestampMs($nowMs);
         $sent = PushEvent::query()->where('user_id', $user->id)->where('state', PushEvent::STATE_SENT)->where('sent_at', '>', $now->copy()->subDay());
 
@@ -149,7 +173,7 @@ final class PushDispatcher
             return;
         }
 
-        $wait = $this->waitUntil($user, $nowMs, $seenMs, (clone $sent)->max('sent_at'), $settings);
+        $wait = $this->waitUntil($user, $nowMs, $seenMs, (clone $sent)->max('sent_at'), $settings, $gapMs);
 
         if ($wait !== null) {
             foreach ($items as [$event]) {
@@ -246,8 +270,9 @@ final class PushDispatcher
      * of the time zone of their device, and not too soon after the last message.
      *
      * @param  array{seen_ms: int, quiet_from_min: int, quiet_to_min: int, min_gap_ms: int}  $settings
+     * @param  int  $gapMs  the least time after the last message: the gap of the rules, or a day for a driver who leaves the messages unanswered
      */
-    private function waitUntil(User $user, int $nowMs, ?int $seenMs, mixed $lastSent, array $settings): ?int
+    private function waitUntil(User $user, int $nowMs, ?int $seenMs, mixed $lastSent, array $settings, int $gapMs): ?int
     {
         $times = [];
 
@@ -261,11 +286,59 @@ final class PushDispatcher
             $times[] = $quiet;
         }
 
-        if ($lastSent !== null && Carbon::parse($lastSent)->getTimestampMs() + $settings['min_gap_ms'] > $nowMs) {
-            $times[] = Carbon::parse($lastSent)->getTimestampMs() + $settings['min_gap_ms'];
+        if ($lastSent !== null && Carbon::parse($lastSent)->getTimestampMs() + $gapMs > $nowMs) {
+            $times[] = Carbon::parse($lastSent)->getTimestampMs() + $gapMs;
         }
 
         return $times === [] ? null : max($times);
+    }
+
+    /**
+     * How many of the last messages in a row have gone unanswered: a message is answered when its notification was opened or the driver came into the game within an hour of it. A
+     * message that has not had its hour yet counts for neither. The test message is not one. Returns also the moment of the last message, of any kind of answer.
+     *
+     * @return array{count: int, last_ms: int|null}
+     */
+    private function unanswered(User $user, int $nowMs): array
+    {
+        $deliveries = PushDelivery::query()->where('user_id', $user->id)->where('kind', '!=', 'test')->orderByDesc('id')->limit(60)->get(['created_at', 'opened_at']);
+
+        if ($deliveries->isEmpty()) {
+            return ['count' => 0, 'last_ms' => null];
+        }
+
+        // The deliveries of one message (one for each device) become one.
+        $messages = [];
+
+        foreach ($deliveries as $delivery) {
+            $at = Carbon::parse($delivery->created_at)->getTimestampMs();
+            $last = count($messages) - 1;
+
+            if ($last >= 0 && abs($messages[$last]['at'] - $at) <= self::SAME_MESSAGE_MS) {
+                $messages[$last]['opened'] = $messages[$last]['opened'] || $delivery->opened_at !== null;
+            } else {
+                $messages[] = ['at' => $at, 'opened' => $delivery->opened_at !== null];
+            }
+        }
+
+        $visits = UserVisit::query()->where('user_id', $user->id)->where('at', '>=', Carbon::createFromTimestampMs(end($messages)['at']))->pluck('at')->map(fn ($at): int => Carbon::parse($at)->getTimestampMs());
+        $count = 0;
+
+        foreach ($messages as $message) {
+            if ($message['at'] > $nowMs - self::ANSWER_WINDOW_MS) {
+                continue;
+            }
+
+            $answered = $message['opened'] || $visits->contains(fn (int $at): bool => $at > $message['at'] && $at <= $message['at'] + self::ANSWER_WINDOW_MS);
+
+            if ($answered) {
+                break;
+            }
+
+            $count++;
+        }
+
+        return ['count' => $count, 'last_ms' => $messages[0]['at']];
     }
 
     /** When the quiet hours that the moment is in end, or null when it is not in them. The hours are minutes of the day; a start after the end is a night. */

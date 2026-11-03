@@ -735,7 +735,7 @@ final class Rules
      * and the limits that keep the messages from being noise (how many a day, the gap between them, how long after a look at the game none is sent, the quiet hours as minutes
      * of the day). Null when the rules do not mention it, which is the same as off.
      *
-     * @return array{enabled: bool, ttl_ms: array<string, int>, default_kinds: array<string, bool>, per_day: int, min_gap_ms: int, seen_ms: int, quiet_from_min: int, quiet_to_min: int, holdout_ppm: int}|null
+     * @return array{enabled: bool, ttl_ms: array<string, int>, default_kinds: array<string, bool>, per_day: int, min_gap_ms: int, seen_ms: int, quiet_from_min: int, quiet_to_min: int, adapt_digest_after: int, adapt_pause_after: int, holdout_ppm: int}|null
      */
     public function push(): ?array
     {
@@ -750,6 +750,8 @@ final class Rules
             'seen_ms' => (int) $push['seen_ms'],
             'quiet_from_min' => (int) $push['quiet_from_min'],
             'quiet_to_min' => (int) $push['quiet_to_min'],
+            'adapt_digest_after' => (int) $push['adapt_digest_after'],
+            'adapt_pause_after' => (int) $push['adapt_pause_after'],
             'holdout_ppm' => (int) $push['holdout_ppm'],
         ];
     }

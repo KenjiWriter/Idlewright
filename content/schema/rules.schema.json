@@ -815,9 +815,11 @@
         "seen_ms": { "description": "A driver who was in the game this recently (milliseconds) is not sent a push: they see it on the screen.", "type": "integer", "minimum": 0, "maximum": 3600000 },
         "quiet_from_min": { "description": "The minute of the day (in the time zone of the device of the driver; 1320 is 22:00) from which no push messages are sent. What happens meanwhile is told in one message when the quiet hours end.", "type": "integer", "minimum": 0, "maximum": 1439 },
         "quiet_to_min": { "description": "The minute of the day when the quiet hours end (480 is 08:00). The same number as `quiet_from_min` means no quiet hours.", "type": "integer", "minimum": 0, "maximum": 1439 },
+        "adapt_digest_after": { "description": "How many messages in a row a driver can leave unanswered (not opening the notification and not coming into the game within an hour of it) before the game tells them at most once a day, with everything that happened in one message.", "type": "integer", "minimum": 1, "maximum": 50 },
+        "adapt_pause_after": { "description": "How many messages in a row can stay unanswered before the game stops telling the driver at all, until they come into the game by themselves.", "type": "integer", "minimum": 1, "maximum": 200 },
         "holdout_ppm": { "description": "The part of the accounts (1 000 000 is all of them) that are never told by push and never asked: the group that the others are compared with, to see that the notifications do not make the drivers come back less. The account is put in the group by a hash of its id, so it stays there; a higher number moves more accounts into it, and a lower one moves some out. 0 tells everybody.", "type": "integer", "minimum": 0, "maximum": 1000000 }
       },
-      "required": ["enabled", "ttl_ms", "default_kinds", "per_day", "min_gap_ms", "seen_ms", "quiet_from_min", "quiet_to_min", "holdout_ppm"],
+      "required": ["enabled", "ttl_ms", "default_kinds", "per_day", "min_gap_ms", "seen_ms", "quiet_from_min", "quiet_to_min", "adapt_digest_after", "adapt_pause_after", "holdout_ppm"],
       "additionalProperties": false
     },
     "slots": {
