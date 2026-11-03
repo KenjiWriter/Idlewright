@@ -6,6 +6,7 @@ namespace App\Console\Commands;
 
 use App\Content\CarPerformance;
 use App\Content\Catalog;
+use App\Content\PartSets;
 use App\Content\Rules;
 use Illuminate\Console\Command;
 use InvalidArgumentException;
@@ -18,13 +19,6 @@ use InvalidArgumentException;
  */
 final class CompetitionPiReport extends Command
 {
-    private const LEGENDARY = 5;
-
-    private const BEST_UPGRADE = 12;
-
-    /** The sets of parts: the best part of the shop of this tier or lower in every slot. */
-    private const TIER_SETS = [1, 2, 3, 4, 5, 7, 9];
-
     protected $signature = 'competition:pi-report
         {--json : Print the report as JSON}';
 
@@ -39,18 +33,7 @@ final class CompetitionPiReport extends Command
         }
 
         $classes = $rules->performanceClasses();
-        $slots = $rules->model()->slotKeys();
-        $sets = ['stock' => null];
-
-        foreach (self::TIER_SETS as $tier) {
-            $sets["T{$tier}"] = $this->mounted($this->bestShopParts($catalog, $rules, $slots, $tier), 1, 0);
-        }
-
-        $best = $this->bestShopParts($catalog, $rules, $slots, null);
-        $sets['rare+4'] = $this->mounted($best, 3, 4);
-        $sets['epic+8'] = $this->mounted($best, 4, 8);
-        $sets['best+'.self::BEST_UPGRADE] = $this->mounted($best, self::LEGENDARY, self::BEST_UPGRADE);
-        $rows = [];
+        $sets = (new PartSets($catalog, $rules))->all();
         $counts = array_fill_keys(array_keys($sets), []);
 
         foreach ($catalog->vehicles() as $slug => $vehicle) {
@@ -62,7 +45,7 @@ final class CompetitionPiReport extends Command
 
             try {
                 foreach ($sets as $name => $mounted) {
-                    $pi = $performance->of($slug, $mounted ?? []);
+                    $pi = $performance->of($slug, $mounted);
                     $row['pi'][$name] = $pi;
                     $class = $classes->of($pi);
                     $counts[$name][$class] = ($counts[$name][$class] ?? 0) + 1;
@@ -106,39 +89,5 @@ final class CompetitionPiReport extends Command
         );
 
         return self::SUCCESS;
-    }
-
-    /**
-     * The strongest part of the shop in every slot among those of this tier or lower: the one of the highest tier (the first on the shelf among equals).
-     *
-     * @param  list<string>  $slots
-     * @return array<string, string> the slug of the part by slot
-     */
-    private function bestShopParts(Catalog $catalog, Rules $rules, array $slots, ?int $upToTier): array
-    {
-        $best = [];
-
-        foreach ($rules->shopParts() as $slug) {
-            $part = $catalog->part($slug);
-
-            if ($part === null || ! in_array($part['slot'], $slots, true) || ($upToTier !== null && $part['tier'] > $upToTier)) {
-                continue;
-            }
-
-            if (! isset($best[$part['slot']]) || $part['tier'] > $catalog->part($best[$part['slot']])['tier']) {
-                $best[$part['slot']] = $slug;
-            }
-        }
-
-        return $best;
-    }
-
-    /**
-     * @param  array<string, string>  $best
-     * @return array<string, array{slug: string, rarity: int, upgrade: int}>
-     */
-    private function mounted(array $best, int $rarity, int $upgrade): array
-    {
-        return array_map(static fn (string $slug): array => ['slug' => $slug, 'rarity' => $rarity, 'upgrade' => $upgrade], $best);
     }
 }

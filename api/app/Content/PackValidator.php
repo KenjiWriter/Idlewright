@@ -515,6 +515,7 @@ final class PackValidator
         $this->checkWorkshopPrices($rules['workshop'] ?? [], $result);
         $this->checkBoost($rules['travel']['boost'] ?? null, $result);
         $this->checkBots($rules['bots'] ?? null, $result);
+        $this->checkBotClassStep($rules, $result);
         $this->checkPlayerCurve($rules['player'] ?? null, 'rules/starter.json', '/player', 'early_xp', $result);
     }
 
@@ -694,6 +695,34 @@ final class PackValidator
 
         if (count($bots['names'] ?? []) < count($bots['offsets_ppm'] ?? [])) {
             $result->addError($file, '/bots/names', 'A track takes a name for every bot, and there are fewer names than bots.');
+        }
+    }
+
+    /**
+     * What the schema cannot say about the step of the bots by class: it works through the classes of the competition, and the steps of all the classes together must leave the
+     * bots a lap time.
+     *
+     * @param  array<string, mixed>  $rules
+     */
+    private function checkBotClassStep(array $rules, PackValidationResult $result): void
+    {
+        $step = (int) ($rules['bots']['class_step_ppm'] ?? 0);
+
+        if ($step === 0) {
+            return;
+        }
+
+        $file = 'rules/starter.json';
+        $classes = count($rules['competition']['pi']['class_max_pi'] ?? []) + 1;
+
+        if (! ($rules['competition']['enabled'] ?? false)) {
+            $result->addWarning($file, '/bots/class_step_ppm', 'The bots get quicker by class, and the game has no competition (or it is off), so no car has a class and the step changes nothing.');
+
+            return;
+        }
+
+        if ($step * ($classes - 1) >= 900_000) {
+            $result->addError($file, '/bots/class_step_ppm', 'The steps of all the classes together would take 90% or more off the lap time of the bots: the field would have no rivals to speak of.');
         }
     }
 

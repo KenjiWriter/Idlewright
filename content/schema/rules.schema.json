@@ -112,6 +112,12 @@
           "maxItems": 15,
           "items": { "type": "integer", "minimum": -500000, "maximum": 500000 }
         },
+        "class_step_ppm": {
+          "description": "How much quicker the bots get for every class that the car is above the class of the best stock car of its tier (the native class of the tier), as a part of their lap time: 80 000 makes the bots 8% quicker for the first class above, 16% for the second. The stock cars of a tier are never above its native class, so they meet the bots they always did, and a car tuned into a higher class meets rivals of that class, so that moving up is not always worth it. Zero (and a game with no competition) leaves the bots as they were.",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 300000
+        },
         "reward_ppm_by_position": {
           "description": "What the reward of a lap is multiplied by (ppm, 1 000 000 is none) for the first place, the second and so on, as many as the field has cars. It never rises with the place.",
           "type": "array",

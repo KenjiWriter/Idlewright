@@ -196,3 +196,17 @@ Projekt całości (D1–D22 i aneks o klasach F–SS) jest w notatce `rywalizacj
 | C6 | nadużycia, symulator sezonu na sztucznym zegarze, metryki | raport poza bramkami bajt w bajt | pełny sezon bez interwencji, zapełnienie, brak podwójnych wypłat |
 
 Rywale w meczach (pojedynki i turnieje) są z klasy auta z samej konstrukcji (klasa w migawce), więc ta część wymagania wchodzi z C1c–C3 bez ryzyka dla ekonomii; ryzyko dotyczy wyłącznie botów na torach (C1b).
+
+### Etap C1b: rywale na klasę, pomiar i krok botów (2026-11-03)
+
+**Pomiar** (prawdziwy potok: `RunInputsFactory` + `RunFreezer`, 23 auta × 11 zestawów części × 15 torów, dochód netto z paliwem; widok bramek to najlepsza para auto seryjne + tor na poziom): dobieranie botów do klasy wprost nie mieści się w bramkach ±25%.
+
+| Odniesienie botów | Najlepszy dochód na poziom względem dziś |
+|---|---|
+| typowe auto klasy (regresja po PI) | +23% … +67% |
+| najszybsze auto klasy z próbki | −12% … −25% (L1–2, L3–7, L12–14) |
+| najszybsze seryjne auto klasy | −25% na L1–2, −16% na L12–14 |
+| to samo przesunięte do średniej dziś | −1% … +62% |
+| **krok: boty tieru szybsze o κ okrążenia za klasę powyżej natywnej klasy tieru** | **0% na każdym poziomie** (seryjne auta bez zmiany z konstrukcji) |
+
+Wersja zbudowana to ostatni wiersz: reguła `bots.class_step_ppm`, domyślnie 0. Co robi z tuningiem Rdzaka GT-4 (dochód netto $/h, bez kroku → z krokiem 10%): przeskok D → C (T4 → T5) kosztuje ok. 24–32% dochodu na czterech torach z pięciu (Złomowo 1039 → 702, Kruszyn 686 → 484, Autodrom 1664 → 1199, Wilcza 1099 → 837), na dragu nic się nie zmienia (GT-4 jest tam tak daleko przed botami), a tuning w obrębie klasy (T2–T4) i seryjne auta zostają jak dziś. κ = 3–5% jest prawie niewidoczny, 8% zaczyna boleć na Kruszynie. Zestawy T9, rzadka +4 i epicka +8 to „wszystkie najlepsze części naraz” i same z siebie spalają paliwo ponad nagrodę na krótkich torach (artefakt zestawów testowych). Wartość kroku ustawia właściciel w Studiu (propozycja startowa 8%); `competition:class-jump --step=…` pokazuje skutek przed ustawieniem.

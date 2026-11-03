@@ -310,6 +310,15 @@ final class Rules
     }
 
     /**
+     * How much quicker the bots get for every class that the car is above the native class of its tier, as a part of their lap time, in ppm. Zero when the rules do not say,
+     * which leaves the bots around the reference of the tier.
+     */
+    public function botClassStepPpm(): int
+    {
+        return (int) ($this->data['bots']['class_step_ppm'] ?? 0);
+    }
+
+    /**
      * What the reward of a lap is multiplied by for each place of the field, the first place first, in ppm.
      *
      * @return list<int>

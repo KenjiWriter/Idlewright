@@ -9,6 +9,12 @@ return [
             'range' => 'From -50% to +50% (from the schema); there are as many rivals as entries in the list (1 – 15, today 7).',
             'tip' => 'The place is worked out once, when the run is set up, from the dry lap time (weather does not change it), so it changes with a new part, a new track or a repair. The field has one car more than there are rivals, so the list of reward multipliers by place needs one entry more (today 7 rivals and 8 places).',
         ],
+        '/bots/class_step_ppm' => [
+            'label' => 'Rivals by class: step (% of the lap)',
+            'help' => 'How much quicker the bots get for every class that the car is above the class of the best stock car of its tier (the native class of the tier), as a part of their lap time. The stock cars of a tier are never above its native class, so they meet the rivals they always did, and a car tuned into a higher class meets rivals of that class: moving up a class does not always pay. Zero (or a game with no competition) leaves the bots as they were.',
+            'example' => '8%: a car one class above the native class has bots 8% quicker, two classes above 16%. For the Rdzak GT-4 a jump from D to C at 10% costs 24 – 32% of the income on four tracks of five.',
+            'range' => '0% – 30% of the lap; 0 is off.',
+        ],
         '/bots/reward_ppm_by_position/*' => [
             'label' => 'Reward multiplier by place (%)',
             'help' => 'The star is the place of the car in the field, from 1 (first) to 8. The reward of a lap is multiplied by this when the car finishes in that place among the bots: 100% is the reward of the track unchanged, 150% is half as much again, 80% is a fifth less. The place comes from the dry lap time of the car.',

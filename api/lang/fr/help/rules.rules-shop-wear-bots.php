@@ -9,6 +9,12 @@ return [
             'range' => 'De -50 % à +50 % (d’après le schéma) ; il y a autant de rivaux que d’entrées dans la liste (1 – 15, aujourd’hui 7).',
             'tip' => 'La place est calculée une seule fois, à la mise en route de la course, d’après le temps au tour sur le sec (la météo ne la change pas) ; elle change donc avec une nouvelle pièce, une nouvelle piste ou une réparation. Le peloton compte une voiture de plus que de rivaux, donc la liste des multiplicateurs par place doit avoir une entrée de plus (aujourd’hui 7 rivaux et 8 places).',
         ],
+        '/bots/class_step_ppm' => [
+            'label' => 'Rivaux par classe : pas (% du tour)',
+            'help' => 'De combien les bots deviennent plus rapides pour chaque classe dont la voiture dépasse la classe de la meilleure voiture d’origine de son tier (la classe native du tier), en part de leur temps au tour. Les voitures d’origine d’un tier ne dépassent jamais sa classe native, donc elles retrouvent les rivaux de toujours, et une voiture préparée vers une classe supérieure affronte les rivaux de cette classe : monter d’une classe ne paie pas toujours. Zéro (ou un jeu sans compétition) laisse les bots comme avant.',
+            'example' => '8 % : une voiture une classe au-dessus de la classe native a des bots 8 % plus rapides, deux classes au-dessus 16 %. Pour la Rdzak GT-4, passer de D à C à 10 % coûte 24 – 32 % du revenu sur quatre circuits sur cinq.',
+            'range' => '0 % – 30 % du tour ; 0 désactive.',
+        ],
         '/bots/reward_ppm_by_position/*' => [
             'label' => 'Multiplicateur de récompense par place (%)',
             'help' => 'L’étoile est la place de la voiture dans le peloton, de 1 (première) à 8. La récompense d’un tour est multipliée par ce nombre quand la voiture finit à cette place parmi les bots : 100 % est la récompense de la piste inchangée, 150 % la moitié en plus, 80 % un cinquième en moins. La place découle du temps au tour de la voiture sur le sec.',

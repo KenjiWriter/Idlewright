@@ -9,6 +9,12 @@ return [
             'range' => 'Od -50% do +50% (ze schematu); rywali jest tyle, ile wpisów na liście (1 – 15, dziś 7).',
             'tip' => 'Miejsce liczy się raz, przy ustawieniu biegu, z suchego czasu okrążenia (pogoda go nie zmienia), więc zmienia się przy nowej części, nowym torze albo naprawie. Pole ma o jedno auto więcej niż rywali, więc lista mnożników za miejsce musi mieć o jeden wpis więcej (dziś 7 rywali i 8 miejsc).',
         ],
+        '/bots/class_step_ppm' => [
+            'label' => 'Krok rywali na klasę (% okrążenia)',
+            'help' => 'O ile szybsze są boty za każdą klasę, o którą auto jest wyżej niż klasa najlepszego seryjnego auta jego tieru (klasa natywna tieru), jako część czasu okrążenia. Seryjne auta nigdy nie są powyżej klasy natywnej, więc spotykają tych samych rywali co zawsze, a auto dotuningowane do wyższej klasy trafia na rywali tej klasy: przeskok klasy nie zawsze się opłaca. Zero (albo gra bez rywalizacji) zostawia boty bez zmian.',
+            'example' => '8%: auto o klasę wyżej niż klasa natywna ma boty szybsze o 8%, o dwie klasy wyżej o 16%. Dla Rdzaka GT-4 przeskok z D do C przy 10% kosztuje 24 – 32% dochodu na czterech torach z pięciu.',
+            'range' => '0% – 30% okrążenia; 0 wyłącza.',
+        ],
         '/bots/reward_ppm_by_position/*' => [
             'label' => 'Mnożnik nagrody za miejsce (%)',
             'help' => 'Gwiazdka to miejsce auta w polu, od 1 (pierwsze) do 8. Przez tyle mnoży się nagroda za okrążenie, gdy auto zajmuje to miejsce wśród botów: 100% to nagroda toru bez zmian, 150% o połowę więcej, 80% o piątą część mniej. Miejsce wynika z suchego czasu okrążenia auta.',

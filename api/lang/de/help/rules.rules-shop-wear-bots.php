@@ -9,6 +9,12 @@ return [
             'range' => 'Von -50 % bis +50 % (laut Schema); es gibt so viele Gegner wie Einträge in der Liste (1 – 15, heute 7).',
             'tip' => 'Der Platz wird einmal beim Einrichten des Laufs aus der trockenen Rundenzeit berechnet (das Wetter ändert ihn nicht); er ändert sich also mit einem neuen Teil, einer neuen Strecke oder einer Reparatur. Das Feld hat ein Auto mehr als Gegner, die Liste der Belohnungsfaktoren pro Platz braucht daher einen Eintrag mehr (heute 7 Gegner und 8 Plätze).',
         ],
+        '/bots/class_step_ppm' => [
+            'label' => 'Rivalen nach Klasse: Schritt (% der Runde)',
+            'help' => 'Um wie viel die Bots für jede Klasse schneller werden, die das Auto über der Klasse des besten Serienautos seiner Stufe (der nativen Klasse der Stufe) liegt, als Teil ihrer Rundenzeit. Serienautos einer Stufe liegen nie über deren nativer Klasse, treffen also auf die Rivalen wie immer, und ein in eine höhere Klasse getuntes Auto trifft auf Rivalen dieser Klasse: der Aufstieg in eine Klasse lohnt sich nicht immer. Null (oder ein Spiel ohne Wettbewerb) lässt die Bots unverändert.',
+            'example' => '8 %: ein Auto eine Klasse über der nativen Klasse hat 8 % schnellere Bots, zwei Klassen darüber 16 %. Beim Rdzak GT-4 kostet der Sprung von D nach C bei 10 % 24 – 32 % des Einkommens auf vier von fünf Strecken.',
+            'range' => '0 % – 30 % der Runde; 0 ist aus.',
+        ],
         '/bots/reward_ppm_by_position/*' => [
             'label' => 'Belohnungsfaktor pro Platz (%)',
             'help' => 'Der Stern ist der Platz des Autos im Feld, von 1 (Erster) bis 8. Die Belohnung einer Runde wird mit dieser Zahl multipliziert, wenn das Auto auf diesem Platz unter den Bots ins Ziel kommt: 100 % ist die Belohnung der Strecke unverändert, 150 % die Hälfte mehr, 80 % ein Fünftel weniger. Der Platz ergibt sich aus der trockenen Rundenzeit des Autos.',

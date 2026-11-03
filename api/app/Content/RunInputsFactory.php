@@ -37,7 +37,24 @@ final class RunInputsFactory
     private const TRACTION_STATS = ['grip', 'handling', 'braking'];
 
     /** @param  BotProfiles|null  $profiles  the references that the bots drive around: without them a car races alone */
+    /** @var array<int, int> the native class of every tier, as its place among the classes, once it has been worked out */
+    private array $nativeClasses = [];
+
+    private ?CarPerformance $performance = null;
+
+    /** Another step of the bots by class than the rules say, for a report that tries one; null leaves the rules in charge. */
+    private ?int $classStepOverride = null;
+
     public function __construct(private readonly Catalog $catalog, private readonly Rules $rules, private readonly ?BotProfiles $profiles = null) {}
+
+    /** The same factory with another step of the bots by class (`bots.class_step_ppm`), to see what a step would do before the rules have it. */
+    public function withClassStep(?int $stepPpm): self
+    {
+        $copy = new self($this->catalog, $this->rules, $this->profiles);
+        $copy->classStepOverride = $stepPpm;
+
+        return $copy;
+    }
 
     /** The same factory for cars that race alone: what the place among the bots pays is left out, for a comparison of the cars themselves. */
     public function withoutBots(): self
@@ -100,7 +117,7 @@ final class RunInputsFactory
             climateSeed: $region['climate_seed'],
             breakChancePerLapPpm: $this->rules->breakChancePerLapPpmFor($conditionPpm, $plan?->meanWearPpm() ?? 0, $plan?->overdueSharePpm() ?? 0, $plan?->unserviceableParts($this->rules->unserviceablePpm()) ?? 0, $this->reliabilityKeptPpm($mounted, $kind)),
             nightLapPpm: $track['lit'] ? Ppm::ONE : $this->rules->nightLapPpm(),
-            field: $this->field($trackSlug, (int) $vehicle['tier']),
+            field: $this->field($trackSlug, (int) $vehicle['tier'], $carSlug, $mounted),
             wear: $plan,
             thread: $thread,
         );
@@ -561,7 +578,7 @@ final class RunInputsFactory
      * The bots that a car of this tier races against on this track: seven lap times around the reference of the tier (`bots.offsets_ppm` of the
      * rules), named after teams, and what each place pays. Null when the table of the profiles has no reference for the tier on the track.
      */
-    private function field(string $trackSlug, int $tier): ?FieldProfile
+    private function field(string $trackSlug, int $tier, string $carSlug, array $mounted): ?FieldProfile
     {
         $reference = $this->profiles?->referenceMs($trackSlug, $tier);
 
@@ -569,10 +586,61 @@ final class RunInputsFactory
             return null;
         }
 
+        // A car tuned into a class above the native class of its tier meets bots that are quicker by a step for every class it is above: moving up a class does not always pay.
+        $excess = $this->classExcess($carSlug, $mounted, $tier);
+
+        if ($excess > 0) {
+            $reference = max(1, Ppm::mul($reference, max(100_000, Ppm::ONE - $this->classStep() * $excess)));
+        }
+
         $offsets = $this->rules->botOffsetsPpm();
         $rivals = array_map(static fn (int $offset): int => intdiv($reference * (Ppm::ONE + $offset) + intdiv(Ppm::ONE, 2), Ppm::ONE), $offsets);
 
         return new FieldProfile($rivals, $this->botNames($trackSlug, count($offsets)), $this->rules->botRewardPpmByPosition());
+    }
+
+    /** How much quicker the bots get for every class above the native class of the tier, in ppm of their lap time. */
+    private function classStep(): int
+    {
+        return $this->classStepOverride ?? $this->rules->botClassStepPpm();
+    }
+
+    /**
+     * How many classes the car is above the native class of its tier: the native class of a tier is the highest class of a stock car of that tier, so a stock car is never above
+     * it, and a car with the parts of a higher class is. Nothing while the step is off or the game has no competition.
+     *
+     * @param  array<string, string|array{slug: string, rarity: int, upgrade?: int, wear?: int, affixes?: array<string, int>}>  $mounted
+     */
+    private function classExcess(string $carSlug, array $mounted, int $tier): int
+    {
+        if ($this->classStep() <= 0 || ! $this->rules->competitionOn()) {
+            return 0;
+        }
+
+        $performance = $this->performance ??= new CarPerformance($this, $this->rules, $this->catalog);
+        $names = $this->rules->performanceClasses()->names();
+
+        return max(0, (int) array_search($performance->ratingOf($carSlug, $mounted)['class'], $names, true) - $this->nativeClass($tier, $performance, $names));
+    }
+
+    /**
+     * @param  list<string>  $names  the classes from the weakest
+     */
+    private function nativeClass(int $tier, CarPerformance $performance, array $names): int
+    {
+        if (isset($this->nativeClasses[$tier])) {
+            return $this->nativeClasses[$tier];
+        }
+
+        $native = 0;
+
+        foreach ($this->catalog->vehicles() as $slug => $vehicle) {
+            if (($vehicle['powertrain'] ?? null) === 'ice' && (int) $vehicle['tier'] === $tier) {
+                $native = max($native, (int) array_search($performance->ratingOf($slug)['class'], $names, true));
+            }
+        }
+
+        return $this->nativeClasses[$tier] = $native;
     }
 
     /**

@@ -9,6 +9,12 @@ return [
             'range' => 'De -50% a +50% (do schema); há tantos rivais quantas entradas na lista (1 – 15, hoje 7).',
             'tip' => 'A posição é calculada uma só vez, ao preparar a corrida, a partir do tempo de volta no seco (o clima não a muda), então ela muda com uma peça nova, uma pista nova ou um conserto. O grid tem um carro a mais que os rivais, então a lista de multiplicadores por posição precisa de uma entrada a mais (hoje 7 rivais e 8 posições).',
         ],
+        '/bots/class_step_ppm' => [
+            'label' => 'Rivais por classe: passo (% da volta)',
+            'help' => 'Quanto mais rápidos os bots ficam para cada classe que o carro está acima da classe do melhor carro original do seu tier (a classe nativa do tier), como parte do tempo de volta. Os carros originais de um tier nunca passam da classe nativa, então enfrentam os rivais de sempre, e um carro preparado para uma classe mais alta enfrenta rivais dessa classe: subir de classe nem sempre compensa. Zero (ou um jogo sem competição) deixa os bots como estavam.',
+            'example' => '8%: um carro uma classe acima da nativa tem bots 8% mais rápidos, duas classes acima 16%. Para o Rdzak GT-4, o salto de D para C a 10% custa 24 – 32% da renda em quatro de cinco pistas.',
+            'range' => '0% – 30% da volta; 0 desliga.',
+        ],
         '/bots/reward_ppm_by_position/*' => [
             'label' => 'Multiplicador de recompensa por posição (%)',
             'help' => 'A estrela é a posição do carro no grid, de 1 (primeiro) a 8. A recompensa de uma volta é multiplicada por este número quando o carro termina nessa posição entre os bots: 100% é a recompensa da pista sem mudança, 150% é metade a mais, 80% é um quinto a menos. A posição vem do tempo de volta do carro no seco.',

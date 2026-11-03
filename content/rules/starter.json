@@ -137,6 +137,7 @@
   "bots": {
     "offsets_ppm": [-90000, -60000, -30000, 0, 30000, 60000, 90000],
     "reward_ppm_by_position": [1500000, 1250000, 1100000, 1000000, 1000000, 800000, 800000, 800000],
+    "class_step_ppm": 0,
     "names": ["Bruk Racing", "Kuźnia Speed", "Dym i Guma", "Złom Team", "Nocna Zmiana", "Gaz do Dechy", "Rdza Motorsport", "Hamulec Ręczny", "Dwa Suwy", "Zakręt Cup", "Piach i Asfalt", "Szosa Syndicate", "Turbo Sąsiad", "Czarny Olej", "Pit Wojtek", "Zardzewiały Tłok"]
   },
   "shop": {
