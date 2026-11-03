@@ -58,7 +58,11 @@ describe('the page of the bonuses', function () {
             ->call('calculateBudget')
             ->assertSee('data-test="tuning-budget-row"', false)
             ->assertSee('data-test="tuning-budget-warning"', false)
-            ->assertSee('bizon-m-2');
+            ->assertSee('bizon-m-2')
+            // The income of the Rdzak on the quarry is the other warning, and what a try costs is in the table.
+            ->assertSee('podnosi dochód auta rdzak-gt-4')
+            ->assertSee('data-test="tuning-budget-tries"', false)
+            ->assertSee('Godzin do 10%');
     });
 
     it('has the guide of the bonuses on the page, with its steps', function () {

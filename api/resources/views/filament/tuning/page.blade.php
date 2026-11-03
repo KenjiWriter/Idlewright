@@ -114,16 +114,21 @@
             @if ($calculated && $budget === null)
                 <div data-test="tuning-budget-none">{{ __('admin.tuning.budget.none') }}</div>
             @elseif ($budget !== null)
-                @foreach ($budget['warnings'] as $warning)
-                    <div style="color: rgb(217, 119, 6);" data-test="tuning-budget-warning">⚠ {{ __('admin.tuning.budget.warning', ['drop' => number_format(-$budget['worst']['lap_percent'], 1, '.', ''), 'car' => $budget['worst']['car'], 'track' => $budget['worst']['track'], 'target' => $budget['target'], 'approved' => $budget['approved']]) }}</div>
-                @endforeach
+                @php($drop = -$budget['worst']['lap_percent'])
+                @if ($drop > $budget['target'] && $drop <= $budget['approved'])
+                    <div style="color: rgb(217, 119, 6);" data-test="tuning-budget-warning">⚠ {{ __('admin.tuning.budget.warning', ['drop' => number_format($drop, 1, '.', ''), 'car' => $budget['worst']['car'], 'track' => $budget['worst']['track'], 'target' => $budget['target'], 'approved' => $budget['approved']]) }}</div>
+                @endif
+                @if ($budget['richest']['income_percent'] > $budget['income_target'] && $budget['richest']['income_percent'] <= $budget['income_approved'])
+                    <div style="color: rgb(217, 119, 6);" data-test="tuning-budget-warning">⚠ {{ __('admin.tuning.budget.income_warning', ['value' => number_format($budget['richest']['income_percent'], 1, '.', ''), 'car' => $budget['richest']['car'], 'track' => $budget['richest']['track'], 'target' => $budget['income_target'], 'approved' => $budget['income_approved']]) }}</div>
+                @endif
                 @foreach ($budget['checks'] as $check)
-                    <div style="{{ $check['ok'] ? '' : 'color: rgb(220, 38, 38);' }}" data-test="tuning-budget-check">{{ $check['ok'] ? '✓' : '✗' }} {{ __('admin.tuning.budget.check', ['value' => number_format($check['value'], 1, '.', ''), 'max' => $check['max']]) }}</div>
+                    <div style="{{ $check['ok'] ? '' : 'color: rgb(220, 38, 38);' }}" data-test="tuning-budget-check">{{ $check['ok'] ? '✓' : '✗' }} {{ __($loop->first ? 'admin.tuning.budget.check' : 'admin.tuning.budget.income_check', ['value' => number_format($check['value'], 1, '.', ''), 'max' => $check['max']]) }}</div>
                 @endforeach
+                <div style="{{ $muted }}" data-test="tuning-budget-tries">{{ __('admin.tuning.budget.tries', ['to8' => $budget['tries']['to_8'] ?? '—', 'to10' => $budget['tries']['to_10'] ?? '—']) }}</div>
                 <table style="border-collapse: collapse;">
                     <thead>
                         <tr>
-                            @foreach (['car', 'track', 'lap', 'best', 'lap_percent', 'income_percent'] as $head)
+                            @foreach (['car', 'track', 'lap', 'best', 'lap_percent', 'income_percent', 'hours_8', 'hours_10'] as $head)
                                 <th style="{{ $cell }}">{{ __('admin.tuning.budget.'.$head) }}</th>
                             @endforeach
                         </tr>
@@ -137,6 +142,8 @@
                                 <td style="{{ $cell }}">{{ number_format($row['best_lap_ms'] / 1000, 1, '.', '') }} s</td>
                                 <td style="{{ $cell }}">{{ sprintf('%+.1f', $row['lap_percent']) }}%</td>
                                 <td style="{{ $cell }}">{{ sprintf('%+.1f', $row['income_percent']) }}%</td>
+                                <td style="{{ $cell }}">{{ $row['hours_to_8'] ?? '—' }}</td>
+                                <td style="{{ $cell }}">{{ $row['hours_to_10'] ?? '—' }}</td>
                             </tr>
                         @endforeach
                     </tbody>
