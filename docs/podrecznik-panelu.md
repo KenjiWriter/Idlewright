@@ -1,19 +1,14 @@
 # Podręcznik operatora panelu Idlewright
 
-Ten podręcznik jest dla osoby, która ma zmieniać grę w panelu administracyjnym: dodać auto, poprawić cenę, ustawić tory, przepisać słowa aplikacji, postawić nową grę na własnej domenie, a potem bezpiecznie opublikować zmianę. Nie musisz znać kodu. Po przeczytaniu rozdziałów 1–9 umiesz: zalogować się z kodem z telefonu, wybrać grę, edytować auta i części, świat, reguły (Studio, tryb prosty), słownik i markę, obejrzeć graczy, opublikować zmianę przez bramki i wdrożyć domenę z certyfikatem. Rozdział 17 uczy zmieniać wiele rzeczy naraz rozmową z asystentem AI, a rozdziały 13–16 opisują strony kursów i zleceń, bonusów części, klas aut i powiadomień push.
+Ten podręcznik jest dla osoby, która ma zmieniać grę w panelu administracyjnym: dodać auto, poprawić cenę, ustawić tory, przepisać słowa aplikacji, postawić nową grę na własnej domenie, a potem bezpiecznie opublikować zmianę. Nie musisz znać kodu. Po przeczytaniu rozdziałów 1–9 umiesz: zalogować się z kodem z telefonu, wybrać grę, edytować auta i części, świat, reguły (Studio, tryb prosty), słownik i markę, obejrzeć graczy, opublikować zmianę przez bramki i wdrożyć domenę z certyfikatem. Rozdział 17 uczy zmieniać wiele rzeczy naraz rozmową z asystentem AI, a rozdziały 13–16 opisują strony kursów i zleceń (z nocnym kursem i policją), bonusów części, klas aut oraz powiadomień push i powrotów graczy.
 
 Krótka wersja, z tym samym planem, jest w [README](../README.md) (sekcja „Instrukcja obsługi panelu”). Tu jest wersja pełna: krok po kroku, z przykładami z liczbami prawdziwej gry RideIdle.
 
-## Jak czytać ten podręcznik
-
-- **Zrzuty mają numerowane czerwone ramki.** Numer przy ramce odsyła do listy pod zrzutem.
-- **Lista pod zrzutem (legenda) to te same zdania, które panel pokazuje pod polem formularza.** Nie są napisane osobno: wpisuje je skrypt z katalogu pomocy panelu (`api/lang/pl/help/*.php`), więc podręcznik nie rozjedzie się z panelem. Gdyby jednak zdanie w podręczniku różniło się od tego w panelu, racja jest po stronie panelu (a skrypt z dodatku A naprawia podręcznik jednym poleceniem).
-- Przykłady używają danych demonstracyjnych: gra RideIdle, druga gra „Statki”, administrator `boss@example.com`, czternastu graczy testowych. Twoja instalacja ma inne liczby graczy, ale auta, części i tory są te same.
-- Przy każdym zadaniu jest: **cel**, **kroki**, **przykład**, **co się stanie w grze i kiedy** i **co sprawdzić po zapisaniu**.
-- Miejsca oznaczone **„Nie sprawdzono”** to rzeczy, których nikt jeszcze nie próbował na prawdziwym serwerze albo z prawdziwym zewnętrznym usługodawcą. Podręcznik nie obiecuje, że działają.
-
 ## Spis treści
 
+- [Co to jest i co można zrobić w 15 minut](#co-to-jest-i-co-można-zrobić-w-15-minut)
+- [Jak czytać ten podręcznik](#jak-czytać-ten-podręcznik)
+- [Najważniejsza zasada: jak zmiana trafia do graczy](#najważniejsza-zasada-jak-zmiana-trafia-do-graczy)
 1. [Zaczynam: logowanie, kod z aplikacji, role, sieć gier](#1-zaczynam-logowanie-kod-z-aplikacji-role-sieć-gier)
 2. [Nowa gra, domena i SSL](#2-nowa-gra-domena-i-ssl)
 3. [Auto](#3-auto)
@@ -29,10 +24,48 @@ Krótka wersja, z tym samym planem, jest w [README](../README.md) (sekcja „Ins
 13. [Kursy i zlecenia](#13-kursy-i-zlecenia)
 14. [Bonusy części](#14-bonusy-części)
 15. [Klasy aut (F–SS) i PI](#15-klasy-aut-fss-i-pi)
-16. [Powiadomienia push](#16-powiadomienia-push)
+16. [Powiadomienia push i powroty graczy](#16-powiadomienia-push-i-powroty-graczy)
 17. [Most AI: zmiany rozmową z asystentem](#17-most-ai-zmiany-rozmową-z-asystentem)
 18. [Co robić, gdy coś nie działa](#18-co-robić-gdy-coś-nie-działa)
 - [Dodatek A. Jak odtworzyć zrzuty tego podręcznika](#dodatek-a-jak-odtworzyć-zrzuty-tego-podręcznika)
+
+## Co to jest i co można zrobić w 15 minut
+
+**Idlewright to silnik i panel do budowania przeglądarkowych gier idle.** Serwer liczy postęp gracza także wtedy, gdy gracza nie ma; wszystko, z czego składa się gra (auta, części, tory, liczby, słowa, wygląd, samouczek, misje, płatne dodatki), jest treścią, którą operator zmienia w panelu i publikuje jako paczkę, bez programisty. Jedna instalacja prowadzi wiele gier, każdą na własnej domenie, z własną marką, treścią i graczami. Pierwsza gra, **RideIdle**, to wyścigowa gra idle: gracz odbudowuje wraki, ulepsza auta w warsztacie i wysyła je na tory; druga w tym podręczniku, „Statki”, pokazuje, że ten sam silnik prowadzi inny świat.
+
+<p>
+<img src="img/gra-garaz.jpg" width="170" alt="Garaż">
+<img src="img/gra-warsztat.jpg" width="170" alt="Warsztat">
+<img src="img/gra-wyscig.jpg" width="170" alt="Wyścig z nitką toru">
+<img src="img/gra-mapa.jpg" width="170" alt="Mapa">
+</p>
+
+**Co daje panel:** każda zmiana jest najpierw szkicem, potem przechodzi **pięć bramek symulatorów** (tory, ekonomia, misje, bonusy części i kursy) i dopiero wtedy trafia do graczy; złą paczkę cofa się jednym kliknięciem. Każde pole ma opis, przykład i zakres, a zmiany można też zlecić rozmową z asystentem AI.
+
+### Pokaz w 15 minut: ekrany w kolejności
+
+Poniższa kolejność opowiada całą historię: od wejścia, przez zmianę jednej liczby aż do gry, po to, co gra zyskuje bez kodu. Budowanie paczki trwa kilka minut (bramki liczą ekonomię), więc do pokazu **zrób paczkę wcześniej** i pokaż jej raport oraz „Uruchom”.
+
+| Czas | Ekran (menu) | Co pokazać | Rozdział |
+|---|---|---|---|
+| 0:00 | Logowanie z kodem z aplikacji, **Sieć gier**, **Przegląd** | dwie gry w jednej instalacji, przełącznik gry, liczby graczy i powrotów | 1 |
+| 1:30 | **Utwórz nową grę** (kreator) i **Domena i SSL** | trzy kroki: nazwa i domena, punkt startowy (szablon), domena z certyfikatem; nie klikaj „Skonfiguruj”, jeśli serwer nie jest gotowy | 2 |
+| 3:00 | **Studio parametrów** → **Zmiany do publikacji** → **Publikacje** | cena paliwa 2,00 → 2,20 $, „Podgląd balansu”, szkic, tabela było/będzie, okno paczki, **raport z pięcioma bramkami**, „Uruchom” | 7, 9, 10 |
+| 5:30 | **Auta**, **Części**, **Podgląd części** | formularz, w którym każde pole mówi, co zmienia; skutek części na torze | 3, 4 |
+| 7:30 | **Świat**, **Nitka toru**, Studio „Rywalizacja” | tor: długość wyznacza czas, paliwo i płacę; rajd z mieszanką żwiru i asfaltu; rysunek toru i „Zamknij pętlę”; klasy aut F–SS i PI | 5, 15 |
+| 10:00 | **Most AI** | „wszystkie silniki T3 +12% mocy” rozmową: instrukcja, odpowiedź, tabela zmian, „Zapisz jako szkic” | 17 |
+| 12:00 | **Słownik**, **Marka i strona**, **Model gry** | „Wczytaj motyw”: ta sama gra o statkach; własne kolory i strona startowa | 8 |
+| 14:00 | **Misje**, **Kursy i zlecenia** (nocny kurs), **Bonusy części**, **Powiadomienia**, **Gracze**, **Dziennik** | co jeszcze jest w panelu i że każda z tych stron też idzie przez szkic i paczkę | 11–16 |
+
+**Czego pokaz nie obiecuje** (to, czego nikt nie próbował na prawdziwym serwerze lub u prawdziwego dostawcy, jest w podręczniku oznaczone „Nie sprawdzono”): ustawienia domeny i certyfikatu na prawdziwym Ubuntu, prawdziwej wysyłki powiadomień push do przeglądarek, płatności prawdziwą kartą (jest dostawca testowy) i pracy z prawdziwym modelem AI (są gotowe odpowiedzi do testów).
+
+## Jak czytać ten podręcznik
+
+- **Zrzuty mają numerowane czerwone ramki.** Numer przy ramce odsyła do listy pod zrzutem.
+- **Lista pod zrzutem (legenda) to te same zdania, które panel pokazuje pod polem formularza.** Nie są napisane osobno: wpisuje je skrypt z katalogu pomocy panelu (`api/lang/pl/help/*.php`), więc podręcznik nie rozjedzie się z panelem. Gdyby jednak zdanie w podręczniku różniło się od tego w panelu, racja jest po stronie panelu (a skrypt z dodatku A naprawia podręcznik jednym poleceniem).
+- Przykłady używają danych demonstracyjnych: gra RideIdle, druga gra „Statki”, administrator `boss@example.com`, czternastu graczy testowych. Twoja instalacja ma inne liczby graczy, ale auta, części i tory są te same.
+- Przy każdym zadaniu jest: **cel**, **kroki**, **przykład**, **co się stanie w grze i kiedy** i **co sprawdzić po zapisaniu**.
+- Miejsca oznaczone **„Nie sprawdzono”** to rzeczy, których nikt jeszcze nie próbował na prawdziwym serwerze albo z prawdziwym zewnętrznym usługodawcą. Podręcznik nie obiecuje, że działają.
 
 ## Najważniejsza zasada: jak zmiana trafia do graczy
 
@@ -362,6 +395,20 @@ Tor rajdowy jedzie się po więcej niż jednej nawierzchni. W polu **Mieszanka n
 6. **Opony auta odniesienia.** Tylko gdy opony seryjne nie są tym, czego tor wymaga (żwir): rywale (boty) w wyścigu są zrobieni wokół auta z tymi oponami. Bez tego mają opony seryjne. Zmienia to tylko rywali, nie to, co gracze mogą zamontować. Przykład: Kamieniołom Kruszyn: Opony terenowe T2 (offroad-tires-t2). Wskazówka: Na żwirze każde auto z oponami seryjnymi jest o sekundę wolniejsze niż z właściwymi, więc stawka botów zrobiona wokół opon seryjnych płaciłaby premię każdemu, kto kupi właściwe. Na asfalcie zostaw puste.
 <!-- /legenda -->
 
+### Pięć torów rajdowych
+
+W grze jest pięć torów rajdowych, po jednym w każdym mieście. Każdy ma rodzaj Rajd, mieszankę żwiru i asfaltu (w polu „Mieszanka nawierzchni” i w odcinkach nitki), własny popyt na statystyki auta i płacę na godzinę leżącą blisko najlepszego toru swojego poziomu, więc rajdy dają różnorodność, a nie skok dochodu. Pali się na nich 26 ml na sekundę okrążenia (nowa liczba w Studiu, sekcja „Model toru”). Właściciel gry zatwierdził nazwę „Rajd”, pięć profili i płace (2026-11-03).
+
+| Tor | Od poziomu | Długość | Żwir | Czego wymaga | Płaca na godzinę |
+|---|---|---|---|---|---|
+| Rajd leśny pod Kruszynem | 8 | 6,4 km | 63% | prześwit i przyczepność | 1000 $ |
+| Rajd wydmowy Suchego Pasa | 12 | 8,8 km | 56% | rajd mocy: przyspieszenie i prędkość | 1120 $ |
+| Rajd przełęczy Wilczej | 16 | 10,2 km | 48% | prowadzenie i hamowanie | 1180 $ |
+| Rajd po złomowiskach | 20 | 7,6 km | 40% | | 1200 $ |
+| Rallycross na Autodromie | 25 | 5,2 km | 48% | | 1240 $ |
+
+Pierwszy bieg bramki torów (`tracks:simulate --strict`) przeszedł bez strojenia: zwycięzcami pięciu rajdów są pięć różnych aut, więc warunek „żadne auto nie wygrywa więcej niż dwóch rajdów” jest spełniony z zapasem.
+
 ### Auto odniesienia toru i przycisk „Weź z auta”
 
 Niżej w formularzu toru są dwie listy. **Czego wymaga tor** to udziały statystyk (razem dokładnie 100%). **Auto odniesienia** to dla każdej statystyki wartość, przy której auto jest dla tego toru dokładnie „normalne”: auto powyżej niej jedzie okrążenie szybciej, poniżej wolniej. Każda statystyka z „Czego wymaga tor” potrzebuje tu wartości. Przycisk z ikoną ciężarówki (**„Weź z auta”**, przy nagłówku „Auto odniesienia”) wypełnia te wartości statystykami auta z gry, z jakim startuje i z częściami, z którymi startuje; bierze je z **opublikowanej paczki**, nie ze szkiców, w liczbach całkowitych, a każdą możesz potem zmienić.
@@ -418,7 +465,7 @@ Pod listą odcinków są narzędzia, które oszczędzają ręczne liczenie. Wszy
 
 ### Co z tego widzi gracz: wybór toru
 
-Na mapie, w mieście, w którym stoi auto gracza, karta każdego toru pokazuje miniaturę jego linii (z nitki), zdanie o tym, czego tor wymaga (tor zakrętów, limitu, mocy albo zrównoważony, z udziału czasu okrążenia auta wzorcowego w zakrętach, na limicie i w przyspieszaniu) oraz pasek: w których grupach (przyspieszanie, limit, hamowanie, zakręty) auto gracza zyskuje albo traci względem auta wzorcowego, i jedno zdanie, gdzie zyskuje najwięcej, a gdzie traci najwięcej. Pokazywane są grupy, w których różnica wynosi co najmniej 2% okrążenia. Na torze, którego czas okrążenia liczy wzór, pasek mówi, że czas okrążenia jest ustalony ręcznie, a pasek opisuje kształt toru, nie ten czas; tor bez pełnego auta odniesienia ma tylko linię. Na ekranie wyścigu auto jedzie po linii toru z prędkością auta takiego, jakie jest teraz, a czas okrążenia zostaje ten, który rozliczenie zamroziło na początku biegu.
+Na mapie, w mieście, w którym stoi auto gracza, karta każdego toru pokazuje miniaturę jego linii (z nitki), zdanie o tym, czego tor wymaga (tor zakrętów, limitu, mocy albo zrównoważony, z udziału czasu okrążenia auta wzorcowego w zakrętach, na limicie i w przyspieszaniu) oraz pasek: w których grupach (przyspieszanie, limit, hamowanie, zakręty) auto gracza zyskuje albo traci względem auta wzorcowego, i jedno zdanie, gdzie zyskuje najwięcej, a gdzie traci najwięcej. Pokazywane są grupy, w których różnica wynosi co najmniej 2% okrążenia. Na torze, którego czas okrążenia liczy wzór, pasek mówi, że czas okrążenia jest ustalony ręcznie, a pasek opisuje kształt toru, nie ten czas; tor bez pełnego auta odniesienia ma tylko linię. Obok tytułu „Tory w tym mieście” widać klasę i PI auta, którym gracz gra (rozdział 15); lista nie mówi nic o rywalach, bo boty są dobierane do tieru auta, chyba że właściciel ustawi krok rywali na klasę. Na ekranie wyścigu auto jedzie po linii toru z prędkością auta takiego, jakie jest teraz, a czas okrążenia zostaje ten, który rozliczenie zamroziło na początku biegu.
 
 ---
 
@@ -538,7 +585,7 @@ Dwa przyciski u góry: **„Pobierz słownik”** zapisuje słownik do pliku, a 
 4. **Tekst w danym języku.** Puste pole to tekst aplikacji, widoczny w polu jako podpowiedź. Wpisz tekst tylko tam, gdzie paczka ma mówić inaczej. Zakres: Do 400 znaków w każdym języku. Wskazówka: Zostaw nazwy w klamrach, np. {name}, dokładnie jak w oryginale (w tekstach serwera nazwa ma dwukropek na początku), tyle samo form liczby mnogiej oddzielonych znakiem |, bez innych klamer i bez linków @:. Język z pustym polem dostaje angielski tekst paczki, a nie tekst aplikacji w tym języku.
 <!-- /legenda -->
 
-**Uwaga:** zmiany niezapisane giną przy zmianie obszaru, wyszukiwania i filtra, więc zapisz szkic, zanim przejdziesz dalej.
+**Uwaga:** zmiany niezapisane giną przy zmianie obszaru, wyszukiwania i filtra, więc zapisz szkic, zanim przejdziesz dalej. W Słowniku można też przemianować klasy aut (klucze `car.className.F` do `car.className.SS`, rozdział 15).
 
 ### Marka i strona
 
@@ -615,7 +662,7 @@ Przycisk otwiera okno: lista szkiców, które wejdą do paczki (dokument i to, c
 | `tracks:simulate --strict` | każde opony pytają o swoją nawierzchnię, teren się liczy, a żadne auto nie wygrywa więcej niż dwóch torów |
 | `economy:simulate --strict --strict-game` | tempo trzech rodzajów graczy po drabince aut jest takie, jak w projekcie; liczby reguł są kotwicami; drabinka poziomów i flota gry są w normie |
 | `missions:budget --strict` | miesiąc nagród misji to zatwierdzony udział gotówki i XP (15–100% gotówki i 5–50% XP z 30 baków dla kierowcy na 12. poziomie) |
-| `tuning:budget --strict` | najlepszy zestaw bonusów części nie zdejmuje z okrążenia więcej, niż zatwierdzono (pułap 12% okrążenia, projekt 10%) |
+| `tuning:budget --strict` | najlepszy zestaw bonusów części nie zdejmuje z okrążenia więcej, niż zatwierdzono (pułap 12% okrążenia przy celu 10%, a dla dochodu cel 15% i pułap 35%) |
 | `gigs:report --strict` | godzina kursów nie płaci poza granicami wobec drabiny aut (R1) i nie bije okrążeń tego samego auta na jego najlepszej trasie (R2) |
 
 Bramka, która nie przeszła, **zatrzymuje paczkę** (stan „Zatrzymana”): „Raport” przy paczce wskazuje, która bramka, i pokazuje fragment jej wyjścia. Wróć do formularza, popraw liczbę i zrób paczkę jeszcze raz. Paczka, która się zatrzymała, nie zmienia niczego w grze.
@@ -767,7 +814,7 @@ Strona ma zakładki **Nagrody i okresy**, **Zestawy**, **Misje główne** i **Wa
 
 **Cel:** ustawić zlecenia poboczne gry: tablicę ofert w mieście, to, ile płaci godzina kursu na każdym poziomie, i szablony, z których losowane są oferty.
 
-Menu Treść → Kursy i zlecenia. Strona ma pięć zakładek: **Tablica**, **Wypłata**, **Rodzaje**, **Szablony ofert** i **Nocny kurs**. Ostatnia (okazja, którą może zatrzymać policja) jest jeszcze w budowie i nie jest tu opisana. Jak zwykle: zapis robi szkic, a gracze zobaczą zmianę z następną paczką.
+Menu Treść → Kursy i zlecenia. Strona ma pięć zakładek: **Tablica**, **Wypłata**, **Rodzaje**, **Szablony ofert** i **Nocny kurs**. Ostatnia to nocna okazja, którą może zatrzymać policja (opisana niżej). Jak zwykle: zapis robi szkic, a gracze zobaczą zmianę z następną paczką.
 
 ### Jak to działa dla gracza
 
@@ -833,11 +880,46 @@ Zakładka **Rodzaje** to rodzaje kursów (na przykład taxi, towary, dostawa) z 
 
 **Przykład: „Kurs taxi po mieście” (`taxi-city`).** Rodzaj Taxi, od 1. poziomu kierowcy; wymaga miejsc (od 1 do 4 osób), trasa po mieście od 8 do 14 km, zostaje na tablicy jedną falę; wypłata szablonu 90%, a mnożnik wypłaty o porze dnia: świt 100%, dzień 100%, zmierzch 140% (gorączka taksówek o zmierzchu), noc 125%. Pole „Tylko auta klas” zostaje puste, więc kurs może wziąć każde auto, które ma miejsce; pole „Termin” puste znaczy brak terminu (wolne auto nie jest odrzucane).
 
+### Nocny kurs, policja i areszt
+
+**Cel:** ustawić jedną okazję na noc gry w każdym mieście: mały ładunek wożony do innego miasta i z powrotem za wielokrotność zwykłej wypłaty, który policja może zatrzymać.
+
+**Jak to działa dla gracza.** Noc gry trwa od 22:00 do 5:00 zegara gry, czyli 52,5 minuty zegara rzeczywistego (osiem nocy na dobę). Kierowca od 9. poziomu dostaje w nocy w każdym mieście jedną okazję: ładunek od 10 do 60 kg do innego miasta i z powrotem za **250% zwykłej wypłaty tej samej trasy**. Okazja nie jest zwykłą ofertą fali: powstaje raz na noc z ziarna kierowcy, znika o świcie i nie wraca po wzięciu. Kierowca może wziąć najwyżej dwa nocne kursy na dobę (liczą się też do dziennego limitu kursów).
+
+- **Szanse.** Patrole zatrzymują 36% nocnych kursów. Klasa nadwozia to zmienia: cichy hatchback, sedan i van o 14 punktów procentowych mniej, głośne GT, muscle car, superauto i hiperauto o 10 punktów więcej; pościg po ucieczce dokłada 10 punktów w tym samym mieście przez 6 godzin. Z zatrzymań 58% to ucieczka (auto dostaje połowę wypłaty), reszta to areszt. Dla Rdzaka GT-4 (hatchback) wychodzi: czysty przejazd 78%, ucieczka 12,8%, areszt 9,2%.
+- **Los** jest losowany przy wzięciu kursu i zamrożony razem z wypłatą; gracz nie dostaje wyniku przed zatrzymaniem (do połowy trasy). Zmiana liczb w regułach po wzięciu kursu niczego w nim nie zmienia, a wycofanie w pierwszej minucie znosi wszystko.
+- **Areszt** trwa 25 minut od zatrzymania albo do wpłacenia **kaucji** (50% wypłaty, płatna z gotówki). Blokuje tylko kursy i podróże (także przyspieszone); garaże, warsztat i zaparkowane auta pracują dalej. **Mandat** (30% wypłaty) jest pobierany, gdy auto wróci, i nigdy więcej, niż kierowca ma. Zatrzymany nie dostaje XP kierowcy ani auta, a kurs nie liczy się do misji kursów.
+
+Jak to wygląda w grze: ekran **Okazja** pokazuje chip „OKAZJA · OKNO NOCNE” z odliczaniem do świtu, trasę i kartę wypłaty (obok zwykłej wypłaty tej samej trasy), ryzyko policji (patrole, zmiana za klasę auta, pościg, szansa kontroli i ucieczki), trzy możliwe zakończenia w procentach i przyciski „Podejmij ryzyko” i „Odrzuć”. W areszcie tablica kursów pokazuje czerwoną kartę „Jesteś w areszcie” z przyciskiem „Wpłać kaucję”.
+
+![Kursy i zlecenia: nocny kurs](img/podrecznik-zlecenia-noc.png)
+
+<!-- legenda:zlecenia-noc -->
+1. **Nocny kurs jest włączony.** Czy gra ma nocny kurs: jedną okazję na każdą noc gry w każdym mieście, mały ładunek, który płaci kilka razy więcej niż zwykły kurs i może zostać zatrzymany przez policję. Wyłączony znaczy brak okazji; nocny kurs, który już jest w drodze, kończy się. Wskazówka: Bramka publikacji mierzy, ile godzina nocnego kursu płaci średnio po wszystkich jego zakończeniach, z własną granicą.
+2. **Rodzaj nocnego kursu.** Rodzaj, który widać na znaczniku okazji i na kursie, który z niej powstaje. To jeden z rodzajów z zakładki Rodzaje. Przykład: night.
+3. **Od poziomu.** Poziom kierowcy, od którego oferowany jest nocny kurs. Kierowca potrzebuje też miasta, które otworzył poziom i które jest dość blisko dla najdłuższego kursu tego poziomu. Zakres: 1 – 100. Przykład: 9: z pierwszego miasta następne i z powrotem mieszczą się w najdłuższym kursie dopiero od poziomu 9.
+4. **Nocnych kursów na dobę.** Ile nocnych kursów kierowca może wziąć w ciągu doby (doby dziennego limitu kursów). Miasto ma jedną okazję na każdą noc gry, a doba zegara rzeczywistego mieści osiem takich nocy. Zakres: 1 – 50. Przykład: 2. Wskazówka: Nocne kursy liczą się też do dziennego limitu kursów.
+5. **Wypłata wobec zwykłej.** Przez ile procent nocny kurs mnoży zwykłą wypłatę tej samej trasy. Kierowca widzi obie liczby na ekranie okazji. Zakres: 10 – 1000%. Przykład: 250: dwa i pół raza tyle, ile płaci zwykły kurs tej samej trasy. Wskazówka: To wypłata, gdy nikt nie zatrzyma auta. Ile nocny kurs jest wart średnio, jest w raporcie pod formularzem.
+6. **Szansa zatrzymania.** Jaka część nocnych kursów zostaje zatrzymana przez patrole, zanim klasa nadwozia auta i pościg to zmienią, w procentach. Zakres: 0 – 100%. Przykład: 36. Wskazówka: Ta liczba i zmiany poniżej decydują, jak ryzykowny jest nocny kurs; kierowca widzi wynik przed wzięciem.
+7. **Z zatrzymań auto ucieka.** Jaka część zatrzymań kończy się ucieczką auta, w procentach; reszta to areszty. Zakres: 0 – 100%. Przykład: 58: zatrzymanie kończy się ucieczką w sześciu przypadkach na dziesięć.
+8. **Wypłata auta, które uciekło.** Jaką część wypłaty nocnego kursu dostaje auto, które uciekło, w procentach. Zakres: 0 – 100%. Przykład: 50.
+9. **Pościg po ucieczce, w minutach.** Jak długo po ucieczce patrole tego miasta ostrzej szukają kierowcy, w minutach zegara rzeczywistego. Zakres: 0 – 10080. Przykład: 360: sześć godzin. Wskazówka: Ustaw pościg na 0, żeby go wyłączyć.
+10. **Pościg: większa szansa zatrzymania.** O ile punktów procentowych szansa zatrzymania jest wtedy większa. Zakres: 0 – 100 punktów. Przykład: 10.
+11. **Zmiany według klasy nadwozia.** Co klasa nadwozia auta zmienia w szansie zatrzymania: ciche auto zwraca mniej uwagi, głośne więcej. Klasa, która jest w dwóch wierszach, dostaje obie zmiany; klasa, której nie ma w żadnym, nic nie zmienia. Przykład: hatchback, sedan, van: −14 punktów; gt, muscle, super, hyper: +10 punktów. Wskazówka: Auta paczki nie mają liczby hałasu, więc zastępuje ją klasa.
+12. **Areszt, w minutach.** Jak długo trwa areszt od chwili zatrzymania, w minutach zegara rzeczywistego. Blokuje tylko podróże i kursy kierowcy: garaże, warsztat i zaparkowane auta pracują dalej. Zakres: 1 – 1440. Przykład: 25. Wskazówka: Areszt zaczyna się w chwili zatrzymania, w połowie trasy, więc kierowca, który wraca po kilku godzinach, zastaje go skończony.
+13. **Mandat.** Mandat za areszt, jako część wypłaty nocnego kursu, w procentach. Pobierany, gdy auto wraca, i nigdy więcej, niż kierowca ma. Zakres: 0 – 500%. Przykład: 30.
+14. **Kaucja.** Ile kierowca płaci, żeby od razu skończyć areszt, jako część wypłaty nocnego kursu, w procentach. Płaci się gotówką. Zakres: 0 – 500%. Przykład: 50. Wskazówka: Kaucja wyższa niż wypłata robi z aresztu mur; kaucja 0 pozwala go ominąć za darmo.
+<!-- /legenda -->
+
+W panelu zakładka **Nocny kurs** ma trzy bloki: ogólne (włączenie, rodzaj, od którego poziomu, ile na dobę, wypłata wobec zwykłej, nazwa w pięciu językach, ładunek od-do), **Policja** (szansa zatrzymania, ile zatrzymań kończy się ucieczką, wypłata auta, które uciekło, czas pościgu i jego wpływ na szansę), **Zmiany według klasy nadwozia** (lista: które klasy i o ile punktów zmieniają szansę; klasa, której nie ma w żadnym wierszu, niczego nie zmienia, a klasa w dwóch wierszach dostaje obie zmiany) i **Areszt** (czas, mandat, kaucja). Wypłaty wpisuje się w procentach.
+
+**Bramka.** Raport wypłaty (`gigs:report`, przycisk „Policz wypłatę”) ma też wiersz „night” dla każdego auta, które może wziąć ładunek: godzina po paliwie, uśredniona po zakończeniach (pełna wypłata, połowa, mandat), wobec szczebla drabiny, z własną granicą (domyślnie 1,9) i bez granicy R2, bo nocny kurs płaci więcej niż okrążenia z założenia, za ryzyko. Granica 1,9 to zasada autora etapu, nie liczba właściciela gry.
+
+**Nie sprawdzono:** prawdziwego upływu czasu: zegar serwera był w testach w nocy zamrożony, więc zatrzymanie i koniec aresztu oglądano na wierszu ustawionym w bazie, a nie na prawdziwej trasie. Nie ma też wyboru przy zatrzymaniu (mandat, łapówka, adwokat za monety), powiadomienia o końcu aresztu ani nocnego kursu w misjach.
+
 **Co się stanie w grze i kiedy:** po uruchomieniu paczki nowe fale na tablicach losują z nowych szablonów; kursy, które kierowcy już wzięli, kończą się i wypłacają po staremu.
 
 **Co sprawdzić po zapisaniu:** „Policz wypłatę” pokazuje zielone „Bramka publikacji przepuści te liczby”, a każdy szablon w tabeli ma co najmniej jedno auto, które może go wziąć (szablon, którego nie może wziąć żadne auto, jest odrzucany).
-
-**Jeszcze nie opisane:** zakładka „Nocny kurs” (policja i zatrzymanie) i jej pola; dojdą do podręcznika po zakończeniu prac.
 
 ---
 
@@ -872,13 +954,24 @@ Na dole strony przycisk **„Policz”** pokazuje, dla aut wzorcowych na torze k
 <!-- legenda:bonusy-budzet -->
 1. **Ile jest warty najlepszy zestaw.** Dla aut wzorcowych na torze każdego rodzaju i nawierzchni: ile najlepsze bonusy tych reguł, każdy w największej wartości, jaką da próba, we wszystkich miejscach zestawu ze sklepu, zdejmują z okrążenia w porównaniu z tym samym zestawem bez nich. To liczba, którą ocenia bramka tuning:budget przed publikacją paczki.
 2. **Policz.** Liczy wartość najlepszego zestawu bonusów dla aut wzorcowych; to samo mierzy bramka tuning:budget przed publikacją.
+3. **Ostrzeżenie o okrążeniu.** Ile najlepszy zestaw zdejmuje z okrążenia i na którym aucie i torze; ostrzeżenie jest między celem z projektu a pułapem, a powyżej pułapu bramka zatrzymuje paczkę.
+4. **Ostrzeżenie o dochodzie.** O ile najlepszy zestaw podnosi dochód auta; awans o jedno miejsce wśród botów daje więcej za każde okrążenie, więc dochód rośnie skokowo; ma własny cel i własny pułap.
+5. **Sprawdzenie okrążenia.** Największy spadek okrążenia najlepszego zestawu i granica, powyżej której bramka zawodzi.
+6. **Sprawdzenie dochodu.** Największy wzrost dochodu najlepszego zestawu i granica, powyżej której bramka zawodzi.
+7. **Cena próby.** Ile prób średnio trzeba, żeby dojść do 8% i do 10% jednego bonusu; godziny to godziny dochodu auta, a próba kosztuje część ceny zwykłej części zestawu.
+8. **Godzin do 8%.** Ile godzin dochodu auta zabiera dojście jednego miejsca do 8%.
 <!-- /legenda -->
 
-**Jak czytać wynik:** pomarańczowe ostrzeżenie mówi, ile najlepszy zestaw zdejmuje z okrążenia i na którym aucie i torze (na zrzucie 11,0% dla `bizon-m-2` na `kruszyn-quarry-marathon`, ponad 10% z projektu, ale pod zatwierdzonym pułapem 12%, więc bramka to przepuszcza). Linia z haczykiem podaje największy spadek i granicę, powyżej której bramka zawodzi. Tabela pokazuje okrążenie bez bonusów i z nimi, spadek okrążenia w procentach i zmianę dochodu. Gdy bramka zatrzymała paczkę, zmniejsz w Studiu granice jednego bonusu (tam decyduje się, jak daleko ponad 10% da się dojść) i policz jeszcze raz.
+**Jak czytać wynik:** są **dwie oceny**, okrążenia i dochodu, i każda ma cel z projektu i pułap, powyżej którego bramka zawodzi. Pomarańczowe ostrzeżenie o okrążeniu mówi, ile najlepszy zestaw zdejmuje z okrążenia i na którym aucie i torze (na zrzucie 11,0% dla `bizon-m-2` na `kruszyn-quarry-marathon`, ponad cel 10%, ale pod zatwierdzonym pułapem 12%, więc bramka to przepuszcza). Ostrzeżenie o dochodzie mówi, o ile najlepszy zestaw podnosi dochód auta (na zrzucie +32,2% dla `rdzak-gt-4` w Kruszynie, ponad cel 15%, ale pod pułapem 35%). Dwie linie z haczykiem podają największy spadek okrążenia i największy wzrost dochodu oraz granice, powyżej których bramka zawodzi. Pod nimi jest cena próby (ile prób średnio trzeba do 8% i do 10% jednego bonusu), a tabela pokazuje dla każdej pary auto i tor okrążenie bez bonusów i z nimi, zmianę okrążenia i dochodu oraz godziny dochodu do 8% i 10%. Gdy bramka zatrzymała paczkę, zmniejsz w Studiu granice jednego bonusu i policz jeszcze raz.
 
 **Co sprawdzić po zmianie liczb:** „Policz” po każdej zmianie w Studiu i zapisaniu szkicu.
 
-**Jeszcze nie opisane:** zmiany bonusów, które są w toku (kolejny etap), dojdą po zakończeniu prac.
+### Dlaczego dochód rośnie skokowo, cena próby i brak ochrony przed pechem
+
+- **Dochód jest oceniany jak okrążenie.** Najgorszy zmierzony przypadek to Rdzak GT-4 w Kruszynie: +32,2% dochodu przy −5,5% okrążenia. To nie siła bonusu, tylko skok progu nagrody: auto awansuje o jedno miejsce wśród botów, a nagroda za miejsce rośnie z ×1,25 do ×1,5. Pułap 35% leży tuż nad zmierzonym; właściciel gry go zatwierdził (2026-11-03) i jest to **pierwsza liczba do przesunięcia przy balansie**.
+- **Cena próby wobec dochodu.** Próba kosztuje 3% ceny modelu części, wybranie bonusu 10% (te liczby zostają, nie ma powodu ich ruszać). Raport mówi, że próba to 0,7–1,6 minuty dochodu auta, a dojście jednego miejsca do 8% zabiera średnio 10 prób (0,1–0,3 godziny dochodu), do 10% średnio 70 prób (0,8–1,9 godziny). Pełny zestaw 15 miejsc na 8% to około 3 godziny dochodu, na 10% około 18 godzin, a zysk to 3–11% okrążenia i do 12% dochodu, czyli zwrot po dziesiątkach godzin.
+- **Ochrona przed pechem jest wyłączona** (decyzja właściciela, 2026-11-03). Z pomiaru: bez ochrony 8% to średnio 10 prób, 10% to 71, 11% to 261, a 12% ponad tysiąc. Gdyby właściciel kiedyś chciał łagodzić pech, autor etapu poleca krok 0,02σ do 1σ (`tuning.pity_step_ppm` 20 000 i `tuning.pity_max_ppm` 1 000 000): pech do 10% spadłby z 216 do 88 prób, ale „marzenie” 12% stałoby się celem osiągalnym w kilkuset próbach.
+- **Klasa i PI na rajdach.** PI liczy się bez toru, więc ani rajdy, ani bonus kontekstowy (działający tylko na niektórych torach) nie zmieniają klasy auta; bonus, który działa wszędzie, ją zmienia.
 
 ---
 
@@ -904,28 +997,39 @@ Studio parametrów, sekcja **Rywalizacja** (wyłącz „Tryb prosty”, bo te li
 5. **Najwyższe pokazywane PI.** Najwyższe PI, jakie auto może mieć: silniejsze auto nadal ma tyle. Na tym PI kończy się klasa najwyższa (auto pokazuje się jako klasa i PI, od F0 do SS999). Musi być powyżej progu ostatniej klasy z progiem. Zakres: 1 – 100 000 (PI). Przykład: 999: najsilniejsze auto to SS 999.
 <!-- /legenda -->
 
-**Uwaga o skali:** zmiana PI auta odniesienia przesuwa PI wszystkich aut o ten sam procent, więc razem z nią trzeba przesunąć progi klas. **Uwaga o tekstach:** tytuły grup i ich krótkie opisy w tej sekcji Studia są dziś po angielsku (na przykład „Competition › Pi”); opisy pól pod nimi są po polsku. Pozostałe liczby sekcji (Respekt, dywizje, mecze, sezon) dotyczą turniejów i rankingów, których nie ma w wersji demonstracyjnej gry; nie zmieniaj ich bez potrzeby.
+**Uwaga o skali:** zmiana PI auta odniesienia przesuwa PI wszystkich aut o ten sam procent, więc razem z nią trzeba przesunąć progi klas. **Uwaga o tekstach:** tytuły grup i ich krótkie opisy w sekcjach Studia o rywalizacji i powiadomieniach są dziś po angielsku (na przykład „Competition › Pi”, „Push › Ttl”); opisy pól pod nimi są po polsku. Sekcja „Rywalizacja” ma też liczby, których gra jeszcze nie używa: zostaw je bez zmian.
+
+### Nazwy klas ze Słownika
+
+Aplikacja nazywa klasę wiadomością `car.className.{klasa}` (F, E, D, C, B, A, S, SS). **Domyślnie to same litery**, a gra może je przemianować w Słowniku bez zmiany kodu: na przykład `car.className.SS` jako „Legenda”. Odznaka klasy (nagłówek gry, karta auta, flota, dealer, giełda), porównanie części i wybór toru czytają te nazwy.
+
+![Słownik: nazwy klas](img/podrecznik-slownik-klasy.png)
+
+<!-- legenda:slownik-klasy -->
+1. **Szukaj.** Wpisz fragment klucza albo tekstu (aplikacji lub paczki); wielkość liter nie ma znaczenia. Zatwierdź klawiszem Enter. Zmiana wyszukiwania odrzuca niezapisane zmiany.
+2. **Klucz klasy.** Nazwa klasy auta w aplikacji: car.className.F do car.className.SS; puste pole zostawia samą literę klasy.
+3. **Tekst w danym języku.** Puste pole to tekst aplikacji, widoczny w polu jako podpowiedź. Wpisz tekst tylko tam, gdzie paczka ma mówić inaczej. Zakres: Do 400 znaków w każdym języku. Wskazówka: Zostaw nazwy w klamrach, np. {name}, dokładnie jak w oryginale (w tekstach serwera nazwa ma dwukropek na początku), tyle samo form liczby mnogiej oddzielonych znakiem |, bez innych klamer i bez linków @:. Język z pustym polem dostaje angielski tekst paczki, a nie tekst aplikacji w tym języku.
+<!-- /legenda -->
 
 ### Rywale w wyższej klasie
 
-Studio, sekcja **Boty**, pole **Krok rywali na klasę**: o ile szybsze są boty za każdą klasę, o którą auto jest wyżej niż klasa najlepszego seryjnego auta jego tieru (klasa natywna tieru), jako część czasu okrążenia. Seryjne auta nigdy nie są powyżej klasy natywnej, więc spotykają tych samych rywali co zawsze, a auto dotuningowane do wyższej klasy trafia na rywali tej klasy. **0 wyłącza** (w dostarczonej grze jest 0, czyli klasy nie zmieniają rywali). Zakres 0–30% okrążenia; przy 8% auto o klasę wyżej ma boty szybsze o 8%, o dwie klasy wyżej o 16%.
+Studio, sekcja **Boty**, pole **Krok rywali na klasę**: o ile szybsze są boty za każdą klasę, o którą auto jest wyżej niż klasa najlepszego seryjnego auta jego tieru (klasa natywna tieru), jako część czasu okrążenia. Seryjne auta nigdy nie są powyżej klasy natywnej, więc spotykają tych samych rywali co zawsze, a auto dotuningowane do wyższej klasy trafia na rywali tej klasy. **0 wyłącza**, a **w dostarczonej grze jest 0**, czyli klasy nie zmieniają rywali. Uwaga: włączenie zmienia rywali w wyścigach graczy, którzy dotuningowali auto do wyższej klasy, więc najpierw policz skutek poleceniem `php artisan competition:class-jump` (administrator serwera). Zakres 0–30% okrążenia; przy 8% auto o klasę wyżej ma boty szybsze o 8%, o dwie klasy wyżej o 16%.
 
 ![Studio: rywale w klasie](img/podrecznik-studio-boty.png)
 
 <!-- legenda:studio-boty -->
-1. **Sekcja.** Liczby gry są podzielone na sekcje; pokazana jest jedna naraz, z liczbą jej liczb w nawiasie (w trybie prostym tylko tych prostych) i zdaniem o tym, co zmiana jej liczb zmieni w grze. Zapisz zmiany, zanim zmienisz sekcję: niezapisane znikną.
-2. **Krok rywali na klasę (% okrążenia).** O ile szybsze są boty za każdą klasę, o którą auto jest wyżej niż klasa najlepszego seryjnego auta jego tieru (klasa natywna tieru), jako część czasu okrążenia. Seryjne auta nigdy nie są powyżej klasy natywnej, więc spotykają tych samych rywali co zawsze, a auto dotuningowane do wyższej klasy trafia na rywali tej klasy: przeskok klasy nie zawsze się opłaca. Zero (albo gra bez rywalizacji) zostawia boty bez zmian. Zakres: 0% – 30% okrążenia; 0 wyłącza. Przykład: 8%: auto o klasę wyżej niż klasa natywna ma boty szybsze o 8%, o dwie klasy wyżej o 16%. Dla Rdzaka GT-4 przeskok z D do C przy 10% kosztuje 24 – 32% dochodu na czterech torach z pięciu.
+1. **Krok rywali na klasę (% okrążenia).** O ile szybsze są boty za każdą klasę, o którą auto jest wyżej niż klasa najlepszego seryjnego auta jego tieru (klasa natywna tieru), jako część czasu okrążenia. Seryjne auta nigdy nie są powyżej klasy natywnej, więc spotykają tych samych rywali co zawsze, a auto dotuningowane do wyższej klasy trafia na rywali tej klasy: przeskok klasy nie zawsze się opłaca. Zero (albo gra bez rywalizacji) zostawia boty bez zmian. Zakres: 0% – 30% okrążenia; 0 wyłącza. Przykład: 8%: auto o klasę wyżej niż klasa natywna ma boty szybsze o 8%, o dwie klasy wyżej o 16%. Dla Rdzaka GT-4 przeskok z D do C przy 10% kosztuje 24 – 32% dochodu na czterech torach z pięciu.
 <!-- /legenda -->
 
 ### Co z tego widzi gracz
 
-Przy aucie gracz widzi odznakę klasy i PI (na przykład „B 612”: nagłówek gry, karta auta, dealer, giełda i flota). W porównaniu części w warsztacie jest jedna linia o klasie: „Klasa się zmienia: C 480 → B 520” (na bursztynowo), gdy część przenosi auto do innej klasy, albo „Klasa B bez zmian: 512 → 520 PI”. Dzięki temu gracz wie, że tuning, który podnosi klasę, przeniesie go do rywali wyższej klasy (gdy krok rywali jest większy od zera).
+Przy aucie gracz widzi odznakę klasy i PI (na przykład „B 612”: nagłówek gry, karta auta, dealer, giełda i flota) oraz na liście torów obok tytułu „Tory w tym mieście”. Klasa i PI są też w sklepie: karta części porównuje ją z założoną i, gdy część wchodzi na auto, mówi, jaką klasę i PI auto pokaże po jej założeniu (liczone dla nowej części, o zwykłej rzadkości i bez ulepszeń). W porównaniu części w warsztacie jest jedna linia o klasie: „Klasa się zmienia: C 480 → B 520” (na bursztynowo), gdy część przenosi auto do innej klasy, albo „Klasa B bez zmian: 512 → 520 PI”. Dzięki temu gracz wie, że tuning, który podnosi klasę, przeniesie go do rywali wyższej klasy (gdy krok rywali jest większy od zera). Polecenie `php artisan competition:pi-report` pokazuje klasy i PI aut paczki.
 
 **Co sprawdzić po zmianie progów:** odznaki klasy kilku aut w grze zgadzają się z tym, co zamierzałeś (na przykład seryjny Rdzak GT-4 nadal ma klasę D). Most AI (rozdział 17) potrafi zmienić te liczby rozmową: wyłącz „Tylko najważniejsze liczby” i wybierz sekcję „competition”.
 
 ---
 
-## 16. Powiadomienia push
+## 16. Powiadomienia push i powroty graczy
 
 **Cel:** sprawdzić, czy gra może wysyłać powiadomienia push, ile urządzeń i kont się zgodziło i co wysłano w ostatnich siedmiu dniach.
 
@@ -948,7 +1052,49 @@ Kolumny tabeli z ostatnich siedmiu dni: wiadomości w kolejce, otwarte i ogłosz
 
 **Nie sprawdzono:** prawdziwej wysyłki do przeglądarek (panel pokazuje liczby, ale wysyłka na prawdziwe urządzenia nie była próbowana).
 
-**Jeszcze nie opisane:** pozostałe elementy retencji w panelu (po zakończeniu prac).
+### Prośba o zgodę i wieczorne przypomnienie o serii
+
+Liczby, które ustawiają, jak i kiedy gracz jest pytany i powiadamiany, są w Studiu parametrów, sekcja **Push** (nazwa sekcji i tytuły jej grup są po angielsku, opisy pól po polsku).
+
+- **Licznik próśb.** Serwer liczy, ile razy gracz odłożył („nie teraz”) kartę, która pyta o powiadomienia. Karta może się pokazać, gdy odłożeń jest mniej niż **`push.ask_max`** (domyślnie 3) i minęło co najmniej **`push.ask_after_ms`** od ostatniego (domyślnie tydzień). Decyduje serwer, więc gracz jest pytany tak samo na każdym urządzeniu, a konto z grupy kontrolnej nigdy nie dostaje prośby.
+- **Wieczorne przypomnienie o serii (`streak_risk`).** To czwarty rodzaj wiadomości, **domyślnie wyłączony**: gracz włącza go w ustawieniach konta. Gracz z serią co najmniej **`push.streak_risk_min_days`** dni (3) dostaje **raz na dobę**, od **`push.streak_risk_from_min`** (19:00 w strefie urządzenia), przypomnienie, jeśli cel dnia nie jest zrobiony; czy jest zrobiony, sprawdza się w chwili wysyłki. Przypomnienie, które nie może wyjść w ciągu trzech godzin od swojej pory (ciche godziny, odstęp po innej wiadomości, przerwa po nieodpowiedzianych), nie jest wysyłane, bo dotyczyłoby dnia, który się skończył.
+
+![Studio: push](img/podrecznik-studio-push.png)
+
+<!-- legenda:studio-push -->
+1. **Wiadomości push dziennie dla gracza.** Najwięcej wiadomości push, jakie gracz dostaje w ciągu ostatnich 24 godzin. O tym, co dzieje się ponad to, gracz nie jest powiadamiany: zobaczy to, gdy wejdzie do gry. Wiadomość próbna się nie liczy. Dzięki temu powiadomienia nie zamieniają się w hałas. Zakres: 1 – 50 (wiadomości). Przykład: 4: piąta rzecz tego dnia nie jest ogłaszana. Wskazówka: Więcej niż kilka dziennie skłania graczy do wyłączenia powiadomień.
+2. **Ile razy aplikacja pyta o powiadomienia.** Ile razy karta, która pyta gracza, czy chce powiadomienia, może wrócić po „nie teraz”. Potem pytanie już nie wraca; gracz może nadal włączyć powiadomienia w koncie. Zakres: 1 – 20 (razy). Przykład: 3: karta przyjdzie najwyżej trzy razy.
+3. **Czas, po którym karta wraca.** Jak długo po „nie teraz” karta z pytaniem o powiadomienia czeka, zanim wróci. Zakres: 1 godzina – 90 dni. Przykład: 604800 s: tydzień.
+4. **Najkrótsza seria, o której się przypomina.** Najkrótsza seria, w dniach, o której gra przypomina wieczorem, gdy cel dnia nie jest zrobiony. Krótsza seria nie jest warta wiadomości. To rodzaj wiadomości wyłączony, dopóki gracz go nie włączy. Zakres: 1 – 365 (dni). Przykład: 3: seria trzech dni lub dłuższa.
+5. **Pora, od której może przyjść przypomnienie o serii.** Minuta doby (w strefie czasowej urządzenia gracza), od której może przyjść przypomnienie o serii, raz na dobę. Przypomnienie, które nie może przyjść w ciągu trzech godzin od tej pory (godziny ciszy, odstęp po innej wiadomości), nie jest wysyłane. 19:00 to 1140. Zakres: 0 – 1439 (minuty po północy). Przykład: 1140: 19:00.
+6. **Konta, które nigdy nie dostają push (grupa kontrolna).** Część kont, którym nigdy nie wysyła się wiadomości push i których się o nie nie pyta: grupa, z którą porównuje się resztę, żeby sprawdzić, że powiadomienia nie sprawiają, że gracze wracają rzadziej (`metrics:report --by=arm`). Konto trafia do grupy po skrócie jego numeru, więc w niej zostaje. Wyższa liczba przenosi do grupy więcej kont, a niższa część z niej wyprowadza, więc zmieniaj ją rzadko. Zakres: 0 – 100% (część kont). Przykład: 20%: co piąte konto nigdy nie dostaje powiadomienia. Wskazówka: Przy niewielu graczach porównanie pokazuje tylko kierunek: żeby zobaczyć różnicę pięciu punktów, trzeba około tysiąca kont w grupie. 0% powiadamia wszystkich.
+<!-- /legenda -->
+
+### Seria dni i transmutacja
+
+W tym samym Studium są sekcje **Streaks** (seria dni: cel dnia, tarcza, nagrody cyklu i kamienie milowe) i **Transmute** (transmutacja części: od którego poziomu, ile na dobę, koszty). Opisują je pola, bez osobnego zrzutu; zmiana ich liczb wymaga uruchomienia symulatora poniżej.
+
+### Ile zarabia auto w danym slocie (`slots.yield_ppm`)
+
+Studio, sekcja **Slots**: lista po jednej liczbie na slot aktywnego auta (pierwsza dla pierwszego), **domyślnie 100% dla pięciu slotów, czyli nic się nie zmienia**. To dźwignia na wypadek, gdyby konto VIP z wieloma autami okazało się za mocne: wariant, w którym czwarte i piąte auto zarabia po 70%, to `[1000000, 1000000, 1000000, 700000, 700000]`. Dźwignia działa w rozliczaniu, okrążenie po okrążeniu (gotówka i XP), a premia VIP jest doliczana od tego, co zostało. W badaniu floty wariant z 70% zmniejsza przewagę konta VIP z 3,0× do około 2,7× dla graczy z największą flotą.
+
+![Studio: sloty aut](img/podrecznik-studio-sloty.png)
+
+<!-- legenda:studio-sloty -->
+1. **Sekcja.** Liczby gry są podzielone na sekcje; pokazana jest jedna naraz, z liczbą jej liczb w nawiasie (w trybie prostym tylko tych prostych) i zdaniem o tym, co zmiana jej liczb zmieni w grze. Zapisz zmiany, zanim zmienisz sekcję: niezapisane znikną.
+2. **Auta, które każdy gracz może mieć na drodze.** Ile aut gracz może mieć aktywnych (jadących) naraz. Pozostałe auta stoją w magazynie w garażu: nie jeżdżą, nie palą paliwa, nic się nie zużywa i nic nie zarabiają, a miejsce w garażu zachowują. Auta, które gracz miał, zanim wprowadzono limit, zostają mu, dopóki nie odstawi któregoś do magazynu. Zakres: 1 – 50 (aut). Przykład: 2: gracz może mieć dwa auta na drodze; trzecie auto trafia do magazynu, gdy je dostanie. Wskazówka: Symulator ekonomii zakłada ok. 1,7 auta na drodze dla zwykłego gracza, więc 2 nie zmienia tempa graczy, którzy nie płacą. Sprawdź to poleceniem economy:simulate po zmianie.
+3. **Więcej aut na drodze z kontem VIP.** Ile aut więcej gracz z kontem VIP może mieć na drodze, dopóki konto trwa. Auta w tych miejscach przestają zarabiać w chwili końca konta i idą do magazynu; nic nie ginie. Zakres: 0 – 50 (aut). Przykład: 3: z kontem VIP gracz może mieć pięć aut na drodze (2 + 3), co razem z premią konta daje ok. trzy razy tyle, ile zarabia gracz z dwoma autami. Wskazówka: To największa część wartości konta VIP: więcej aut zarabia więcej niż premia do gotówki i XP. Sprawdź przewagę w symulatorze ekonomii, zanim ją podniesiesz.
+4. **Ile zarabia auto, według slotu.** Jaka część wypłaty za każde okrążenie (gotówka i doświadczenie) trafia do auta, według slotu, w którym stoi: pierwsza liczba dotyczy pierwszego slotu. 100% to całość. To dźwignia na wypadek, gdyby konto VIP z pięcioma autami okazało się za mocne: czwarty i piąty slot po 70% to wariant B z planszy. Premia VIP liczy się od tego, co zostało. Zakres: 0 – 100% (część wypłaty). Przykład: 70%: auto w tym slocie zarabia siedem dziesiątych wypłaty za okrążenie. Wskazówka: Sprawdź poleceniem economy:fleet, co zmiana robi z przewagą konta VIP, zanim ją opublikujesz.
+<!-- /legenda -->
+
+### Symulator serii i transmutacji (dla administratora serwera)
+
+Dwa polecenia puszczają symulator na regułach gry i mówią, czy nowe liczby przesuwają tempo gry bardziej, niż wolno. **To nie są bramki paczki**: administrator uruchamia je ręcznie.
+
+- `php artisan streaks:budget --simulate` gra serię (gracz, który jej nie zrywa, darmowa skrzynka wyceniona na swoją cenę) z trzema typami graczy i sprawdza, o ile dni wcześniej gracz kupuje kolejne auta wobec gry bez serii, z tolerancją 5%.
+- `php artisan economy:transmute --simulate` gra gracza z monetami, który po otwarciu tieru zamienia opony, zawieszenie i hamulce na epickie, gdy ma gotówkę, z zyskiem z tabeli tempa rzadkości i tolerancją bramki tempa (25%).
+
+Zmierzone na regułach, które idą z grą (według dokumentacji etapu): seria dodaje do gotówki pierwszych 30 dni 2,3% (gracz A), 8,8% (B) i 4,4% (C); **gracz B kupuje auto L3 dnia 19 zamiast 21, czyli o 2 dni (około 9,5%) wcześniej, ponad dopuszczalne 5%**, więc test serii dla B **nie przechodzi**, głównie przez darmową skrzynkę tygodniowo. To wynik dla właściciela, nie błąd: albo skrzynka z serii jest mniejsza (`streaks.cycle`), albo tolerancja 5% jest za ostra dla dnia 21 (to około dnia rozdzielczości modelu). Transmutacja daje +31,7% dochodu z tabeli tempa i nie przesuwa żadnego zakupu o więcej niż 25%. Założenia (bez danych z gry): gracz serii nigdy jej nie zrywa, darmowa skrzynka jest warta swoją cenę, gracz z monetami zamienia od razu, gdy ma gotówkę.
 
 ---
 
