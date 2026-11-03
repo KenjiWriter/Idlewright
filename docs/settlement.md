@@ -179,3 +179,20 @@ Reguły: sekcja `competition` w `rules/starter.json` (`pi`, `rating`, `match`; w
 | legendarna +12 | 744 / 785 / 809 | S (20 aut), SS (3 auta) |
 
 Części dominują nad nadwoziem (po tuningu auta różnią się o kilkadziesiąt PI, stare Rdzaki z najlepszymi częściami są wyżej niż Orzeł V12), a sufit statystyk gry to PI 933. Przy progu SS od 850 z płótna SS byłaby nieosiągalna, dlatego propozycja to SS od 800: tylko pełny zestaw legendarny +12 na najlepszym aucie.
+
+### Plan etapów rywalizacji po C0 (2026-11-03; kolejność ustalił właściciel: najpierw klasy aut)
+
+Projekt całości (D1–D22 i aneks o klasach F–SS) jest w notatce `rywalizacja-propozycja.md`. Poniżej tylko podział na etapy, co który robi i czym ryzykuje.
+
+| Etap | Co robi | Ryzyko dla ekonomii | Co weryfikuje |
+|---|---|---|---|
+| **C1a** (pierwszy) | **Klasa i PI w grze, tylko informacyjnie.** API: `performance {pi, class}` przy aucie (flota, garaż, bieg, dealer, giełda) i `pi_after`/`class_after` przy części w inwentarzu. Aplikacja: karta auta, pasek aut, wybór toru, salon (dealer i giełda), ostrzeżenie o zmianie klasy w porównaniu części w warsztacie | brak: nic nie zmienia dochodu, boty zostają po tierze | PI z potoku (`CarPerformance`), test kontraktu API, specyfikacje komponentów, pięć języków |
+| **C1b** | **Rywale na klasę na torach:** tabela botów klas (`economy:bot-profiles`), przełącznik `bots.field_by: tier\|class` (domyślnie `tier`), `competition:class-jump` | **największe**: zmiana klasy zmienia pole botów, a pozycja mnoży nagrodę (klif P1 ×1,5 do P8 ×0,8); pierwsze oszacowanie na seryjnych autach to −4,3% średnio (od −20% do +8%) | **pomiar na symulatorze przed włączeniem** (tempo L1–L8 w ±25%, dochód przed i po skoku klasy); włączenie dopiero po zatwierdzeniu liczb |
+| C1c | Respekt i rankingi, pojedynek z duchem-botem klasy auta | żadne (premia z pojedynków poza bramkami, mierzona) | Respekt zgodny z wektorem W7, idempotencja po `request_id`, wynik meczu odtwarzalny |
+| C2 | duchy prawdziwych graczy, auto obronne, prywatność, tryb ukryty | żadne | co widać u innych (test kontraktu), limity, wygasanie duchów |
+| C3 | turnieje z drabinką, zapisy, wpisowe w gotówce, boty do 50%, wypłaty | pula to redystrybucja (rake 10% do kasy sezonowej klasy); poza bramkami | brak podwójnych wypłat (współbieżność), księga zgodna, odwołanie ze zwrotem |
+| C4 | sezony, dywizje, nagrody sezonu z kasy sezonowej | gotówka sezonowa tylko z kasy; skrzynki i monety ograniczone | zamknięcie sezonu idempotentne, nagrody ≤ kasa |
+| C5 | panel: harmonogram, sezony, rankingi, podejrzenia, tablica PI | żadne | walidator i strażnik szablonów, pomoc w pięciu językach |
+| C6 | nadużycia, symulator sezonu na sztucznym zegarze, metryki | raport poza bramkami bajt w bajt | pełny sezon bez interwencji, zapełnienie, brak podwójnych wypłat |
+
+Rywale w meczach (pojedynki i turnieje) są z klasy auta z samej konstrukcji (klasa w migawce), więc ta część wymagania wchodzi z C1c–C3 bez ryzyka dla ekonomii; ryzyko dotyczy wyłącznie botów na torach (C1b).
