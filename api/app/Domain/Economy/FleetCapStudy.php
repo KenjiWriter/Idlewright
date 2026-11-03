@@ -30,6 +30,7 @@ final class FleetCapStudy
      * @param  int  $vip  the cars more that the VIP account lets a driver have
      * @param  int  $vipBonusPpm  what the VIP account adds to the cash of a lap, in ppm (200 000 is a fifth)
      * @param  list<string>  $only  the kinds of players to play, all of them when empty
+     * @param  list<int>  $yieldPpm  what a car earns of the pay of its laps, by the slot it is in (`slots.yield_ppm`): the cars of the VIP account in the slots after the base are worth that much each
      * @return array<string, array{
      *     name: string,
      *     rows: list<array{rung: string, baseline_day: int|null, free_day: int|null, vip_day: int|null}>,
@@ -41,11 +42,11 @@ final class FleetCapStudy
      *     fleet_vip: float
      * }>
      */
-    public function run(array $data, int $base, int $vip, int $vipBonusPpm, array $only = []): array
+    public function run(array $data, int $base, int $vip, int $vipBonusPpm, array $only = [], array $yieldPpm = []): array
     {
         $baseline = EconomyRules::fromArray($data);
         $free = EconomyRules::fromArray($this->limited($data, static fn (float $fleet, int $rung): float => min($fleet, (float) $base), 1.0));
-        $withVip = EconomyRules::fromArray($this->limited($data, static fn (float $fleet, int $rung): float => $rung < self::FIRST_FLEET_RUNG ? $fleet : min((float) ($base + $vip), $fleet * ($base + $vip) / max(1, $base)), 1 + $vipBonusPpm / 1_000_000));
+        $withVip = EconomyRules::fromArray($this->limited($data, fn (float $fleet, int $rung): float => $rung < self::FIRST_FLEET_RUNG ? $fleet : self::worth(min((float) ($base + $vip), $fleet * ($base + $vip) / max(1, $base)), $base, $yieldPpm), 1 + $vipBonusPpm / 1_000_000));
 
         $report = [];
 
@@ -88,6 +89,23 @@ final class FleetCapStudy
         }
 
         return $report;
+    }
+
+    /**
+     * What a fleet of this many cars is worth when the cars in the slots after the first `$base` earn only a part of the pay of a lap: the first `$base` count whole, and each car
+     * after them counts as the yield of its slot (a slot the rules give no number for counts whole). A car that is only part of a car (the fleet is an average) counts that part.
+     *
+     * @param  list<int>  $yieldPpm
+     */
+    private static function worth(float $cars, int $base, array $yieldPpm): float
+    {
+        $worth = min($cars, (float) $base);
+
+        for ($slot = $base + 1; $slot <= (int) ceil($cars); $slot++) {
+            $worth += min(1.0, $cars - ($slot - 1)) * (($yieldPpm[$slot - 1] ?? 1_000_000) / 1_000_000);
+        }
+
+        return $worth;
     }
 
     /**

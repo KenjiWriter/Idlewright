@@ -30,6 +30,26 @@ describe('the study', function () {
         }
     });
 
+    it('gives the VIP account less when the cars in its slots earn only a part of the pay of a lap (the variant B of the board: the fourth and the fifth car at 70%)', function () {
+        $yield = [1_000_000, 1_000_000, 1_000_000, 700_000, 700_000];
+        $report = (new FleetCapStudy(new Simulator))->run(anchorsOfTheGame(), 2, 3, 200_000, [], $yield);
+
+        // The player B never has a fourth car (a fleet of 1.0 is 2.5 cars with the account), so the slots of the lever do not touch it; the others have 4.25 and are paid less for the
+        // fourth and the fifth.
+        expect($report['B']['ratio'])->toEqualWithDelta(3.0, 0.001)->and($report['A']['ratio'])->toBeBetween(2.5, 2.8)->and($report['C']['ratio'])->toBeBetween(2.5, 2.8);
+
+        foreach ($report as $player) {
+            expect($player['free_deviation'])->toBe(0.0);
+        }
+    });
+
+    it('is not changed by a yield of all of it, or by no yield at all', function () {
+        $whole = (new FleetCapStudy(new Simulator))->run(anchorsOfTheGame(), 2, 3, 200_000, ['B'], [1_000_000, 1_000_000, 1_000_000, 1_000_000, 1_000_000]);
+        $none = (new FleetCapStudy(new Simulator))->run(anchorsOfTheGame(), 2, 3, 200_000, ['B']);
+
+        expect($whole['B']['ratio'])->toBe($none['B']['ratio']);
+    });
+
     it('slows a free player whose fleet the limit cuts', function () {
         $report = (new FleetCapStudy(new Simulator))->run(anchorsOfTheGame(), 1, 3, 200_000, ['A']);
 

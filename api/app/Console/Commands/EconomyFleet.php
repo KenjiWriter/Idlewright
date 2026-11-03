@@ -49,7 +49,7 @@ final class EconomyFleet extends Command
 
         try {
             $data = json_decode((string) file_get_contents($path), true, 512, JSON_THROW_ON_ERROR);
-            $report = $study->run($data, $slots['base'], $slots['vip'], $vip['cash_bonus_ppm'] ?? 0, array_map('strval', (array) $this->option('player')));
+            $report = $study->run($data, $slots['base'], $slots['vip'], $vip['cash_bonus_ppm'] ?? 0, array_map('strval', (array) $this->option('player')), $slots['yield_ppm']);
         } catch (JsonException|InvalidArgumentException $problem) {
             $this->error($problem->getMessage());
 
