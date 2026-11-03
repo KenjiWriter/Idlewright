@@ -78,6 +78,35 @@ final class GigReport
     }
 
     /**
+     * What the rows say of every template: how many cars can take it, and the least and the most that an hour of it pays against the rung of the ladder (R1) and against the
+     * laps of the same car (R2). It is what a person who changes the pay of a template wants to see move.
+     *
+     * @param  list<array<string, mixed>>  $rows
+     * @return array<string, array{cars: int, r1_min: float, r1_max: float, r2_min: float, r2_max: float}>
+     */
+    public static function byTemplate(array $rows): array
+    {
+        $templates = [];
+
+        foreach ($rows as $row) {
+            $template = (string) $row['template'];
+            $line = $templates[$template] ?? ['cars' => 0, 'r1_min' => INF, 'r1_max' => -INF, 'r2_min' => INF, 'r2_max' => -INF];
+
+            $templates[$template] = [
+                'cars' => $line['cars'] + 1,
+                'r1_min' => min($line['r1_min'], (float) $row['r1']),
+                'r1_max' => max($line['r1_max'], (float) $row['r1']),
+                'r2_min' => min($line['r2_min'], (float) $row['r2']),
+                'r2_max' => max($line['r2_max'], (float) $row['r2']),
+            ];
+        }
+
+        ksort($templates);
+
+        return $templates;
+    }
+
+    /**
      * The rows that are out of what the design asks: R1 outside the bounds (the pay of an hour against the rung of the ladder), or R2 too high for a car that is not made for
      * gigs (a class that no template asks for): a wreck of the yard, which anyone can buy for a few hundred dollars and fill a garage with, must not earn more on gigs than on
      * laps (R2 above 1), and a car that is bought at the dealer or on the exchange not more than `$maxR2` times, because then the gig would beat the laps of a car that is made

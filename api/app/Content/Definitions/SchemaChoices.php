@@ -55,6 +55,12 @@ final class SchemaChoices
         return is_int($cap) ? $cap : null;
     }
 
+    /** @return list<string> the body classes that a car can have (the classes a gig may be limited to) */
+    public static function vehicleClasses(): array
+    {
+        return array_values(array_filter(self::enum('vehicle.schema.json', ['properties', 'class', 'enum']), is_string(...)));
+    }
+
     /**
      * @param  list<string|int>  $path
      * @return list<mixed>

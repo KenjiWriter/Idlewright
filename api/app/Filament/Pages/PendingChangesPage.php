@@ -86,6 +86,7 @@ class PendingChangesPage extends Page
                 'branding' => BrandingPage::getUrl(),
                 'model' => ModelPage::getUrl(),
                 'missions' => MissionsPage::getUrl(),
+                'gigs' => GigsPage::getUrl(),
                 default => RulesJsonPage::getUrl(),
             },
         };
