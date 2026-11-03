@@ -1,0 +1,1081 @@
+{
+  "ekrany": [
+    {
+      "slug": "logowanie",
+      "url": "/admin/login",
+      "bez_logowania": true,
+      "czekaj": "input[type=email]",
+      "znaczniki": [
+        {
+          "selektor": "input[type=email]",
+          "nazwa": "Adres e-mail",
+          "opis": "adres, na który administrator ma konto w panelu"
+        },
+        {
+          "selektor": "input[type=password]",
+          "nazwa": "Hasło",
+          "opis": "hasło do konta w panelu"
+        },
+        {
+          "selektor": "button[type=submit]",
+          "nazwa": "Zaloguj się",
+          "opis": "po poprawnym haśle panel prosi jeszcze o kod z aplikacji"
+        }
+      ]
+    },
+    {
+      "slug": "kod-2fa",
+      "url": "/admin/login",
+      "bez_logowania": true,
+      "czekaj": "input[type=email]",
+      "kroki": [
+        {
+          "wpisz": {
+            "selektor": "input[type=email]",
+            "tekst": "boss@example.com"
+          }
+        },
+        {
+          "wpisz": {
+            "selektor": "input[type=password]",
+            "tekst": "a-long-enough-password"
+          }
+        },
+        {
+          "js": "document.querySelector('button[type=submit]').click()",
+          "pauza_po": 2500
+        },
+        {
+          "czekaj": "input[aria-label*='Znak 2']"
+        }
+      ],
+      "znaczniki": [
+        {
+          "selektor": "div:has(> input[aria-label*='Znak 2'])",
+          "nazwa": "Sześciocyfrowy kod",
+          "opis": "kod z aplikacji uwierzytelniającej, zmienia się co 30 sekund; panel wymaga go od każdego administratora"
+        },
+        {
+          "selektor": "a, button",
+          "zawiera": "kodu odzyskiwania",
+          "nazwa": "Użyj kodu odzyskiwania",
+          "opis": "gdy nie masz telefonu: jednorazowy kod odzyskiwania, który zapisałeś przy zakładaniu konta"
+        }
+      ]
+    },
+    {
+      "slug": "siec-gier",
+      "url": "/admin",
+      "czekaj": "main",
+      "znaczniki": [
+        {
+          "selektor": ".fi-sidebar-nav",
+          "nazwa": "Menu sieci",
+          "opis": "w sieci gier menu jest o całej sieci: przegląd, dziennik i lista gier"
+        },
+        {
+          "selektor": ".fi-topbar select",
+          "nazwa": "Przełącznik gry",
+          "opis": "wybiera grę, w której panel pracuje; jest na górze każdej strony"
+        },
+        {
+          "selektor": "a, button",
+          "zawiera": "Wejdź do gry",
+          "ktory": 0,
+          "nazwa": "Wejdź do gry",
+          "opis": "przełącza panel na tę grę i otwiera jej przegląd; od tej chwili menu jest menu gry"
+        },
+        {
+          "selektor": "a",
+          "zawiera": "Utwórz nową grę",
+          "nazwa": "Utwórz nową grę",
+          "opis": "otwiera kreator w trzech krokach"
+        }
+      ]
+    },
+    {
+      "slug": "przeglad-gry",
+      "url": "/admin/game",
+      "czekaj": "main",
+      "znaczniki": [
+        {
+          "selektor": ".fi-sidebar-nav",
+          "nazwa": "Menu gry",
+          "opis": "po wejściu do gry w menu są strony tej gry: treść (auta, części, świat, reguły) i publikowanie"
+        },
+        {
+          "selektor": "main section, main .fi-wi-stats-overview-stat",
+          "zawiera": "Żywa paczka",
+          "nazwa": "Żywa paczka",
+          "opis": "numer paczki treści, z której gra korzysta teraz, i od kiedy"
+        },
+        {
+          "selektor": "main section, main .fi-wi-stats-overview-stat",
+          "zawiera": "Szkice czekają",
+          "nazwa": "Szkice czekają",
+          "opis": "ile zmian czeka na paczkę; graczy dotkną dopiero po jej uruchomieniu"
+        }
+      ]
+    },
+    {
+      "slug": "kreator-gry",
+      "url": "/admin/games/create",
+      "czekaj": "form",
+      "znaczniki": [
+        {
+          "pomoc": "game.name",
+          "ktory": 0
+        },
+        {
+          "pomoc": "game.slug",
+          "ktory": 0
+        },
+        {
+          "pomoc": "game.domain",
+          "ktory": 0
+        },
+        {
+          "pomoc": "game.locale",
+          "ktory": 0
+        },
+        {
+          "pomoc": "game.theme_color",
+          "ktory": 0
+        }
+      ]
+    },
+    {
+      "slug": "auta-lista",
+      "url": "/admin/vehicles",
+      "czekaj": "main table",
+      "znaczniki": [
+        {
+          "selektor": "a, button",
+          "zawiera": "Utwórz",
+          "ktory": 0,
+          "nazwa": "Utwórz",
+          "opis": "formularz nowego auta; auto powstaje jako szkic"
+        },
+        {
+          "selektor": "main input[type=search]",
+          "nazwa": "Szukaj",
+          "opis": "szuka po slugu i nazwie"
+        },
+        {
+          "selektor": "main table thead th",
+          "zawiera": "Status",
+          "nazwa": "Status",
+          "opis": "Aktywna: auto jest w grze; wycofane i zarchiwizowane są opisane w rozdziale o cyklu życia"
+        },
+        {
+          "selektor": "main table thead th",
+          "zawiera": "Szkic",
+          "nazwa": "Szkic",
+          "opis": "krzyżyk to brak szkicu, znacznik to zmiana, która czeka na paczkę"
+        },
+        {
+          "selektor": "main table tbody tr:first-child a",
+          "zawiera": "Edytuj",
+          "nazwa": "Edytuj",
+          "opis": "otwiera formularz tego auta"
+        }
+      ]
+    },
+    {
+      "slug": "formularz-auta",
+      "url": "/admin/vehicles/create",
+      "czekaj": "form",
+      "maks_wysokosc": 3200,
+      "znaczniki": [
+        {
+          "pomoc": "definition.slug"
+        },
+        {
+          "pomoc": "definition.name",
+          "ktory": 0
+        },
+        {
+          "pomoc": "definition.image_upload"
+        },
+        {
+          "pomoc": "vehicle.class"
+        },
+        {
+          "pomoc": "vehicle.drivetrain"
+        },
+        {
+          "pomoc": "vehicle.powertrain"
+        },
+        {
+          "pomoc": "vehicle.power_kw"
+        },
+        {
+          "pomoc": "vehicle.tier"
+        },
+        {
+          "pomoc": "vehicle.min_player_level"
+        },
+        {
+          "pomoc": "vehicle.price"
+        },
+        {
+          "pomoc": "vehicle.sources"
+        }
+      ]
+    },
+    {
+      "slug": "formularz-czesci",
+      "url": "/admin/parts/create",
+      "czekaj": "form",
+      "maks_wysokosc": 3600,
+      "znaczniki": [
+        {
+          "pomoc": "part.slot"
+        },
+        {
+          "pomoc": "part.tier"
+        },
+        {
+          "pomoc": "part.price"
+        },
+        {
+          "pomoc": "part.stats"
+        },
+        {
+          "pomoc": "part.requires_min_cylinders"
+        },
+        {
+          "pomoc": "part.requires_booster"
+        },
+        {
+          "pomoc": "part.tuning_slots"
+        },
+        {
+          "pomoc": "part.fits_powertrain"
+        },
+        {
+          "pomoc": "part.fits_classes"
+        }
+      ],
+      "kroki": [
+        {
+          "js": "[...document.querySelectorAll('.fi-section-header')].filter((e) => /Czego wymaga/.test(e.innerText)).forEach((e) => e.click())",
+          "pauza_po": 700
+        }
+      ]
+    },
+    {
+      "slug": "swiat-miasta",
+      "url": "/admin/world",
+      "czekaj": "form",
+      "maks_wysokosc": 3000,
+      "znaczniki": [
+        {
+          "selektor": "[role=tab]",
+          "zawiera": "Miasta",
+          "nazwa": "Miasta",
+          "opis": "miasta gry: mapa, klimat i szanse pogody"
+        },
+        {
+          "selektor": "[role=tab]",
+          "zawiera": "Drogi",
+          "nazwa": "Drogi",
+          "opis": "drogi między miastami"
+        },
+        {
+          "selektor": "[role=tab]",
+          "zawiera": "Tory",
+          "nazwa": "Tory",
+          "opis": "tory w miastach: rodzaj, długość, czas, nagroda i wagi statystyk"
+        },
+        {
+          "pomoc": "world.climate_seed",
+          "ktory": 0
+        },
+        {
+          "pomoc": "world.weather_chance",
+          "ktory": 0
+        }
+      ],
+      "kroki": [
+        {
+          "js": "[...document.querySelectorAll('.fi-fo-repeater-item-header')].find((e) => e.offsetParent !== null)?.click()",
+          "pauza_po": 900
+        }
+      ]
+    },
+    {
+      "slug": "swiat-tory",
+      "url": "/admin/world",
+      "czekaj": "form",
+      "kroki": [
+        {
+          "kliknij": "[role=tab]",
+          "zawiera": "Tory"
+        },
+        {
+          "js": "[...document.querySelectorAll('.fi-fo-repeater-item-header')].find((e) => e.offsetParent !== null)?.click()",
+          "pauza_po": 900
+        }
+      ],
+      "maks_wysokosc": 2400,
+      "znaczniki": [
+        {
+          "pomoc": "world.track_slug",
+          "ktory": 0
+        },
+        {
+          "pomoc": "world.kind",
+          "ktory": 0
+        },
+        {
+          "pomoc": "world.length_m",
+          "ktory": 0
+        },
+        {
+          "pomoc": "world.speed_kmh",
+          "ktory": 0
+        },
+        {
+          "pomoc": "world.pay_per_hour",
+          "ktory": 0
+        },
+        {
+          "pomoc": "world.xp_per_hour",
+          "ktory": 0
+        }
+      ]
+    },
+    {
+      "slug": "studio",
+      "url": "/admin/studio",
+      "czekaj": "form",
+      "maks_wysokosc": 1800,
+      "znaczniki": [
+        {
+          "pomoc": "studio.simple"
+        },
+        {
+          "pomoc": "studio.section"
+        },
+        {
+          "pomoc": "studio.sliders"
+        },
+        {
+          "selektor": "button, a",
+          "zawiera": "Podgląd balansu",
+          "nazwa": "Podgląd balansu",
+          "opis": "liczy grę na zapisanym szkicu i na żywej paczce i pokazuje je obok siebie, razem z bramkami"
+        },
+        {
+          "selektor": "button",
+          "zawiera": "Zapisz szkic",
+          "ktory": 0,
+          "nazwa": "Zapisz szkic",
+          "opis": "zapisuje zmiany jako szkic; nic nie jest opublikowane"
+        }
+      ]
+    },
+    {
+      "slug": "samouczek",
+      "url": "/admin/tutorial",
+      "czekaj": "form",
+      "kroki": [
+        {
+          "js": "[...document.querySelectorAll(\".fi-fo-repeater-item-header\")].find((e) => e.offsetParent !== null)?.click()",
+          "pauza_po": 900
+        }
+      ],
+      "maks_wysokosc": 2600,
+      "znaczniki": [
+        {
+          "pomoc": "tutorial.first_run_fuel_ml",
+          "ktory": 0
+        },
+        {
+          "pomoc": "tutorial.breakdown_lap",
+          "ktory": 0
+        },
+        {
+          "pomoc": "tutorial.first_mount_ms",
+          "ktory": 0
+        },
+        {
+          "pomoc": "tutorial.covers_up_to",
+          "ktory": 0
+        },
+        {
+          "pomoc": "tutorial.steps",
+          "ktory": 0
+        },
+        {
+          "pomoc": "tutorial.key",
+          "ktory": 0
+        },
+        {
+          "pomoc": "tutorial.phase",
+          "ktory": 0
+        },
+        {
+          "pomoc": "tutorial.sender",
+          "ktory": 0
+        }
+      ]
+    },
+    {
+      "slug": "misje",
+      "url": "/admin/missions",
+      "czekaj": "form",
+      "maks_wysokosc": 2400,
+      "znaczniki": [
+        {
+          "selektor": "[role=tab]",
+          "zawiera": "Zestawy",
+          "nazwa": "Zestawy",
+          "opis": "ile misji dziennych, tygodniowych i miesięcznych dostaje gracz i co płaci każdy zestaw"
+        },
+        {
+          "selektor": "[role=tab]",
+          "zawiera": "Misje główne",
+          "nazwa": "Misje główne",
+          "opis": "łańcuchy misji głównych: tytuły, cele i nagrody"
+        },
+        {
+          "selektor": "[role=tab]",
+          "zawiera": "Wartość pracy",
+          "nazwa": "Wartość pracy",
+          "opis": "ile jest warta jednostka pracy, od której zależą nagrody"
+        },
+        {
+          "pomoc": "missions.enabled",
+          "ktory": 0
+        },
+        {
+          "pomoc": "missions.timezone",
+          "ktory": 0
+        },
+        {
+          "pomoc": "missions.reset_hour",
+          "ktory": 0
+        },
+        {
+          "pomoc": "missions.unlock_after_step",
+          "ktory": 0
+        },
+        {
+          "pomoc": "missions.bonus_coins",
+          "ktory": 0
+        },
+        {
+          "pomoc": "missions.cash_percent",
+          "ktory": 0
+        },
+        {
+          "pomoc": "missions.xp_percent",
+          "ktory": 0
+        }
+      ]
+    },
+    {
+      "slug": "nitka-toru",
+      "url": "/admin/thread",
+      "czekaj": "form",
+      "maks_wysokosc": 2200,
+      "znaczniki": [
+        {
+          "pomoc": "thread.track",
+          "ktory": 0
+        },
+        {
+          "pomoc": "thread.lap_from",
+          "ktory": 0
+        },
+        {
+          "pomoc": "thread.mode",
+          "ktory": 0
+        },
+        {
+          "pomoc": "thread.sections",
+          "ktory": 0
+        }
+      ]
+    },
+    {
+      "slug": "zasady-tekst",
+      "url": "/admin/rules",
+      "czekaj": "form",
+      "maks_wysokosc": 1500,
+      "znaczniki": [
+        {
+          "pomoc": "rules_text.document",
+          "ktory": 0
+        },
+        {
+          "pomoc": "rules_text.json",
+          "ktory": 0
+        },
+        {
+          "selektor": "button",
+          "zawiera": "Zapisz szkic",
+          "nazwa": "Zapisz szkic",
+          "opis": "sprawdza tekst schematem i zapisuje go jako szkic"
+        }
+      ]
+    },
+    {
+      "slug": "podglad-czesci",
+      "url": "/admin/preview",
+      "czekaj": "form",
+      "maks_wysokosc": 1400,
+      "znaczniki": [
+        {
+          "selektor": "button",
+          "zawiera": "Policz",
+          "nazwa": "Policz",
+          "opis": "liczy skutek wybranej części na żywej paczce, na każdym torze, na sucho i w deszczu"
+        }
+      ]
+    },
+    {
+      "slug": "slownik",
+      "url": "/admin/vocabulary",
+      "czekaj": "form",
+      "maks_wysokosc": 1700,
+      "znaczniki": [
+        {
+          "pomoc": "vocabulary.area"
+        },
+        {
+          "pomoc": "vocabulary.search"
+        },
+        {
+          "pomoc": "vocabulary.only_changed"
+        },
+        {
+          "pomoc": "vocabulary.value",
+          "ktory": 0
+        }
+      ],
+      "kroki": [
+        {
+          "js": "[...document.querySelectorAll('.fi-section-header, .fi-fo-repeater-item-header')].find((e) => e.offsetParent !== null && /app\\.name/.test(e.innerText))?.click()",
+          "pauza_po": 700
+        }
+      ]
+    },
+    {
+      "slug": "marka",
+      "url": "/admin/branding",
+      "czekaj": "form",
+      "maks_wysokosc": 2400,
+      "znaczniki": [
+        {
+          "pomoc": "branding.color_bg"
+        },
+        {
+          "pomoc": "branding.color_amber"
+        },
+        {
+          "pomoc": "branding.font_display"
+        },
+        {
+          "pomoc": "branding.css"
+        },
+        {
+          "pomoc": "branding.share_title"
+        }
+      ]
+    },
+    {
+      "slug": "model-gry",
+      "url": "/admin/model",
+      "czekaj": "form",
+      "maks_wysokosc": 1800,
+      "znaczniki": [
+        {
+          "pomoc": "model.slots"
+        },
+        {
+          "pomoc": "model.key",
+          "ktory": 0
+        },
+        {
+          "pomoc": "model.role",
+          "ktory": 0
+        },
+        {
+          "pomoc": "model.hidden",
+          "ktory": 0
+        },
+        {
+          "pomoc": "model.stats"
+        }
+      ]
+    },
+    {
+      "slug": "platne-funkcje",
+      "url": "/admin/premium",
+      "czekaj": "form",
+      "maks_wysokosc": 1800,
+      "znaczniki": [
+        {
+          "pomoc": "premium.currency_code"
+        },
+        {
+          "pomoc": "premium.currency_name"
+        },
+        {
+          "pomoc": "premium.price_currency"
+        },
+        {
+          "pomoc": "premium.speedup_minutes"
+        },
+        {
+          "pomoc": "premium.products"
+        }
+      ]
+    },
+    {
+      "slug": "zmiany",
+      "url": "/admin/pending-changes",
+      "czekaj": "main",
+      "maks_wysokosc": 1500,
+      "znaczniki": [
+        {
+          "selektor": "div, span, h2, h3, p",
+          "zawiera": "Definicji ze szkicem",
+          "najglebszy": true,
+          "nazwa": "Podsumowanie",
+          "opis": "ile definicji ma szkic, ile zmian razem i numer żywej paczki"
+        },
+        {
+          "selektor": "div, span",
+          "zawiera": "zmieniona",
+          "dokladnie": true,
+          "nazwa": "Zmieniona",
+          "opis": "szkic różni się od ostatnio opublikowanej wersji; obok liczba zmian i kiedy zapisano szkic"
+        },
+        {
+          "selektor": "div, span, h2, h3, p",
+          "zawiera": "bez różnic",
+          "dokladnie": true,
+          "ktory": 0,
+          "nazwa": "Bez różnic",
+          "opis": "szkic, który mówi to samo co ostatnio opublikowana wersja dokumentu (tu: ten, który jest już w zrobionej paczce)"
+        },
+        {
+          "selektor": "table",
+          "nazwa": "Gdzie, było, będzie",
+          "opis": "każda zmiana: gdzie w dokumencie (tu: cena auta w centach), co było i co będzie"
+        },
+        {
+          "selektor": "button, a",
+          "zawiera": "Przejdź do publikacji",
+          "nazwa": "Przejdź do publikacji",
+          "opis": "prowadzi do strony Publikacje, gdzie robi się paczkę z szkiców"
+        }
+      ]
+    },
+    {
+      "slug": "publikacje",
+      "url": "/admin/content-publications",
+      "czekaj": "main",
+      "maks_wysokosc": 1500,
+      "znaczniki": [
+        {
+          "selektor": "button, a",
+          "zawiera": "Zrób paczkę z szkiców",
+          "nazwa": "Zrób paczkę z szkiców",
+          "opis": "zleca zbudowanie paczki z wszystkich szkiców gry (okno z listą zmian i notatką)"
+        },
+        {
+          "selektor": "th",
+          "zawiera": "Stan",
+          "dokladnie": true,
+          "nazwa": "Stan",
+          "opis": "czy paczka czeka, robi się, jest gotowa albo została zatrzymana"
+        },
+        {
+          "selektor": "button, a",
+          "zawiera": "Raport",
+          "nazwa": "Raport",
+          "opis": "okno z tym, co się stało: bramki, zmiany, tabele pochodne i czas kroków"
+        },
+        {
+          "selektor": "button, a",
+          "zawiera": "Uruchom",
+          "nazwa": "Uruchom",
+          "opis": "po potwierdzeniu robi z gotowej paczki żywą treść gry"
+        }
+      ]
+    },
+    {
+      "slug": "zrob-paczke",
+      "url": "/admin/content-publications",
+      "czekaj": "table",
+      "kroki": [
+        {
+          "kliknij": "button, a",
+          "zawiera": "Zrób paczkę z szkiców",
+          "pauza_po": 1500
+        },
+        {
+          "czekaj": ".fi-modal-window"
+        }
+      ],
+      "maks_wysokosc": 900,
+      "znaczniki": [
+        {
+          "selektor": ".fi-modal-window *",
+          "zawiera": "Zadanie robi paczkę",
+          "najglebszy": true,
+          "nazwa": "Co robi zadanie",
+          "tlumaczenie": "admin.publications.prepare_description"
+        },
+        {
+          "selektor": ".fi-modal-window *",
+          "zawiera": "parts/engine",
+          "najglebszy": true,
+          "nazwa": "Lista zmian",
+          "opis": "szkice, które wejdą do paczki: dokument i to, co z nim zrobiono (tu: zmienione)"
+        },
+        {
+          "selektor": ".fi-modal-window input",
+          "nazwa": "Notatka",
+          "tlumaczenie": "admin.publications.note_hint"
+        },
+        {
+          "selektor": ".fi-modal-window button",
+          "zawiera": "Zrób paczkę",
+          "nazwa": "Zrób paczkę",
+          "opis": "zleca zbudowanie paczki; stan widać potem na liście publikacji"
+        }
+      ]
+    },
+    {
+      "slug": "raport-paczki",
+      "url": "/admin/content-publications",
+      "czekaj": "table",
+      "kroki": [
+        {
+          "kliknij": "button, a",
+          "zawiera": "Raport",
+          "pauza_po": 1500
+        },
+        {
+          "czekaj": ".fi-modal-window"
+        }
+      ],
+      "maks_wysokosc": 900,
+      "znaczniki": [
+        {
+          "selektor": ".fi-modal-window *",
+          "zawiera": "co się stało",
+          "najglebszy": true,
+          "nazwa": "Nagłówek raportu",
+          "opis": "numer paczki; niżej stan (tu: Gotowa), numer i suma kontrolna paczki treści, kto ją zamówił i notatka"
+        },
+        {
+          "selektor": ".fi-modal-window *",
+          "zawiera": "Bramki symulatorów",
+          "dokladnie": true,
+          "nazwa": "Bramki symulatorów",
+          "opis": "cztery bramki z czasem działania i werdyktem: przeszła albo nie"
+        },
+        {
+          "selektor": ".fi-modal-window *",
+          "zawiera": "Co zmienia paczka",
+          "dokladnie": true,
+          "nazwa": "Co zmienia paczka",
+          "opis": "dokumenty, które paczka zmienia, i co z nimi zrobiono"
+        },
+        {
+          "selektor": ".fi-modal-window *",
+          "zawiera": "Tabele pochodne",
+          "dokladnie": true,
+          "nazwa": "Tabele pochodne",
+          "opis": "tabele liczone z treści i to, czy się zmieniły (tu: przeliczona, bez zmian)"
+        },
+        {
+          "selektor": ".fi-modal-window *",
+          "zawiera": "Kroki",
+          "dokladnie": true,
+          "nazwa": "Kroki",
+          "opis": "czas każdego kroku zadania, od zbierania szkiców do robienia paczki"
+        }
+      ]
+    },
+    {
+      "slug": "uruchom-paczke",
+      "url": "/admin/content-publications",
+      "czekaj": "table",
+      "kroki": [
+        {
+          "kliknij": "button, a",
+          "zawiera": "Uruchom",
+          "pauza_po": 1500
+        },
+        {
+          "czekaj": ".fi-modal-window"
+        }
+      ],
+      "maks_wysokosc": 900,
+      "znaczniki": [
+        {
+          "selektor": ".fi-modal-window *",
+          "zawiera": "Uruchomić paczkę",
+          "najglebszy": true,
+          "nazwa": "Pytanie",
+          "opis": "numer paczki, którą panel ma uruchomić"
+        },
+        {
+          "selektor": ".fi-modal-window *",
+          "zawiera": "Od teraz gra czyta",
+          "najglebszy": true,
+          "nazwa": "Co się stanie",
+          "tlumaczenie": "admin.packs.activate_description"
+        },
+        {
+          "selektor": ".fi-modal-window button",
+          "zawiera": "Potwierdź",
+          "nazwa": "Potwierdź",
+          "opis": "uruchamia paczkę: od tej chwili jest żywą treścią gry"
+        }
+      ]
+    },
+    {
+      "slug": "paczki",
+      "url": "/admin/content-packs",
+      "czekaj": "main table",
+      "maks_wysokosc": 1500,
+      "znaczniki": [
+        {
+          "selektor": "table",
+          "nazwa": "Lista paczek",
+          "opis": "wszystkie paczki gry: numer, czy jest żywa (zielony znak), suma kontrolna, liczba dokumentów i data"
+        },
+        {
+          "selektor": "button, a",
+          "zawiera": "Zaimportuj paczkę",
+          "nazwa": "Zaimportuj paczkę",
+          "opis": "wczytuje paczkę z pliku, na przykład z innej instalacji albo gry"
+        },
+        {
+          "selektor": "button, a",
+          "zawiera": "Pobierz",
+          "nazwa": "Pobierz",
+          "opis": "zapisuje paczkę jako jeden plik"
+        },
+        {
+          "selektor": "button, a",
+          "zawiera": "Uruchom",
+          "nazwa": "Uruchom",
+          "opis": "robi z tej paczki żywą treść gry; cofnięcie zmiany to uruchomienie wcześniejszej paczki"
+        }
+      ]
+    },
+    {
+      "slug": "gracze",
+      "url": "/admin/players",
+      "czekaj": "main table",
+      "maks_wysokosc": 1500,
+      "znaczniki": [
+        {
+          "selektor": "button, a",
+          "zawiera": "Pobierz CSV",
+          "nazwa": "Pobierz CSV",
+          "opis": "plik z tymi graczami, których pokazuje lista (z filtrami, wyszukiwaniem i kolejnością); to dane osobowe, a każdy pobrany plik zapisuje się w dzienniku; tylko dla wydawcy"
+        },
+        {
+          "selektor": "input[type=search], input[placeholder*=Szukaj]",
+          "nazwa": "Szukaj",
+          "opis": "wyszukuje graczy po nazwie i adresie e-mail"
+        },
+        {
+          "selektor": "table",
+          "nazwa": "Lista graczy",
+          "opis": "konta tej gry: nazwa, rodzaj konta, e-mail, poziom, gotówka, monety, auta i płatne zakupy; kolejne kolumny (język, daty) włącza się przyciskiem kolumn"
+        }
+      ]
+    },
+    {
+      "slug": "dziennik",
+      "url": "/admin/admin-audit-logs",
+      "czekaj": "main table",
+      "maks_wysokosc": 1500,
+      "znaczniki": [
+        {
+          "selektor": "table",
+          "nazwa": "Dziennik",
+          "opis": "co zrobił który administrator, w jakiej grze i z jakiego adresu; tabela tylko się dopisuje"
+        }
+      ]
+    },
+    {
+      "slug": "domena",
+      "url": "/admin/domain",
+      "czekaj": "main",
+      "maks_wysokosc": 1500,
+      "znaczniki": [
+        {
+          "selektor": "span, div",
+          "zawiera": "Działa",
+          "dokladnie": true,
+          "nazwa": "Stan domeny",
+          "opis": "czy domena gry działa; przy kafelku gry w sieci ten sam stan pokazuje plakietka SSL"
+        },
+        {
+          "selektor": "button, a",
+          "zawiera": "Sprawdź DNS",
+          "nazwa": "Sprawdź DNS",
+          "opis": "porównuje rekord A domeny z adresem serwera; certyfikat można wystawić dopiero, gdy domena wskazuje na ten serwer"
+        },
+        {
+          "selektor": "button, a",
+          "zawiera": "Skonfiguruj domenę i SSL",
+          "nazwa": "Skonfiguruj domenę i SSL",
+          "opis": "zleca serwerowi ustawienie domeny i certyfikatu; serwer podejmuje zlecenia co minutę"
+        },
+        {
+          "selektor": "button, a",
+          "zawiera": "Sprawdź certyfikat",
+          "nazwa": "Sprawdź certyfikat",
+          "opis": "zleca serwerowi odczyt daty końca certyfikatu"
+        },
+        {
+          "selektor": "div, span, h2, h3, p",
+          "zawiera": "Ostatnie zlecenie dla serwera",
+          "najglebszy": true,
+          "nazwa": "Ostatnie zlecenie dla serwera",
+          "opis": "wynik ostatniego zlecenia: log, kod wyjścia i data końca certyfikatu (przed pierwszym zleceniem: „Jeszcze nic nie zlecono”)"
+        }
+      ]
+    },
+    {
+      "slug": "most-ai-instrukcja",
+      "url": "/admin/ai-bridge",
+      "czekaj": "form",
+      "maks_wysokosc": 1900,
+      "znaczniki": [
+        {
+          "pomoc": "ai.include"
+        },
+        {
+          "pomoc": "ai.simple"
+        },
+        {
+          "pomoc": "ai.texts"
+        },
+        {
+          "pomoc": "ai.locale"
+        },
+        {
+          "selektor": "[data-ai-size]",
+          "nazwa": "Rozmiar instrukcji",
+          "opis": "szacunek w tokenach: do 30 tysięcy zielony, do 80 tysięcy żółty, powyżej czerwony"
+        },
+        {
+          "selektor": "button",
+          "zawiera": "Kopiuj instrukcję",
+          "nazwa": "Kopiuj instrukcję",
+          "opis": "robi instrukcję i wkłada ją do schowka; gdy przeglądarka zablokuje schowek, pokazuje pole do zaznaczenia"
+        }
+      ]
+    },
+    {
+      "slug": "most-ai-odpowiedz",
+      "url": "/admin/ai-bridge",
+      "czekaj": "form",
+      "kroki": [
+        {
+          "kliknij": "[role=tab]",
+          "zawiera": "Wklej odpowiedź"
+        },
+        {
+          "ustaw": {
+            "selektor": "#ai-answer",
+            "tekst": "@odpowiedz"
+          }
+        },
+        {
+          "kliknij": "[data-ai-check]",
+          "pauza_po": 6000
+        },
+        {
+          "czekaj": "[data-ai-result]"
+        }
+      ],
+      "maks_wysokosc": 2600,
+      "znaczniki": [
+        {
+          "selektor": "#ai-answer",
+          "nazwa": "Odpowiedź asystenta",
+          "opis": "tu wkleja się całą odpowiedź AI albo sam blok zmian"
+        },
+        {
+          "selektor": "[data-ai-check]",
+          "nazwa": "Sprawdź odpowiedź",
+          "opis": "pokazuje, co by się zmieniło; nic nie jest zapisywane"
+        },
+        {
+          "selektor": "[data-ai-verdict]",
+          "nazwa": "Werdykt",
+          "opis": "odpowiedź przyjęta („zmieni się N liczb (dokumentów: M)”, nic jeszcze nie zapisano) albo nieprzyjęta (liczba błędów, nic nie zostało zmienione)"
+        },
+        {
+          "selektor": "[data-ai-table]",
+          "nazwa": "Tabela zmian",
+          "opis": "na żywo, teraz (ze szkicem) i będzie, dla każdej zmienianej liczby"
+        },
+        {
+          "selektor": "[data-ai-apply]",
+          "nazwa": "Zapisz jako szkic",
+          "opis": "dopiero ten przycisk zapisuje zmiany, i tylko jako szkice"
+        }
+      ]
+    },
+    {
+      "slug": "most-ai-blad",
+      "url": "/admin/ai-bridge",
+      "czekaj": "form",
+      "kroki": [
+        {
+          "kliknij": "[role=tab]",
+          "zawiera": "Wklej odpowiedź"
+        },
+        {
+          "ustaw": {
+            "selektor": "#ai-answer",
+            "tekst": "@odpowiedz_z_bledem"
+          }
+        },
+        {
+          "kliknij": "[data-ai-check]",
+          "pauza_po": 6000
+        },
+        {
+          "czekaj": "[data-ai-result]"
+        }
+      ],
+      "maks_wysokosc": 2200,
+      "znaczniki": [
+        {
+          "selektor": "[data-ai-verdict]",
+          "nazwa": "Werdykt",
+          "opis": "odpowiedź nie została przyjęta i nic nie zostało zmienione"
+        },
+        {
+          "selektor": "[data-ai-issues]",
+          "nazwa": "Problemy",
+          "opis": "każdy ma nazwę, numer operacji i komunikat serwera"
+        },
+        {
+          "selektor": "button",
+          "zawiera": "Kopiuj błędy dla AI",
+          "nazwa": "Kopiuj błędy dla AI",
+          "opis": "daje numerowaną listę do wklejenia z powrotem do czatu; asystent poprawia tylko to i wysyła cały blok jeszcze raz"
+        }
+      ]
+    }
+  ]
+}
