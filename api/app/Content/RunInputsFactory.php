@@ -283,6 +283,9 @@ final class RunInputsFactory
         $referenceKind = $referencePart === null ? $this->stockTires()['tire_kind'] : ($this->catalog->part($referencePart)['tire_kind'] ?? throw new InvalidArgumentException("Unknown tires {$referencePart}."));
         $home = $this->rules->tireGripPpm($referenceKind, Surface::of($track['surface'], 'dry'));
         $benchmark = [];
+        // A track that is driven by the formula says only the statistics that it demands of its reference car, and its thread is only drawn: what the reference car does not
+        // say is the car's own, so that the picture needs no more than the car. (A track that is driven on its thread has all of them: the validator asks.)
+        $said = static fn (string $stat): float => (float) ($reference[$stat] ?? $car->get($stat));
 
         foreach ($thread->surfaces() as $trackSurface) {
             $surface = Surface::of($trackSurface, 'dry');
@@ -290,11 +293,11 @@ final class RunInputsFactory
 
             $benchmark[$trackSurface] = new CarOnSurface(
                 $surface,
-                (float) $reference['accel'],
-                (float) $reference['top_speed'],
-                $reference['grip'] * $share,
-                $reference['handling'] * $share,
-                $reference['braking'] * $share,
+                $said('accel'),
+                $said('top_speed'),
+                $said('grip') * $share,
+                $said('handling') * $share,
+                $said('braking') * $share,
                 (float) ($reference['clearance'] ?? ThreadDocument::DEFAULT_REFERENCE_CLEARANCE),
             );
         }

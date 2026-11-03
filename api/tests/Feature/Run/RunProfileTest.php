@@ -90,3 +90,14 @@ it('draws it for the weather that is asked for: slower in the rain', function ()
 
     getRun($driver, 'current/profile?weather=hail')->assertUnprocessable();
 });
+
+it('draws the line of a track whose reference car lacks a statistic of the model: the car is all that the picture needs', function () {
+    // The gravel tracks say what the formula demands of the reference car, which is not the top speed; the lap is not driven on the thread, only drawn.
+    [$driver] = driverWithRun(['track_slug' => 'kruszyn-quarry']);
+
+    $data = getRun($driver, 'current/profile')->assertOk()->json('data');
+
+    expect($data['track'])->toBe('kruszyn-quarry')
+        ->and(count($data['points']))->toBeGreaterThan(20)
+        ->and(max($data['speed_kmh']))->toBeGreaterThan(20.0);
+});
