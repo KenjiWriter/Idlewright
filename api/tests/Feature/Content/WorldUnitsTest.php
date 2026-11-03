@@ -143,3 +143,25 @@ describe('the move of a track to the model', function () {
         expect($boxes)->not->toHaveKey('fuel_per_lap_ml')->and($boxes['base_lap_ms'])->toBeNull()->and($boxes['reward'])->toBeNull();
     });
 });
+
+describe('the reference car out of a car of the game', function () {
+    it('gives the statistics of the car as the game computes them, whole numbers, for the statistics the model has', function () {
+        $stats = ['accel', 'top_speed', 'grip', 'handling', 'braking', 'clearance'];
+        $lines = WorldFields::referenceOf('rdzak-gt-4', $stats);
+        $byStat = array_column($lines, 'value', 'stat');
+
+        // The stock Rdzak is the reference car of the street track, and the street says it with these numbers.
+        expect($byStat['accel'])->toBe(97)
+            ->and($byStat['top_speed'])->toBe(175)
+            ->and($byStat['grip'])->toBe(90)
+            ->and($byStat['handling'])->toBe(88)
+            ->and($byStat['braking'])->toBe(90)
+            ->and(array_keys($byStat))->toBe($stats);
+    });
+
+    it('leaves out a statistic that the car has no value for', function () {
+        $lines = WorldFields::referenceOf('rdzak-gt-4', ['accel', 'a_statistic_nobody_has']);
+
+        expect(array_column($lines, 'stat'))->toBe(['accel']);
+    });
+});

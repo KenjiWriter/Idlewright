@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Forms;
 
 use App\Content\Definitions\SchemaChoices;
+use App\Content\RunInputsFactory;
 use App\Content\TrackAdvisor;
 use App\Content\TrackConverter;
 use App\Content\TrackNumbers;
@@ -27,6 +28,7 @@ use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Text;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
+use InvalidArgumentException;
 
 /**
  * The world of the rules as a form: the cities (with their place on the map and their weather), the roads between them, and the tracks. What the schema and the
@@ -432,7 +434,7 @@ final class WorldFields
      */
     private static function stats(string $field, array $stats): Repeater
     {
-        return Repeater::make($field)
+        $repeater = Repeater::make($field)
             ->helpKey("world.{$field}")
             ->minItems(1)
             ->addActionLabel(__('admin.definitions.stat_add'))
@@ -441,6 +443,49 @@ final class WorldFields
                 Select::make('stat')->helpKey('world.stat')->options(FieldHelp::options('world.stat', $stats))->required()->distinct(),
                 TextInput::make('value')->helpKey("world.{$field}_value")->numeric()->required(),
             ]);
+
+        return $field === 'reference' ? $repeater->hintAction(self::referenceFromCarAction($stats)) : $repeater;
+    }
+
+    /**
+     * The lines of the reference car of a track out of a car of the catalog: its statistics as the game computes them with the parts it starts with, rounded to whole
+     * numbers, for the statistics that the model has. A track that is driven on its thread needs all five that the model drives (`accel`, `top_speed`, `grip`,
+     * `handling` and `braking`), which this gives.
+     *
+     * @param  list<string>  $stats  the statistics of the model
+     * @return list<array{stat: string, value: int}>
+     */
+    public static function referenceOf(string $carSlug, array $stats): array
+    {
+        $car = app(RunInputsFactory::class)->stats($carSlug);
+        $lines = [];
+
+        foreach ($stats as $stat) {
+            try {
+                $lines[] = ['stat' => $stat, 'value' => (int) round($car->get($stat))];
+            } catch (InvalidArgumentException) {
+                // A statistic the car has no value for is left out.
+            }
+        }
+
+        return $lines;
+    }
+
+    /**
+     * @param  list<string>  $stats
+     */
+    private static function referenceFromCarAction(array $stats): Action
+    {
+        return Action::make('referenceFromCar')
+            ->label(__('admin.world.reference_from_car'))
+            ->icon('heroicon-m-truck')
+            ->iconButton()
+            ->tooltip(__('admin.world.reference_from_car'))
+            ->modalHeading(__('admin.world.reference_from_car'))
+            ->modalDescription(__('admin.world.reference_from_car_hint'))
+            ->modalSubmitActionLabel(__('admin.world.reference_from_car_use'))
+            ->schema([Select::make('car')->helpKey('world.reference_car')->options(fn (): array => ContentOptions::cars())->searchable()->required()])
+            ->action(fn (array $data, Set $set) => $set('reference', self::referenceOf((string) $data['car'], $stats)));
     }
 
     /**
