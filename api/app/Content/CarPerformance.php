@@ -30,7 +30,7 @@ final class CarPerformance
     {
         $pi = $this->settings();
 
-        return min($pi['max_pi'], PerformanceIndex::of(self::milli($this->inputs->stats($carSlug, $mounted)->stats), $this->referenceMilli(), $pi['weights_ppm'], $pi['stat_cap_ppm'], $pi['reference_pi']));
+        return min($pi['max_pi'], PerformanceIndex::of(self::milli($this->inputs->stats($carSlug, $mounted)->stats), $this->referenceMilli(), $this->weights(), $pi['stat_cap_ppm'], $pi['reference_pi']));
     }
 
     /** The PI of a car of a driver, as it is now. */
@@ -53,13 +53,30 @@ final class CarPerformance
     {
         $pi = $this->settings();
 
-        return PerformanceIndex::of(self::milli($this->rules->statCeilings()), $this->referenceMilli(), $pi['weights_ppm'], $pi['stat_cap_ppm'], $pi['reference_pi']);
+        return PerformanceIndex::of(self::milli($this->rules->statCeilings()), $this->referenceMilli(), $this->weights(), $pi['stat_cap_ppm'], $pi['reference_pi']);
     }
 
     /** The highest PI that is shown (999 in the first game): a car is never worth more. */
     public function maxPi(): int
     {
         return $this->settings()['max_pi'];
+    }
+
+    /**
+     * The weights of the statistics that the cars of this game have: a game whose model has fewer statistics than the weights name counts the ones it has (the PI of the
+     * reference car is the reference PI all the same, because the index is a weighted mean).
+     *
+     * @return array<string, int>
+     */
+    private function weights(): array
+    {
+        $weights = array_intersect_key($this->settings()['weights_ppm'], $this->referenceMilli());
+
+        if (array_sum($weights) < 1) {
+            throw new InvalidArgumentException('None of the statistics that the PI is weighed by is a statistic of the cars of this game.');
+        }
+
+        return $weights;
     }
 
     /** @return array<string, int> */

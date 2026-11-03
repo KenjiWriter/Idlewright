@@ -57,7 +57,7 @@ describe('the rules of the competition', function () {
             ->and($rules->ratingRules())->toEqual(RatingRules::defaults());
     });
 
-    it('refuse a reference car that is not in the pack, weights that do not add up or are for a statistic the game does not have', function () {
+    it('refuse a reference car that is not in the pack and weights that do not add up', function () {
         expect(competitionErrors(static function (array $rules): array {
             $rules['competition']['pi']['reference_car'] = 'no-such-car';
 
@@ -67,12 +67,7 @@ describe('the rules of the competition', function () {
                 $rules['competition']['pi']['weights_ppm']['accel'] = 300_000;
 
                 return $rules;
-            }))->toBe(['rules/starter.json /competition/pi/weights_ppm'])
-            ->and(competitionErrors(static function (array $rules): array {
-                $rules['competition']['pi']['weights_ppm']['charm'] = 0;
-
-                return $rules;
-            }))->toBe(['rules/starter.json /competition/pi/weights_ppm/charm']);
+            }))->toBe(['rules/starter.json /competition/pi/weights_ppm']);
     });
 
     it('refuse limits of the classes that do not grow, and a top class that is also a class with a limit', function () {
@@ -112,6 +107,23 @@ describe('the rules of the competition', function () {
 
                 return $rules;
             }))->toBe(['rules/starter.json /competition/match/runs']);
+    });
+});
+
+describe('a game with a model of its own', function () {
+    it('warns of a weight for a statistic that the model does not have, and counts the statistics that it has', function () {
+        $content = contentWith([
+            'rules/starter' => static function (array $rules): array {
+                $rules['competition']['pi']['weights_ppm']['charm'] = 0;
+                $rules['competition']['pi']['weights_ppm']['accel'] -= 0;
+
+                return $rules;
+            },
+        ]);
+        $warnings = array_map(static fn (array $issue): string => "{$issue['file']} {$issue['pointer']}", PackValidator::fromConfig()->validateSource($content)->warnings());
+
+        expect($warnings)->toContain('rules/starter.json /competition/pi/weights_ppm/charm')
+            ->and(competitionErrors(static fn (array $rules): array => $rules))->toBe([]);
     });
 });
 

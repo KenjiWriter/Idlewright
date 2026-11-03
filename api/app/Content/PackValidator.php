@@ -1011,7 +1011,7 @@ final class PackValidator
 
         foreach (array_keys($pi['weights_ppm']) as $stat) {
             if (! in_array($stat, $stats, true)) {
-                $result->addError($file, "/competition/pi/weights_ppm/{$stat}", "{$stat} is not a statistic of the model of the game.");
+                $result->addWarning($file, "/competition/pi/weights_ppm/{$stat}", "{$stat} is not a statistic of the model of the game, so it counts for nothing in the PI.");
             }
         }
 
