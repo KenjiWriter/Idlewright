@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import type { CarPerformance } from '@/api/types'
+import { useRatingClass } from '@/features/car/useRatingClass'
 import { SURFACE_PREFIX, comparePart, type PartLike, type StatChange } from '@/features/parts/compare'
 import { useUnits } from '@/game/useUnits'
 import { useFormat } from '@/i18n/useFormat'
@@ -19,6 +20,7 @@ const props = defineProps<{
 
 const { t, te } = useI18n()
 const { fixed } = useFormat()
+const { ratingClassName } = useRatingClass()
 const { speedUnit } = useUnits()
 
 /** The class and the PI before and after, when the part goes on the car and the PI moves. */
@@ -30,7 +32,7 @@ const rating = computed(() => {
     return null
   }
 
-  return { changes: now.class !== after.class, from: `${now.class} ${now.pi}`, to: `${after.class} ${after.pi}`, same: now.class }
+  return { changes: now.class !== after.class, from: `${ratingClassName(now.class)} ${now.pi}`, to: `${ratingClassName(after.class)} ${after.pi}`, same: ratingClassName(now.class), fromPi: now.pi, toPi: after.pi }
 })
 
 const comparison = computed(() => (props.fitted ? comparePart(props.offer, props.fitted, speedUnit.value) : null))
@@ -71,6 +73,6 @@ const text = (change: StatChange): string => `${change.delta > 0 ? '+' : '−'}$
   </div>
   <!-- The class of the car with the part on: a part that moves the car to another class says so. -->
   <p v-if="rating" class="sub mt-1" :class="rating.changes ? 'text-amber' : ''" :data-test="rating.changes ? 'class-change' : 'class-same'">
-    {{ rating.changes ? t('car.classChange', { from: rating.from, to: rating.to }) : t('car.classSame', { class: rating.same, from: rating.from.split(' ')[1], to: rating.to.split(' ')[1] }) }}
+    {{ rating.changes ? t('car.classChange', { from: rating.from, to: rating.to }) : t('car.classSame', { class: rating.same, from: rating.fromPi, to: rating.toPi }) }}
   </p>
 </template>

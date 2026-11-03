@@ -119,7 +119,17 @@
     "tierTitle": "Car tier: {tier}",
     "classTitle": "Class {class}, {pi} PI",
     "classChange": "The class changes: {from} → {to}",
-    "classSame": "Class {class} stays: {from} → {to} PI"
+    "classSame": "Class {class} stays: {from} → {to} PI",
+    "className": {
+      "F": "F",
+      "E": "E",
+      "D": "D",
+      "C": "C",
+      "B": "B",
+      "A": "A",
+      "S": "S",
+      "SS": "SS"
+    }
   },
   "run": {
     "laps": "{n} lap | {n} laps",

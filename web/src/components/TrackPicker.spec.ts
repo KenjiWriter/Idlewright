@@ -361,4 +361,10 @@ describe('TrackPicker', () => {
     expect(wrapper.get('[data-test="track-kind-zlomowo-ring-road"]').text()).toBe('Dystans')
     expect(wrapper.get('[data-test="track-zlomowo-ring-road"] [data-test="locked"]').text()).toBe('Od poziomu 4')
   })
+
+  it('shows the class and the PI of the car that is played beside the title of the tracks', async () => {
+    const { wrapper } = await show(aRun({ car: { slug: 'rdzak-gt-4', name: 'Rdzak GT-4', performance: { pi: 300, class: 'D' } } }))
+
+    expect(wrapper.get('[data-test="track-picker"] [data-test="car-class"]').text()).toBe('D 300')
+  })
 })

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Content\CarPerformance;
 use App\Content\Rules;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PartResource;
@@ -22,6 +23,7 @@ final class ShopController extends Controller
         private readonly CrateShop $crates,
         private readonly Garage $garage,
         private readonly Rules $rules,
+        private readonly CarPerformance $performance,
     ) {}
 
     /** What is for sale, with what the car of the driver says about each part, and the crates with their odds and guarantees. */
@@ -76,10 +78,11 @@ final class ShopController extends Controller
                     'mountable' => $offer['mountable'],
                     // What the car lacks for this part besides its level: cylinders or a booster (null when nothing).
                     'blocked_by' => $offer['blocked_by'],
+                    'performance_after' => $offer['performance_after'],
                 ],
                 $this->shop->offers($car),
             ),
-            'car' => $car === null ? null : ['id' => $car->id, 'level' => $car->level],
+            'car' => $car === null ? null : ['id' => $car->id, 'level' => $car->level, 'performance' => $this->performance->ratingOf($car->vehicle_slug, $car->mountedParts())],
             'crates' => $this->crates->view($userId),
         ];
     }

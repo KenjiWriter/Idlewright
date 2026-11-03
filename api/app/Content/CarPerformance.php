@@ -75,6 +75,28 @@ final class CarPerformance
         }
     }
 
+    /**
+     * What the car would show with a part of the shop put on its slot, new (the common rarity, no upgrade, no wear), in place of the part that is there: the PI and the class,
+     * or null when the part does not go on the car.
+     *
+     * @param  array<string, string|array{slug: string, rarity: int, upgrade?: int, wear?: int, affixes?: array<string, int>}>  $mounted  the parts on the car now, by slot
+     * @return array{pi: int, class: string}|null
+     */
+    public function ratingWithModel(string $carSlug, array $mounted, string $partSlug): ?array
+    {
+        $slot = $this->catalog->part($partSlug)['slot'] ?? null;
+
+        if ($slot === null) {
+            return null;
+        }
+
+        try {
+            return $this->ratingOf($carSlug, [...$mounted, $slot => ['slug' => $partSlug, 'rarity' => 1, 'upgrade' => 0, 'wear' => 0]]);
+        } catch (InvalidArgumentException) {
+            return null;
+        }
+    }
+
     /** The class that a PI is in. */
     public function classOf(int $pi): string
     {

@@ -57,3 +57,15 @@ describe('the performance of a car in the answers', function () {
             ->and($inventory[$better->id]['performance_after']['class'])->toBeIn(['D', 'C']);
     });
 });
+
+it('says for each part of the shop that the car can take what the car would show with the part on, new, and nothing for a part it cannot take', function () {
+    $user = driverWithACar();
+    $shop = $this->getJson('/api/v1/shop', bearerFor($user))->assertOk()->json('data');
+    $mountable = array_values(array_filter($shop['parts'], static fn (array $part): bool => $part['mountable']));
+    $others = array_values(array_filter($shop['parts'], static fn (array $part): bool => ! $part['mountable']));
+
+    expect($shop['car']['performance'])->toBe(['pi' => 300, 'class' => 'D'])
+        ->and($mountable)->not->toBe([])
+        ->and(array_column(array_column($mountable, 'performance_after'), 'pi'))->each->toBeInt()
+        ->and(array_column($others, 'performance_after'))->each->toBeNull();
+});

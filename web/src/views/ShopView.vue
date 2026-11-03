@@ -414,7 +414,7 @@ async function openCrate(kind: CrateOffer): Promise<void> {
 
             <PartStats :part="offer" />
             <!-- Against the part on the same slot of the car, like for like. -->
-            <PartCompare :offer="offer" :fitted="fittedOf(offer)" />
+            <PartCompare :offer="offer" :fitted="fittedOf(offer)" :performance-now="stageCar?.performance ?? null" :performance-after="offer.performance_after ?? null" />
 
             <p v-if="!affordable(offer)" class="sub" data-test="no-cash">{{ t('shop.noCash') }}</p>
             <p v-if="store.shopCar && levelLocked(offer)" class="text-sm text-danger" data-test="needs-level">

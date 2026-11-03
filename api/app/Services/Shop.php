@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Content\CarPerformance;
 use App\Content\Catalog;
 use App\Content\Rules;
 use App\Domain\Run\Rarity;
@@ -32,6 +33,7 @@ final class Shop
         private readonly Ledger $ledger,
         private readonly PartRequirements $requirements,
         private readonly Garage $garage,
+        private readonly CarPerformance $performance,
     ) {}
 
     /**
@@ -49,18 +51,22 @@ final class Shop
     public function offers(?Car $car): array
     {
         $state = $car === null ? null : $this->requirements->stateOf($car);
+        $fitted = $car === null ? [] : $car->mountedParts();
         $slugs = array_values(array_filter($this->rules->shopParts(), fn (string $slug): bool => $this->definition($slug)['tier'] <= $this->highestTierShown($car)));
 
-        return array_map(function (string $slug) use ($car, $state): array {
+        return array_map(function (string $slug) use ($car, $state, $fitted): array {
             $part = $this->definition($slug);
             $required = $this->rules->requiredCarLevel($part['tier']);
             $lack = $car === null ? null : $this->requirements->lack($part, $car, $state);
+            $mountable = $car !== null && $car->level >= $required && $lack === null;
 
             return [
                 ...$part,
                 'required_car_level' => $required,
-                'mountable' => $car !== null && $car->level >= $required && $lack === null,
+                'mountable' => $mountable,
                 'blocked_by' => $lack,
+                // What the car would show with this part put on, new, in place of the one on its slot: the PI and the class, to warn of a part that changes the class.
+                'performance_after' => $mountable ? $this->performance->ratingWithModel($car->vehicle_slug, $fitted, $slug) : null,
             ];
         }, $slugs);
     }

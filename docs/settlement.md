@@ -210,3 +210,17 @@ Rywale w meczach (pojedynki i turnieje) są z klasy auta z samej konstrukcji (kl
 | **krok: boty tieru szybsze o κ okrążenia za klasę powyżej natywnej klasy tieru** | **0% na każdym poziomie** (seryjne auta bez zmiany z konstrukcji) |
 
 Wersja zbudowana to ostatni wiersz: reguła `bots.class_step_ppm`, domyślnie 0. Co robi z tuningiem Rdzaka GT-4 (dochód netto $/h, bez kroku → z krokiem 10%): przeskok D → C (T4 → T5) kosztuje ok. 24–32% dochodu na czterech torach z pięciu (Złomowo 1039 → 702, Kruszyn 686 → 484, Autodrom 1664 → 1199, Wilcza 1099 → 837), na dragu nic się nie zmienia (GT-4 jest tam tak daleko przed botami), a tuning w obrębie klasy (T2–T4) i seryjne auta zostają jak dziś. κ = 3–5% jest prawie niewidoczny, 8% zaczyna boleć na Kruszynie. Zestawy T9, rzadka +4 i epicka +8 to „wszystkie najlepsze części naraz” i same z siebie spalają paliwo ponad nagrodę na krótkich torach (artefakt zestawów testowych). Wartość kroku ustawia właściciel w Studiu (propozycja startowa 8%); `competition:class-jump --step=…` pokazuje skutek przed ustawieniem.
+
+### Rywalizacja: co jest zbudowane, a co wstrzymane (2026-11-03)
+
+Na prośbę właściciela (demo) **rywalizację zatrzymano po klasach aut**. Projekt całości (D1–D22 i aneks o klasach F–SS) jest zatwierdzony i zostaje, ale poniższe etapy czekają na decyzję właściciela; **podręcznik i demo nie powinny obiecywać turniejów, sezonów, rankingów ani pojedynków**.
+
+| Jest w grze | Wstrzymane (zatwierdzone w projekcie, niezbudowane) |
+|---|---|
+| **Klasa i PI auta** (F–SS, 0–999): w garażu, warsztacie, pasku u góry, flocie, salonie, na giełdzie, przy wyborze toru i w sklepie; progi i wagi w regułach (Studio), polecenie `competition:pi-report` | Respekt (rating kierowcy) i dywizje: czysta domena jest (`RatingRules`, `Rating`), ale nic jej nie używa |
+| **Ostrzeżenie o zmianie klasy** przy założeniu części (warsztat i sklep): „Klasa się zmienia: D 399 → C 412” | Rankingi (klasy, dywizje, sezonowe) |
+| **Nazwy klas** ze słownika gry (`car.className.F` … `SS`, domyślnie same litery; gra może je nazwać po swojemu w Słowniku) | Pojedynki 1 na 1 i duchy graczy (migawki, auto obronne, prywatność) |
+| **Rywale na klasę na torach** jako krok botów `bots.class_step_ppm` (domyślnie 0: wyłączony; wartość ustawia właściciel w Studiu), `competition:class-jump` | Turnieje z drabinką, zapisy, wpisowe, pule i wypłaty, harmonogram serwera |
+| Czysty silnik meczu, drabinki, losu i wypłat z puli (`MatchEngine`, `Bracket`, `TournamentPayout::splitAmong`), przetestowany, **bez bazy, API i ekranów** | Sezony, nagrody sezonu, kasa sezonowa, panel rywalizacji, symulator sezonu, wykrywanie nadużyć (C1c–C6) |
+
+Reguła `competition.fees_enabled`, tabele rywalizacji i etapy C1c–C6 nie istnieją w kodzie. Wznowienie to osobna decyzja właściciela; pierwszym krokiem byłby etap C1c (Respekt, rankingi, pojedynek z botem klasy auta).

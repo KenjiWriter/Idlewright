@@ -13,6 +13,7 @@ import { useFormat } from '@/i18n/useFormat'
 import { useMapStore } from '@/stores/map'
 import { useRunStore } from '@/stores/run'
 
+import ClassBadge from './ClassBadge.vue'
 import TrackThumb from './TrackThumb.vue'
 
 /**
@@ -91,7 +92,10 @@ async function choose(track: MapTrack): Promise<void> {
 <template>
   <section v-if="shown" class="flex flex-col gap-2.5" aria-labelledby="tracks-title" data-test="track-picker">
     <div class="flex flex-col gap-1">
-      <h2 id="tracks-title" class="kick !mb-0">{{ t('trackPicker.title') }}</h2>
+      <div class="flex items-center justify-between gap-2">
+        <h2 id="tracks-title" class="kick !mb-0">{{ t('trackPicker.title') }}</h2>
+        <ClassBadge v-if="run.run?.car.performance" :performance="run.run.car.performance" />
+      </div>
       <p class="sub" data-test="track-note">{{ t('trackPicker.note') }}</p>
     </div>
 

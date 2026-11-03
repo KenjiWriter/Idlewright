@@ -558,6 +558,8 @@ export interface ShopOffer extends PartInfo {
   mountable: boolean
   /** What the car lacks for the part besides its level (cylinders, a booster), or null. */
   blocked_by?: PartLock | null
+  /** What the car would show with this part put on, new, in place of the one on its slot; null when the car cannot take it. */
+  performance_after?: CarPerformance | null
 }
 
 /** The kinds of crate: the driver chooses the slot (slot, premium), or it is drawn (mixed). */
@@ -608,7 +610,7 @@ export interface ShopCrates {
 
 /** GET /api/v1/shop */
 export interface ShopResponse {
-  data: { parts: ShopOffer[]; car: { id: number; level: number } | null; crates: ShopCrates }
+  data: { parts: ShopOffer[]; car: { id: number; level: number; performance?: CarPerformance } | null; crates: ShopCrates }
   wallet: Wallet
 }
 

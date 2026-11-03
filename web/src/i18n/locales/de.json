@@ -119,7 +119,17 @@
     "tierTitle": "Stufe des Autos: {tier}",
     "classTitle": "Klasse {class}, {pi} PI",
     "classChange": "Die Klasse ändert sich: {from} → {to}",
-    "classSame": "Klasse {class} bleibt: {from} → {to} PI"
+    "classSame": "Klasse {class} bleibt: {from} → {to} PI",
+    "className": {
+      "F": "F",
+      "E": "E",
+      "D": "D",
+      "C": "C",
+      "B": "B",
+      "A": "A",
+      "S": "S",
+      "SS": "SS"
+    }
   },
   "run": {
     "laps": "{n} Runde | {n} Runden",

@@ -119,7 +119,17 @@
     "tierTitle": "Palier de la voiture : {tier}",
     "classTitle": "Classe {class}, {pi} PI",
     "classChange": "La classe change : {from} → {to}",
-    "classSame": "Classe {class} inchangée : {from} → {to} PI"
+    "classSame": "Classe {class} inchangée : {from} → {to} PI",
+    "className": {
+      "F": "F",
+      "E": "E",
+      "D": "D",
+      "C": "C",
+      "B": "B",
+      "A": "A",
+      "S": "S",
+      "SS": "SS"
+    }
   },
   "run": {
     "laps": "{n} tour | {n} tours",

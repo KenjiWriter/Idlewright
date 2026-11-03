@@ -14,6 +14,7 @@ import CarSilhouette from '@/components/CarSilhouette.vue'
 import MediaPicture from '@/components/MediaPicture.vue'
 import { stageArt } from '@/features/art'
 import { useCarClass } from '@/features/car/useCarClass'
+import { useRatingClass } from '@/features/car/useRatingClass'
 import { useFlash } from '@/features/run/useFlash'
 import { useLeaveOnSignOut } from '@/features/session/leaveOnSignOut'
 import { endSessionIfUnauthorized } from '@/features/session/unauthorized'
@@ -30,6 +31,7 @@ const MIN_ASK_MS = 3_000
 const { t } = useI18n()
 const { money, fixed } = useFormat()
 const { className } = useCarClass()
+const { ratingClassName } = useRatingClass()
 const router = useRouter()
 const store = useFleetStore()
 const { message: done, show: showDone, clear: clearDone } = useFlash()
@@ -256,7 +258,7 @@ const buyGarage = (garage: FleetGarage) =>
             </span>
             <span class="thumb-body">
               <span class="thumb-name" data-test="thumb-name">{{ car.vehicle.name }}</span>
-              <span v-if="car.performance" class="thumb-meta" data-test="thumb-class">{{ car.performance.class }} {{ car.performance.pi }}</span>
+              <span v-if="car.performance" class="thumb-meta" data-test="thumb-class">{{ ratingClassName(car.performance.class) }} {{ car.performance.pi }}</span>
               <span class="thumb-meta">{{ car.city.name }}</span>
               <span class="thumb-meta text-amber">{{ t('fleet.value', { price: money(car.sale_cents) }) }}</span>
             </span>

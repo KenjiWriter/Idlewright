@@ -465,3 +465,9 @@ Auto pokazuje się jako **klasa + PI**, np. „D 300” (komponent `ClassBadge`,
 **Porównanie części w warsztacie** (`PartCompare`): gdy założenie części z inwentarza zmienia klasę, pod porównaniem jest zdanie „Klasa się zmienia: D 399 → C 412” (bursztynowe); gdy klasa zostaje, a PI się zmienia, „Klasa D bez zmian: 300 → 312 PI”; nic, gdy PI się nie zmienia. Zdanie jest też dla slotu z częścią fabryczną, który nie ma czego porównać. Dane: `performance_after` części z `GET /garage`.
 
 **Czego jeszcze nie ma:** wybór toru i auta do meczu (dojdzie z pojedynkami), sklep z częściami (serwer nie liczy PI po założeniu części ze sklepu), nazwy klas ze słownika gry, informacja o rywalach klasy (boty nadal są po tierze, rywale na klasę to C1b po pomiarze na symulatorze). Teksty w pięciu językach (`car.classTitle`, `car.classChange`, `car.classSame`).
+
+### Klasa auta: nazwy, wybór toru i sklep (rywalizacja, etap C1a+, 2026-11-03)
+
+- **Nazwy klas ze słownika gry:** `ClassBadge`, porównanie części i flota nazywają klasę przez wiadomość `car.className.{klasa}` (F, E, D, C, B, A, S, SS); domyślnie to same litery, a gra może je przemianować w Słowniku (np. `car.className.SS` = „Legenda”) bez zmiany kodu (`useRatingClass`).
+- **Wybór toru:** `TrackPicker` pokazuje klasę i PI auta, którym się gra, obok tytułu „Tory w tym mieście”. Nie mówi nic o rywalach: boty są dobierane do tieru auta, chyba że właściciel ustawi krok botów (`bots.class_step_ppm`).
+- **Sklep:** karta części porównuje ją z założoną i, gdy część wchodzi na auto, mówi, jaką klasę i PI auto pokaże po jej założeniu (`performance_after` z `GET /shop`, część nowa: zwykła rzadkość, bez ulepszeń).

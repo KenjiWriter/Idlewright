@@ -119,7 +119,17 @@
     "tierTitle": "Nível do carro: {tier}",
     "classTitle": "Classe {class}, {pi} PI",
     "classChange": "A classe muda: {from} → {to}",
-    "classSame": "A classe {class} continua: {from} → {to} PI"
+    "classSame": "A classe {class} continua: {from} → {to} PI",
+    "className": {
+      "F": "F",
+      "E": "E",
+      "D": "D",
+      "C": "C",
+      "B": "B",
+      "A": "A",
+      "S": "S",
+      "SS": "SS"
+    }
   },
   "run": {
     "laps": "{n} volta | {n} voltas",
