@@ -30,7 +30,7 @@ beforeEach(fn () => thePushRulesAre([]));
 afterEach(fn () => Carbon::setTestNow());
 
 /** A driver with a device and a car with `$litres` of fuel, looked at once (so the moment it stops is planned); `$run` changes the car. */
-function awayDriver(int $litres = 6, array $run = []): array
+function pushAwayDriver(int $litres = 6, array $run = []): array
 {
     [$driver, $car] = driverWithRun(['fuel_ml' => $litres * 1_000, ...$run]);
     $game = app(Push::class)->game();
@@ -74,7 +74,7 @@ describe('the forecast', function () {
 
         expect(PushEvent::query()->withoutGlobalScopes()->count())->toBe(0);
 
-        [$driver, $car] = awayDriver();
+        [$driver, $car] = pushAwayDriver();
 
         $event = PushEvent::query()->sole();
 
@@ -83,7 +83,7 @@ describe('the forecast', function () {
     });
 
     it('is the moment the car really stops, for cars of other laps, tanks and breakdowns', function (int $lapMs, int $perLapMl, int $tankMl, ?int $breakAfterLaps, string $reason) {
-        [$driver, $car] = awayDriver(0, [
+        [$driver, $car] = pushAwayDriver(0, [
             'fuel_ml' => $tankMl,
             'break_after_laps' => $breakAfterLaps,
             'config' => RaceRunFactory::constantConfig(lapMs: $lapMs, fuelPerLapMl: $perLapMl),
@@ -107,7 +107,7 @@ describe('the forecast', function () {
     ]);
 
     it('is made again when the car is looked at after the driver filled the tank', function () {
-        [$driver, $car] = awayDriver();
+        [$driver, $car] = pushAwayDriver();
         expect(PushEvent::query()->sole()->due_ms)->toBe(RUN_T0 + 300_000);
 
         RaceRun::query()->whereKey($car->id)->update(['fuel_ml' => 45_000]);
@@ -117,7 +117,7 @@ describe('the forecast', function () {
     });
 
     it('is dropped for a car that stands for a reason of its own', function () {
-        [$driver, $car] = awayDriver();
+        [$driver, $car] = pushAwayDriver();
 
         RaceRun::query()->whereKey($car->id)->update(['stop_reason' => RaceRun::STOP_WORKSHOP]);
         app(RunService::class)->settle($car->id, RunService::nowMs());
@@ -129,7 +129,7 @@ describe('the forecast', function () {
 describe('telling the driver', function () {
     it('tells of a car that stopped, once, in the language of the device, with the name of the car', function () {
         Queue::fake();
-        [$driver] = awayDriver();
+        [$driver] = pushAwayDriver();
 
         $report = dispatchAt(600_000);
 
@@ -147,7 +147,7 @@ describe('telling the driver', function () {
 
     it('tells of a breakdown in other words', function () {
         Queue::fake();
-        awayDriver(45, ['break_after_laps' => 2]);
+        pushAwayDriver(45, ['break_after_laps' => 2]);
 
         dispatchAt(600_000);
 
@@ -156,7 +156,7 @@ describe('telling the driver', function () {
 
     it('does not tell when the driver has filled the tank in the meantime: the forecast was only a moment to look', function () {
         Queue::fake();
-        [$driver, $car] = awayDriver();
+        [$driver, $car] = pushAwayDriver();
 
         RaceRun::query()->whereKey($car->id)->update(['fuel_ml' => 45_000]);
 
@@ -168,7 +168,7 @@ describe('telling the driver', function () {
 
     it('does not tell of what the driver has seen themselves', function () {
         Queue::fake();
-        [$driver] = awayDriver();
+        [$driver] = pushAwayDriver();
 
         // The driver looks at the game after the car stopped (at 5 min) and leaves.
         clockAt(420_000);
@@ -181,7 +181,7 @@ describe('telling the driver', function () {
 
     it('waits while the driver is still in the game, and tells when they have gone', function () {
         Queue::fake();
-        [$driver] = awayDriver();
+        [$driver] = pushAwayDriver();
 
         // The driver was in the game at 4 min 30 s, before the car stopped, and the dispatcher looks at 5 min 30 s.
         clockAt(270_000);
@@ -197,7 +197,7 @@ describe('telling the driver', function () {
 
     it('keeps the quiet hours of the time zone of the device and tells in the morning, in one message when there are several things', function () {
         Queue::fake();
-        [$driver, $car] = awayDriver();
+        [$driver, $car] = pushAwayDriver();
         $second = RaceRun::factory()->create(['user_id' => $driver->id, 'fuel_ml' => 3_000, 'cursor_ms' => RUN_T0]);
         app(RunService::class)->settle($second->id, RunService::nowMs());
 
@@ -222,7 +222,7 @@ describe('telling the driver', function () {
 
     it('keeps a gap after a message, and says nothing more than the limit of a day', function () {
         Queue::fake();
-        [$driver, $car] = awayDriver();
+        [$driver, $car] = pushAwayDriver();
 
         // A message was sent 10 minutes before the time of the dispatcher: the next one waits for the end of the gap (30 minutes after it).
         PushEvent::query()->create(['user_id' => $driver->id, 'kind' => 'job_done', 'ref_type' => 'workshop_job', 'ref_id' => 999, 'due_ms' => RUN_T0, 'state' => 'sent', 'sent_at' => Carbon::createFromTimestampMs(RUN_T0 + 590_000)]);
@@ -242,7 +242,7 @@ describe('telling the driver', function () {
 
     it('tells only of what the driver wants to be told of: a car stopped and a car arrived are on, a job is done is off until they switch it on', function () {
         Queue::fake();
-        [$driver, $car, $browser] = awayDriver();
+        [$driver, $car, $browser] = pushAwayDriver();
         $job = WorkshopJob::factory()->create(['user_id' => $driver->id, 'car_id' => $car->car_id, 'status' => WorkshopJob::STATUS_WORKING, 'start_ms' => RUN_T0, 'finish_ms' => RUN_T0 + 200_000]);
 
         $this->getJson('/api/v1/push/preferences', bearerFor($driver))->assertOk()->assertJsonPath('data.kinds', ['car_stopped' => true, 'car_arrived' => true, 'job_done' => false, 'streak_risk' => false]);
@@ -268,7 +268,7 @@ describe('telling the driver', function () {
 
     it('tells of a car that arrived, once, and not of a journey that ended long ago', function () {
         Queue::fake();
-        [$driver, $car] = awayDriver(45);
+        [$driver, $car] = pushAwayDriver(45);
         $arrived = Travel::factory()->create(['user_id' => $driver->id, 'race_run_id' => $car->id, 'start_ms' => RUN_T0, 'arrive_ms' => RUN_T0 + 1_800_000]);
         $old = Travel::factory()->create(['user_id' => $driver->id, 'race_run_id' => $car->id, 'start_ms' => RUN_T0 - 90_000_000, 'arrive_ms' => RUN_T0 - 80_000_000, 'status' => Travel::STATUS_ARRIVED]);
 
@@ -285,7 +285,7 @@ describe('telling the driver', function () {
 
     it('forgets the events of a driver who has no device any more, and sends nothing for a game that cannot', function () {
         Queue::fake();
-        [$driver, $car, $browser] = awayDriver();
+        [$driver, $car, $browser] = pushAwayDriver();
         $this->deleteJson('/api/v1/push/subscription', ['endpoint' => PUSH_ENDPOINT], bearerFor($driver))->assertOk();
 
         expect(dispatchAt(600_000))->toBe(['sent' => 0, 'skipped' => 0, 'deferred' => 0]);
@@ -307,7 +307,7 @@ describe('a driver who does not answer', function () {
 
     it('is told at most once a day after three messages in a row that were not answered, and in the morning gets what came', function () {
         Queue::fake();
-        [$driver] = awayDriver();
+        [$driver] = pushAwayDriver();
         unansweredMessages($driver, 3);
         // The last of them was sent two hours before the dispatcher looks; the gap of the rules (half an hour) is over, the day is not.
         PushEvent::query()->create(['user_id' => $driver->id, 'kind' => 'car_stopped', 'ref_type' => 'race_run', 'ref_id' => 900, 'due_ms' => RUN_T0, 'state' => 'sent', 'sent_at' => Carbon::createFromTimestampMs(RUN_T0 + 300_000 - 2 * 3_600_000)]);
@@ -319,13 +319,13 @@ describe('a driver who does not answer', function () {
 
     it('is told as usual when the driver answered one of them: opened it, or came into the game within the hour', function () {
         Queue::fake();
-        [$driver] = awayDriver();
+        [$driver] = pushAwayDriver();
         unansweredMessages($driver, 3, opened: true);
 
         expect(dispatchAt(600_000))->toBe(['sent' => 1, 'skipped' => 0, 'deferred' => 0]);
 
         Queue::fake();
-        [$other] = awayDriver();
+        [$other] = pushAwayDriver();
         unansweredMessages($other, 3);
         $newest = PushDelivery::query()->where('user_id', $other->id)->orderByDesc('id')->first();
         UserVisit::factory()->create(['user_id' => $other->id, 'at' => Carbon::parse($newest->created_at)->addMinutes(20)]);
@@ -335,7 +335,7 @@ describe('a driver who does not answer', function () {
 
     it('is not told at all after ten messages that were not answered, until the driver comes into the game by themselves', function () {
         Queue::fake();
-        [$driver] = awayDriver();
+        [$driver] = pushAwayDriver();
 
         // Ten messages, one after another from an hour after the driver was last in the game (they were in at the start), none of them answered.
         foreach (range(0, 9) as $index) {
@@ -358,7 +358,7 @@ describe('a driver who does not answer', function () {
 
     it('counts one message for the devices it went to, and does not count the test message or one that has not had its hour', function () {
         Queue::fake();
-        [$driver] = awayDriver();
+        [$driver] = pushAwayDriver();
 
         // Ten deliveries, but of two messages (five devices each), and a test message: nowhere near ten messages.
         foreach ([0, 1] as $message) {
@@ -379,7 +379,7 @@ describe('the reminder of a streak', function () {
     /** A driver with a device who wants the reminder and has a streak of `$days` days; the goal of the day is not done. */
     function driverWithAStreak(int $days = 5, bool $wanted = true): User
     {
-        [$driver] = awayDriver(200);
+        [$driver] = pushAwayDriver(200);
 
         if ($wanted) {
             test()->patchJson('/api/v1/push/preferences', ['kinds' => ['streak_risk' => true]], bearerFor($driver))->assertOk();
@@ -453,7 +453,7 @@ describe('the reminder of a streak', function () {
 describe('push:send-due', function () {
     it('goes through the games that have keys and tells what is due', function () {
         Queue::fake();
-        awayDriver();
+        pushAwayDriver();
         clockAt(600_000);
 
         $this->artisan('push:send-due')->expectsOutputToContain('1 sent')->assertSuccessful();
