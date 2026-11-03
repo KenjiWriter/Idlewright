@@ -80,7 +80,7 @@ describe('TutorialGoal', () => {
     const fetchMock = vi.fn()
     vi.stubGlobal('fetch', fetchMock)
     const calls = serveApi(fetchMock, {
-      'POST /api/v1/tutorial/decline': () => respond(200, aTutorial(null, { goal: aGoal({ key: 'network', title: 'Look at the network', target: 'network' }), done: 20 })),
+      'POST /api/v1/tutorial/decline': () => respond(200, aTutorial(null, { goal: aGoal({ key: 'network', title: 'Look at the network', target: 'garages' }), done: 20 })),
     })
     const step = aStep({ key: 'profile', acknowledged: true, optional: true, decline: 'Not now', target: 'profile' })
     const { wrapper } = await show(aTutorial(step, { goal: aGoal({ key: 'profile', optional: true, target: 'profile', title: 'Secure the profile' }) }))
