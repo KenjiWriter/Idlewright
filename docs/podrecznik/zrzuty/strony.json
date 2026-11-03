@@ -329,6 +329,22 @@
           "ktory": 0
         },
         {
+          "pomoc": "world.min_player_level",
+          "ktory": 0
+        },
+        {
+          "pomoc": "world.lit",
+          "ktory": 0
+        },
+        {
+          "pomoc": "world.surface_mix",
+          "ktory": 0
+        },
+        {
+          "pomoc": "world.reference_tires",
+          "ktory": 0
+        },
+        {
           "pomoc": "world.length_m",
           "ktory": 0
         },
@@ -343,6 +359,85 @@
         {
           "pomoc": "world.xp_per_hour",
           "ktory": 0
+        }
+      ]
+    },
+    {
+      "slug": "swiat-tory-rajd",
+      "url": "/admin/world",
+      "czekaj": "form",
+      "maks_wysokosc": 2500,
+      "kroki": [
+        {
+          "kliknij": "[role=tab]",
+          "zawiera": "Tory"
+        },
+        {
+          "js": "[...document.querySelectorAll('.fi-fo-repeater-item-header')].find((e) => e.offsetParent !== null && /rally/i.test(e.innerText))?.click()",
+          "pauza_po": 1200
+        }
+      ],
+      "znaczniki": [
+        {
+          "pomoc": "world.track_slug",
+          "ktory": 0
+        },
+        {
+          "pomoc": "world.kind",
+          "ktory": 0
+        },
+        {
+          "pomoc": "world.surface_mix",
+          "ktory": 0
+        },
+        {
+          "pomoc": "world.mix_surface",
+          "ktory": 0
+        },
+        {
+          "pomoc": "world.mix_percent",
+          "ktory": 0
+        },
+        {
+          "pomoc": "world.reference_tires",
+          "ktory": 0
+        }
+      ]
+    },
+    {
+      "slug": "swiat-tory-wymagania",
+      "url": "/admin/world",
+      "czekaj": "form",
+      "maks_wysokosc": 2300,
+      "kroki": [
+        {
+          "kliknij": "[role=tab]",
+          "zawiera": "Tory"
+        },
+        {
+          "js": "[...document.querySelectorAll('.fi-fo-repeater-item-header')].find((e) => e.offsetParent !== null)?.click()",
+          "pauza_po": 900
+        }
+      ],
+      "od": {
+        "selektor": "div, span, legend, h3",
+        "zawiera": "Czego wymaga tor",
+        "dokladnie": true
+      },
+      "znaczniki": [
+        {
+          "pomoc": "world.demand",
+          "ktory": 0
+        },
+        {
+          "pomoc": "world.reference",
+          "ktory": 0
+        },
+        {
+          "selektor": "button[aria-label=\"Weź z auta\"]",
+          "ktory": 0,
+          "nazwa": "Weź z auta",
+          "tlumaczenie": "admin.world.reference_from_car_hint"
         }
       ]
     },
@@ -373,6 +468,74 @@
           "ktory": 0,
           "nazwa": "Zapisz szkic",
           "opis": "zapisuje zmiany jako szkic; nic nie jest opublikowane"
+        }
+      ]
+    },
+    {
+      "slug": "studio-rywalizacja",
+      "url": "/admin/studio",
+      "czekaj": "form",
+      "maks_wysokosc": 1700,
+      "kroki": [
+        {
+          "js": "(()=>{const w=document.querySelector('[data-help=\"studio.simple\"]'); const b=w.matches('button,input')?w:w.querySelector('button,input'); if(b.getAttribute('aria-checked')==='true'||b.checked) b.click();})()",
+          "pauza_po": 2500
+        },
+        {
+          "js": "(()=>{const w=document.querySelector('[data-help=\"studio.section\"]'); const s=w.matches('select')?w:w.querySelector('select'); s.value='competition'; s.dispatchEvent(new Event('change',{bubbles:true}));})()",
+          "pauza_po": 3000
+        }
+      ],
+      "znaczniki": [
+        {
+          "pomoc": "studio.simple",
+          "ktory": 0
+        },
+        {
+          "pomoc": "studio.section",
+          "ktory": 0
+        },
+        {
+          "pomoc": "rules./competition/pi/reference_pi",
+          "ktory": 0
+        },
+        {
+          "pomoc": "rules./competition/pi/stat_cap_ppm",
+          "ktory": 0
+        },
+        {
+          "pomoc": "rules./competition/pi/max_pi",
+          "ktory": 0
+        }
+      ]
+    },
+    {
+      "slug": "studio-boty",
+      "url": "/admin/studio",
+      "czekaj": "form",
+      "maks_wysokosc": 2600,
+      "kroki": [
+        {
+          "js": "(()=>{const w=document.querySelector('[data-help=\"studio.simple\"]'); const b=w.matches('button,input')?w:w.querySelector('button,input'); if(b.getAttribute('aria-checked')==='true'||b.checked) b.click();})()",
+          "pauza_po": 2500
+        },
+        {
+          "js": "(()=>{const w=document.querySelector('[data-help=\"studio.section\"]'); const s=w.matches('select')?w:w.querySelector('select'); s.value='bots'; s.dispatchEvent(new Event('change',{bubbles:true}));})()",
+          "pauza_po": 3000
+        },
+        {
+          "js": "[...document.querySelectorAll('.fi-section')].forEach((s) => { const tresc = s.querySelector('.fi-section-content-ctn'); const naglowek = s.querySelector('.fi-section-header'); if (tresc && naglowek && tresc.offsetParent === null) naglowek.click(); })",
+          "pauza_po": 1200
+        }
+      ],
+      "znaczniki": [
+        {
+          "pomoc": "studio.section",
+          "ktory": 0
+        },
+        {
+          "pomoc": "rules./bots/class_step_ppm",
+          "ktory": 0
         }
       ]
     },
@@ -497,6 +660,78 @@
         {
           "pomoc": "thread.sections",
           "ktory": 0
+        }
+      ]
+    },
+    {
+      "slug": "nitka-toru-narzedzia",
+      "url": "/admin/thread",
+      "czekaj": "form",
+      "maks_wysokosc": 2200,
+      "kroki": [
+        {
+          "js": "[...document.querySelectorAll('.fi-fo-repeater-item')].slice(2).forEach((e) => { e.style.display = 'none'; })",
+          "pauza_po": 900
+        }
+      ],
+      "znaczniki": [
+        {
+          "selektor": "div, span, p",
+          "zawiera": "Dodaj gotowy kawałek",
+          "najglebszy": true,
+          "nazwa": "Dodaj gotowy kawałek",
+          "opis": "gotowe kawałki toru: agrafka, ciasny zakręt, szeroki łuk i szykana"
+        },
+        {
+          "selektor": "button, a",
+          "zawiera": "Odbij linię lustrzanie",
+          "nazwa": "Odbij linię lustrzanie",
+          "opis": "odbija linię toru lustrzanie"
+        },
+        {
+          "selektor": "button, a",
+          "zawiera": "Odwróć kierunek jazdy",
+          "nazwa": "Odwróć kierunek jazdy",
+          "opis": "odwraca kierunek jazdy po torze"
+        },
+        {
+          "selektor": "button, a",
+          "zawiera": "Przeskaluj promienie",
+          "nazwa": "Przeskaluj promienie",
+          "tlumaczenie": "admin.thread.scale_hint"
+        },
+        {
+          "selektor": "button, a",
+          "zawiera": "Rozciągnij najdłuższą prostą",
+          "nazwa": "Rozciągnij najdłuższą prostą",
+          "tlumaczenie": "admin.thread.stretch_hint"
+        },
+        {
+          "selektor": "button, a",
+          "zawiera": "Zamknij pętlę",
+          "nazwa": "Zamknij pętlę",
+          "opis": "zmienia dwie proste i kąt jednego zakrętu tak, żeby linia wróciła do startu; działa tylko dla przejazdu „Pętla”"
+        },
+        {
+          "selektor": "div, span, p",
+          "zawiera": "Zacznij od gotowego toru",
+          "najglebszy": true,
+          "nazwa": "Zacznij od gotowego toru",
+          "tlumaczenie": "admin.thread.template_hint"
+        },
+        {
+          "selektor": "div, span, p, h2, h3, h4, td, th, summary, legend, strong",
+          "zawiera": "Na co idzie czas okrążenia (auto wzorcowe)",
+          "dokladnie": true,
+          "nazwa": "Na co idzie czas okrążenia",
+          "opis": "przyspieszanie, jazda na limicie, hamowanie, zakręty i powrót na start auta wzorcowego"
+        },
+        {
+          "selektor": "div, span, p, h2, h3, h4, td, th, summary, legend, strong",
+          "zawiera": "Auta: okrążenie ze wzoru i po nitce",
+          "dokladnie": true,
+          "nazwa": "Auta: ze wzoru i po nitce",
+          "tlumaczenie": "admin.thread.cars_note"
         }
       ]
     },
@@ -632,6 +867,329 @@
         },
         {
           "pomoc": "premium.products"
+        }
+      ]
+    },
+    {
+      "slug": "zlecenia",
+      "url": "/admin/gigs",
+      "czekaj": "form",
+      "maks_wysokosc": 2200,
+      "znaczniki": [
+        {
+          "selektor": "[role=tab]",
+          "zawiera": "Wypłata",
+          "nazwa": "Wypłata",
+          "opis": "ile płaci godzina kursu na każdym poziomie: prędkość odniesienia, kotwice drabiny i przedziały poziomów; na dole przycisk „Policz wypłatę”"
+        },
+        {
+          "selektor": "[role=tab]",
+          "zawiera": "Rodzaje",
+          "nazwa": "Rodzaje",
+          "opis": "rodzaje kursów (na przykład taksówki, towary, dostawy) z nazwami w językach gry; to znacznik oferty na tablicy"
+        },
+        {
+          "selektor": "[role=tab]",
+          "zawiera": "Szablony ofert",
+          "nazwa": "Szablony ofert",
+          "opis": "z czego losowane są oferty: co musi mieć auto, jak długa jest trasa, ile płaci i jak jest prawdopodobna o każdej porze dnia"
+        },
+        {
+          "pomoc": "gigs.enabled",
+          "ktory": 0
+        },
+        {
+          "pomoc": "gigs.unlock_after_step",
+          "ktory": 0
+        },
+        {
+          "pomoc": "gigs.timezone",
+          "ktory": 0
+        },
+        {
+          "pomoc": "gigs.reset_hour",
+          "ktory": 0
+        },
+        {
+          "pomoc": "gigs.wave_minutes",
+          "ktory": 0
+        },
+        {
+          "pomoc": "gigs.cancel_seconds",
+          "ktory": 0
+        },
+        {
+          "pomoc": "gigs.slots",
+          "ktory": 0
+        },
+        {
+          "pomoc": "gigs.rarities",
+          "ktory": 0
+        }
+      ]
+    },
+    {
+      "slug": "zlecenia-wyplata",
+      "url": "/admin/gigs",
+      "czekaj": "form",
+      "maks_wysokosc": 3400,
+      "kroki": [
+        {
+          "kliknij": "[role=tab]",
+          "zawiera": "Wypłata",
+          "pauza_po": 1200
+        },
+        {
+          "kliknij": "button, a",
+          "zawiera": "Policz wypłatę",
+          "pauza_po": 30000
+        }
+      ],
+      "znaczniki": [
+        {
+          "pomoc": "gigs.ref_speed_kmh",
+          "ktory": 0
+        },
+        {
+          "pomoc": "gigs.speed_cap_kmh",
+          "ktory": 0
+        },
+        {
+          "pomoc": "gigs.xp_per_hour",
+          "ktory": 0
+        },
+        {
+          "pomoc": "gigs.car_xp_per_hour",
+          "ktory": 0
+        },
+        {
+          "pomoc": "gigs.anchors",
+          "ktory": 0
+        },
+        {
+          "pomoc": "gigs.bands",
+          "ktory": 0
+        },
+        {
+          "selektor": "button, a",
+          "zawiera": "Policz wypłatę",
+          "nazwa": "Policz wypłatę",
+          "tlumaczenie": "admin.gigs.report.empty"
+        },
+        {
+          "selektor": "div, span, p, h2, h3, h4, td, th, summary, legend, strong",
+          "zawiera": "Ile płaci godzina zleceń",
+          "dokladnie": true,
+          "nazwa": "Ile płaci godzina zleceń",
+          "tlumaczenie": "admin.gigs.report.explain"
+        }
+      ]
+    },
+    {
+      "slug": "zlecenia-szablony",
+      "url": "/admin/gigs",
+      "czekaj": "form",
+      "maks_wysokosc": 2600,
+      "kroki": [
+        {
+          "kliknij": "[role=tab]",
+          "zawiera": "Szablony ofert",
+          "pauza_po": 1200
+        },
+        {
+          "js": "[...document.querySelectorAll('.fi-fo-repeater-item-header')].find((e) => e.offsetParent !== null)?.click()",
+          "pauza_po": 900
+        }
+      ],
+      "znaczniki": [
+        {
+          "pomoc": "gigs.templates",
+          "ktory": 0
+        },
+        {
+          "pomoc": "gigs.template_key",
+          "ktory": 0
+        },
+        {
+          "pomoc": "gigs.template_kind",
+          "ktory": 0
+        },
+        {
+          "pomoc": "gigs.template_min_level",
+          "ktory": 0
+        },
+        {
+          "pomoc": "gigs.template_capacity",
+          "ktory": 0
+        },
+        {
+          "pomoc": "gigs.template_amount_min",
+          "ktory": 0
+        },
+        {
+          "pomoc": "gigs.template_mode",
+          "ktory": 0
+        },
+        {
+          "pomoc": "gigs.template_pay",
+          "ktory": 0
+        },
+        {
+          "pomoc": "gigs.template_deadline",
+          "ktory": 0
+        }
+      ]
+    },
+    {
+      "slug": "push",
+      "url": "/admin/push",
+      "czekaj": "h1",
+      "maks_wysokosc": 1700,
+      "znaczniki": [
+        {
+          "selektor": "div, span, p",
+          "zawiera": "Jak stoją powiadomienia",
+          "najglebszy": true,
+          "nazwa": "Co pokazuje strona",
+          "tlumaczenie": "admin.push_page.intro"
+        },
+        {
+          "selektor": "div, span, p",
+          "zawiera": "w regułach",
+          "najglebszy": true,
+          "nazwa": "Stan reguł",
+          "opis": "czy reguły push w Studiu są włączone; gdy wyłączone, nic się nie wysyła"
+        },
+        {
+          "selektor": "div, span, p",
+          "zawiera": "Nie ma jeszcze kluczy",
+          "najglebszy": true,
+          "nazwa": "Klucze",
+          "tlumaczenie": "admin.push_page.keys_hint"
+        },
+        {
+          "selektor": "div, span, p",
+          "zawiera": "Nigdy nie powiadamiane",
+          "najglebszy": true,
+          "nazwa": "Grupa, która nie dostaje powiadomień",
+          "opis": "odsetek kont, które nigdy nie dostają powiadomień; to liczba ze Studia (sekcja push)"
+        },
+        {
+          "selektor": "div, span, p, h2, h3, h4, td, th, summary, legend, strong",
+          "zawiera": "Kto się zgodził",
+          "dokladnie": true,
+          "nazwa": "Kto się zgodził",
+          "opis": "urządzenia z włączonymi powiadomieniami i konta, które można powiadamiać"
+        },
+        {
+          "selektor": "div, span, p, h2, h3, h4, td, th, summary, legend, strong",
+          "zawiera": "Ostatnie siedem dni",
+          "dokladnie": true,
+          "nazwa": "Ostatnie siedem dni",
+          "opis": "po dniach: wiadomości w kolejce, otwarte i ogłoszone sprawy, a gdy coś pominięto, to z powodem (gracz to wyłączył, limit na dobę i inne)"
+        }
+      ]
+    },
+    {
+      "slug": "bonusy-czesci",
+      "url": "/admin/tuning",
+      "czekaj": "form",
+      "maks_wysokosc": 2000,
+      "kroki": [],
+      "znaczniki": [
+        {
+          "selektor": "div, span, p",
+          "zawiera": "Bonusów, które można dać części",
+          "najglebszy": true,
+          "nazwa": "Podsumowanie",
+          "tlumaczenie": "admin.tuning.intro"
+        },
+        {
+          "selektor": "button, a",
+          "zawiera": "Zmień liczby w studiu",
+          "nazwa": "Zmień liczby w studiu",
+          "opis": "prowadzi do Studia parametrów; ta strona tylko pokazuje bonusy, liczby zmienia się w Studiu"
+        },
+        {
+          "selektor": "summary",
+          "zawiera": "Jak działają bonusy części",
+          "nazwa": "Jak działają bonusy części",
+          "opis": "rozwijany opis działania bonusów"
+        },
+        {
+          "selektor": "div, span, p, h2, h3, h4, td, th, summary, legend, strong",
+          "zawiera": "Start na sprincie",
+          "dokladnie": true,
+          "nazwa": "Bonus",
+          "opis": "nazwa bonusu, jego klucz i to, co zmienia (tu: statystykę auta „accel”); niżej nazwy w pięciu językach"
+        },
+        {
+          "selektor": "div, span, p, h2, h3, h4, td, th, summary, legend, strong",
+          "zawiera": "Sloty",
+          "dokladnie": true,
+          "nazwa": "Sloty",
+          "opis": "w które sloty części można go wylosować"
+        },
+        {
+          "selektor": "div, span, p, h2, h3, h4, td, th, summary, legend, strong",
+          "zawiera": "Waga w losowaniu",
+          "dokladnie": true,
+          "nazwa": "Waga w losowaniu",
+          "opis": "szansa bonusu wobec pozostałych"
+        },
+        {
+          "selektor": "div, span, p, h2, h3, h4, td, th, summary, legend, strong",
+          "zawiera": "Działa",
+          "dokladnie": true,
+          "nazwa": "Działa",
+          "opis": "na każdym torze albo tylko na wskazanych rodzajach toru, nawierzchniach lub pogodach"
+        },
+        {
+          "selektor": "div, span, p, h2, h3, h4, td, th, summary, legend, strong",
+          "zawiera": "Co daje próba",
+          "dokladnie": true,
+          "nazwa": "Co daje próba",
+          "opis": "średnia, rozrzut oraz najmniejsza i największa wartość jednej próby"
+        },
+        {
+          "selektor": "div, span, p, h2, h3, h4, td, th, summary, legend, strong",
+          "zawiera": "Średnio prób do wartości",
+          "dokladnie": true,
+          "nazwa": "Średnio prób do wartości",
+          "opis": "ile prób średnio trzeba, żeby trafić co najmniej taką wartość"
+        }
+      ]
+    },
+    {
+      "slug": "bonusy-budzet",
+      "url": "/admin/tuning",
+      "czekaj": "form",
+      "maks_wysokosc": 1500,
+      "kroki": [
+        {
+          "kliknij": "button, a",
+          "zawiera": "Policz",
+          "pauza_po": 20000
+        }
+      ],
+      "od": {
+        "selektor": "div, span, h2, h3, h4, strong",
+        "zawiera": "Ile jest warty najlepszy zestaw",
+        "dokladnie": true
+      },
+      "znaczniki": [
+        {
+          "selektor": "div, span, p, h2, h3, h4, td, th, summary, legend, strong",
+          "zawiera": "Ile jest warty najlepszy zestaw",
+          "dokladnie": true,
+          "nazwa": "Ile jest warty najlepszy zestaw",
+          "tlumaczenie": "admin.tuning.budget.intro"
+        },
+        {
+          "selektor": "button",
+          "zawiera": "Policz",
+          "nazwa": "Policz",
+          "opis": "liczy wartość najlepszego zestawu bonusów dla aut wzorcowych; to samo mierzy bramka tuning:budget przed publikacją"
         }
       ]
     },
@@ -780,7 +1338,7 @@
           "zawiera": "Bramki symulatorów",
           "dokladnie": true,
           "nazwa": "Bramki symulatorów",
-          "opis": "cztery bramki z czasem działania i werdyktem: przeszła albo nie"
+          "opis": "bramki z czasem działania i werdyktem: przeszła albo nie (przy niepowodzeniu także fragment wyjścia)"
         },
         {
           "selektor": ".fi-modal-window *",

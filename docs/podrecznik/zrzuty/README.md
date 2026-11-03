@@ -33,6 +33,7 @@ Jedno uruchomienie loguje się raz. Kilka uruchomień w ciągu minuty (na przyk�
 | `--bez-bazy` | nie zakładaj bazy od nowa, użyj istniejącej (`--baza=plik`) |
 | `--bez-serwera` | nie uruchamiaj serwera (panel już działa pod `--port`) |
 | `--bez-legend` | tylko zrzuty, bez wpisywania legend do podręcznika |
+| `--sonda-js=kod` | z `--sonda`: kod JavaScript wykonany na stronie przed wypisaniem pól (na przykład przełączenie sekcji Studia); to, co kod zwróci, jest wypisane jako `js -> …` |
 | `--sonda=admin/x,admin/y` | nic nie zapisuje; wypisuje pola (klucze pomocy), przyciski, zakładki i nagłówki strony: pomoc przy pisaniu nowego wpisu w `strony.json` (adres **bez** początkowego ukośnika, bo Git Bash zamienia go na ścieżkę dysku) |
 | `--port=8009` | port serwera panelu |
 | `--baza=plik` | plik bazy sqlite |
@@ -62,6 +63,8 @@ Zmienna `PODRECZNIK_BEZ_PACZKI=1` pomija budowanie przykładowej paczki (przyspi
 - `pomoc`: klucz z katalogu pomocy; znacznik znajduje pole po atrybucie `data-help`, a legenda bierze jego opis z katalogu (`FieldHelp`).
 - `selektor` (+ `zawiera`, `ktory`): dla przycisków i zakładek, które nie mają wpisu w katalogu; legenda bierze wtedy `nazwa` i `opis` z manifestu.
 - `tlumaczenie`: klucz tekstu panelu (`lang`), gdy opisem ma być zdanie z tłumaczeń.
+- `najglebszy: true`: element z tym tekstem, który nie zawiera w sobie innego z tym tekstem (zdanie, a nie blok, który je otacza); `dokladnie: true`: cały tekst elementu ma być tym napisem (nagłówek karty w panelu to element `strong`).
+- `od` (na ekranie, nie w znaczniku): `{ "selektor": "...", "zawiera": "...", "dokladnie": true }`: zrzut zaczyna się tuż nad pierwszym takim elementem, a nie od góry strony (długie formularze, których dół trzeba pokazać).
 - Kroki (każdy może mieć `pauza_po` w ms, domyślnie 500): `kliknij` (selektor, opcjonalnie `zawiera`: tekst elementu), `wpisz` (`{selektor, tekst}`: klawisze wpisywane w pole), `ustaw` (`{selektor, tekst}`: ustawia wartość pola naraz; tekst `@odpowiedz` i `@odpowiedz_z_bledem` bierze odpowiedź AI z `.dane/seed.json`), `czekaj` (selektor, na który trzeba poczekać), `pauza` (ms), `przewin` (selektor do przewinięcia) i `js` (kod do wykonania, na przykład rozwinięcie sekcji).
 
 3. W podręczniku dodaj w odpowiednim miejscu `![opis](img/podrecznik-nazwa-zrzutu.png)` i pod nim `<!-- legenda:nazwa-zrzutu -->` oraz `<!-- /legenda -->`, a potem uruchom skrypt z `--tylko=nazwa-zrzutu`.

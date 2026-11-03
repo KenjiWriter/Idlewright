@@ -24,7 +24,8 @@ const podrecznik = path.join(korzen, 'docs', 'podrecznik-panelu.md');
 const opcje = { port: 8009, debug: 9333, baza: path.join(os.tmpdir(), 'idlewright-podrecznik.sqlite'), tylko: null, przygotuj: true, serwer: true, legendy: true, sonda: null, pomoc: false, przegladarka: process.env.PODRECZNIK_PRZEGLADARKA ?? null, szerokosc: 1440, wysokosc: 900 };
 
 for (const argument of process.argv.slice(2)) {
-    const [nazwa, wartosc] = argument.replace(/^--/, '').split('=');
+    const [nazwa, ...reszta] = argument.replace(/^--/, '').split('=');
+    const wartosc = reszta.join('=');
     if (nazwa === 'pomoc') opcje.pomoc = true;
     else if (nazwa === 'bez-bazy') opcje.przygotuj = false;
     else if (nazwa === 'bez-serwera') opcje.serwer = false;
@@ -32,6 +33,7 @@ for (const argument of process.argv.slice(2)) {
     else if (nazwa === 'tylko') opcje.tylko = wartosc.split(',');
     // Bez początkowego ukośnika (powłoka Git Bash zamienia go na ścieżkę dysku): admin/game, nie /admin/game.
     else if (nazwa === 'sonda') opcje.sonda = wartosc.split(',').map((strona) => '/' + strona.replace(/^.*?(admin)/, '$1').replace(/^\/+/, ''));
+    else if (nazwa === 'sonda-js') opcje.sondaJs = wartosc;
     else if (nazwa === 'port') opcje.port = Number(wartosc);
     else if (nazwa === 'baza') opcje.baza = path.resolve(wartosc);
     else if (nazwa === 'przegladarka') opcje.przegladarka = wartosc;
@@ -47,6 +49,7 @@ if (opcje.pomoc) {
   --bez-serwera      nie uruchamiaj serwera (panel już działa pod --port)
   --bez-legend       nie wpisuj legend do podręcznika
   --sonda=admin/x    wypisz pola i przyciski strony (do pisania strony.json) i nic nie zapisuj
+  --sonda-js=kod     z --sonda: kod JavaScript wykonany na stronie przed wypisaniem (na przykład przełączenie sekcji)
   --port=8009        port serwera panelu
   --baza=plik        plik bazy sqlite
   --przegladarka=exe Edge lub Chrome (domyślnie szuka sam; albo PODRECZNIK_PRZEGLADARKA)
@@ -330,8 +333,14 @@ async function zrobEkran(ekran) {
         if (wpis.brak) braki.push(`${ekran.slug}: znacznik ${wpis.numer} (${ekran.znaczniki[wpis.numer - 1].selektor}) nie znalazł elementu`);
     }
     wszystkieLegendy.set(ekran.slug, { ekran, wynik });
-    const wysokosc = Math.min(await oblicz('Math.max(document.documentElement.scrollHeight, document.body.scrollHeight)'), ekran.maks_wysokosc ?? 1900);
-    const zrzut = await wyslij('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true, clip: { x: 0, y: 0, width: opcje.szerokosc, height: Math.max(wysokosc, opcje.wysokosc), scale: 1 } });
+    const cala = await oblicz('Math.max(document.documentElement.scrollHeight, document.body.scrollHeight)');
+    const wysokosc = Math.min(cala, ekran.maks_wysokosc ?? 1900);
+    // "od": zrzut zaczyna się tuż nad pierwszym elementem z tym tekstem (długie formularze: pokazujemy ich dół, nie górę); ramki są liczone od góry strony, więc pasują.
+    const poczatek = ekran.od
+        ? Math.max(0, Math.floor(await oblicz(`(() => { const e = [...document.querySelectorAll(${JSON.stringify(ekran.od.selektor)})].find((x) => { const tekst = (x.innerText || '').trim().toLowerCase(); const wzor = ${JSON.stringify(String(ekran.od.zawiera ?? '').toLowerCase())}; return ${ekran.od.dokladnie ? 'tekst === wzor' : 'tekst.includes(wzor)'}; }); return e ? e.getBoundingClientRect().top + scrollY - 60 : 0; })()`)))
+        : 0;
+    const wycinek = poczatek === 0 ? Math.max(wysokosc, opcje.wysokosc) : Math.max(Math.min(wysokosc, cala - poczatek), 400);
+    const zrzut = await wyslij('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true, clip: { x: 0, y: poczatek, width: opcje.szerokosc, height: wycinek, scale: 1 } });
     fs.mkdirSync(katalogZrzutow, { recursive: true });
     fs.writeFileSync(path.join(katalogZrzutow, `podrecznik-${ekran.slug}.png`), Buffer.from(zrzut.data, 'base64'));
 }
@@ -342,6 +351,7 @@ if (opcje.sonda) {
     await zaloguj();
     for (const strona of opcje.sonda) {
     await otworz(strona);
+    if (opcje.sondaJs) { const wynikJs = await oblicz(opcje.sondaJs); await spij(2500); if (wynikJs !== undefined) console.log('js -> ' + JSON.stringify(wynikJs)); }
     console.log('=== ' + strona);
     const opis = await oblicz(`JSON.stringify({
         tytul: document.title,
