@@ -1065,7 +1065,38 @@
     "position": "Platz unter den Bots",
     "positionValue": "{position} von {size}",
     "error": "Die Strecke wurde nicht gewechselt.",
-    "done": "Ab jetzt fährt das Auto auf {name}."
+    "done": "Ab jetzt fährt das Auto auf {name}.",
+    "thread": {
+      "line": "Die Linie von {name}",
+      "character": {
+        "twisty": "Eine Strecke der Kurven: {percent} % einer Runde vergehen in ihnen, also zählen Grip und Handling.",
+        "power": "Eine Strecke der Leistung: {percent} % einer Runde gehen ins Beschleunigen, also zählt die Leistung.",
+        "limit": "Eine Strecke am Limit: {percent} % einer Runde werden dort gefahren.",
+        "balanced": "Eine ausgewogene Strecke: Leistung, Bremsen und Kurven zählen alle."
+      },
+      "fitTitle": "Dein Auto auf dieser Strecke",
+      "gain": {
+        "accelerating": "Gewinnt Zeit beim Beschleunigen.",
+        "holding": "Gewinnt Zeit, wo das Tempo gehalten wird.",
+        "braking": "Gewinnt Zeit beim Bremsen.",
+        "cornering": "Gewinnt Zeit in den Kurven."
+      },
+      "loss": {
+        "accelerating": "Verliert Zeit beim Beschleunigen.",
+        "holding": "Verliert Zeit, wo das Tempo gehalten wird.",
+        "braking": "Verliert Zeit beim Bremsen.",
+        "cornering": "Verliert Zeit in den Kurven."
+      },
+      "even": "Es fährt diese Strecke wie das Auto, für das sie gemacht ist.",
+      "group": {
+        "accelerating": "Beschleunigen",
+        "holding": "Limit",
+        "braking": "Bremsen",
+        "cornering": "Kurven"
+      },
+      "seconds": "{value} s",
+      "byHand": "Die Rundenzeit dieser Strecke ist von Hand festgelegt; das zeigt, wie das Auto mit ihrer Form zurechtkommt."
+    }
   },
   "race": {
     "track": {

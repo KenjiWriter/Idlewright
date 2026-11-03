@@ -1065,7 +1065,38 @@
     "position": "Place among the bots",
     "positionValue": "{position} of {size}",
     "error": "The track was not changed.",
-    "done": "From now on the car drives {name}."
+    "done": "From now on the car drives {name}.",
+    "thread": {
+      "line": "The line of {name}",
+      "character": {
+        "twisty": "A track of corners: {percent}% of a lap goes in them, so grip and handling count.",
+        "power": "A track of power: {percent}% of a lap goes on getting up to speed, so power counts.",
+        "limit": "A track at the limit: {percent}% of a lap is spent there.",
+        "balanced": "A balanced track: power, braking and corners all count."
+      },
+      "fitTitle": "Your car on this track",
+      "gain": {
+        "accelerating": "Gains time getting up to speed.",
+        "holding": "Gains time where the pace is held.",
+        "braking": "Gains time braking.",
+        "cornering": "Gains time in the corners."
+      },
+      "loss": {
+        "accelerating": "Loses time getting up to speed.",
+        "holding": "Loses time where the pace is held.",
+        "braking": "Loses time braking.",
+        "cornering": "Loses time in the corners."
+      },
+      "even": "It drives this track like the car the track is made for.",
+      "group": {
+        "accelerating": "Acceleration",
+        "holding": "Limit",
+        "braking": "Braking",
+        "cornering": "Corners"
+      },
+      "seconds": "{value} s",
+      "byHand": "The lap time of this track is set by hand; this shows how the car handles its shape."
+    }
   },
   "race": {
     "track": {

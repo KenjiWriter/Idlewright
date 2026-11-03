@@ -1065,7 +1065,38 @@
     "position": "Posição entre os bots",
     "positionValue": "{position} de {size}",
     "error": "A pista não foi trocada.",
-    "done": "A partir de agora o carro corre em {name}."
+    "done": "A partir de agora o carro corre em {name}.",
+    "thread": {
+      "line": "A linha de {name}",
+      "character": {
+        "twisty": "Uma pista de curvas: {percent}% de uma volta passa nelas, então aderência e dirigibilidade contam.",
+        "power": "Uma pista de potência: {percent}% de uma volta vai em ganhar velocidade, então a potência conta.",
+        "limit": "Uma pista no limite: {percent}% de uma volta é passada lá.",
+        "balanced": "Uma pista equilibrada: potência, frenagem e curvas contam."
+      },
+      "fitTitle": "Seu carro nesta pista",
+      "gain": {
+        "accelerating": "Ganha tempo ao acelerar.",
+        "holding": "Ganha tempo onde o ritmo é mantido.",
+        "braking": "Ganha tempo ao frear.",
+        "cornering": "Ganha tempo nas curvas."
+      },
+      "loss": {
+        "accelerating": "Perde tempo ao acelerar.",
+        "holding": "Perde tempo onde o ritmo é mantido.",
+        "braking": "Perde tempo ao frear.",
+        "cornering": "Perde tempo nas curvas."
+      },
+      "even": "Ele corre aqui como o carro para o qual a pista foi feita.",
+      "group": {
+        "accelerating": "Aceleração",
+        "holding": "Limite",
+        "braking": "Frenagem",
+        "cornering": "Curvas"
+      },
+      "seconds": "{value} s",
+      "byHand": "O tempo de volta desta pista é definido à mão; isto mostra como o carro lida com o formato dela."
+    }
   },
   "race": {
     "track": {

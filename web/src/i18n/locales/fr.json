@@ -1065,7 +1065,38 @@
     "position": "Place parmi les bots",
     "positionValue": "{position} sur {size}",
     "error": "Le circuit n’a pas été changé.",
-    "done": "À partir de maintenant, la voiture roule sur {name}."
+    "done": "À partir de maintenant, la voiture roule sur {name}.",
+    "thread": {
+      "line": "Le tracé de {name}",
+      "character": {
+        "twisty": "Un circuit de virages : {percent} % d’un tour s’y passe, donc l’adhérence et la maniabilité comptent.",
+        "power": "Un circuit de puissance : {percent} % d’un tour sert à prendre de la vitesse, donc la puissance compte.",
+        "limit": "Un circuit à la limite : {percent} % d’un tour s’y passe.",
+        "balanced": "Un circuit équilibré : puissance, freinage et virages comptent tous."
+      },
+      "fitTitle": "Votre voiture sur ce circuit",
+      "gain": {
+        "accelerating": "Gagne du temps à l’accélération.",
+        "holding": "Gagne du temps là où il faut tenir l’allure.",
+        "braking": "Gagne du temps au freinage.",
+        "cornering": "Gagne du temps dans les virages."
+      },
+      "loss": {
+        "accelerating": "Perd du temps à l’accélération.",
+        "holding": "Perd du temps là où il faut tenir l’allure.",
+        "braking": "Perd du temps au freinage.",
+        "cornering": "Perd du temps dans les virages."
+      },
+      "even": "Elle s’y comporte comme la voiture pour laquelle le circuit est fait.",
+      "group": {
+        "accelerating": "Accélération",
+        "holding": "Limite",
+        "braking": "Freinage",
+        "cornering": "Virages"
+      },
+      "seconds": "{value} s",
+      "byHand": "Le temps au tour de ce circuit est fixé à la main ; ceci montre comment la voiture aborde son tracé."
+    }
   },
   "race": {
     "track": {

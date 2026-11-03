@@ -2,7 +2,7 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import type { MapCity, MapResponse, MapTrack, MapTrackCar, Run } from '@/api/types'
+import type { MapCity, MapResponse, MapTrack, MapTrackCar, MapTrackThread, Run } from '@/api/types'
 import { storeToken } from '@/auth/token'
 import { setGame } from '@/game'
 import { i18n, setLocale } from '@/i18n'
@@ -52,6 +52,24 @@ function forTheCar(overrides: Partial<MapTrackCar> = {}): MapTrackCar {
     fit_percent: 100,
     position: 2,
     field_size: 8,
+    ...overrides,
+  }
+}
+
+function aThread(overrides: Partial<MapTrackThread> = {}): MapTrackThread {
+  return {
+    lap_from: 'thread',
+    mode: 'circuit',
+    points: [
+      [0, 0],
+      [300, 0],
+      [300, 120],
+      [0, 120],
+      [0, 0],
+    ],
+    character: 'twisty',
+    shares: { accelerating: 37, holding: 0, braking: 11, cornering: 53 },
+    car: { accelerating: -6.9, holding: 0, braking: 4.4, cornering: 0.6 },
     ...overrides,
   }
 }
@@ -116,6 +134,59 @@ describe('TrackPicker', () => {
   afterEach(() => {
     vi.unstubAllGlobals()
     setGame()
+  })
+
+  it('draws the line of a track that has a thread and tells what it asks, in one sentence', async () => {
+    const tracks = [
+      aTrack({ slug: 'zlomowo-street', name: 'Sprint uliczny Złomowo', current: true, thread: aThread() }),
+      aTrack({ slug: 'zlomowo-yard-dash', name: 'Sprint po złomowisku', kind: 'sprint', thread: aThread({ character: 'power', shares: { accelerating: 85, holding: 0, braking: 4, cornering: 12 } }) }),
+      aTrack({ slug: 'zlomowo-ring-road', name: 'Obwodnica Złomowo', kind: 'endurance', thread: aThread({ character: 'balanced' }) }),
+    ]
+    const { wrapper } = await show(aRun(), tracks)
+
+    expect(wrapper.get('[data-test="track-thread-zlomowo-street"] [data-test="track-thumb"]').attributes('aria-label')).toBe('The line of Sprint uliczny Złomowo')
+    expect(wrapper.get('[data-test="track-thread-zlomowo-street"] [data-test="character"]').text()).toBe('A track of corners: 53% of a lap goes in them, so grip and handling count.')
+    expect(wrapper.get('[data-test="track-thread-zlomowo-yard-dash"] [data-test="character"]').text()).toBe('A track of power: 85% of a lap goes on getting up to speed, so power counts.')
+    expect(wrapper.get('[data-test="track-thread-zlomowo-ring-road"] [data-test="character"]').text()).toBe('A balanced track: power, braking and corners all count.')
+  })
+
+  it('says what the car gains and loses against the car the track is made for, with the seconds', async () => {
+    const { wrapper } = await show(aRun(), [aTrack({ slug: 'zlomowo-street', name: 'Sprint uliczny Złomowo', current: true, thread: aThread() }), ...TRACKS.slice(1)])
+    const fit = wrapper.get('[data-test="track-fit-zlomowo-street"]')
+
+    expect(fit.get('[data-test="fit-verdict"]').text()).toBe('Gains time getting up to speed. Loses time braking.')
+    expect(fit.get('[data-test="fit-accelerating"]').text()).toBe('Acceleration −6.9 s')
+    expect(fit.get('[data-test="fit-braking"]').text()).toBe('Braking +4.4 s')
+    // The corners differ by 0.6 s on a lap of 75 s: that is rounding, so it is not told.
+    expect(fit.find('[data-test="fit-cornering"]').exists()).toBe(false)
+    expect(fit.find('[data-test="fit-by-hand"]').exists()).toBe(false)
+  })
+
+  it('says the lap time is set by hand when the track is driven by the formula, and that the car drives like the reference when nothing differs', async () => {
+    const tracks = [
+      aTrack({ slug: 'zlomowo-street', name: 'Sprint uliczny Złomowo', current: true, thread: aThread({ lap_from: 'stats', car: { accelerating: 0.1, holding: 0, braking: 0, cornering: -0.2 } }) }),
+      ...TRACKS.slice(1),
+    ]
+    const { wrapper } = await show(aRun(), tracks)
+    const fit = wrapper.get('[data-test="track-fit-zlomowo-street"]')
+
+    expect(fit.get('[data-test="fit-verdict"]').text()).toBe('It drives this track like the car the track is made for.')
+    expect(fit.get('[data-test="fit-by-hand"]').text()).toBe('The lap time of this track is set by hand; this shows how the car handles its shape.')
+  })
+
+  it('draws only the line when the thread says nothing about the car, and nothing for a track without a thread', async () => {
+    const tracks = [
+      aTrack({ slug: 'zlomowo-street', name: 'Sprint uliczny Złomowo', current: true, thread: aThread({ character: null, shares: null, car: null }) }),
+      aTrack({ slug: 'zlomowo-yard-dash', name: 'Sprint po złomowisku', kind: 'sprint', thread: null }),
+      aTrack({ slug: 'zlomowo-ring-road', name: 'Obwodnica Złomowo', kind: 'endurance' }),
+    ]
+    const { wrapper } = await show(aRun(), tracks)
+
+    expect(wrapper.find('[data-test="track-thread-zlomowo-street"] [data-test="track-thumb"]').exists()).toBe(true)
+    expect(wrapper.find('[data-test="track-thread-zlomowo-street"] [data-test="character"]').exists()).toBe(false)
+    expect(wrapper.find('[data-test="track-fit-zlomowo-street"]').exists()).toBe(false)
+    expect(wrapper.find('[data-test="track-thread-zlomowo-yard-dash"]').exists()).toBe(false)
+    expect(wrapper.find('[data-test="track-thread-zlomowo-ring-road"]').exists()).toBe(false)
   })
 
   it('lists the tracks of the city with their kind, and marks the one the car drives', async () => {

@@ -1092,6 +1092,30 @@ export interface MapTrack {
   length_m: number
   demand: Record<string, number>
   car: MapTrackCar | null
+  /** What the thread of the track says, for the tracks of the city where the car stands (absent in older answers, null without a thread). */
+  thread?: MapTrackThread | null
+}
+
+/** The parts of a lap that the thread of a track tells apart: getting up to speed, holding the limit, braking for the corners, and the corners. */
+export type ThreadGroup = 'accelerating' | 'holding' | 'braking' | 'cornering'
+
+/** How a track is told: a track of corners, of power, one that holds the limit, or none of them. */
+export type TrackCharacter = 'twisty' | 'power' | 'limit' | 'balanced'
+
+/**
+ * The thread of a track as the choice shows it: a small line, where the time of a lap goes for the car the track is made for (percent) and what the car that is
+ * played gains (below zero) or loses (above) against that car, in seconds of the lap of the track. A track whose reference car cannot be driven by the model has
+ * the line only.
+ */
+export interface MapTrackThread {
+  /** `stats`: the lap time of the track is set by hand and the thread only describes its shape. */
+  lap_from: 'stats' | 'thread'
+  mode: 'circuit' | 'run'
+  /** The line in metres from the start, y growing upwards. */
+  points: [number, number][]
+  character: TrackCharacter | null
+  shares: Record<ThreadGroup, number> | null
+  car: Record<ThreadGroup, number> | null
 }
 
 /** The dry lap of the car on a track, and what it pays, burns and earns an hour after the fuel. Times in ms, fuel in ml, money in cents. */

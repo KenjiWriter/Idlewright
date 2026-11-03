@@ -1065,7 +1065,38 @@
     "position": "Miejsce wśród botów",
     "positionValue": "{position} z {size}",
     "error": "Nie zmieniono toru.",
-    "done": "Od teraz auto jeździ po: {name}."
+    "done": "Od teraz auto jeździ po: {name}.",
+    "thread": {
+      "line": "Linia toru {name}",
+      "character": {
+        "twisty": "Tor zakrętów: {percent}% okrążenia mija w nich, więc liczą się przyczepność i zwrotność.",
+        "power": "Tor mocy: {percent}% okrążenia to rozpędzanie się, więc liczy się moc.",
+        "limit": "Tor na limicie: {percent}% okrążenia spędza się właśnie tam.",
+        "balanced": "Tor zrównoważony: liczą się moc, hamowanie i zakręty."
+      },
+      "fitTitle": "Twoje auto na tym torze",
+      "gain": {
+        "accelerating": "Zyskuje na rozpędzaniu.",
+        "holding": "Zyskuje tam, gdzie trzeba trzymać tempo.",
+        "braking": "Zyskuje na hamowaniu.",
+        "cornering": "Zyskuje w zakrętach."
+      },
+      "loss": {
+        "accelerating": "Traci na rozpędzaniu.",
+        "holding": "Traci tam, gdzie trzeba trzymać tempo.",
+        "braking": "Traci na hamowaniu.",
+        "cornering": "Traci w zakrętach."
+      },
+      "even": "Jedzie tu jak auto, dla którego zrobiono ten tor.",
+      "group": {
+        "accelerating": "Przyspieszanie",
+        "holding": "Limit",
+        "braking": "Hamowanie",
+        "cornering": "Zakręty"
+      },
+      "seconds": "{value} s",
+      "byHand": "Czas okrążenia tego toru jest ustalony ręcznie; to pokazuje, jak auto radzi sobie z jego kształtem."
+    }
   },
   "race": {
     "track": {
