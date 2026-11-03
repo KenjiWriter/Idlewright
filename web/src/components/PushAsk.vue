@@ -3,12 +3,11 @@ import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { ApiError } from '@/api/client'
-import { putOff, shouldAsk } from '@/features/push/softAsk'
 import { usePushStore } from '@/stores/push'
 
 /**
  * The card that asks a driver who has come back after a break whether they want to be told when a car stops or arrives. It comes before the question of the browser, which cannot be
- * taken back once it was answered with a "no": a driver who is not ready says "not now" here, and is asked again after a week, three times at most. A driver who has said yes, no or
+ * taken back once it was answered with a "no": a driver who is not ready says "not now" here, and the server asks again after the time the rules give, as many times as they allow. A driver who has said yes, no or
  * nothing to the browser, or whose browser cannot take push messages, does not see it. On an iPhone or iPad it says that the game has to be on the home screen first.
  */
 const { t } = useI18n()
@@ -21,7 +20,7 @@ const error = ref<string | null>(null)
 const needsInstall = computed(() => push.support === 'needs-install')
 
 onMounted(async () => {
-  if (!shouldAsk() || push.support === 'unsupported') {
+  if (push.support === 'unsupported') {
     return
   }
 
@@ -32,7 +31,8 @@ onMounted(async () => {
   }
 
   // A permission that was given or refused is not asked for again.
-  visible.value = push.available && (needsInstall.value || (push.permission === 'default' && !push.subscribed))
+  // The server says whether the card may come (how many times it was put off, and how long ago); the browser says whether anything is left to ask.
+  visible.value = push.available && push.config?.ask === true && (needsInstall.value || (push.permission === 'default' && !push.subscribed))
 })
 
 async function enable(): Promise<void> {
@@ -60,8 +60,8 @@ async function enable(): Promise<void> {
 }
 
 function later(): void {
-  putOff()
   visible.value = false
+  push.putOff().catch(() => undefined)
 }
 </script>
 

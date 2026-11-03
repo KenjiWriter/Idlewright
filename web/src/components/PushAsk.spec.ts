@@ -1,11 +1,12 @@
 import { flushPromises, mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { ApiError } from '@/api/client'
 import * as subscription from '@/features/push/pushSubscription'
 import * as support from '@/features/push/pushSupport'
-import { shouldAsk } from '@/features/push/softAsk'
+import { serveApi } from '@/test/fetchServer'
+import { storeToken } from '@/auth/token'
 import { i18n, setLocale } from '@/i18n'
 
 import PushAsk from './PushAsk.vue'
@@ -20,10 +21,10 @@ vi.mock('@/features/push/pushSubscription', () => ({
 }))
 
 /** The browser and the game as the test says. */
-function world({ browser = 'ready', permission = 'default', enabled = true, held = false }: { browser?: string; permission?: string; enabled?: boolean; held?: boolean } = {}): void {
+function world({ browser = 'ready', permission = 'default', enabled = true, held = false, ask = true }: { browser?: string; permission?: string; enabled?: boolean; held?: boolean; ask?: boolean } = {}): void {
   vi.mocked(support.pushSupport).mockReturnValue(browser as never)
   vi.mocked(support.pushPermission).mockReturnValue(permission as never)
-  vi.mocked(subscription.loadPushConfig).mockResolvedValue({ enabled, public_key: enabled ? 'KEY' : null, devices: 0 })
+  vi.mocked(subscription.loadPushConfig).mockResolvedValue({ enabled, public_key: enabled ? 'KEY' : null, devices: 0, ask })
   vi.mocked(subscription.hasSubscription).mockResolvedValue(held)
 }
 
@@ -35,12 +36,19 @@ async function show() {
   return wrapper
 }
 
+const fetchMock = vi.fn()
+
 describe('PushAsk', () => {
   beforeEach(async () => {
     localStorage.clear()
     vi.resetAllMocks()
+    fetchMock.mockReset()
+    vi.stubGlobal('fetch', fetchMock)
+    storeToken('device-token')
     await setLocale('en')
   })
+
+  afterEach(() => vi.unstubAllGlobals())
 
   it('asks a driver who has not been asked, with a card of the game before the question of the browser', async () => {
     world()
@@ -59,7 +67,7 @@ describe('PushAsk', () => {
     await wrapper.get('[data-test="push-ask-enable"]').trigger('click')
     await flushPromises()
 
-    expect(subscription.enablePush).toHaveBeenCalledExactlyOnceWith({ enabled: true, public_key: 'KEY', devices: 0 }, 'en')
+    expect(subscription.enablePush).toHaveBeenCalledExactlyOnceWith({ enabled: true, public_key: 'KEY', devices: 0, ask: true }, 'en')
     expect(wrapper.find('[data-test="push-ask"]').exists()).toBe(false)
   })
 
@@ -92,18 +100,22 @@ describe('PushAsk', () => {
     expect(wrapper.get('[data-test="push-ask-error"]').text()).toBe('This game does not send notifications.')
   })
 
-  it('puts the question off for a week when the driver says "not now"', async () => {
+  it('tells the server when the driver says "not now", and the card goes away', async () => {
     world()
+    const calls = serveApi(fetchMock, { 'POST /api/v1/push/prompt': () => new Response(null, { status: 204 }) })
     const wrapper = await show()
 
     await wrapper.get('[data-test="push-ask-later"]').trigger('click')
+    await flushPromises()
 
     expect(wrapper.find('[data-test="push-ask"]').exists()).toBe(false)
-    expect(shouldAsk()).toBe(false)
+    expect(calls).toEqual([{ url: '/api/v1/push/prompt', method: 'POST', body: null }])
+  })
 
-    const again = await show()
-    expect(again.find('[data-test="push-ask"]').exists()).toBe(false)
-    expect(subscription.loadPushConfig).toHaveBeenCalledTimes(1)
+  it('does not come when the server says it is not the time (put off lately, or as many times as the rules allow)', async () => {
+    world({ ask: false })
+
+    expect((await show()).find('[data-test="push-ask"]').exists()).toBe(false)
   })
 
   it('does not ask a driver whose browser has been told, whose browser cannot, or whose game sends nothing', async () => {

@@ -7,6 +7,8 @@ export interface PushConfig {
   enabled: boolean
   public_key: string | null
   devices: number
+  /** Whether the card that asks about notifications may be shown now: the server counts the "not now" answers and says when the card may come back. */
+  ask: boolean
 }
 
 /** What came of asking for notifications. */

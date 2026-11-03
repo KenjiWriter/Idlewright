@@ -9,7 +9,7 @@ import { disablePush, enablePush, keyToBytes, loadPushConfig, syncPush, type Pus
 
 const KEY = 'BP4z9KsN6nGRTbVYI_c7VJSPQTBtkgcy27mlmlMoZIIgDll6e3vCYLocInmYWAmS6TlzAC8wEqKK6PBru3jl7A8'
 const OTHER_KEY = 'BCVxsr7N_eNgVRqvHtD0zTZsEc6-VV-JvLexhqUzORcxaOzi6-AYWXvTBHm4bjyPjs7Vd8pZGH6SRpkNtoIAiw4'
-const ENABLED: PushConfig = { enabled: true, public_key: KEY, devices: 0 }
+const ENABLED: PushConfig = { enabled: true, public_key: KEY, devices: 0, ask: true }
 
 const fetchMock = vi.fn()
 
@@ -103,7 +103,7 @@ describe('push subscription', () => {
   it('does not ask for the permission when the game does not send', async () => {
     browser(null)
 
-    expect(await enablePush({ enabled: false, public_key: null, devices: 0 }, 'pl')).toBe('unavailable')
+    expect(await enablePush({ enabled: false, public_key: null, devices: 0, ask: false }, 'pl')).toBe('unavailable')
     expect(Notification.requestPermission).not.toHaveBeenCalled()
   })
 

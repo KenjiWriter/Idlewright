@@ -25,7 +25,7 @@ const KINDS = { car_stopped: true, car_arrived: true, job_done: false }
 function world({ browser = 'ready', permission = 'granted', enabled = true, held = true }: { browser?: string; permission?: string; enabled?: boolean; held?: boolean } = {}): void {
   vi.mocked(support.pushSupport).mockReturnValue(browser as never)
   vi.mocked(support.pushPermission).mockReturnValue(permission as never)
-  vi.mocked(subscription.loadPushConfig).mockResolvedValue({ enabled, public_key: enabled ? 'KEY' : null, devices: held ? 1 : 0 })
+  vi.mocked(subscription.loadPushConfig).mockResolvedValue({ enabled, public_key: enabled ? 'KEY' : null, devices: held ? 1 : 0, ask: false })
   vi.mocked(subscription.hasSubscription).mockResolvedValue(held)
 }
 

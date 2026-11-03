@@ -21,6 +21,6 @@ class PushPreference extends Model
     /** @return array<string, string> */
     protected function casts(): array
     {
-        return ['kinds' => 'array'];
+        return ['kinds' => 'array', 'prompted_at' => 'datetime'];
     }
 }

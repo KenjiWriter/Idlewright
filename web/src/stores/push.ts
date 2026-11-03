@@ -68,6 +68,15 @@ export const usePushStore = defineStore('push', () => {
     await refreshDevice()
   }
 
+  /** The driver said "not now" to the card that asks: the server counts it, and the card does not come back before the time the rules give. */
+  async function putOff(): Promise<void> {
+    await api('/v1/push/prompt', { method: 'POST' })
+
+    if (config.value !== null) {
+      config.value = { ...config.value, ask: false }
+    }
+  }
+
   /** A message to the driver's own devices, to see that it arrives; how many devices it went to. */
   async function test(): Promise<number> {
     return (await api<{ data: { queued: number } }>('/v1/push/test', { method: 'POST' })).data.queued
@@ -89,5 +98,5 @@ export const usePushStore = defineStore('push', () => {
     }
   }
 
-  return { config, kinds, permission, subscribed, loaded, support, available, load, loadKinds, setKind, enable, disable, test, sync }
+  return { config, kinds, permission, subscribed, loaded, support, available, load, loadKinds, setKind, enable, disable, putOff, test, sync }
 })

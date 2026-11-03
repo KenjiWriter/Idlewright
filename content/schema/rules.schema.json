@@ -817,9 +817,11 @@
         "quiet_to_min": { "description": "The minute of the day when the quiet hours end (480 is 08:00). The same number as `quiet_from_min` means no quiet hours.", "type": "integer", "minimum": 0, "maximum": 1439 },
         "adapt_digest_after": { "description": "How many messages in a row a driver can leave unanswered (not opening the notification and not coming into the game within an hour of it) before the game tells them at most once a day, with everything that happened in one message.", "type": "integer", "minimum": 1, "maximum": 50 },
         "adapt_pause_after": { "description": "How many messages in a row can stay unanswered before the game stops telling the driver at all, until they come into the game by themselves.", "type": "integer", "minimum": 1, "maximum": 200 },
+        "ask_max": { "description": "How many times the card that asks a driver whether they want notifications may come back after a \"not now\". After that the question is not asked again (the driver can still turn them on in the account).", "type": "integer", "minimum": 1, "maximum": 20 },
+        "ask_after_ms": { "description": "How long after a \"not now\" the card that asks about notifications waits before it comes back, in milliseconds.", "type": "integer", "minimum": 3600000, "maximum": 7776000000 },
         "holdout_ppm": { "description": "The part of the accounts (1 000 000 is all of them) that are never told by push and never asked: the group that the others are compared with, to see that the notifications do not make the drivers come back less. The account is put in the group by a hash of its id, so it stays there; a higher number moves more accounts into it, and a lower one moves some out. 0 tells everybody.", "type": "integer", "minimum": 0, "maximum": 1000000 }
       },
-      "required": ["enabled", "ttl_ms", "default_kinds", "per_day", "min_gap_ms", "seen_ms", "quiet_from_min", "quiet_to_min", "adapt_digest_after", "adapt_pause_after", "holdout_ppm"],
+      "required": ["enabled", "ttl_ms", "default_kinds", "per_day", "min_gap_ms", "seen_ms", "quiet_from_min", "quiet_to_min", "adapt_digest_after", "adapt_pause_after", "ask_max", "ask_after_ms", "holdout_ppm"],
       "additionalProperties": false
     },
     "slots": {

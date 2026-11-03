@@ -425,3 +425,45 @@ describe('the data of a driver', function () {
             ->and(PushEvent::query()->pluck('state')->sort()->values()->all())->toBe(['planned', 'skipped']);
     });
 });
+
+describe('the card that asks about notifications', function () {
+    it('may be shown until it was put off as many times as the rules allow, and waits the time the rules give after each', function () {
+        $driver = pushDriver();
+
+        $this->getJson('/api/v1/push/config', bearerFor($driver))->assertJsonPath('data.ask', true);
+
+        foreach ([1, 2, 3] as $time) {
+            $this->postJson('/api/v1/push/prompt', [], bearerFor($driver))->assertNoContent();
+
+            $this->getJson('/api/v1/push/config', bearerFor($driver))->assertJsonPath('data.ask', false);
+            $this->travel(6)->days();
+            $this->getJson('/api/v1/push/config', bearerFor($driver))->assertJsonPath('data.ask', false);
+            $this->travel(1)->days();
+
+            // After the third "not now" it is not asked any more, however long it has been.
+            $this->getJson('/api/v1/push/config', bearerFor($driver))->assertJsonPath('data.ask', $time < 3);
+        }
+
+        $this->travel(90)->days();
+        $this->getJson('/api/v1/push/config', bearerFor($driver))->assertJsonPath('data.ask', false);
+    });
+
+    it('is the driver’s own count, and the rules say how many times', function () {
+        thePushRulesAre(['ask_max' => 1, 'ask_after_ms' => 3_600_000]);
+        $driver = pushDriver();
+        $other = User::factory()->guest()->create();
+
+        $this->postJson('/api/v1/push/prompt', [], bearerFor($driver))->assertNoContent();
+        $this->travel(2)->hours();
+
+        $this->getJson('/api/v1/push/config', bearerFor($driver))->assertJsonPath('data.ask', false);
+        $this->getJson('/api/v1/push/config', bearerFor($other))->assertJsonPath('data.ask', true);
+    });
+
+    it('is not asked of a driver who cannot be told at all', function () {
+        thePushRulesAre(['holdout_ppm' => 1_000_000]);
+        $driver = pushDriver();
+
+        $this->getJson('/api/v1/push/config', bearerFor($driver))->assertJsonPath('data.ask', false);
+    });
+});

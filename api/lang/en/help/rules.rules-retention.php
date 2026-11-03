@@ -178,5 +178,17 @@ return [
             'example' => '10: after ten unanswered messages nothing comes until the driver is back.',
             'range' => '1 – 200 (messages).',
         ],
+        '/push/ask_max' => [
+            'label' => 'How many times the app asks for notifications',
+            'help' => 'How many times the card that asks a driver whether they want notifications may come back after a "not now". After that the question is not asked again; the driver can still turn notifications on in the account.',
+            'example' => '3: the card comes at most three times.',
+            'range' => '1 – 20 (times).',
+        ],
+        '/push/ask_after_ms' => [
+            'label' => 'Time before the card comes back',
+            'help' => 'How long after a "not now" the card that asks about notifications waits before it comes back.',
+            'example' => '604800 s: a week.',
+            'range' => '1 hour – 90 days.',
+        ],
     ],
 ];

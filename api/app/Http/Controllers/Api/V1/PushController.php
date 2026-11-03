@@ -32,6 +32,8 @@ final class PushController extends Controller
             'enabled' => $key !== null,
             'public_key' => $key,
             'devices' => $this->subscriptions->devices($request->user()),
+            // Whether the card that asks about notifications may be shown now (the count of "not now" is kept here).
+            'ask' => $key !== null && $this->preferences->mayAsk($request->user()),
         ]])->header('Cache-Control', 'no-store');
     }
 
@@ -73,6 +75,14 @@ final class PushController extends Controller
     public function preferences(Request $request): JsonResponse
     {
         return response()->json(['data' => ['kinds' => $this->preferences->kindsOf($request->user())]])->header('Cache-Control', 'no-store');
+    }
+
+    /** The driver said "not now" to the card that asks about notifications: it is counted, and the card waits for the time the rules give. */
+    public function putOff(Request $request): Response
+    {
+        $this->preferences->putOff($request->user());
+
+        return response()->noContent();
     }
 
     /** Switches kinds of messages on or off; the kinds that are not given stay as they were. */

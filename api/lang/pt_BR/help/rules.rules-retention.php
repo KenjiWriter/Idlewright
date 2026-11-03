@@ -178,5 +178,17 @@ return [
             'example' => '10: depois de dez mensagens sem resposta, nada vem até o jogador voltar.',
             'range' => '1 – 200 (mensagens).',
         ],
+        '/push/ask_max' => [
+            'label' => 'Quantas vezes o app pergunta sobre notificações',
+            'help' => 'Quantas vezes o cartão que pergunta ao jogador se ele quer notificações pode voltar depois de um “agora não”. Depois disso a pergunta não volta; o jogador ainda pode ativar as notificações na conta.',
+            'example' => '3: o cartão vem no máximo três vezes.',
+            'range' => '1 – 20 (vezes).',
+        ],
+        '/push/ask_after_ms' => [
+            'label' => 'Tempo até o cartão voltar',
+            'help' => 'Quanto tempo depois de um “agora não” o cartão que pergunta sobre notificações espera antes de voltar.',
+            'example' => '604800 s: uma semana.',
+            'range' => '1 hora – 90 dias.',
+        ],
     ],
 ];

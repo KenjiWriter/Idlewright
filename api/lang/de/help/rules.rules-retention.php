@@ -178,5 +178,17 @@ return [
             'example' => '10: Nach zehn unbeantworteten Nachrichten kommt nichts mehr, bis der Spieler zurück ist.',
             'range' => '1 – 200 (Nachrichten).',
         ],
+        '/push/ask_max' => [
+            'label' => 'Wie oft die App nach Benachrichtigungen fragt',
+            'help' => 'Wie oft die Karte, die den Spieler fragt, ob er Benachrichtigungen will, nach einem „Jetzt nicht“ wiederkommen darf. Danach wird nicht mehr gefragt; der Spieler kann Benachrichtigungen weiterhin im Konto einschalten.',
+            'example' => '3: Die Karte kommt höchstens dreimal.',
+            'range' => '1 – 20 (Mal).',
+        ],
+        '/push/ask_after_ms' => [
+            'label' => 'Zeit, bis die Karte wiederkommt',
+            'help' => 'Wie lange nach einem „Jetzt nicht“ die Karte mit der Frage nach Benachrichtigungen wartet, bevor sie wiederkommt.',
+            'example' => '604800 s: eine Woche.',
+            'range' => '1 Stunde – 90 Tage.',
+        ],
     ],
 ];

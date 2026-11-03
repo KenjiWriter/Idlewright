@@ -178,5 +178,17 @@ return [
             'example' => '10: po dziesięciu wiadomościach bez odpowiedzi nic nie przyjdzie, dopóki gracz nie wróci.',
             'range' => '1 – 200 (wiadomości).',
         ],
+        '/push/ask_max' => [
+            'label' => 'Ile razy aplikacja pyta o powiadomienia',
+            'help' => 'Ile razy karta, która pyta gracza, czy chce powiadomienia, może wrócić po „nie teraz”. Potem pytanie już nie wraca; gracz może nadal włączyć powiadomienia w koncie.',
+            'example' => '3: karta przyjdzie najwyżej trzy razy.',
+            'range' => '1 – 20 (razy).',
+        ],
+        '/push/ask_after_ms' => [
+            'label' => 'Czas, po którym karta wraca',
+            'help' => 'Jak długo po „nie teraz” karta z pytaniem o powiadomienia czeka, zanim wróci.',
+            'example' => '604800 s: tydzień.',
+            'range' => '1 godzina – 90 dni.',
+        ],
     ],
 ];

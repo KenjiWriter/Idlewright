@@ -178,5 +178,17 @@ return [
             'example' => '10 : après dix messages sans réponse, rien ne vient tant que le joueur n’est pas revenu.',
             'range' => '1 – 200 (messages).',
         ],
+        '/push/ask_max' => [
+            'label' => 'Combien de fois l’application demande les notifications',
+            'help' => 'Combien de fois la carte qui demande au joueur s’il veut des notifications peut revenir après un « pas maintenant ». Ensuite la question n’est plus posée ; le joueur peut toujours activer les notifications dans son compte.',
+            'example' => '3 : la carte vient au plus trois fois.',
+            'range' => '1 – 20 (fois).',
+        ],
+        '/push/ask_after_ms' => [
+            'label' => 'Délai avant le retour de la carte',
+            'help' => 'Combien de temps après un « pas maintenant » la carte qui demande des notifications attend avant de revenir.',
+            'example' => '604800 s : une semaine.',
+            'range' => '1 heure – 90 jours.',
+        ],
     ],
 ];
