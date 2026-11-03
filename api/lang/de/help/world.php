@@ -83,7 +83,7 @@ return [
         'tracks' => [
             'label' => 'Strecken',
             'help' => 'Wo Autos verdienen. Jede Strecke hat eine Runde, einen Verdienst, einen Kraftstoffverbrauch und ein Profil dessen, was sie von einem Auto verlangt (Tempo, Haftung, Fahrverhalten ...). Ein Auto steht in der Stadt der Strecke, auf der es fährt, und eine Stadt kann mehrere Strecken haben.',
-            'example' => 'Das Autospiel hat 15 Strecken, drei in jeder Stadt: eine Standardstrecke, einen Sprint und eine Langstrecke.',
+            'example' => 'Das Autospiel hat 20 Strecken: drei in jeder Stadt (eine Standardstrecke, einen Sprint und eine Langstrecke) und dazu eine Rallye in jeder Stadt.',
             'tip' => 'Die erste Strecke der Liste ist der Start eines neuen Fahrers (sie muss ab Stufe 1 offen sein), und die erste Strecke einer Stadt ist die, auf die ein Auto bei der Ankunft kommt; neue Strecken kommen also ans Ende. Eine Strecke, auf der Spieler fahren, kann weder entfernt noch im Slug geändert werden. Eine Strecke hat keine Rivalen (Bots), solange die Bot-Tabelle keine Zeile für sie hat (Befehl economy:bot-profiles).',
         ],
         'track_slug' => [

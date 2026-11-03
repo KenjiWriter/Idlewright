@@ -83,7 +83,7 @@ return [
         'tracks' => [
             'label' => 'Tory',
             'help' => 'Gdzie auta zarabiają. Każdy tor ma okrążenie, wypłatę, zużycie paliwa i profil tego, czego wymaga od auta (prędkość, przyczepność, prowadzenie ...). Auto stoi w mieście toru, na którym jedzie, a miasto może mieć kilka torów.',
-            'example' => 'Gra samochodowa ma 15 torów, po trzy w każdym mieście: standardowy, sprint i dystans.',
+            'example' => 'Gra samochodowa ma 20 torów: po trzy w każdym mieście (standardowy, sprint i dystans) i do tego po jednym rajdzie w każdym mieście.',
             'tip' => 'Pierwszy tor z listy to miejsce startu nowego kierowcy (musi być otwarty od poziomu 1), a pierwszy tor miasta to ten, na który auto trafia po przyjeździe, więc nowe tory dodawaj na końcu. Toru, na którym gracze jeżdżą, nie można usunąć ani zmienić jego sluga. Tor nie ma rywali (botów), dopóki tabela botów nie ma dla niego wiersza (polecenie economy:bot-profiles).',
         ],
         'track_slug' => [

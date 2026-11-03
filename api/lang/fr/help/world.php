@@ -83,7 +83,7 @@ return [
         'tracks' => [
             'label' => 'Circuits',
             'help' => 'Là où les voitures gagnent. Chaque circuit a un tour, un gain, une consommation de carburant et un profil de ce qu’il demande à une voiture (vitesse, adhérence, tenue de route ...). Une voiture se trouve dans la ville du circuit où elle roule, et une ville peut avoir plusieurs circuits.',
-            'example' => 'Le jeu de voitures a 15 circuits, trois par ville : un standard, un sprint et une endurance.',
+            'example' => 'Le jeu de voitures a 20 circuits : trois par ville (un standard, un sprint et une endurance) et un rallye de plus dans chaque ville.',
             'tip' => 'Le premier circuit de la liste est celui où débute un nouveau pilote (il doit être ouvert dès le niveau 1), et le premier circuit d’une ville est celui où va une voiture qui y arrive : ajoutez donc les nouveaux circuits à la fin. Un circuit où des joueurs roulent ne peut être ni supprimé ni changé de slug. Un circuit n’a pas de rivaux (bots) tant que la table des bots n’a pas de ligne pour lui (commande economy:bot-profiles).',
         ],
         'track_slug' => [

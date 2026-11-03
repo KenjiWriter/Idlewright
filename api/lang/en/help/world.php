@@ -83,7 +83,7 @@ return [
         'tracks' => [
             'label' => 'Tracks',
             'help' => 'Where cars earn. Every track has a lap, a pay, a fuel use and a profile of what it asks of a car (speed, grip, handling ...). A car stands in the city of the track it drives, and a city can have several tracks.',
-            'example' => 'The car game has 15 tracks, three in every city: a standard one, a sprint and an endurance track.',
+            'example' => 'The car game has 20 tracks: three in every city (a standard one, a sprint and an endurance track) and a rally in every city on top.',
             'tip' => 'The first track of the list is where a new driver starts (it must be open from level 1), and the first track of a city is the one a car goes to when it arrives there, so add new tracks at the end. A track that players drive on cannot be removed or have its slug changed. A track has no rivals (bots) until the table of the bots has a row for it (command economy:bot-profiles).',
         ],
         'track_slug' => [

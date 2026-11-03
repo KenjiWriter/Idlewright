@@ -83,7 +83,7 @@ return [
         'tracks' => [
             'label' => 'Pistas',
             'help' => 'Onde os carros ganham dinheiro. Cada pista tem uma volta, um pagamento, um consumo de combustível e um perfil do que exige de um carro (velocidade, aderência, dirigibilidade ...). Um carro fica na cidade da pista em que corre, e uma cidade pode ter várias pistas.',
-            'example' => 'O jogo de carros tem 15 pistas, três em cada cidade: uma padrão, um sprint e uma de endurance.',
+            'example' => 'O jogo de carros tem 20 pistas: três em cada cidade (uma padrão, um sprint e uma de endurance) e mais um rali em cada cidade.',
             'tip' => 'A primeira pista da lista é onde um novo piloto começa (deve estar aberta desde o nível 1), e a primeira pista de uma cidade é aquela para onde o carro vai ao chegar; por isso acrescente as novas pistas no fim. Uma pista em que jogadores correm não pode ser removida nem ter o slug mudado. Uma pista não tem rivais (bots) enquanto a tabela dos bots não tiver uma linha para ela (comando economy:bot-profiles).',
         ],
         'track_slug' => [
