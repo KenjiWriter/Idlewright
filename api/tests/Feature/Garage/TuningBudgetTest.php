@@ -37,23 +37,44 @@ describe('the report of the best set of bonuses', function () {
             ->and($report['worst']['lap_percent'])->toBeLessThan(-10.0)->and($report['worst']['lap_percent'])->toBeGreaterThan(-12.0)
             ->and($report['target'])->toBe(10.0)->and($report['approved'])->toBe(12.0)
             // It is over the target and under the ceiling: a warning says so, and the check passes.
-            ->and($report['warnings'])->toHaveCount(1)->and($report['warnings'][0])->toContain('bizon-m-2')
+            ->and($report['warnings'][0])->toContain('bizon-m-2')->toContain('off the lap')
             ->and($report['checks'][0])->toMatchArray(['ok' => true, 'max' => 12.0]);
     });
 
-    it('does not say the income is wrong: it is reported, and carries the jump of the place among the bots', function () {
-        $rows = collect(tuningBudgetReport()['rows']);
+    it('judges the income too: it carries the jump of the place among the bots, so it is warned about over the target and held to a ceiling above the worst case measured', function () {
+        $report = tuningBudgetReport();
+        $rows = collect($report['rows']);
 
         // The Rdzak on the quarry goes up a place among the bots, so its income jumps well past what its lap would give.
         expect($rows->every(fn (array $row): bool => $row['income_percent'] > 0))->toBeTrue()
-            ->and($rows->max('income_percent'))->toBeGreaterThan(20.0);
+            ->and($report['richest'])->toMatchArray(['car' => 'rdzak-gt-4', 'track' => 'kruszyn-quarry'])
+            ->and($report['richest']['income_percent'])->toBeGreaterThan(20.0)->and($report['richest']['income_percent'])->toBeLessThan(35.0)
+            ->and(collect($report['warnings'])->contains(fn (string $warning): bool => str_contains($warning, 'raises the income')))->toBeTrue()
+            ->and($report['checks'][1])->toMatchArray(['ok' => true, 'max' => 35.0]);
+
+        config(['ride.tuning.budget.max_income_percent' => 30.0]);
+
+        expect(tuningBudgetReport()['checks'][1]['ok'])->toBeFalse();
+    });
+
+    it('says what a try costs next to the income of the car: about a minute of it, so 8% takes a fraction of an hour and 10% an hour or two for one place', function () {
+        $report = tuningBudgetReport();
+
+        expect($report['tries']['to_8'])->toBeGreaterThan(5.0)->and($report['tries']['to_8'])->toBeLessThan(20.0)
+            ->and($report['tries']['to_10'])->toBeGreaterThan(40.0)->and($report['tries']['to_10'])->toBeLessThan(120.0);
+
+        foreach ($report['rows'] as $row) {
+            expect($row['try_minutes'])->toBeGreaterThan(0.3)->and($row['try_minutes'])->toBeLessThan(3.0)
+                ->and($row['hours_to_8'])->toBeLessThan($row['hours_to_10'])
+                ->and($row['hours_to_10'])->toBeLessThan(4.0);
+        }
     });
 
     it('has no warning when the best set stays under the target, and fails the check when it goes over the approved ceiling', function () {
-        config(['ride.tuning.budget.target_lap_percent' => 12.0, 'ride.tuning.budget.max_lap_percent' => 12.0]);
+        config(['ride.tuning.budget.target_lap_percent' => 12.0, 'ride.tuning.budget.max_lap_percent' => 12.0, 'ride.tuning.budget.target_income_percent' => 40.0, 'ride.tuning.budget.max_income_percent' => 40.0]);
         expect(tuningBudgetReport()['warnings'])->toBe([]);
 
-        config(['ride.tuning.budget.target_lap_percent' => 5.0, 'ride.tuning.budget.max_lap_percent' => 9.0]);
+        config(['ride.tuning.budget.target_lap_percent' => 5.0, 'ride.tuning.budget.max_lap_percent' => 9.0, 'ride.tuning.budget.target_income_percent' => 40.0, 'ride.tuning.budget.max_income_percent' => 40.0]);
         $report = tuningBudgetReport();
 
         expect($report['checks'][0]['ok'])->toBeFalse()->and($report['warnings'])->toBe([]);

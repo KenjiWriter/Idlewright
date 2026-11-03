@@ -243,6 +243,11 @@ return [
             // The ceiling that the owner approved when he kept the limits of one bonus at 12% (with a context) and 8% (without): the best set goes a little over the
             // target (the worst measured case is the Bizon on gravel, about 11%), `tuning:budget --strict` says so as a warning and fails only above this.
             'max_lap_percent' => 12.0,
+            // What the best set does to the income of the car, in percent. It is not the lap only: a car that goes up a place among the bots is paid more for every lap
+            // (the Rdzak at the quarry of Kruszyn, +32% at the limits of the rules). The target is a little over what the lap target would give, the ceiling is
+            // above the worst case that was measured (B6): a first figure for the owner to move, and what the gate holds the rules to until he does.
+            'target_income_percent' => 15.0,
+            'max_income_percent' => 35.0,
         ],
     ],
 

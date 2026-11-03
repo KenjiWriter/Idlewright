@@ -50,11 +50,14 @@ final class TuningBudget extends Command
             return $strict && $failed !== [] ? self::FAILURE : self::SUCCESS;
         }
 
-        $this->table(['car', 'track', 'kind', 'surface', 'lap', 'best lap', 'lap %', 'income %'], array_map(static fn (array $row): array => [
+        $this->table(['car', 'track', 'kind', 'surface', 'lap', 'best lap', 'lap %', 'income %', 'try (min of income)', 'h to 8%', 'h to 10%'], array_map(static fn (array $row): array => [
             $row['car'], $row['track'], $row['kind'], $row['surface'],
             number_format($row['lap_ms'] / 1000, 1).' s', number_format($row['best_lap_ms'] / 1000, 1).' s',
             sprintf('%+.1f', $row['lap_percent']), sprintf('%+.1f', $row['income_percent']),
+            number_format($row['try_minutes'], 1), $row['hours_to_8'] ?? '-', $row['hours_to_10'] ?? '-',
         ], $report['rows']));
+
+        $this->line(sprintf('A bonus takes %s tries on average to reach 8%% and %s to reach 10%%; the hours are those of the income of the car (a try is a share of the price of an average part of the set).', $report['tries']['to_8'] ?? '-', $report['tries']['to_10'] ?? '-'));
 
         foreach ($report['warnings'] as $warning) {
             $this->warn('WARN '.$warning);
