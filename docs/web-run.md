@@ -413,6 +413,10 @@ Serwer decyduje o wszystkim (kiedy i co wysłać, w jakim języku); aplikacja ty
 - **Pięć języków** (`push.*`, **teksty fr, de i pt-BR są moje, bez native speakera**) oraz **sekcja „Powiadomienia” w polityce prywatności** (`legal/content/*`, 3 akapity w pięciu językach: co przechowujemy, że wiadomości są szyfrowane i przenosi je usługa Google/Apple/Mozilli/Microsoftu, podstawa: zgoda, art. 6 ust. 1 lit. a RODO, okresy: 30 dni dla wyłączonego urządzenia i zapisów; do tego zdanie o pamięci lokalnej). **Wersji tekstów nie podniosłem** (`LEGAL_VERSION`/`LEGAL_CONSENT_VERSION` ustawia się w `.env`, a `legal/changes.ts` mówi, że o tym, co jest zmianą, rozstrzyga odpowiadający za teksty): decyzja właściciela, patrz „Pytania do przeglądu prawnego”.
 - **Specyfikacje:** `PushAsk` 8, `PushSettings` 6, `softAsk` 3 (oraz A1: `serviceWorker` 8, `pushSupport` 5, `pushSubscription` 11).
 
+## Przeróbka: znacznik „Przerobiona” i lista ostatnich przeróbek (D23, 2026-11-03)
+
+W inwentarzu warsztatu część, której rzadkość podniosła przeróbka, ma obok klasy znacznik **„Przerobiona”** (`part-transmuted`; taka część nie wchodzi do scalania). Pod ostatnimi scaleniami jest lista **„Ostatnie przeróbki”** (`transmutations` z `GET /garage`, pięć najnowszych): „{część} ma teraz rzadkość: {rzadkość}”, znaczki rzadkości z → na, „Zapłacono: N RideCoin i $X” (albo samą gotówką) i afiksy części, jaka jest teraz. Pięć języków (`workshop.transmute.mark|recent|made|paid|paidCash`). Specyfikacje: 3 w `WorkshopView`.
+
 ## Jednostki gry w aplikacji (2026-10-30)
 
 Dystans, prędkość i zużycie paliwa są w aplikacji **w jednostkach gry**, a nie na sztywno w „km” i „km/h”. Serwer podaje wszystkie liczby w skali kanonicznej (metry, kilometry, km/h), a aplikacja przelicza je w jednym miejscu.
