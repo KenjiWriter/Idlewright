@@ -21,7 +21,7 @@ use Illuminate\Support\HtmlString;
 final class FieldHelp
 {
     /** The pages' guides ("how this works") that every form with one has an entry for, in the area `guide`. */
-    public const GUIDES = ['vehicle', 'part', 'world', 'tutorial', 'model', 'branding', 'vocabulary', 'studio', 'rules_text', 'game', 'wizard', 'premium', 'missions'];
+    public const GUIDES = ['vehicle', 'part', 'world', 'tutorial', 'model', 'branding', 'vocabulary', 'studio', 'rules_text', 'game', 'wizard', 'premium', 'missions', 'tuning'];
 
     /** @var array<string, array<string, array<string, array<string, mixed>>>> the entries of an area by language */
     private static array $loaded = [];
