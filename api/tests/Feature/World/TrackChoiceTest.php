@@ -52,17 +52,17 @@ describe('the tracks of a city on the map', function () {
         $cities = collect(mapOf($driver)->assertOk()->json('data.cities'))->keyBy('slug');
         $zlomowo = collect($cities['zlomowo']['tracks']);
 
-        expect($zlomowo->pluck('slug')->all())->toBe(['zlomowo-street', 'zlomowo-yard-dash', 'zlomowo-ring-road'])
-            ->and($zlomowo->pluck('kind')->all())->toBe(['standard', 'sprint', 'endurance'])
-            ->and($zlomowo->pluck('level_required')->all())->toBe([1, 1, 4])
-            ->and($zlomowo->pluck('open')->all())->toBe([true, true, false])
-            ->and($zlomowo->pluck('current')->all())->toBe([true, false, false])
+        expect($zlomowo->pluck('slug')->all())->toBe(['zlomowo-street', 'zlomowo-yard-dash', 'zlomowo-ring-road', 'zlomowo-scrapyard-rally'])
+            ->and($zlomowo->pluck('kind')->all())->toBe(['standard', 'sprint', 'endurance', 'rally'])
+            ->and($zlomowo->pluck('level_required')->all())->toBe([1, 1, 4, 20])
+            ->and($zlomowo->pluck('open')->all())->toBe([true, true, false, false])
+            ->and($zlomowo->pluck('current')->all())->toBe([true, false, false, false])
             // The track that was shown before the list is the first of it, and the kind is said there too.
             ->and($cities['zlomowo']['track'])->toMatchArray(['slug' => 'zlomowo-street', 'kind' => 'standard'])
-            ->and(collect($cities['kruszyn']['tracks'])->pluck('slug')->all())->toBe(['kruszyn-quarry', 'kruszyn-gravel-sprint', 'kruszyn-quarry-marathon'])
-            ->and(collect($cities['suchy-pas']['tracks'])->pluck('slug')->all())->toBe(['suchy-pas-drag', 'suchy-pas-short-strip', 'suchy-pas-long-run'])
-            ->and(collect($cities['wilcza-przelecz']['tracks'])->pluck('slug')->all())->toBe(['wilcza-przelecz-switchbacks', 'wilcza-przelecz-hairpin', 'wilcza-przelecz-crossing'])
-            ->and(collect($cities['autodrom']['tracks'])->pluck('slug')->all())->toBe(['autodrom-circuit', 'autodrom-short-loop', 'autodrom-endurance']);
+            ->and(collect($cities['kruszyn']['tracks'])->pluck('slug')->all())->toBe(['kruszyn-quarry', 'kruszyn-gravel-sprint', 'kruszyn-quarry-marathon', 'kruszyn-forest-rally'])
+            ->and(collect($cities['suchy-pas']['tracks'])->pluck('slug')->all())->toBe(['suchy-pas-drag', 'suchy-pas-short-strip', 'suchy-pas-long-run', 'suchy-pas-dune-rally'])
+            ->and(collect($cities['wilcza-przelecz']['tracks'])->pluck('slug')->all())->toBe(['wilcza-przelecz-switchbacks', 'wilcza-przelecz-hairpin', 'wilcza-przelecz-crossing', 'wilcza-przelecz-pass-rally'])
+            ->and(collect($cities['autodrom']['tracks'])->pluck('slug')->all())->toBe(['autodrom-circuit', 'autodrom-short-loop', 'autodrom-endurance', 'autodrom-rallycross']);
     });
 
     it('say what a lap is for the car: a sprint is short, burns little an hour and lasts a tank for long, an endurance track is the other way', function () {
@@ -95,8 +95,8 @@ describe('the tracks of a city on the map', function () {
 
         $tracks = collect(mapOf($driver)->assertOk()->json('data.cities'))->keyBy('slug')['zlomowo']['tracks'];
 
-        expect(array_column($tracks, 'car'))->toBe([null, null, null])
-            ->and(array_column($tracks, 'current'))->toBe([false, false, false]);
+        expect(array_column($tracks, 'car'))->toBe([null, null, null, null])
+            ->and(array_column($tracks, 'current'))->toBe([false, false, false, false]);
     });
 });
 

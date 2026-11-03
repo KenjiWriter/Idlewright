@@ -47,14 +47,15 @@ describe('the tracks of the repository', function () {
     it('are all made by the model, and none says by hand what the model makes', function () {
         $rules = json_decode((string) file_get_contents(config('ride.content_path').'/rules/starter.json'), true, 512, JSON_THROW_ON_ERROR);
 
-        expect(array_keys($rules['tracks']))->toBe(array_keys(TRACKS_BY_HAND));
+        // The tracks that were made by hand come first, and the rallies that came with the model after them: they have no "before".
+        expect(array_slice(array_keys($rules['tracks']), 0, count(TRACKS_BY_HAND)))->toBe(array_keys(TRACKS_BY_HAND));
 
         foreach ($rules['tracks'] as $slug => $track) {
             expect(array_keys(array_intersect_key($track, array_flip(['speed_kmh', 'pay_cents_per_hour', 'xp_per_hour', 'base_lap_ms', 'fuel_per_lap_ml', 'reward_cents_per_lap', 'xp_per_lap']))))
                 ->toBe(['speed_kmh', 'pay_cents_per_hour', 'xp_per_hour'], $slug);
         }
 
-        expect($rules['track_model']['fuel_ml_per_s'])->toBe(['sprint' => 12, 'standard' => 20, 'endurance' => 32]);
+        expect($rules['track_model']['fuel_ml_per_s'])->toBe(['sprint' => 12, 'standard' => 20, 'endurance' => 32, 'rally' => 26]);
     });
 
     it('give the lap, the fuel, the pay and the XP that they gave by hand, on every one of the fifteen', function () {
@@ -74,6 +75,11 @@ describe('the tracks of the repository', function () {
         $problems = [];
 
         foreach (array_keys($rules->tracks()) as $track) {
+            // A rally came with the model: there is nothing that it froze into before.
+            if (! isset(TRACKS_BY_HAND[$track])) {
+                continue;
+            }
+
             $tires = $rules->trackReferenceTires($track);
 
             foreach (app(Catalog::class)->vehicles() as $car => $vehicle) {

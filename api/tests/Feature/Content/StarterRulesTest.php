@@ -138,6 +138,10 @@ function rulesSchemaErrors(array $rules): array
         if (isset($track->thread->sections) && is_object($track->thread->sections)) {
             $track->thread->sections = array_values((array) $track->thread->sections);
         }
+
+        if (isset($track->surface_mix) && is_object($track->surface_mix)) {
+            $track->surface_mix = array_values((array) $track->surface_mix);
+        }
     }
 
     $outcome = $validator->validate($data, 'https://rideidle.local/schema/rules.schema.json');
