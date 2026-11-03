@@ -39,7 +39,7 @@ Pierwsza gra zrobiona na Idlewright to **RideIdle**: wyścigowa gra idle, w któ
 Co jest w grze (stan `main` na 2026-11-02; szczegóły w [`docs/api-runs.md`](docs/api-runs.md) i [`docs/web-run.md`](docs/web-run.md)):
 
 - **Bieg:** auto jeździ okrążenia toru bez udziału gracza; paliwo, awarie, naprawa i holowanie, siedem botów i nagroda za pozycję, zegar gry z nocą, pogoda, nawierzchnie i opony.
-- **Tory:** 15 torów w pięciu miastach (sprint, standard, dystans). Długość toru wyznacza czas okrążenia, paliwo, wypłatę i XP, a narysowana nitka toru pozwala liczyć okrążenie modelem fizycznym.
+- **Tory:** 20 torów w pięciu miastach (sprint, standard, dystans i pięć rajdów na mieszance żwiru i asfaltu). Długość toru wyznacza czas okrążenia, paliwo, wypłatę i XP, a narysowana nitka toru pozwala liczyć okrążenie modelem fizycznym.
 - **Auta i warsztat:** 23 auta i 74 części, silniki, napęd FWD/RWD/AWD, rzadkość, afiksy i bonusy części, ulepszanie, łączenie i transmutacja części, przebieg, kondycja i serwis, warsztaty z mechanikami w każdym mieście.
 - **Świat i rynek:** mapa i podróże (także przyspieszone, z ryzykiem policji), garaże w miastach, limit aut aktywnych, giełda, dealer, skrzynki, sprzedaż aut, magazyny, zlecenia poboczne (kursy z ludźmi albo ładunkiem).
 - **Powroty:** samouczek prowadzony SMS-ami (23 kroki), misje główne, dzienne, tygodniowe i miesięczne, seria dni, podsumowanie nieobecności.

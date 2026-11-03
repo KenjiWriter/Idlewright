@@ -147,7 +147,7 @@ Plansza Flota (aktywne sloty z limitem 2, magazyn na 3 auta, trzeci slot za 600 
 Tor mówi, **jak jest długi** (`length_m`), **jak szybko jedzie nim auto wzorcowe** (`speed_kmh`: średnia prędkość ze wszystkimi trudnościami toru, czyli zakrętami, nawierzchnią, wzniesieniami i ruchem), **jakiego jest rodzaju** (`kind`) oraz **co płaci i daje godzina jazdy** (`pay_cents_per_hour`, `xp_per_hour`). Z tego gra liczy:
 
 - **okrążenie wzorcowe** = długość ÷ prędkość (`base_lap_ms` jest teraz liczbą pochodną),
-- **paliwo okrążenia** = obciążenie rodzaju toru (`track_model.fuel_ml_per_s`: sprint 12, standard 20, dystans 32 ml na sekundę) × czas okrążenia; auto łapczywsze od zwykłego spala więcej (mnożnik zużycia auta jak dotąd), a trudność toru podnosi paliwo na kilometr sama, bo im wolniej auto pokonuje kilometr, tym dłużej pracuje silnik,
+- **paliwo okrążenia** = obciążenie rodzaju toru (`track_model.fuel_ml_per_s`: sprint 12, standard 20, dystans 32, rajd 26 ml na sekundę) × czas okrążenia; auto łapczywsze od zwykłego spala więcej (mnożnik zużycia auta jak dotąd), a trudność toru podnosi paliwo na kilometr sama, bo im wolniej auto pokonuje kilometr, tym dłużej pracuje silnik,
 - **wypłata i XP za okrążenie** = to, co płaci i daje godzina, razy czas okrążenia (XP do całych).
 
 Podwojenie długości podwaja okrążenie, paliwo, wypłatę i XP za okrążenie, a **godzina zostaje taka sama** (zbiornik starcza na tyle samo czasu). Auto prawdziwe jedzie tor tak, jak mu każe dopasowanie do wag i wartości odniesienia toru (bez zmian). Cztery stare liczby (`base_lap_ms`, `fuel_per_lap_ml`, `reward_cents_per_lap`, `xp_per_lap`) zostają w schemacie jako **ręczne nadpisanie** i wygrywają z liczonymi (gry zrobione przed modelem działają bez zmian), a walidator ostrzega, gdy odbiegają od modelu o więcej niż 2%.
@@ -169,6 +169,11 @@ Podwojenie długości podwaja okrążenie, paliwo, wypłatę i XP za okrążenie
 | `suchy-pas-long-run` | dystans | 8 500 m | 127,5 | 907,50 $ | 720 | 90,4 l |
 | `wilcza-przelecz-hairpin` | sprint | 480 m | 123,43 | 900,00 $ | 771,43 | 35,0 l |
 | `wilcza-przelecz-crossing` | dystans | 11 600 m | 122,8235 | 1 027,06 $ | 741,18 | 93,8 l |
+| `kruszyn-forest-rally` | rajd | 6 401 m | 104 | 1 000,00 $ | 760 | 90,0 l |
+| `suchy-pas-dune-rally` | rajd | 8 802 m | 115 | 1 120,00 $ | 800 | 81,4 l |
+| `wilcza-przelecz-pass-rally` | rajd | 10 200 m | 108 | 1 180,00 $ | 800 | 86,7 l |
+| `zlomowo-scrapyard-rally` | rajd | 7 601 m | 112 | 1 200,00 $ | 820 | 83,6 l |
+| `autodrom-rallycross` | rajd | 5 201 m | 118 | 1 240,00 $ | 840 | 79,3 l |
 
 Prędkości mają od jednego do czterech miejsc po przecinku, bo dawne czasy okrążeń nie wynikały z okrągłych prędkości, a migracja ma być dokładna. **Zaokrąglenie ich do 0,1 km/h** zmieniłoby czas sześciu torów o do 0,053% (najwięcej o 166 ms na maratonie) i ruszyłoby tabele botów, więc jest osobną decyzją balansu, nie częścią migracji. XP na godzinę różni się między torami (665–960) z powodu ręcznych zaokrągleń do całych XP za okrążenie; migracja to zachowuje, a wyrównanie jest decyzją balansu (zmieniłoby tempo poziomów o −6% … +35% zależnie od toru). Tory stoją na trzech prędkościach (ok. 125, 144 i 91 km/h) bez związku z tym, czy są kręte czy szybkie: to kalibracja do ekonomii (czas okrążenia razy wypłata na godzinę), nie fizyka.
 
