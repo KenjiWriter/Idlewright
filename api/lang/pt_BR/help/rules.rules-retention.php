@@ -190,5 +190,23 @@ return [
             'example' => '604800 s: uma semana.',
             'range' => '1 hora – 90 dias.',
         ],
+        '/push/ttl_ms/streak_risk' => [
+            'label' => 'Por quanto tempo o serviço de push guarda uma mensagem: sequência em risco',
+            'help' => 'Por quanto tempo o serviço de notificações do navegador guarda uma mensagem deste tipo (uma sequência está em risco) para um aparelho desligado ou sem sinal. Depois disso a mensagem é descartada, e o jogador não é avisado do que já não é verdade.',
+            'example' => '7200 s: duas horas; depois a mensagem é descartada.',
+            'range' => '60 – 86400 s.',
+        ],
+        '/push/streak_risk_min_days' => [
+            'label' => 'Menor sequência da qual se lembra',
+            'help' => 'A menor sequência, em dias, da qual o jogo lembra à noite quando a meta do dia não foi cumprida. Uma sequência menor não vale uma mensagem. É um tipo de mensagem desligado até o jogador ligá-lo.',
+            'example' => '3: uma sequência de três dias ou mais.',
+            'range' => '1 – 365 (dias).',
+        ],
+        '/push/streak_risk_from_min' => [
+            'label' => 'Hora a partir da qual o lembrete da sequência pode vir',
+            'help' => 'O minuto do dia (no fuso do aparelho do jogador) a partir do qual o lembrete de uma sequência pode vir, uma vez por dia. Um lembrete que não pode vir dentro de três horas desta hora (horário de silêncio, intervalo após outra mensagem) não é enviado. 19:00 é 1140.',
+            'example' => '1140: 19:00.',
+            'range' => '0 – 1439 (minutos depois da meia-noite).',
+        ],
     ],
 ];

@@ -24,6 +24,10 @@ return [
         'title' => 'The workshop is done',
         'body' => 'A job in your workshop is finished.',
     ],
+    'streak_risk' => [
+        'title' => 'Keep the streak going',
+        'body' => 'Today’s goal is not done yet. Your streak: :days.',
+    ],
     'digest' => [
         'title' => ':game',
         'body' => '{1} One thing is waiting for you.|[2,*] :count things are waiting for you.',

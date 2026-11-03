@@ -190,5 +190,23 @@ return [
             'example' => '604800 s: eine Woche.',
             'range' => '1 Stunde – 90 Tage.',
         ],
+        '/push/ttl_ms/streak_risk' => [
+            'label' => 'Wie lange ein Push-Dienst eine Nachricht aufbewahrt: Serie in Gefahr',
+            'help' => 'Wie lange der Benachrichtigungsdienst des Browsers eine Nachricht dieser Art (eine Serie ist in Gefahr) für ein Gerät aufbewahrt, das aus ist oder keinen Empfang hat. Danach wird sie verworfen, damit ein Spieler nicht über etwas informiert wird, das nicht mehr stimmt.',
+            'example' => '7200 s: zwei Stunden; danach wird die Nachricht verworfen.',
+            'range' => '60 – 86400 s.',
+        ],
+        '/push/streak_risk_min_days' => [
+            'label' => 'Kürzeste Serie, an die erinnert wird',
+            'help' => 'Die kürzeste Serie in Tagen, an die das Spiel am Abend erinnert, wenn das Tagesziel nicht erreicht ist. Eine kürzere Serie ist keine Nachricht wert. Diese Art von Nachricht ist aus, bis der Spieler sie einschaltet.',
+            'example' => '3: eine Serie von drei Tagen oder mehr.',
+            'range' => '1 – 365 (Tage).',
+        ],
+        '/push/streak_risk_from_min' => [
+            'label' => 'Uhrzeit, ab der die Serien-Erinnerung kommen darf',
+            'help' => 'Die Minute des Tages (in der Zeitzone des Geräts des Spielers), ab der die Erinnerung an eine Serie kommen darf, einmal am Tag. Eine Erinnerung, die nicht innerhalb von drei Stunden nach dieser Zeit kommen kann (Ruhezeit, Abstand nach einer anderen Nachricht), wird nicht gesendet. 19:00 Uhr ist 1140.',
+            'example' => '1140: 19:00 Uhr.',
+            'range' => '0 – 1439 (Minuten nach Mitternacht).',
+        ],
     ],
 ];

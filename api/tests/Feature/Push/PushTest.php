@@ -360,12 +360,12 @@ describe('/push/preferences', function () {
     it('gives the kinds with what the game switches on, changes only the kinds that are given, and keeps the choice', function () {
         $driver = pushDriver();
 
-        $this->getJson('/api/v1/push/preferences', bearerFor($driver))->assertOk()->assertJsonPath('data.kinds', ['car_stopped' => true, 'car_arrived' => true, 'job_done' => false]);
+        $this->getJson('/api/v1/push/preferences', bearerFor($driver))->assertOk()->assertJsonPath('data.kinds', ['car_stopped' => true, 'car_arrived' => true, 'job_done' => false, 'streak_risk' => false]);
 
         $this->patchJson('/api/v1/push/preferences', ['kinds' => ['car_arrived' => false]], bearerFor($driver))->assertOk()
-            ->assertJsonPath('data.kinds', ['car_stopped' => true, 'car_arrived' => false, 'job_done' => false]);
+            ->assertJsonPath('data.kinds', ['car_stopped' => true, 'car_arrived' => false, 'job_done' => false, 'streak_risk' => false]);
         $this->patchJson('/api/v1/push/preferences', ['kinds' => ['job_done' => true]], bearerFor($driver))->assertOk()
-            ->assertJsonPath('data.kinds', ['car_stopped' => true, 'car_arrived' => false, 'job_done' => true]);
+            ->assertJsonPath('data.kinds', ['car_stopped' => true, 'car_arrived' => false, 'job_done' => true, 'streak_risk' => false]);
 
         $this->getJson('/api/v1/push/preferences', bearerFor($driver))->assertJsonPath('data.kinds.car_arrived', false);
     });

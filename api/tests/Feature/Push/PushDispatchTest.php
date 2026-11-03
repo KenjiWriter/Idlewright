@@ -6,11 +6,14 @@ use App\Jobs\SendPush;
 use App\Models\PushDelivery;
 use App\Models\PushEvent;
 use App\Models\RaceRun;
+use App\Models\StreakDay;
 use App\Models\Travel;
 use App\Models\User;
+use App\Models\UserStreak;
 use App\Models\UserVisit;
 use App\Models\WorkshopJob;
 use App\Push\PushKeys;
+use App\Services\MissionPeriods;
 use App\Services\Push;
 use App\Services\PushDispatcher;
 use App\Services\PushSeen;
@@ -242,7 +245,7 @@ describe('telling the driver', function () {
         [$driver, $car, $browser] = awayDriver();
         $job = WorkshopJob::factory()->create(['user_id' => $driver->id, 'car_id' => $car->car_id, 'status' => WorkshopJob::STATUS_WORKING, 'start_ms' => RUN_T0, 'finish_ms' => RUN_T0 + 200_000]);
 
-        $this->getJson('/api/v1/push/preferences', bearerFor($driver))->assertOk()->assertJsonPath('data.kinds', ['car_stopped' => true, 'car_arrived' => true, 'job_done' => false]);
+        $this->getJson('/api/v1/push/preferences', bearerFor($driver))->assertOk()->assertJsonPath('data.kinds', ['car_stopped' => true, 'car_arrived' => true, 'job_done' => false, 'streak_risk' => false]);
 
         $report = dispatchAt(600_000);
 
@@ -252,7 +255,7 @@ describe('telling the driver', function () {
 
         clockAt(0);
         $this->patchJson('/api/v1/push/preferences', ['kinds' => ['job_done' => true, 'car_stopped' => false]], bearerFor($driver))->assertOk()
-            ->assertJsonPath('data.kinds', ['car_stopped' => false, 'car_arrived' => true, 'job_done' => true]);
+            ->assertJsonPath('data.kinds', ['car_stopped' => false, 'car_arrived' => true, 'job_done' => true, 'streak_risk' => false]);
         $job2 = WorkshopJob::factory()->create(['user_id' => $driver->id, 'car_id' => $car->car_id, 'status' => WorkshopJob::STATUS_WORKING, 'start_ms' => RUN_T0, 'finish_ms' => RUN_T0 + 700_000]);
 
         Queue::fake();
@@ -369,6 +372,81 @@ describe('a driver who does not answer', function () {
         PushDelivery::query()->whereKey($test->id)->update(['created_at' => Carbon::createFromTimestampMs(RUN_T0)->subHours(1)]);
 
         expect(dispatchAt(600_000))->toBe(['sent' => 1, 'skipped' => 0, 'deferred' => 0]);
+    });
+});
+
+describe('the reminder of a streak', function () {
+    /** A driver with a device who wants the reminder and has a streak of `$days` days; the goal of the day is not done. */
+    function driverWithAStreak(int $days = 5, bool $wanted = true): User
+    {
+        [$driver] = awayDriver(200);
+
+        if ($wanted) {
+            test()->patchJson('/api/v1/push/preferences', ['kinds' => ['streak_risk' => true]], bearerFor($driver))->assertOk();
+        }
+
+        UserStreak::query()->create(['user_id' => $driver->id, 'current' => $days, 'best' => $days, 'cycle_day' => 0, 'shields' => 0, 'lost' => 0]);
+
+        return $driver;
+    }
+
+    it('comes in the evening when the goal of the day is not done, to a driver who wants it, once a day', function () {
+        Queue::fake();
+        driverWithAStreak();
+
+        // 20:10 in Warsaw: the hour of the reminder (19:00) is behind, the quiet hours are not yet.
+        expect(dispatchAt(600_000))->toBe(['sent' => 1, 'skipped' => 0, 'deferred' => 0]);
+        $message = pushedMessages()[0];
+
+        expect($message['kind'])->toBe('streak_risk')->and($message['title'])->toBe('Gardez votre série')->and($message['body'])->toContain('Votre série')->and($message['body'])->toContain('5')
+            ->and($message['url'])->toBe('/missions')->and($message['ttl'])->toBe(7_200);
+
+        Queue::fake();
+        expect(dispatchAt(900_000))->toBe(['sent' => 0, 'skipped' => 0, 'deferred' => 0]);
+    });
+
+    it('is off until the driver switches it on, and is not told for a short streak', function () {
+        Queue::fake();
+        driverWithAStreak(wanted: false);
+
+        expect(dispatchAt(600_000))->toBe(['sent' => 0, 'skipped' => 0, 'deferred' => 0]);
+
+        Queue::fake();
+        driverWithAStreak(2);
+
+        expect(dispatchAt(700_000))->toBe(['sent' => 0, 'skipped' => 0, 'deferred' => 0]);
+        Queue::assertNothingPushed();
+    });
+
+    it('does not come before its hour, and not when the goal of the day is done', function () {
+        Queue::fake();
+        thePushRulesAre(['streak_risk_from_min' => 1260]);
+        driverWithAStreak();
+
+        // 20:10: the hour of the reminder is 21:00.
+        expect(dispatchAt(600_000))->toBe(['sent' => 0, 'skipped' => 0, 'deferred' => 0]);
+        Queue::assertNothingPushed();
+    });
+
+    it('is dropped when the goal was done meanwhile', function () {
+        Queue::fake();
+        $driver = driverWithAStreak();
+        $day = app(MissionPeriods::class)->at('daily', Carbon::createFromTimestampMs(RUN_T0 + 600_000))['key'];
+        StreakDay::query()->create(['user_id' => $driver->id, 'day_key' => $day, 'kind' => StreakDay::KIND_GOAL, 'streak' => 6, 'cycle_day' => 1]);
+
+        expect(dispatchAt(600_000))->toBe(['sent' => 0, 'skipped' => 0, 'deferred' => 0]);
+        expect(PushEvent::query()->where('kind', 'streak_risk')->count())->toBe(0);
+        Queue::assertNothingPushed();
+    });
+
+    it('is not told late: when the quiet hours would hold it past its day, it is left unsaid', function () {
+        Queue::fake();
+        driverWithAStreak();
+
+        // 22:30: the reminder (19:00) would have to wait for the morning.
+        expect(dispatchAt(150 * 60_000))->toBe(['sent' => 0, 'skipped' => 1, 'deferred' => 0]);
+        expect(PushEvent::query()->where('kind', 'streak_risk')->sole())->state->toBe('skipped')->reason->toBe('late');
+        Queue::assertNothingPushed();
     });
 });
 

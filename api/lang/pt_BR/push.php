@@ -24,6 +24,10 @@ return [
         'title' => 'A oficina terminou',
         'body' => 'Um trabalho da sua oficina está pronto.',
     ],
+    'streak_risk' => [
+        'title' => 'Mantenha a sequência',
+        'body' => 'A meta de hoje ainda não foi cumprida. Sua sequência: :days.',
+    ],
     'digest' => [
         'title' => ':game',
         'body' => '{1} Uma coisa espera por você.|[2,*] :count coisas esperam por você.',

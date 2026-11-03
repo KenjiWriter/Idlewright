@@ -24,6 +24,10 @@ return [
         'title' => 'Warsztat skończył pracę',
         'body' => 'Zlecenie w Twoim warsztacie jest gotowe.',
     ],
+    'streak_risk' => [
+        'title' => 'Podtrzymaj serię',
+        'body' => 'Dzisiejszy cel nie jest jeszcze zrobiony. Twoja seria: :days.',
+    ],
     'digest' => [
         'title' => ':game',
         'body' => '{1} Czeka na Ciebie jedna sprawa.|[2,4] Czekają na Ciebie :count sprawy.|[5,*] Czeka na Ciebie :count spraw.',

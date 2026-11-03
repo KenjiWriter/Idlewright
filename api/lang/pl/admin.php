@@ -1336,6 +1336,7 @@ return [
             'known' => 'gracz sam to widział',
             'limit' => 'limit na dobę',
             'paused' => 'wstrzymane do powrotu gracza',
+            'late' => 'za późno w ciągu dnia',
             'no_device' => 'brak urządzenia',
             'other' => 'inne',
         ],

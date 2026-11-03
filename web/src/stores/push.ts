@@ -7,7 +7,7 @@ import { disablePush, enablePush, hasSubscription, loadPushConfig, syncPush, typ
 import { pushPermission, pushSupport } from '@/features/push/pushSupport'
 
 /** The kinds of message a driver can switch on and off. */
-export const PUSH_KINDS = ['car_stopped', 'car_arrived', 'job_done'] as const
+export const PUSH_KINDS = ['car_stopped', 'car_arrived', 'job_done', 'streak_risk'] as const
 
 export type PushKind = (typeof PUSH_KINDS)[number]
 

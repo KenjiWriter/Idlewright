@@ -528,7 +528,8 @@
     "kinds": {
       "car_stopped": "A car ran out of fuel or broke down",
       "car_arrived": "A car arrived",
-      "job_done": "A job in the workshop is done"
+      "job_done": "A job in the workshop is done",
+      "streak_risk": "The goal of the day is not done and a streak is at stake"
     }
   },
   "workshop": {

@@ -1336,6 +1336,7 @@ return [
             'known' => 'the driver had seen it',
             'limit' => 'limit of a day',
             'paused' => 'paused until the driver comes back',
+            'late' => 'too late in the day',
             'no_device' => 'no device',
             'other' => 'other',
         ],

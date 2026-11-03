@@ -1300,6 +1300,7 @@ return [
             'known' => 'der Spieler hatte es gesehen',
             'limit' => 'Grenze des Tages',
             'paused' => 'pausiert, bis der Spieler zurückkommt',
+            'late' => 'zu spät am Tag',
             'no_device' => 'kein Gerät',
             'other' => 'anderes',
         ],

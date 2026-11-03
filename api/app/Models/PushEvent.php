@@ -21,14 +21,18 @@ class PushEvent extends Model
 
     public const KIND_JOB_DONE = 'job_done';
 
+    public const KIND_STREAK_RISK = 'streak_risk';
+
     /** The kinds a driver can switch on and off. */
-    public const KINDS = [self::KIND_CAR_STOPPED, self::KIND_CAR_ARRIVED, self::KIND_JOB_DONE];
+    public const KINDS = [self::KIND_CAR_STOPPED, self::KIND_CAR_ARRIVED, self::KIND_JOB_DONE, self::KIND_STREAK_RISK];
 
     public const REF_RUN = 'race_run';
 
     public const REF_TRAVEL = 'travel';
 
     public const REF_JOB = 'workshop_job';
+
+    public const REF_STREAK = 'streak';
 
     public const STATE_PLANNED = 'planned';
 

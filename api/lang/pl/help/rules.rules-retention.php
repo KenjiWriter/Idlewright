@@ -190,5 +190,23 @@ return [
             'example' => '604800 s: tydzień.',
             'range' => '1 godzina – 90 dni.',
         ],
+        '/push/ttl_ms/streak_risk' => [
+            'label' => 'Jak długo usługa push trzyma wiadomość: seria zagrożona',
+            'help' => 'Jak długo usługa powiadomień przeglądarki trzyma wiadomość tego rodzaju (seria jest zagrożona) dla urządzenia, które jest wyłączone albo nie ma zasięgu. Po tym czasie wiadomość przepada, więc gracz nie dowiaduje się o czymś, co już nie jest prawdą.',
+            'example' => '7200 s: dwie godziny; później wiadomość przepada.',
+            'range' => '60 – 86400 s.',
+        ],
+        '/push/streak_risk_min_days' => [
+            'label' => 'Najkrótsza seria, o której się przypomina',
+            'help' => 'Najkrótsza seria, w dniach, o której gra przypomina wieczorem, gdy cel dnia nie jest zrobiony. Krótsza seria nie jest warta wiadomości. To rodzaj wiadomości wyłączony, dopóki gracz go nie włączy.',
+            'example' => '3: seria trzech dni lub dłuższa.',
+            'range' => '1 – 365 (dni).',
+        ],
+        '/push/streak_risk_from_min' => [
+            'label' => 'Pora, od której może przyjść przypomnienie o serii',
+            'help' => 'Minuta doby (w strefie czasowej urządzenia gracza), od której może przyjść przypomnienie o serii, raz na dobę. Przypomnienie, które nie może przyjść w ciągu trzech godzin od tej pory (godziny ciszy, odstęp po innej wiadomości), nie jest wysyłane. 19:00 to 1140.',
+            'example' => '1140: 19:00.',
+            'range' => '0 – 1439 (minuty po północy).',
+        ],
     ],
 ];

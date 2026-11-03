@@ -20,7 +20,7 @@ vi.mock('@/features/push/pushSubscription', () => ({
 }))
 
 const fetchMock = vi.fn()
-const KINDS = { car_stopped: true, car_arrived: true, job_done: false }
+const KINDS = { car_stopped: true, car_arrived: true, job_done: false, streak_risk: false }
 
 function world({ browser = 'ready', permission = 'granted', enabled = true, held = true }: { browser?: string; permission?: string; enabled?: boolean; held?: boolean } = {}): void {
   vi.mocked(support.pushSupport).mockReturnValue(browser as never)
@@ -69,7 +69,7 @@ describe('PushSettings', () => {
     const wrapper = await show()
 
     expect(wrapper.get('[data-test="push-settings-state"]').text()).toBe('Notifications are on on this device.')
-    expect(wrapper.findAll('[data-test="push-settings-kinds"] input').map((box) => (box.element as HTMLInputElement).checked)).toEqual([true, true, false])
+    expect(wrapper.findAll('[data-test="push-settings-kinds"] input').map((box) => (box.element as HTMLInputElement).checked)).toEqual([true, true, false, false])
 
     const box = wrapper.get('[data-test="push-kind-job_done"]')
     ;(box.element as HTMLInputElement).checked = true

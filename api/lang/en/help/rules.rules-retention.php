@@ -190,5 +190,23 @@ return [
             'example' => '604800 s: a week.',
             'range' => '1 hour – 90 days.',
         ],
+        '/push/ttl_ms/streak_risk' => [
+            'label' => 'How long a push service keeps a message: streak at risk',
+            'help' => 'How long the push service of the browser keeps a message of this kind (a streak is at risk) for a device that is off or has no signal. After that the message is dropped, so a driver is not told of what is no longer true.',
+            'example' => '7200 s: two hours; later the message is dropped.',
+            'range' => '60 – 86400 s.',
+        ],
+        '/push/streak_risk_min_days' => [
+            'label' => 'Shortest streak that is reminded of',
+            'help' => 'The shortest streak, in days, that the game reminds a driver of in the evening when the goal of the day is not done. A shorter streak is not worth a message. The reminder is a kind of message that is off until the driver switches it on.',
+            'example' => '3: a streak of three days or more.',
+            'range' => '1 – 365 (days).',
+        ],
+        '/push/streak_risk_from_min' => [
+            'label' => 'Time from which the streak reminder may come',
+            'help' => 'The minute of the day (in the time zone of the device of the driver) from which the reminder of a streak may come, once a day. A reminder that cannot come within three hours of this time (the quiet hours, a gap after another message) is not sent. 19:00 is 1140.',
+            'example' => '1140: 19:00.',
+            'range' => '0 – 1439 (minutes after midnight).',
+        ],
     ],
 ];

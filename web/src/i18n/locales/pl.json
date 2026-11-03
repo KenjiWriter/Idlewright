@@ -528,7 +528,8 @@
     "kinds": {
       "car_stopped": "Auto zostało bez paliwa albo się zepsuło",
       "car_arrived": "Auto dojechało",
-      "job_done": "Zlecenie w warsztacie jest gotowe"
+      "job_done": "Zlecenie w warsztacie jest gotowe",
+      "streak_risk": "Cel dnia nie jest zrobiony, a seria jest zagrożona"
     }
   },
   "workshop": {

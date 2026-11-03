@@ -24,6 +24,10 @@ return [
         'title' => 'Die Werkstatt ist fertig',
         'body' => 'Ein Auftrag in deiner Werkstatt ist erledigt.',
     ],
+    'streak_risk' => [
+        'title' => 'Halte die Serie am Laufen',
+        'body' => 'Das Tagesziel ist noch nicht erreicht. Deine Serie: :days.',
+    ],
     'digest' => [
         'title' => ':game',
         'body' => '{1} Eine Sache wartet auf dich.|[2,*] :count Dinge warten auf dich.',

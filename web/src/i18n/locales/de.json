@@ -528,7 +528,8 @@
     "kinds": {
       "car_stopped": "Einem Auto ist der Sprit ausgegangen oder es hat eine Panne",
       "car_arrived": "Ein Auto ist angekommen",
-      "job_done": "Ein Auftrag in der Werkstatt ist erledigt"
+      "job_done": "Ein Auftrag in der Werkstatt ist erledigt",
+      "streak_risk": "Das Tagesziel ist nicht erreicht und eine Serie steht auf dem Spiel"
     }
   },
   "workshop": {

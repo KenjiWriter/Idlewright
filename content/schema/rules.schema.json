@@ -794,9 +794,10 @@
             "car_stopped": { "type": "integer", "minimum": 60000, "maximum": 86400000 },
             "car_arrived": { "type": "integer", "minimum": 60000, "maximum": 86400000 },
             "job_done": { "type": "integer", "minimum": 60000, "maximum": 86400000 },
-            "test": { "type": "integer", "minimum": 60000, "maximum": 86400000 }
+            "test": { "type": "integer", "minimum": 60000, "maximum": 86400000 },
+            "streak_risk": { "type": "integer", "minimum": 60000, "maximum": 86400000 }
           },
-          "required": ["car_stopped", "car_arrived", "job_done", "test"],
+          "required": ["car_stopped", "car_arrived", "job_done", "test", "streak_risk"],
           "additionalProperties": false
         },
         "default_kinds": {
@@ -805,9 +806,10 @@
           "properties": {
             "car_stopped": { "type": "boolean" },
             "car_arrived": { "type": "boolean" },
-            "job_done": { "type": "boolean" }
+            "job_done": { "type": "boolean" },
+            "streak_risk": { "type": "boolean" }
           },
-          "required": ["car_stopped", "car_arrived", "job_done"],
+          "required": ["car_stopped", "car_arrived", "job_done", "streak_risk"],
           "additionalProperties": false
         },
         "per_day": { "description": "The most push messages a driver is sent in the last 24 hours. What happens over it is not told: the driver sees it when they look in. The test message is not counted.", "type": "integer", "minimum": 1, "maximum": 50 },
@@ -819,9 +821,11 @@
         "adapt_pause_after": { "description": "How many messages in a row can stay unanswered before the game stops telling the driver at all, until they come into the game by themselves.", "type": "integer", "minimum": 1, "maximum": 200 },
         "ask_max": { "description": "How many times the card that asks a driver whether they want notifications may come back after a \"not now\". After that the question is not asked again (the driver can still turn them on in the account).", "type": "integer", "minimum": 1, "maximum": 20 },
         "ask_after_ms": { "description": "How long after a \"not now\" the card that asks about notifications waits before it comes back, in milliseconds.", "type": "integer", "minimum": 3600000, "maximum": 7776000000 },
+        "streak_risk_min_days": { "description": "The shortest streak (days) that the game reminds a driver of in the evening, when the goal of the day is not done. A shorter one is not worth a message.", "type": "integer", "minimum": 1, "maximum": 365 },
+        "streak_risk_from_min": { "description": "The minute of the day (in the time zone of the device of the driver; 1140 is 19:00) from which the reminder of a streak may come. It is told once a day, and only until the quiet hours: a reminder that cannot come within three hours of this time is not sent.", "type": "integer", "minimum": 0, "maximum": 1439 },
         "holdout_ppm": { "description": "The part of the accounts (1 000 000 is all of them) that are never told by push and never asked: the group that the others are compared with, to see that the notifications do not make the drivers come back less. The account is put in the group by a hash of its id, so it stays there; a higher number moves more accounts into it, and a lower one moves some out. 0 tells everybody.", "type": "integer", "minimum": 0, "maximum": 1000000 }
       },
-      "required": ["enabled", "ttl_ms", "default_kinds", "per_day", "min_gap_ms", "seen_ms", "quiet_from_min", "quiet_to_min", "adapt_digest_after", "adapt_pause_after", "ask_max", "ask_after_ms", "holdout_ppm"],
+      "required": ["enabled", "ttl_ms", "default_kinds", "per_day", "min_gap_ms", "seen_ms", "quiet_from_min", "quiet_to_min", "adapt_digest_after", "adapt_pause_after", "ask_max", "ask_after_ms", "streak_risk_min_days", "streak_risk_from_min", "holdout_ppm"],
       "additionalProperties": false
     },
     "slots": {

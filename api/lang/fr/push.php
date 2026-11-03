@@ -24,6 +24,10 @@ return [
         'title' => 'L’atelier a terminé',
         'body' => 'Un travail de votre atelier est fini.',
     ],
+    'streak_risk' => [
+        'title' => 'Gardez votre série',
+        'body' => 'L’objectif du jour n’est pas encore atteint. Votre série : :days.',
+    ],
     'digest' => [
         'title' => ':game',
         'body' => '{1} Une chose vous attend.|[2,*] :count choses vous attendent.',

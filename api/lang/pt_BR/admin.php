@@ -1300,6 +1300,7 @@ return [
             'known' => 'o jogador já tinha visto',
             'limit' => 'limite do dia',
             'paused' => 'pausado até o jogador voltar',
+            'late' => 'tarde demais no dia',
             'no_device' => 'sem dispositivo',
             'other' => 'outro',
         ],

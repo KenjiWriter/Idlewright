@@ -190,5 +190,23 @@ return [
             'example' => '604800 s : une semaine.',
             'range' => '1 heure – 90 jours.',
         ],
+        '/push/ttl_ms/streak_risk' => [
+            'label' => 'Durée de conservation d’un message push : série menacée',
+            'help' => 'Combien de temps le service de notifications du navigateur garde un message de ce type (une série est menacée) pour un appareil éteint ou sans réseau. Passé ce délai, le message est abandonné, et le joueur n’est pas prévenu de ce qui n’est plus vrai.',
+            'example' => '7200 s : deux heures ; ensuite le message est abandonné.',
+            'range' => '60 – 86400 s.',
+        ],
+        '/push/streak_risk_min_days' => [
+            'label' => 'Plus courte série dont on rappelle l’existence',
+            'help' => 'La plus courte série, en jours, dont le jeu rappelle l’existence le soir quand l’objectif du jour n’est pas atteint. Une série plus courte ne vaut pas un message. C’est un type de message désactivé tant que le joueur ne l’active pas.',
+            'example' => '3 : une série de trois jours ou plus.',
+            'range' => '1 – 365 (jours).',
+        ],
+        '/push/streak_risk_from_min' => [
+            'label' => 'Heure à partir de laquelle le rappel de série peut venir',
+            'help' => 'La minute de la journée (dans le fuseau de l’appareil du joueur) à partir de laquelle le rappel d’une série peut venir, une fois par jour. Un rappel qui ne peut pas venir dans les trois heures qui suivent cette heure (heures calmes, écart après un autre message) n’est pas envoyé. 19 h est 1140.',
+            'example' => '1140 : 19 h.',
+            'range' => '0 – 1439 (minutes après minuit).',
+        ],
     ],
 ];

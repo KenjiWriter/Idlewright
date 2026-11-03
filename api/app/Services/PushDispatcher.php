@@ -13,10 +13,12 @@ use App\Models\PushSubscription;
 use App\Models\RaceRun;
 use App\Models\Travel;
 use App\Models\User;
+use App\Models\UserStreak;
 use App\Models\UserVisit;
 use App\Models\WorkshopJob;
 use App\Support\I18nText;
 use Closure;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -31,6 +33,9 @@ use Illuminate\Support\Collection;
  */
 final class PushDispatcher
 {
+    /** A reminder of a streak that cannot come within this time of its hour (the quiet hours, a gap after another message) is not sent: it would be about a day that is over. */
+    private const STREAK_RISK_VALID_MS = 10_800_000;
+
     /** A day, in milliseconds: the gap after the last message for a driver who leaves the messages unanswered. */
     private const DAY_MS = 86_400_000;
 
@@ -53,6 +58,8 @@ final class PushDispatcher
         private readonly PushArm $arm,
         private readonly RunService $runs,
         private readonly Catalog $catalog,
+        private readonly Streaks $streaks,
+        private readonly MissionPeriods $periods,
     ) {}
 
     /** @return array{sent: int, skipped: int, deferred: int} what became of the events that were due */
@@ -102,12 +109,45 @@ final class PushDispatcher
         foreach ($jobs as $job) {
             $this->register(PushEvent::KIND_JOB_DONE, PushEvent::REF_JOB, $job->id, $job->user_id, $job->finish_ms);
         }
+
+        $this->scanStreaks($nowMs, $devices);
+    }
+
+    /**
+     * The reminder of a streak: for a driver who has a streak of the length the rules give, wants the reminder, and has a device, once a day from the hour of the rules in the time zone
+     * of the device. Whether the goal of the day is done is looked at when it is told, not now.
+     *
+     * @param  Builder<PushSubscription>  $devices
+     */
+    private function scanStreaks(int $nowMs, $devices): void
+    {
+        $settings = $this->rules->push();
+
+        if (! $this->rules->streaksOn() || $settings === null) {
+            return;
+        }
+
+        foreach (UserStreak::query()->where('current', '>=', $settings['streak_risk_min_days'])->whereIn('user_id', $devices)->get(['user_id']) as $row) {
+            $user = User::query()->find($row->user_id);
+
+            if ($user === null || ! $this->preferences->enabled($user, PushEvent::KIND_STREAK_RISK)) {
+                continue;
+            }
+
+            $local = Carbon::createFromTimestampMs($nowMs, $this->timezoneOf($user));
+            $from = $local->copy()->startOfDay()->addMinutes($settings['streak_risk_from_min']);
+
+            if ($local->greaterThanOrEqualTo($from)) {
+                $this->register(PushEvent::KIND_STREAK_RISK, PushEvent::REF_STREAK, $row->user_id, $row->user_id, $from->getTimestampMs(), since: $local->copy()->startOfDay()->setTimezone((string) config('app.timezone')));
+            }
+        }
     }
 
     /** An event for a thing that ended, once: a thing that was written down before (told, skipped or waiting) is not written down again. */
-    private function register(string $kind, string $refType, int $refId, int $userId, int $dueMs): void
+    private function register(string $kind, string $refType, int $refId, int $userId, int $dueMs, ?Carbon $since = null): void
     {
-        $known = PushEvent::query()->where('kind', $kind)->where('ref_type', $refType)->where('ref_id', $refId)->exists();
+        // A thing that ended is told once; a reminder is told once for each day (`$since` is the start of the day it is looked for in).
+        $known = PushEvent::query()->where('kind', $kind)->where('ref_type', $refType)->where('ref_id', $refId)->when($since !== null, fn ($query) => $query->where('created_at', '>=', $since))->exists();
 
         if (! $known) {
             PushEvent::query()->create(['user_id' => $userId, 'kind' => $kind, 'ref_type' => $refType, 'ref_id' => $refId, 'due_ms' => $dueMs, 'state' => PushEvent::STATE_PLANNED]);
@@ -128,7 +168,7 @@ final class PushDispatcher
         $items = [];
 
         foreach ($events as $event) {
-            $item = $this->resolve($event, $nowMs);
+            $item = $this->resolve($event, $user, $nowMs);
 
             if ($item === null) {
                 // It is not true any more (the job was cancelled, the car is gone).
@@ -136,7 +176,7 @@ final class PushDispatcher
             } elseif ($item !== false) {
                 if (! ($kinds[$event->kind] ?? false)) {
                     $this->skip($event, 'off', $report);
-                } elseif ($seenMs !== null && $seenMs >= $event->due_ms) {
+                } elseif ($seenMs !== null && $seenMs >= $event->due_ms && $event->kind !== PushEvent::KIND_STREAK_RISK) {
                     // The driver was in the game after it happened: they know.
                     $this->skip($event, 'known', $report);
                 } else {
@@ -177,6 +217,13 @@ final class PushDispatcher
 
         if ($wait !== null) {
             foreach ($items as [$event]) {
+                // The reminder of a streak is about this day: it is not told when the day is over.
+                if ($event->kind === PushEvent::KIND_STREAK_RISK && $wait > $event->due_ms + self::STREAK_RISK_VALID_MS) {
+                    $this->skip($event, 'late', $report);
+
+                    continue;
+                }
+
                 $event->forceFill(['due_ms' => $wait])->save();
                 $report['deferred']++;
             }
@@ -202,9 +249,10 @@ final class PushDispatcher
      * @return array{text: string, url: string, tag: string, car: Closure|null}|false|null the words of the message, false when something else keeps the event (the forecast of a
      *                                                                                     car), null when it is not true any more
      */
-    private function resolve(PushEvent $event, int $nowMs): array|false|null
+    private function resolve(PushEvent $event, User $user, int $nowMs): array|false|null
     {
         return match ($event->kind) {
+            PushEvent::KIND_STREAK_RISK => $this->streakAtRisk($user, $nowMs),
             PushEvent::KIND_CAR_STOPPED => $this->carStopped($event, $nowMs),
             PushEvent::KIND_CAR_ARRIVED => $this->carArrived($event),
             PushEvent::KIND_JOB_DONE => WorkshopJob::query()->whereKey($event->ref_id)->exists()
@@ -212,6 +260,25 @@ final class PushDispatcher
                 : null,
             default => null,
         };
+    }
+
+    /**
+     * A streak is at risk when the driver has one of the length the rules give and the goal of the day is not done yet: the answer is looked at when it is told, so a driver who has
+     * done the goal in the meantime is not reminded.
+     *
+     * @return array{text: string, url: string, tag: string, car: Closure|null}|null
+     */
+    private function streakAtRisk(User $user, int $nowMs): ?array
+    {
+        $view = $this->streaks->view($user->id, Carbon::createFromTimestampMs($nowMs));
+
+        if ($view === null || $view['goal']['reached'] || $view['current'] < ($this->rules->push()['streak_risk_min_days'] ?? 1)) {
+            return null;
+        }
+
+        $days = $view['current'];
+
+        return ['text' => 'streak_risk', 'url' => '/missions', 'tag' => 'streak-risk', 'car' => static fn (string $locale): array => ['days' => $days]];
     }
 
     /**

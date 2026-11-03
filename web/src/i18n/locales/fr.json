@@ -528,7 +528,8 @@
     "kinds": {
       "car_stopped": "Une voiture n’a plus de carburant ou est en panne",
       "car_arrived": "Une voiture est arrivée",
-      "job_done": "Un travail de l’atelier est terminé"
+      "job_done": "Un travail de l’atelier est terminé",
+      "streak_risk": "L’objectif du jour n’est pas atteint et une série est en jeu"
     }
   },
   "workshop": {
