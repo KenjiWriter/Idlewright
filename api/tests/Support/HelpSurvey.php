@@ -6,6 +6,7 @@ namespace Tests\Support;
 
 use App\Filament\Pages\AiBridgePage;
 use App\Filament\Pages\BrandingPage;
+use App\Filament\Pages\GigsPage;
 use App\Filament\Pages\MissionsPage;
 use App\Filament\Pages\ModelPage;
 use App\Filament\Pages\PremiumPage;
@@ -48,6 +49,7 @@ final class HelpSurvey
             'branding' => BrandingPage::class,
             'premium' => PremiumPage::class,
             'missions' => MissionsPage::class,
+            'gigs' => GigsPage::class,
             'ai' => AiBridgePage::class,
             'vocabulary' => VocabularyPage::class,
             'rules_text' => RulesJsonPage::class,
