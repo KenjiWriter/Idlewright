@@ -44,6 +44,7 @@ final class Travel
         private readonly TrackChoices $choices,
         private readonly Premium $premium,
         private readonly TravelPolice $police,
+        private readonly GigPolice $gigPolice,
     ) {}
 
     /** Carries out the arrivals that are due, if there are any. Safe to call at any time; a cheap read when nobody is on the road. */
@@ -189,6 +190,13 @@ final class Travel
         return $this->locked($userId, $nowMs, function (Collection $runs, int $now) use ($userId, $to, $carId, $boost): Journey {
             // What is due comes first: a car that has just arrived somewhere is there, not on the road.
             $this->arriveLocked($userId, $runs, $now);
+
+            // An arrest of the driver (a night run that the police stopped) blocks the journeys and the gigs, and nothing else.
+            $arrestedUntil = $this->gigPolice->arrestedUntilMs($userId, $now);
+
+            if ($arrestedUntil !== null) {
+                throw new RuleRefusedException('arrested', ['until_ms' => $arrestedUntil]);
+            }
 
             $car = $carId === null
                 ? $this->garage->carOf($userId)

@@ -139,6 +139,7 @@ Route::prefix('v1')->group(function (): void {
         // The side jobs of a city: the board for a car, taking an offer, and taking it back in the first seconds.
         Route::get('/gigs', [GigController::class, 'show'])->middleware('throttle:gigs');
         Route::post('/gigs', [GigController::class, 'take']);
+        Route::post('/gigs/bail', [GigController::class, 'bail']);
         Route::delete('/gigs/{gig}', [GigController::class, 'cancel'])->whereNumber('gig');
 
         Route::get('/garage', [GarageController::class, 'show']);

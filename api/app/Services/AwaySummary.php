@@ -232,7 +232,7 @@ final class AwaySummary
      * The gigs that ended in the break, what each paid (the bonus of the VIP account is in it) and where the car went. The pay is not in `earned_cents`, which is the pay of
      * the laps.
      *
-     * @return list<array{kind: string, kind_name: string, to: string, finished_ms: int, reward_cents: int, bonus_cents: int}>
+     * @return list<array{kind: string, kind_name: string, to: string, finished_ms: int, reward_cents: int, bonus_cents: int, police: array{outcome: string, fine_cents: int, arrest_until_ms: int|null}|null}>
      */
     private function gigs(int $userId, int $fromMs, int $toMs): array
     {
@@ -250,8 +250,11 @@ final class AwaySummary
                 'kind_name' => I18nText::from($kinds[$gig->kind]['name'] ?? [])->for(),
                 'to' => $this->rules->cityName($gig->to_region ?? $gig->region),
                 'finished_ms' => (int) $gig->done_ms,
-                'reward_cents' => (int) $gig->reward_cents,
+                'reward_cents' => (int) ($gig->paid_cents ?? $gig->reward_cents),
                 'bonus_cents' => (int) $gig->bonus_cents,
+                'police' => in_array($gig->police_outcome, [Gig::POLICE_ESCAPED, Gig::POLICE_ARRESTED], true)
+                    ? ['outcome' => $gig->police_outcome, 'fine_cents' => (int) $gig->fine_paid_cents, 'arrest_until_ms' => $gig->arrest_until_ms]
+                    : null,
             ])
             ->all();
     }

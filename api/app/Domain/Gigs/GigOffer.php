@@ -18,6 +18,7 @@ final readonly class GigOffer
      * @param  int  $untilMs  when the offer leaves the board
      * @param  int  $refMs  the reference time of the trip: what its length takes at the reference speed
      * @param  int|null  $deadlinePpm  the part of the reference time the car must finish within, or null
+     * @param  bool  $opportunity  the night run of a night: it is made once for the night, not drawn from a slot of the wave, and the police look at it
      */
     public function __construct(
         public string $key,
@@ -37,5 +38,6 @@ final readonly class GigOffer
         public int $payPpm,
         public ?int $deadlinePpm,
         public int $untilMs,
+        public bool $opportunity = false,
     ) {}
 }

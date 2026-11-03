@@ -54,6 +54,7 @@ final class Gigs
         private readonly Catalog $vehicles,
         private readonly CarProgress $progress,
         private readonly TutorialSteps $steps,
+        private readonly GigPolice $police,
     ) {
         $this->board = new GigBoard($catalog);
     }
@@ -129,10 +130,11 @@ final class Gigs
             'next_phase_ms' => GameClock::nextPhaseChangeMs($now),
             'wave' => ['number' => intdiv($now, $this->catalog->waveMs()), 'ends_ms' => (intdiv($now, $this->catalog->waveMs()) + 1) * $this->catalog->waveMs()],
             'cancel_window_ms' => $this->catalog->cancelWindowMs(),
+            'arrest' => $locked === null ? $this->police->arrest($userId, $now) : null,
         ];
 
         if ($locked !== null || $run === null || $car === null) {
-            return [...$base, 'car' => null, 'offers' => [], 'active' => null, 'limits' => null];
+            return [...$base, 'car' => null, 'offers' => [], 'opportunity' => null, 'active' => null, 'limits' => null];
         }
 
         $vehicle = $this->vehicles->vehicle($run->car_slug) ?? [];
@@ -164,6 +166,28 @@ final class Gigs
             $offers[] = $this->offerView($offer, $quote, $blocked);
         }
 
+        $opportunity = null;
+        $night = $this->board->opportunity($this->seed($userId), $region, $now, $level, $this->destinations($region, $level));
+
+        if ($night !== null && ! in_array($night->key, $taken, true)) {
+            $quote = $this->quote($night, $vehicle, $stats, $level, $bonusPpm);
+            $blocked = $this->staticBlock($night, $vehicle, $quote) ?? ($busy !== null ? ['code' => $busy, 'details' => []] : null);
+
+            if ($blocked === null && $limits['night_used'] >= $limits['night_limit']) {
+                $blocked = ['code' => 'gig_night_limit', 'details' => ['limit' => $limits['night_limit']]];
+            }
+
+            if ($blocked === null && $base['arrest'] !== null) {
+                $blocked = ['code' => 'arrested', 'details' => ['until_ms' => $base['arrest']['until_ms']]];
+            }
+
+            if ($blocked === null && $run->fuel_ml < $quote['fuel_ml']) {
+                $blocked = ['code' => 'gig_no_fuel', 'details' => $this->fuelDetails($quote['fuel_ml'], $run->fuel_ml)];
+            }
+
+            $opportunity = [...$this->offerView($night, $quote, $blocked), 'night' => $this->nightView($night, $vehicle, $stats, $level, $userId, $now)];
+        }
+
         return [
             ...$base,
             'car' => [
@@ -174,7 +198,8 @@ final class Gigs
                 'speed_kmh' => (int) round($this->tripSpeedKmh($stats)),
             ],
             'offers' => $offers,
-            'active' => $active === null ? null : $this->gigView($active),
+            'opportunity' => $opportunity,
+            'active' => $active === null ? null : $this->gigView($active, $now),
             'limits' => $limits,
         ];
     }
@@ -186,7 +211,7 @@ final class Gigs
      * @param  int|null  $carId  the car, or the one the driver plays when left out
      * @return array{gig: Gig, repeated: bool}
      *
-     * @throws RuleRefusedException `gigs_unavailable`, `no_run` or `car_not_found`, `gig_gone`, `gig_requirements`, `gig_deadline`, `gig_busy`, `car_cannot_travel`, `gig_no_fuel` or `gig_daily_limit` (nothing is changed)
+     * @throws RuleRefusedException `gigs_unavailable`, `arrested`, `no_run` or `car_not_found`, `gig_gone`, `gig_requirements`, `gig_deadline`, `gig_busy`, `car_cannot_travel`, `gig_no_fuel`, `gig_daily_limit` or `gig_night_limit` (nothing is changed)
      */
     public function take(int $userId, string $offerKey, ?int $carId = null, ?int $nowMs = null): array
     {
@@ -196,6 +221,13 @@ final class Gigs
 
             if ($this->lockedBy($userId) !== null) {
                 throw new RuleRefusedException('gigs_unavailable');
+            }
+
+            // A driver under arrest takes no gig; the gig they took before is not undone, the car comes back and the arrest is a matter of the driver.
+            $arrestedUntil = $this->police->arrestedUntilMs($userId, $now);
+
+            if ($arrestedUntil !== null) {
+                throw new RuleRefusedException('arrested', ['until_ms' => $arrestedUntil]);
             }
 
             $car = $carId === null ? $this->garage->carOf($userId) : Car::query()->where('user_id', $userId)->find($carId);
@@ -238,6 +270,10 @@ final class Gigs
                 throw new RuleRefusedException('gig_daily_limit', ['limit' => $limits['daily_limit'], 'resets_ms' => $limits['resets_ms']]);
             }
 
+            if ($offer->opportunity && $limits['night_used'] >= $limits['night_limit']) {
+                throw new RuleRefusedException('gig_night_limit', ['limit' => $limits['night_limit'], 'resets_ms' => $limits['resets_ms']]);
+            }
+
             // The car earns until it leaves, and a car that cannot go on (the tank ran dry, it broke down, the workshop has work for it) stays where it is.
             $this->runs->settleLocked($run, $now);
 
@@ -252,6 +288,7 @@ final class Gigs
             $this->runs->startGig($run, $quote['fuel_ml']);
 
             $gig = Gig::query()->create([
+                ...$this->policeOf($offer, $vehicle, $quote, $run, $userId, $now),
                 'user_id' => $userId,
                 'race_run_id' => $run->id,
                 'offer_key' => $offer->key,
@@ -313,9 +350,10 @@ final class Gigs
      * level at which its model is sold); the time does, through its speed (not above the limit of the roads).
      *
      * @param  array<string, mixed>  $vehicle  the definition of the car in the pack
+     * @param  int|null  $payPpm  the pay of the template when it is not the offer's own (the plain pay of the same trip, to put beside a night run)
      * @return array{duration_ms: int, fuel_ml: int, reward_cents: int, bonus_cents: int, xp: int, car_xp: int}
      */
-    public function quote(GigOffer $offer, array $vehicle, CarStats $stats, int $level, int $vipBonusPpm = 0): array
+    public function quote(GigOffer $offer, array $vehicle, CarStats $stats, int $level, int $vipBonusPpm = 0, ?int $payPpm = null): array
     {
         $speed = $this->tripSpeedKmh($stats);
         $band = $this->catalog->band($level);
@@ -324,7 +362,7 @@ final class Gigs
         $phasePpm = $this->catalog->template($offer->template)['phase_pay_ppm'][$offer->phase] ?? Ppm::ONE;
 
         // The pay of the reference time of the trip, a part at a time and each part rounded, so that the number is the same on every machine.
-        $perHour = Ppm::mul(Ppm::mul(Ppm::mul(Ppm::mul($anchor, $band['ratio_ppm']), $offer->payPpm), $phasePpm), $rarity);
+        $perHour = Ppm::mul(Ppm::mul(Ppm::mul(Ppm::mul($anchor, $band['ratio_ppm']), $payPpm ?? $offer->payPpm), $phasePpm), $rarity);
         $base = intdiv($perHour * $offer->refMs + 1_800_000, 3_600_000);
         $bonus = $vipBonusPpm > 0 ? Ppm::mul($base, $vipBonusPpm) : 0;
 
@@ -395,7 +433,7 @@ final class Gigs
     /**
      * How many gigs the driver has taken today, how many they may, and when the day of the limit turns over.
      *
-     * @return array{daily_used: int, daily_limit: int, resets_ms: int}
+     * @return array{daily_used: int, daily_limit: int, night_used: int, night_limit: int, resets_ms: int}
      */
     public function limits(int $userId, int $level, int $nowMs): array
     {
@@ -409,9 +447,13 @@ final class Gigs
 
         $startMs = $start->getTimestamp() * 1000;
 
+        $night = $this->catalog->night();
+
         return [
             'daily_used' => Gig::query()->where('user_id', $userId)->where('status', '!=', Gig::STATUS_CANCELLED)->where('start_ms', '>=', $startMs)->count(),
             'daily_limit' => $this->catalog->band($level)['daily_limit'],
+            'night_used' => $night === null ? 0 : Gig::query()->where('user_id', $userId)->where('kind', $night['kind'])->where('status', '!=', Gig::STATUS_CANCELLED)->where('start_ms', '>=', $startMs)->count(),
+            'night_limit' => $night['daily_limit'] ?? 0,
             'resets_ms' => $start->modify('+1 day')->getTimestamp() * 1000,
         ];
     }
@@ -437,25 +479,134 @@ final class Gigs
         foreach ($due as $gig) {
             $run = $runs->firstWhere('id', $gig->race_run_id);
 
-            if ($gig->reward_cents > 0) {
-                $this->ledger->post($userId, $gig->reward_cents, 'gig', "gig:{$gig->id}");
+            // What a gig pays is frozen when it is taken: a night run that was stopped pays less, or nothing, whatever the rules say later.
+            $paid = (int) ($gig->paid_cents ?? $gig->reward_cents);
+            $arrested = $gig->police_outcome === Gig::POLICE_ARRESTED;
+            $finePaid = null;
+
+            if ($paid > 0) {
+                $this->ledger->post($userId, $paid, 'gig', "gig:{$gig->id}");
             }
 
-            $this->ledger->grantXp($userId, $gig->xp);
+            // The fine is taken from what the driver has: a driver with little does not go below zero.
+            if ($arrested && (int) $gig->fine_cents > 0) {
+                $finePaid = min((int) $gig->fine_cents, max(0, $this->ledger->balance($userId)));
+
+                if ($finePaid > 0) {
+                    $this->ledger->post($userId, -$finePaid, 'gig_fine', "gig:{$gig->id}:fine");
+                }
+            }
+
+            if (! $arrested) {
+                $this->ledger->grantXp($userId, $gig->xp);
+            }
 
             if ($run !== null) {
                 // The kilometres of the trip are on the odometer and on the parts, whatever the run was frozen with when the car left.
                 if ($run->car_id !== null) {
                     (new CarWear)->applyDistance($run->car_id, $run->config, $gig->distance_km);
                     $run->unsetRelation('car');
-                    $this->progress->award($run->car_id, $gig->car_xp);
+                    $arrested || $this->progress->award($run->car_id, $gig->car_xp);
                 }
 
                 $this->runs->finishGig($run, $this->inputs->forRun($run, $run->track_slug), $gig->finish_ms);
             }
 
-            $gig->forceFill(['status' => Gig::STATUS_DONE, 'done_ms' => $gig->finish_ms])->save();
+            $gig->forceFill(['status' => Gig::STATUS_DONE, 'done_ms' => $gig->finish_ms, 'paid_cents' => $paid, 'fine_paid_cents' => $finePaid])->save();
         }
+    }
+
+    /** The title of a template in the language of the driver; the night run is not one of the templates of the document, it has its own. */
+    private function titleOf(string $template): string
+    {
+        $title = $template === GigCatalog::NIGHT ? ($this->catalog->night()['title'] ?? []) : ($this->catalog->template($template)['title'] ?? []);
+
+        return I18nText::from($title)->for();
+    }
+
+    /**
+     * What the police make of a gig, to freeze in its row when it is taken: nothing for a gig that is not a night run. A night run has its chance, its end (drawn now), the moment
+     * of the stop (in the middle of the trip), the fine and the bail, and what it will be paid, so that nothing that the rules say later changes it.
+     *
+     * @param  array<string, mixed>  $vehicle
+     * @param  array{duration_ms: int, reward_cents: int, bonus_cents: int}  $quote
+     * @return array<string, int|string|null>
+     */
+    private function policeOf(GigOffer $offer, array $vehicle, array $quote, RaceRun $run, int $userId, int $now): array
+    {
+        $night = $offer->opportunity ? $this->catalog->night() : null;
+
+        if ($night === null) {
+            return ['paid_cents' => $quote['reward_cents']];
+        }
+
+        $odds = $this->police->odds((string) ($vehicle['class'] ?? ''), $this->police->heated($userId, $offer->region, $now)) ?? throw new RuleRefusedException('gig_gone');
+        $outcome = $this->police->outcome($odds, $run->id, $now, $offer->key);
+        $plain = $quote['reward_cents'] - $quote['bonus_cents'];
+        $paid = match ($outcome) {
+            Gig::POLICE_CLEAN => $quote['reward_cents'],
+            Gig::POLICE_ESCAPED => Ppm::mul($quote['reward_cents'], $night['escape_pay_ppm']),
+            default => 0,
+        };
+        $stopMs = $outcome === Gig::POLICE_CLEAN ? null : $now + intdiv($quote['duration_ms'], 2);
+
+        return [
+            'police_control_ppm' => $odds['control_ppm'],
+            'police_outcome' => $outcome,
+            'police_at_ms' => $stopMs,
+            'arrest_until_ms' => $outcome === Gig::POLICE_ARRESTED ? $stopMs + $night['arrest']['ms'] : null,
+            'fine_cents' => $outcome === Gig::POLICE_ARRESTED ? Ppm::mul($plain, $night['arrest']['fine_ppm']) : null,
+            'bail_cents' => $outcome === Gig::POLICE_ARRESTED ? Ppm::mul($plain, $night['arrest']['bail_ppm']) : null,
+            'paid_cents' => $paid,
+        ];
+    }
+
+    /**
+     * What a night run is, for the driver who is looking at it: what the plain pay of the same trip is, the chances of every end, what each end costs, and how loud the car is. The
+     * chances are the ones the draw is made with when it is taken.
+     *
+     * @param  array<string, mixed>  $vehicle
+     * @return array<string, mixed>
+     */
+    private function nightView(GigOffer $offer, array $vehicle, CarStats $stats, int $level, int $userId, int $now): array
+    {
+        $night = $this->catalog->night() ?? [];
+        $heated = $this->police->heated($userId, $offer->region, $now);
+        $plain = $this->quote($offer, $vehicle, $stats, $level, 0, Ppm::ONE);
+        $full = $this->quote($offer, $vehicle, $stats, $level)['reward_cents'];
+
+        return [
+            'multiplier_ppm' => $offer->payPpm,
+            'plain_reward_cents' => $plain['reward_cents'],
+            'escape_pay_ppm' => $night['escape_pay_ppm'] ?? 0,
+            'arrest_ms' => $night['arrest']['ms'] ?? 0,
+            'fine_cents' => Ppm::mul($full, $night['arrest']['fine_ppm'] ?? 0),
+            'bail_cents' => Ppm::mul($full, $night['arrest']['bail_ppm'] ?? 0),
+            'heated' => $heated,
+            'odds' => $this->police->odds((string) ($vehicle['class'] ?? ''), $heated),
+        ];
+    }
+
+    /**
+     * What the police made of a gig, once the stop has happened: before it the driver cannot know (the end is in the row, drawn, and is not told).
+     *
+     * @return array{outcome: string, at_ms: int, fine_cents: int, bail_cents: int, arrest_until_ms: int|null, bailed: bool, paid_cents: int}|null
+     */
+    private function policeView(Gig $gig, int $now): ?array
+    {
+        if ($gig->police_outcome === null || $gig->police_outcome === Gig::POLICE_CLEAN || $gig->police_at_ms === null || $now < $gig->police_at_ms) {
+            return null;
+        }
+
+        return [
+            'outcome' => $gig->police_outcome,
+            'at_ms' => (int) $gig->police_at_ms,
+            'fine_cents' => (int) $gig->fine_cents,
+            'bail_cents' => (int) $gig->bail_cents,
+            'arrest_until_ms' => $gig->arrest_until_ms,
+            'bailed' => $gig->bailed_ms !== null,
+            'paid_cents' => (int) ($gig->paid_cents ?? 0),
+        ];
     }
 
     private function statsOf(RaceRun $run): CarStats
@@ -482,12 +633,10 @@ final class Gigs
      */
     private function offerView(GigOffer $offer, array $quote, ?array $blocked): array
     {
-        $template = $this->catalog->template($offer->template) ?? [];
-
         return [
             'key' => $offer->key,
             'template' => $offer->template,
-            'title' => I18nText::from($template['title'] ?? [])->for(),
+            'title' => $this->titleOf($offer->template),
             'kind' => $offer->kind,
             'kind_name' => I18nText::from($this->catalog->kinds()[$offer->kind]['name'] ?? [])->for(),
             'region' => $offer->region,
@@ -497,6 +646,7 @@ final class Gigs
             'capacity' => $offer->capacity,
             'amount' => $offer->amount,
             'class_in' => $offer->classIn,
+            'opportunity' => $offer->opportunity,
             'rarity' => $offer->rarity,
             'phase' => $offer->phase,
             'until_ms' => $offer->untilMs,
@@ -511,15 +661,15 @@ final class Gigs
     }
 
     /** @return array<string, mixed> */
-    public function gigView(Gig $gig): array
+    public function gigView(Gig $gig, ?int $nowMs = null): array
     {
-        $template = $this->catalog->template($gig->template) ?? [];
+        $now = $nowMs ?? RunService::nowMs();
 
         return [
             'id' => $gig->id,
             'offer' => $gig->offer_key,
             'template' => $gig->template,
-            'title' => I18nText::from($template['title'] ?? [])->for(),
+            'title' => $this->titleOf($gig->template),
             'kind' => $gig->kind,
             'kind_name' => I18nText::from($this->catalog->kinds()[$gig->kind]['name'] ?? [])->for(),
             'region' => $gig->region,
@@ -538,6 +688,7 @@ final class Gigs
             'bonus_cents' => $gig->bonus_cents,
             'xp' => $gig->xp,
             'status' => $gig->status,
+            'police' => $this->policeView($gig, $now),
         ];
     }
 

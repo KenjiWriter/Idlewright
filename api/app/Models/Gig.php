@@ -19,6 +19,13 @@ class Gig extends Model
 
     public const STATUS_DONE = 'done';
 
+    /** How a night run ended: nobody stopped it, the car got away from the police, or the driver was arrested. */
+    public const POLICE_CLEAN = 'clean';
+
+    public const POLICE_ESCAPED = 'escaped';
+
+    public const POLICE_ARRESTED = 'arrested';
+
     /** The driver took it back in the first seconds: nothing was paid and the fuel was returned. */
     public const STATUS_CANCELLED = 'cancelled';
 
@@ -40,6 +47,14 @@ class Gig extends Model
             'xp' => 'integer',
             'car_xp' => 'integer',
             'done_ms' => 'integer',
+            'police_control_ppm' => 'integer',
+            'police_at_ms' => 'integer',
+            'arrest_until_ms' => 'integer',
+            'bailed_ms' => 'integer',
+            'fine_cents' => 'integer',
+            'bail_cents' => 'integer',
+            'paid_cents' => 'integer',
+            'fine_paid_cents' => 'integer',
         ];
     }
 

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Services\GigPolice;
 use App\Services\Gigs;
 use App\Services\Ledger;
 use App\Services\RunService;
@@ -20,6 +21,7 @@ final class GigController extends Controller
 {
     public function __construct(
         private readonly Gigs $gigs,
+        private readonly GigPolice $police,
         private readonly Workshop $workshop,
         private readonly Ledger $ledger,
     ) {}
@@ -54,6 +56,16 @@ final class GigController extends Controller
         $userId = $this->userId($request);
         $this->workshop->advance($userId);
         $this->gigs->cancel($userId, $gig);
+
+        return $this->respond($userId, null);
+    }
+
+    /** Pays the bail of the arrest the driver is under: it ends at once, and the bail is taken from their cash. */
+    public function bail(Request $request): JsonResponse
+    {
+        $userId = $this->userId($request);
+        $this->workshop->advance($userId);
+        $this->police->bail($userId);
 
         return $this->respond($userId, null);
     }

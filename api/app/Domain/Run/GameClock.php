@@ -61,6 +61,28 @@ final class GameClock
         return self::phaseAt($ms) === self::NIGHT;
     }
 
+    /**
+     * The night that `$ms` is in: from the hour it begins (22) to the hour it ends (5 the next morning), or null by day. A night belongs to the day it begins in.
+     *
+     * @return array{start_ms: int, end_ms: int}|null
+     */
+    public static function nightWindow(int $ms): ?array
+    {
+        if (! self::isNight($ms)) {
+            return null;
+        }
+
+        $offset = self::offset($ms);
+        $dayStart = $ms - $offset;
+        $begin = self::NIGHT_CHANGES[1] * self::HOUR_MS;
+        $end = self::NIGHT_CHANGES[0] * self::HOUR_MS;
+
+        // After midnight the night began the evening before.
+        return $offset >= $begin
+            ? ['start_ms' => $dayStart + $begin, 'end_ms' => $dayStart + self::DAY_MS + $end]
+            : ['start_ms' => $dayStart - self::DAY_MS + $begin, 'end_ms' => $dayStart + $end];
+    }
+
     /** The first moment after `$ms` at which the phase changes. */
     public static function nextPhaseChangeMs(int $ms): int
     {

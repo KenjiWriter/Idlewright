@@ -54,7 +54,7 @@ final class MissionProgress
             'service' => $this->jobs($userId, WorkshopJob::KIND_SERVICE, $fromMs, $toMs),
             'merge' => MergeAttempt::query()->where('user_id', $userId)->where('success', true)->where('finished_ms', '>=', $fromMs)->where('finished_ms', '<', $toMs)->count(),
             'journey' => Travel::query()->where('user_id', $userId)->where('status', Travel::STATUS_ARRIVED)->where('arrive_ms', '>=', $fromMs)->where('arrive_ms', '<', $toMs)->count(),
-            'gig' => Gig::query()->where('user_id', $userId)->where('status', Gig::STATUS_DONE)->where('done_ms', '>=', $fromMs)->where('done_ms', '<', $toMs)->count(),
+            'gig' => Gig::query()->where('user_id', $userId)->where('status', Gig::STATUS_DONE)->where(fn ($query) => $query->whereNull('police_outcome')->orWhere('police_outcome', '!=', Gig::POLICE_ARRESTED))->where('done_ms', '>=', $fromMs)->where('done_ms', '<', $toMs)->count(),
             'crate' => CrateOpening::query()->where('user_id', $userId)->where('pity_group', 'not like', self::CRATE_STREAM_PREFIX.'%')
                 ->where('created_at', '>=', $this->at($fromMs))->where('created_at', '<', $this->at($toMs))->count(),
             default => 0,

@@ -19,6 +19,9 @@ use App\Domain\Run\Rng;
  */
 final class GigBoard
 {
+    /** The slot in the key of the night run: no slot of a wave is as high. */
+    public const OPPORTUNITY_SLOT = 99;
+
     public function __construct(private readonly GigCatalog $catalog) {}
 
     /**
@@ -59,6 +62,13 @@ final class GigBoard
             return null;
         }
 
+        if ((int) $match[3] === self::OPPORTUNITY_SLOT) {
+            // The night run is made for the night that is now; a key from another night is not on the board.
+            $offer = $this->opportunity($seed, $match[1], $nowMs, $level, $destinations);
+
+            return $offer !== null && $offer->key === $key ? $offer : null;
+        }
+
         $offer = $this->offer($seed, $match[1], (int) $match[2], (int) $match[3], $level, $destinations);
 
         if ($offer === null || $offer->key !== $key || $offer->untilMs <= $nowMs || (int) $match[2] > intdiv($nowMs, $this->catalog->waveMs())) {
@@ -66,6 +76,60 @@ final class GigBoard
         }
 
         return $offer;
+    }
+
+    /**
+     * The night run of the night that `$nowMs` is in, one for each city and each night, the same every time it is made from the same seed: a small load to a city that the
+     * level of the driver has opened, and back. Null by day, when the game has no night run, and when the driver is not at the level of it or no city is near enough.
+     *
+     * @param  list<array{region: string, km: int}>  $destinations
+     */
+    public function opportunity(string $seed, string $region, int $nowMs, int $level, array $destinations): ?GigOffer
+    {
+        $night = $this->catalog->night();
+        $window = GameClock::nightWindow($nowMs);
+
+        if ($night === null || $window === null || $night['min_player_level'] > $level) {
+            return null;
+        }
+
+        $band = $this->catalog->band($level);
+        $refSpeed = $this->catalog->refSpeedKmh();
+        $reachable = $this->reachable($destinations, $band['max_ref_minutes'], $refSpeed);
+
+        if ($reachable === []) {
+            return null;
+        }
+
+        $domain = "gig:{$region}:night:{$window['start_ms']}";
+        $chosen = $reachable[$this->between($seed, "{$domain}:to", 0, 0, count($reachable) - 1)];
+        $km = 2 * $chosen['km'];
+        $amount = $this->between($seed, "{$domain}:amount", 0, $night['amount']['min'], $night['amount']['max']);
+        $amount = max($night['amount']['min'], min($night['amount']['max'], intdiv($amount + 5, 10) * 10));
+        $rarity = (string) ($this->catalog->rarities()[0]['key'] ?? 'ordinary');
+        $wave = intdiv($window['start_ms'], $this->catalog->waveMs());
+        $fingerprint = substr(hash('sha256', "{$seed}|{$region}|night|{$window['start_ms']}|{$chosen['region']}|{$km}|{$amount}"), 0, 8);
+
+        return new GigOffer(
+            key: "{$region}.{$wave}.".self::OPPORTUNITY_SLOT.".{$fingerprint}",
+            region: $region,
+            toRegion: $chosen['region'],
+            wave: $wave,
+            slot: self::OPPORTUNITY_SLOT,
+            phase: GameClock::NIGHT,
+            template: GigCatalog::NIGHT,
+            kind: $night['kind'],
+            capacity: 'cargo_kg',
+            amount: $amount,
+            classIn: null,
+            rarity: $rarity,
+            km: $km,
+            refMs: intdiv($km * 3_600_000, $refSpeed),
+            payPpm: $night['pay_ppm'],
+            deadlinePpm: null,
+            untilMs: $window['end_ms'],
+            opportunity: true,
+        );
     }
 
     /**

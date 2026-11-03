@@ -383,7 +383,7 @@ final class Metrics
     private function gigs(CarbonImmutable $now): array
     {
         $first = $now->startOfDay()->subDays(13);
-        $taken = Gig::query()->where('status', '!=', Gig::STATUS_CANCELLED)->where('start_ms', '>=', $first->getTimestampMs())->get(['user_id', 'start_ms', 'reward_cents', 'status'])
+        $taken = Gig::query()->where('status', '!=', Gig::STATUS_CANCELLED)->where('start_ms', '>=', $first->getTimestampMs())->get(['user_id', 'start_ms', 'reward_cents', 'paid_cents', 'status'])
             ->groupBy(static fn (Gig $gig): string => CarbonImmutable::createFromTimestampMs($gig->start_ms)->toDateString());
         $days = [];
 
@@ -391,7 +391,7 @@ final class Metrics
             $day = $first->addDays($i)->toDateString();
             $rows = $taken->get($day, collect());
 
-            $days[] = ['day' => $day, 'taken' => $rows->count(), 'drivers' => $rows->pluck('user_id')->unique()->count(), 'paid_cents' => (int) $rows->where('status', Gig::STATUS_DONE)->sum('reward_cents')];
+            $days[] = ['day' => $day, 'taken' => $rows->count(), 'drivers' => $rows->pluck('user_id')->unique()->count(), 'paid_cents' => (int) $rows->where('status', Gig::STATUS_DONE)->sum(static fn (Gig $gig): int => (int) ($gig->paid_cents ?? $gig->reward_cents))];
         }
 
         $paid = (int) LedgerEntry::query()->where('currency', 'cash')->where('reason', 'gig')->where('created_at', '>=', $now->subDays(30))->sum('delta');
