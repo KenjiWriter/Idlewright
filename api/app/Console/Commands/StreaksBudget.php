@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Console\Commands\Concerns\RunsInAGame;
+use App\Content\GameCrates;
 use App\Content\Rules;
+use App\Domain\Economy\EconomyRules;
+use App\Domain\Economy\RetentionStudy;
 use App\Models\RaceRun;
 use App\Services\MissionScale;
 use Illuminate\Console\Command;
@@ -30,11 +33,12 @@ final class StreaksBudget extends Command
         {--car=rdzak-gt-4 : The slug of the car whose tank is the measure}
         {--track=zlomowo-street : The slug of the track it drives}
         {--days=30 : The days of the month to add up}
+        {--simulate : Play the streak in the economy simulator and say whether it moves the day a car is bought by more than 5%}
         {--game= : The slug of the game (the default game when left out)}';
 
     protected $description = 'Show what the streak of days pays, for a car on a track';
 
-    public function handle(Rules $rules, MissionScale $scale): int
+    public function handle(Rules $rules, MissionScale $scale, RetentionStudy $study, GameCrates $gameCrates): int
     {
         $settings = $rules->streaks();
 
@@ -102,6 +106,44 @@ final class StreaksBudget extends Command
 
         $this->line('The streak pays no premium coins. The crates are free crates of their kind: their effect on the pace of the game is for the economy simulator (an extra of free crates), not measured here.');
 
+        if ($this->option('simulate')) {
+            $warned = $this->simulate($rules, $study, $gameCrates) || $warned;
+        }
+
         return $warned ? self::FAILURE : self::SUCCESS;
+    }
+
+    /** Plays the streak with the three kinds of players of the economy simulator, and says whether it moves the pace of the game by more than the gate lets a gift. Whether it failed. */
+    private function simulate(Rules $rules, RetentionStudy $study, GameCrates $crates): bool
+    {
+        $settings = $rules->streaks();
+        $items = static fn (array $entry): int => count(array_filter($entry['items'], static fn (array $item): bool => $item['type'] === 'crate'));
+        $shape = static fn (array $entry): array => ['cash_ppm' => $entry['cash_ppm'], 'xp_ppm' => $entry['xp_ppm'], 'crates' => $items($entry)];
+        $economy = EconomyRules::fromArray(json_decode((string) file_get_contents(config('ride.content_path').'/rules/economy.json'), true, 512, JSON_THROW_ON_ERROR));
+        $result = $study->streak($economy, $crates->economy(), array_map($shape, $settings['cycle']), array_map($shape, $settings['milestones']));
+
+        $this->newLine();
+        $this->line('The streak in the economy simulator: a player who never breaks it, a free crate valued at its price (the most it can be worth).');
+        $rows = [];
+
+        foreach ($result['runs'] as $key => $run) {
+            $note = $run->notes['streak'] ?? [];
+            $rows[] = [$key, $this->percent($note['uplift_cash_30d'] ?? null), $this->percent($note['uplift_xp_30d'] ?? null)];
+        }
+
+        $this->table(['player', 'cash added (first 30 days)', 'XP added (first 30 days)'], $rows);
+
+        $failures = $result['gate']->failures();
+        $this->table(['player', 'car', 'day without', 'day with', 'allowed'], array_map(fn ($row): array => [$row->player, $row->rung, $row->target, $row->day ?? '-', sprintf('%.0f%%', $result['gate']->tolerance * 100)], $failures));
+        $failures === []
+            ? $this->info(sprintf('The streak moves no car by more than %.0f%% of its day (and a day).', $result['gate']->tolerance * 100))
+            : $this->warn(sprintf('The streak moves %d purchases by more than %.0f%% of the day.', count($failures), $result['gate']->tolerance * 100));
+
+        return $failures !== [];
+    }
+
+    private function percent(?float $share): string
+    {
+        return $share === null ? '-' : sprintf('%.1f%%', $share * 100);
     }
 }

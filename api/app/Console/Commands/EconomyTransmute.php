@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace App\Console\Commands;
 
 use App\Console\Commands\Concerns\RunsInAGame;
+use App\Content\GameCrates;
 use App\Content\Rules;
+use App\Domain\Economy\EconomyRules;
 use App\Domain\Economy\MergeEconomy;
+use App\Domain\Economy\RetentionStudy;
 use App\Domain\Economy\TransmuteEconomy;
 use App\Domain\Run\Rarity;
 use Illuminate\Console\Command;
@@ -27,11 +30,12 @@ final class EconomyTransmute extends Command
 
     protected $signature = 'economy:transmute
         {--min-share=0.45 : The least share of the cost of merging that the cash of a step may be}
+        {--simulate : Play a player with coins in the economy simulator and say whether transmutation moves the day a car is bought by more than the pace gate lets it}
         {--game= : The slug of the game (the default game when left out)}';
 
     protected $description = 'Show what transmutation of the rarity of a part costs next to merging';
 
-    public function handle(Rules $game): int
+    public function handle(Rules $game, RetentionStudy $retention, GameCrates $crates): int
     {
         $rules = $game->transmute();
 
@@ -94,6 +98,37 @@ final class EconomyTransmute extends Command
             return self::FAILURE;
         }
 
+        if ($this->option('simulate') && $this->simulate($game, (array) $game->transmute(), $retention, $crates)) {
+            return self::FAILURE;
+        }
+
         return self::SUCCESS;
+    }
+
+    /**
+     * Plays a player who has the coins for it: when the level opens a tier of parts and transmutation, the three slots of the table of the pace of the rarities are turned to epic
+     * as soon as the cash is there. Whether the day on which a car is bought moved by more than the pace gate lets.
+     *
+     * @param  array{min_player_level: int, cash_ppm: list<int>}  $rules
+     */
+    private function simulate(Rules $game, array $rules, RetentionStudy $study, GameCrates $crates): bool
+    {
+        $table = json_decode((string) file_get_contents(config('ride.content_path').'/tables/rarity-pace.json'), true, 512, JSON_THROW_ON_ERROR);
+        // The table lists the gain of uncommon, rare, epic and legendary parts for each slot: the third number is epic.
+        $epic = array_map(static fn (array $gains): float => (float) $gains[2], array_intersect_key($table['rarity_gain'], array_flip(['tires', 'suspension', 'brakes'])));
+        $economy = EconomyRules::fromArray(json_decode((string) file_get_contents(config('ride.content_path').'/rules/economy.json'), true, 512, JSON_THROW_ON_ERROR));
+        $result = $study->transmute($economy, $crates->economy(), $epic, array_map(static fn (int $ppm): float => $ppm / 1_000_000, $rules['cash_ppm']), $rules['min_player_level']);
+
+        $this->newLine();
+        $this->line('A player with coins in the economy simulator: the tires, the suspension and the brakes of each tier turned to epic as soon as the cash is there.');
+        $this->table(['player', 'income added', 'spent', 'first day'], collect($result['runs'])->map(fn ($run, $key): array => [$key, sprintf('%.1f%%', 100 * ($run->notes['transmute']['uplift'] ?? 0)), $run->notes['transmute']['spent'] ?? 0, $run->notes['transmute']['first_day'] ?? '-'])->values()->all());
+
+        $failures = $result['gate']->failures();
+        $this->table(['player', 'car', 'day without', 'day with', 'allowed'], array_map(fn ($row): array => [$row->player, $row->rung, $row->target, $row->day ?? '-', sprintf('%.0f%%', $result['gate']->tolerance * 100)], $failures));
+        $failures === []
+            ? $this->info(sprintf('Transmutation moves no car by more than %.0f%% of its day (and a day).', $result['gate']->tolerance * 100))
+            : $this->warn(sprintf('Transmutation moves %d purchases by more than %.0f%% of the day.', count($failures), $result['gate']->tolerance * 100));
+
+        return $failures !== [];
     }
 }

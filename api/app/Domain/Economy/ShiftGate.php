@@ -15,15 +15,17 @@ final class ShiftGate
     /**
      * @param  array<string, PlayerRun>  $baseline  the players played without the extra, by the key of the kind of player
      * @param  array<string, PlayerRun>  $runs  the same players played with it
+     * @param  float|null  $tolerance  the share of the day that the extra may move it by: the tolerance of the pace gate when left out (a gift is held to a stricter one)
      */
-    public function evaluate(EconomyRules $rules, array $baseline, array $runs): GateReport
+    public function evaluate(EconomyRules $rules, array $baseline, array $runs, ?float $tolerance = null): GateReport
     {
+        $tolerance ??= $rules->gateTolerance();
         $rows = [];
 
         foreach ($runs as $key => $run) {
             foreach ($baseline[$key]->purchases ?? [] as $purchase) {
                 $day = $run->dayOf($purchase->rung);
-                $allowed = max($rules->gateTolerance() * $purchase->day, $rules->gateSlackDays());
+                $allowed = max($tolerance * $purchase->day, $rules->gateSlackDays());
 
                 $rows[] = new GateRow(
                     (string) $key,
@@ -36,6 +38,6 @@ final class ShiftGate
             }
         }
 
-        return new GateReport($rows, $rules->gateTolerance(), $rules->gateSlackDays());
+        return new GateReport($rows, $tolerance, $rules->gateSlackDays());
     }
 }
