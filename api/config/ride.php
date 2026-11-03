@@ -236,6 +236,16 @@ return [
     |
     */
 
+    'tuning' => [
+        'budget' => [
+            // What the design asks of the best set of bonuses: no more than this off the lap of a car on a track, in percent.
+            'target_lap_percent' => 10.0,
+            // The ceiling that the owner approved when he kept the limits of one bonus at 12% (with a context) and 8% (without): the best set goes a little over the
+            // target (the worst measured case is the Bizon on gravel, about 11%), `tuning:budget --strict` says so as a warning and fails only above this.
+            'max_lap_percent' => 12.0,
+        ],
+    ],
+
     'missions' => [
         'budget' => [
             'level' => 12,
