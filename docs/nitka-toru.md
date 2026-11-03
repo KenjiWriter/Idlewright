@@ -11,6 +11,8 @@ Tor może mieć **nitkę**: uporządkowany łańcuch odcinków (prosta, zakręt)
 | T3 | Strona „Nitka toru” w panelu: lista odcinków, gotowe kawałki, lustro i odwrócenie, rysunek z góry (kolor = prędkość auta wzorcowego), podział czasu okrążenia, tabela aut „ze wzoru i po nitce”, zapis do szkicu | `api/app/Filament/Pages/ThreadPage.php`, `api/app/Content/ThreadPreview.php`, `ThreadForm.php`, `api/app/Domain/Run/ThreadPath.php`, `api/resources/views/filament/forms/thread-preview.blade.php` |
 | T4 | `GET /v1/runs/current/profile` i linia toru z autem na ekranie wyścigu (auto jako czysta funkcja czasu, boty jako duchy) | `api/app/Services/RunProfile.php`, `web/src/components/TrackMap.vue`, `web/src/features/run/trackPosition.ts` |
 | T5 | Nitki wszystkich 15 torów w `starter.json` (jako rysunek: wszystkie zostają na `lap_from: stats`), pomoc Studia dla ich liczb | `content/rules/starter.json` |
+| T4b | Wybór toru w grze: miniatura nitki, zdanie o tym, czego tor wymaga, i pasek „Twoje auto na tym torze” (co zyskuje i traci względem auta wzorcowego) | `api/app/Services/TrackCharacter.php`, `web/src/components/TrackPicker.vue`, `TrackThumb.vue`, `web/src/features/run/trackCharacter.ts` |
+| T6 | Narzędzia strony „Nitka toru” (zamknij pętlę, skala promieni, rozciągnięcie prostej, szablony, klon odcinka, klik na rysunku), lista zmian po ludzku, rozrzut aut i ostrzeżenia w `tracks:simulate`, „weź z auta” dla auta wzorcowego | `ThreadCloser`, `ThreadForm`, `ThreadDiff`, `TrackReport`, `WorldFields` |
 
 ## Skąd bierze się czas okrążenia (`lap_from`)
 
@@ -73,7 +75,14 @@ Statystyki auta (`accel` w kW/t, `top_speed`, `grip`, `handling`, `braking`, `cl
 
 Jeden tor naraz (lista rozwijana), z polami: skąd bierze się czas okrążenia (`lap_from`), jak się jedzie (pętla albo przejazd z czasem powrotu), lista odcinków (rodzaj, długość albo promień i kąt, kierunek, nawierzchnia, limit prędkości, nierówność) ze zmianą kolejności strzałkami, gotowe kawałki (agrafka, ciasny zakręt, szeroki łuk, szykana), „odbij lustrzanie” i „odwróć kierunek jazdy”. Obok formularza (odświeżane po każdej zmianie): linia toru z góry, **narysowana tak, jak ją tworzą odcinki** (jeśli się nie zamyka, czerwona przerywana linia pokazuje szczelinę do startu), pokolorowana prędkością auta wzorcowego (ciepło = wolno, zielono = szybko), numery odcinków, podział czasu okrążenia (przyspieszanie, na limicie, hamowanie, zakręty, powrót) i tabela aut katalogu: okrążenie **ze wzoru** (dzisiejsze) i **po nitce** (które byłoby, gdyby tor jechał po nitce), różnica w procentach (zielone do 5%, żółte do 10%, czerwone dalej), średnia i szczytowa prędkość. Zapis kładzie nitkę do szkicu reguł świata; **długość toru zapisuje się jako suma odcinków**, a walidator mówi po ludzku, co jest nie tak.
 
-Nie zbudowałem przycisku „Zamknij pętlę” z propozycji (rozwiązanie dwóch prostych i kąta ostatniego zakrętu): szczelina jest pokazana, zamknięcie robi się ręką. Nie ma też osobnego przycisku „ustaw prędkość z nitki”: schemat wymaga dla toru `speed_kmh` albo `base_lap_ms`, więc prędkość ustawia się w formularzu świata.
+Nie ma osobnego przycisku „ustaw prędkość z nitki”: schemat wymaga dla toru `speed_kmh` albo `base_lap_ms`, więc prędkość ustawia się w formularzu świata. Przestawienie toru na nitkę to lista „Czas okrążenia z” i tabela aut pod rysunkiem (różnice w procentach przed zapisem).
+
+### Narzędzia strony
+
+- **Zamknij pętlę** (`ThreadCloser`): rusza trzy liczby i nic więcej. Kąt **ostatniego zakrętu** dobiera tak, żeby zakręty dawały pełny obrót (360° w jedną albo w drugą stronę, bliższy obecnemu), potem długości **dwóch prostych**, żeby linia wróciła na start (przy ustalonym kącie to układ liniowy 2×2). Z par prostych, dla których wychodzi długość z zakresu 5 do 5000 m, bierze tę, która zmienia się najmniej; dwie proste na jednej linii (boki owalu) spotykają się w połowie (600 i 500 m dają 550 i 550). Długości są w pełnych metrach, kąt w dziesiątych stopnia, szczelina po zamknięciu poniżej metra. Mówi po ludzku, czemu nie może: przejazd (`run`) się nie zamyka, brak liczb w odcinku, brak zakrętu, jedna prosta, zakręty nie dają pełnego obrotu (z kątem, jaki musiałby mieć ostatni), żadna para prostych nie pasuje. Nie zamyka ósemki (suma obrotów 0).
+- **Przeskaluj promienie** (mnoży wszystkie, promień zostaje między 8 a 1000 m) i **Rozciągnij najdłuższą prostą** (do podanej długości, 5 do 5000 m): po nich pętla zwykle przestaje się zamykać, więc obok jest „Zamknij pętlę”.
+- **Szablony** (zastępują tryb jazdy i wszystkie odcinki, pytają o potwierdzenie): ulice miasta (14 odcinków, ulica ze Złomowa), dragster (800 m i 5 s powrotu), podjazd (przejazd z czterema agrafkami i 60 s powrotu), rajd (asfalt i żwir, pętla zamknięta), owal. Pętle zamykają się do 3 m (test).
+- **Klon odcinka** na liście oraz **klik na linii rysunku**: przewija listę do tego odcinka i obwodzi go na chwilę.
 
 ## Ekran wyścigu
 
@@ -85,9 +94,28 @@ Dla toru na `stats` rysunek pokazuje prędkości modelu, a animacja trwa dokład
 
 Narysowałem je ja, wszystkie jako **rysunek** (`lap_from` zostaje `stats`, czasy okrążeń, tabela botów i bramki się nie ruszają). Pętle zamykają się geometrycznie (szczelina do 3 m po zaokrągleniach; proste dobiera rozwiązanie najmniejszych kwadratów, kierunki zakrętów tak, żeby zakręty dawały pełny obrót), tory krótkie to owale, Drag Suchy Pas i Krótki pas to przejazdy (`mode: run`, drag z `return_ms` 6,9 s: razem z fizycznym przejazdem wzorca daje dzisiejsze 45 s). Kamieniołom, żwirowy sprint i maraton mają nierówność odcinków. **Które tory przestawić na `lap_from: thread`, decyduje właściciel** (tabela „tempa” z propozycji: tempo bliskie 1 mają Autodrom, Obwodnica, Długi dystans, Maraton, Krótki pas i Przejazd przez przełęcz); strona „Nitka toru” pokazuje przed przestawieniem, jak zmieniłoby się okrążenie każdego z aut.
 
+## Wybór toru w grze
+
+`GET /v1/map` daje dla torów **miasta, w którym stoi auto**, blok `thread` (`TrackCharacter`; w innych miastach `null`, żeby mapa nie liczyła symulacji dla piętnastu torów):
+
+- `points`: linia nitki w metrach, około 56 punktów (pętla zamknięta jak na ekranie wyścigu); web rysuje z niej miniaturę (`TrackThumb`).
+- `shares`: na co idzie czas okrążenia **auta wzorcowego toru**, w procentach: przyspieszanie, jazda na limicie, hamowanie, zakręty. Z tego `character` (zdanie na karcie): **zakręty** od 35% czasu w zakrętach, **limit** od 35% na limicie, **moc** od 70% w przyspieszaniu, inaczej **zrównoważony**. Na dzisiejszych torach: ulica Złomowa zrównoważona, Sprint po złomowisku i Mała pętla Autodromu to tory zakrętów (53% i 61%), Obwodnica, Długi dystans i dragi to tory mocy.
+- `car`: o ile sekund **okrążenia toru** auto, którym się gra, jest szybsze (minus) albo wolniejsze (plus) od auta wzorcowego w tych samych czterech grupach. Sekundy modelu są przeskalowane tak, żeby auto wzorcowe jechało dokładnie czas bazowy toru; na torze jeżdżonym po nitce **sumują się do różnicy między okrążeniem auta a okrążeniem bazowym** (test). Web pokazuje grupy, w których różnica to co najmniej 2% okrążenia, i jedno zdanie: gdzie auto zyskuje najwięcej, gdzie traci najwięcej. Na torze z `lap_from: stats` pasek mówi, że czas okrążenia jest ustalony ręcznie, a pasek opisuje kształt toru, nie ten czas.
+
+Tor, którego auto wzorcowe nie ma któregoś z pięciu statystyk modelu (`accel`, `top_speed`, `grip`, `handling`, `braking`), dostaje **tylko linię**, bez zdania i paska: nie ma z czym porównywać. **Dziś to trzy tory Kruszyna** (referencje żwirowych torów nie mają `top_speed`, bo wzór go nie ocenia). Auto wzorcowe można uzupełnić przyciskiem „Weź z auta” (ikona ciężarówki przy liniach wzorca w formularzu świata): wypełnia je statystykami auta z gry takiego, z jakim startuje, z opublikowanej paczki, w liczbach całkowitych. Wartość `top_speed` dla żwiru to decyzja właściciela (nie ruszałem `starter.json`).
+
+## Rozrzut aut i ostrzeżenia bramek
+
+`tracks:simulate` liczy dla każdego toru **rozrzut**: najwolniejsze auto (jego najlepsze suche okrążenie z dowolnymi częściami) przez najszybsze. Dziś, na wzorze, tory mają od 1,24 do 1,98. Dla torów jeżdżonych po nitce raport **ostrzega, nie psując wyniku komendy**: rozrzut poniżej 1,15 (tor prawie nic nie wymaga od auta), powyżej 2,2 (większość aut przepada) albo zwycięzca toru wygrywa też co najmniej dwa inne tory. Pomiar na nitkach (wszystkie tory z kompletnym autem wzorcowym przestawione na `thread`, bez zapisu): rozrzut ulicy 1,10, sprintu po złomowisku 1,08, Małej pętli 1,15, Wilczej Agrafki 1,21; **Bizon M-2 wygrywa 8 z 12 torów**, czyli gdyby przestawić wszystkie naraz, bramka M3 by nie przeszła. Przestawiać więc po jednym, patrząc na ostrzeżenia. Pomiar trwa 44 s (45 tysięcy zamrożeń z symulacją) wobec 7 s na wzorze.
+
+## Lista zmian po ludzku
+
+Strona „Zmiany do publikacji” nie pokazuje już zmiany kolejności odcinków jako zmiany każdego odcinka. `ThreadDiff` znajduje odcinki, które zachowały kolejność (najdłuższy wspólny ciąg), potem te **przesunięte** (taki sam odcinek w innym miejscu), **zmienione** (ten sam rodzaj, inne liczby: jeden wiersz na pole, np. „Odcinek 4: limit prędkości: — → 70”), **dodane** i **usunięte**; wiersze są w pięciu językach.
+
 ## Czego jeszcze nie ma
 
-- Przycisk „Zamknij pętlę” (szczelina jest pokazana).
-- Na ekranie wyboru toru miniatura nitki i objaśnienie „co twoje auto robi tu dobrze i źle” (różnica czasu auta względem wzorca w grupach: przyspieszanie, prędkość maksymalna, zakręty, hamowanie, teren): dane są w `ThreadPreview`/`LapResult::split`, ekranu jeszcze nie ma.
-- Wzniesienia (poza pierwszą wersją).
-- Przestawienie któregokolwiek z 15 torów na `lap_from: thread` (decyzja właściciela, z bramkami `tracks:simulate` i `economy:simulate`).
+- **Wzniesienia** (`grade_pct`). Zatwierdzony projekt (D3) wyłączał je z pierwszej wersji: spadek psuje wzory zamknięte (równanie przestaje być liniowe w `v³`), a 15 torów nie ma o nich danych. Zostają jako rozszerzenie, liczone numerycznie tylko na odcinkach ze spadkiem.
+- **Przestawienie któregokolwiek z 15 torów na `lap_from: thread`** (decyzja właściciela, po jednym, z bramkami `tracks:simulate` i `economy:simulate` i z ostrzeżeniami wyżej).
+- Zamrożone w biegu `thread: {id, pace_ppm}` (D6, „diagnostyczne”): nic z niego nie korzysta, a zmieniłoby kształt zamrożonej konfiguracji każdego biegu; nie dodałem.
+- Pamięć podręczna wyników symulacji (D5): niepotrzebna, symulacja trwa 0,1 ms na okrążenie.
+- Zamknięcie ósemki (suma obrotów 0), „charaktery” botów, `runs:refreeze`: poza zakresem pierwszej wersji (D2, D8, D6).
