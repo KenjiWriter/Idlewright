@@ -12,6 +12,7 @@ use App\Models\Travel;
 use App\Models\TutorialProgress;
 use App\Models\User;
 use App\Models\UserMissionPeriod;
+use App\Models\UserStreak;
 use App\Models\UserVisit;
 use App\Models\WorkshopJob;
 use Carbon\CarbonImmutable;
@@ -55,7 +56,8 @@ final class Metrics
      *     first_steps: array<string, array{reached: int, rate: float|null, median_minutes: float|null, within_target: int|null, target_minutes: int|null}>,
      *     tutorial: array<string, array{reached: int, rate: float|null}>,
      *     missions: array{days: list<array{day: string, drawn: int, done: int, bonus_taken: int}>, coins_30_days: int},
-     *     gigs: array{days: list<array{day: string, taken: int, drivers: int, paid_cents: int}>, paid_cents_30_days: int}
+     *     gigs: array{days: list<array{day: string, taken: int, drivers: int, paid_cents: int}>, paid_cents_30_days: int},
+     *     streaks: array{active: int, streak_3: array{accounts: int, share: float|null}, streak_7: array{accounts: int, share: float|null}, retention: array<string, array{accounts: int, retention: array<string, array{eligible: int, returned: int, rate: float|null}>}>, broken_per_week: list<array{from: string, to: string, broken: int}>}
      * }
      */
     public function report(CarbonImmutable $from, CarbonImmutable $to, ?CarbonImmutable $now = null): array
@@ -79,6 +81,55 @@ final class Metrics
             'tutorial' => $this->tutorial($accounts),
             'missions' => $this->missions($now),
             'gigs' => $this->gigs($now),
+            'streaks' => $this->streaks($accounts, $visits, $now),
+        ];
+    }
+
+    /**
+     * The streak of days (retention, stage B): of the drivers who came in the last seven days, how many have a streak of three days and of seven; the retention of the accounts of the
+     * cohort at D7, D14 and D30, by whether they ever reached a streak of three (which is a comparison of survivors: those who keep a streak are those who come back, so it says how the
+     * two go together and not what the streak causes); and how many streaks were lost in each of the last four weeks (a driver counts for the last streak they lost).
+     *
+     * @param  Collection<int, User>  $accounts
+     * @param  Collection<int, Collection<int, CarbonImmutable>>  $visits
+     * @return array{active: int, streak_3: array{accounts: int, share: float|null}, streak_7: array{accounts: int, share: float|null}, retention: array<string, array{accounts: int, retention: array<string, array{eligible: int, returned: int, rate: float|null}>}>, broken_per_week: list<array{from: string, to: string, broken: int}>}
+     */
+    private function streaks(Collection $accounts, Collection $visits, CarbonImmutable $now): array
+    {
+        $active = UserVisit::query()->where('at', '>=', $now->subDays(7))->distinct()->pluck('user_id');
+        $current = UserStreak::query()->whereIn('user_id', $active->all())->pluck('current', 'user_id');
+        $share = fn (int $count): ?float => $active->count() === 0 ? null : round($count / $active->count(), 4);
+        $atLeast = fn (int $days): int => $current->filter(fn (int $length): bool => $length >= $days)->count();
+
+        $best = UserStreak::query()->whereIn('user_id', $accounts->pluck('id')->all())->pluck('best', 'user_id');
+        $groups = [
+            'with_streak' => $accounts->filter(fn (User $account): bool => ($best[$account->id] ?? 0) >= 3),
+            'without_streak' => $accounts->filter(fn (User $account): bool => ($best[$account->id] ?? 0) < 3),
+        ];
+        $retention = [];
+
+        foreach ($groups as $name => $group) {
+            $retention[$name] = ['accounts' => $group->count(), 'retention' => $this->retention($group, $visits->only($group->pluck('id')->all()), $now, [7, 14, 30])];
+        }
+
+        $weeks = [];
+
+        for ($week = 0; $week < 4; $week++) {
+            $to = $now->startOfDay()->subDays(7 * $week);
+            $from = $to->subDays(7);
+            $weeks[] = [
+                'from' => $from->toDateString(),
+                'to' => $to->toDateString(),
+                'broken' => UserStreak::query()->where('lost', '>', 0)->where('lost_day', '>', $from->toDateString())->where('lost_day', '<=', $to->toDateString())->count(),
+            ];
+        }
+
+        return [
+            'active' => $active->count(),
+            'streak_3' => ['accounts' => $atLeast(3), 'share' => $share($atLeast(3))],
+            'streak_7' => ['accounts' => $atLeast(7), 'share' => $share($atLeast(7))],
+            'retention' => $retention,
+            'broken_per_week' => $weeks,
         ];
     }
 
@@ -201,13 +252,14 @@ final class Metrics
      *
      * @param  Collection<int, User>  $accounts
      * @param  Collection<int, Collection<int, CarbonImmutable>>  $visits
+     * @param  list<int>  $daysTold
      * @return array<string, array{eligible: int, returned: int, rate: float|null}>
      */
-    private function retention(Collection $accounts, Collection $visits, CarbonImmutable $now): array
+    private function retention(Collection $accounts, Collection $visits, CarbonImmutable $now, array $daysTold = self::RETENTION_DAYS): array
     {
         $result = [];
 
-        foreach (self::RETENTION_DAYS as $days) {
+        foreach ($daysTold as $days) {
             $eligible = 0;
             $returned = 0;
 

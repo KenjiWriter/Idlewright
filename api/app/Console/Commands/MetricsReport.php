@@ -74,6 +74,15 @@ final class MetricsReport extends Command
         $this->line("The gigs of the day (all accounts); they paid {$report['gigs']['paid_cents_30_days']} cents in thirty days");
         $this->table(['day', 'gigs taken', 'drivers', 'paid, cents'], $report['gigs']['days']);
 
+        $streaks = $report['streaks'];
+        $this->newLine();
+        $this->line("The streak of days: of the {$streaks['active']} drivers who came in the last seven days, {$streaks['streak_3']['accounts']} (".$this->percent($streaks['streak_3']['share']).") have a streak of 3 days or more and {$streaks['streak_7']['accounts']} (".$this->percent($streaks['streak_7']['share']).') of 7 or more.');
+        $this->table(['cohort', 'accounts', 'D7', 'D14', 'D30'], collect($streaks['retention'])->map(fn (array $group, string $name): array => [
+            str_replace('_', ' ', $name), $group['accounts'], ...array_map(fn (array $row): string => $this->percent($row['rate']), array_values($group['retention'])),
+        ])->values()->all());
+        $this->line('(Those who keep a streak are those who come back, so this says how the two go together and not what the streak causes.)');
+        $this->table(['week from', 'to', 'streaks lost'], collect($streaks['broken_per_week'])->map(fn (array $week): array => [$week['from'], $week['to'], $week['broken']])->all());
+
         return self::SUCCESS;
     }
 
