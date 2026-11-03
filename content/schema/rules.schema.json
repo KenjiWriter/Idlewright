@@ -1123,7 +1123,22 @@
           "name": { "$ref": "common.schema.json#/$defs/i18n" },
           "region": { "$ref": "common.schema.json#/$defs/slug" },
           "surface": { "description": "What the track is made of when it is dry. The weather turns it wet or snowy.", "enum": ["asphalt", "gravel"] },
-          "kind": { "description": "What the track asks of the driver: a sprint (a lap of 10 to 15 seconds, a little cash a lap and little fuel an hour, so a tank lasts about an hour), a standard track (the default), or an endurance track (a lap of minutes that burns a tank in about twenty). The gate M3 counts the tracks of a kind among themselves.", "enum": ["sprint", "standard", "endurance"] },
+          "kind": { "description": "What the track asks of the driver: a sprint (a lap of 10 to 15 seconds, a little cash a lap and little fuel an hour, so a tank lasts about an hour), a standard track (the default), or an endurance track (a lap of minutes that burns a tank in about twenty), or a rally (a lap on a mix of surfaces, see `surface_mix`, that burns more than a standard track). The gate M3 counts the tracks of a kind among themselves, so no car wins more than two rallies.", "enum": ["sprint", "standard", "endurance", "rally"] },
+          "surface_mix": {
+            "description": "Only for a track that is driven on more than one surface (a rally): how much of the lap is on each, in millionths. The tires of a car grip the track by these shares (the grip on each surface that the weather makes of it, weighted), so a rally asks for tires that do well on both. The shares add up to 1 000 000. Without it the track is made of its `surface` alone; a rally has to have it.",
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 2,
+            "items": {
+              "type": "object",
+              "properties": {
+                "surface": { "enum": ["asphalt", "gravel"] },
+                "share_ppm": { "type": "integer", "minimum": 1, "maximum": 1000000 }
+              },
+              "required": ["surface", "share_ppm"],
+              "additionalProperties": false
+            }
+          },
           "reference_tires": { "description": "The tires of the car that the bots of the race are made around, when the stock tires are not what the track asks for: on gravel every stock car is a second slower than a car with the right tires, and a field made around the stock ones would pay a bonus to everyone who buys them. Without it the reference car has the stock tires.", "$ref": "common.schema.json#/$defs/slug" },
           "lap_from": { "description": "Where the lap of a car on this track comes from: its statistics through the demands of the track (`stats`, the default: the formula the tracks were made with), or a lap driven on the thread of the track (`thread`: a point mass that accelerates, brakes for the corners and holds the surface). The thread is drawn in either case; with `stats` it only shows the track.", "enum": ["stats", "thread"] },
           "thread": { "$ref": "#/$defs/thread" },
@@ -1217,7 +1232,8 @@
           "properties": {
             "sprint": { "type": "integer", "minimum": 1, "maximum": 1000 },
             "standard": { "type": "integer", "minimum": 1, "maximum": 1000 },
-            "endurance": { "type": "integer", "minimum": 1, "maximum": 1000 }
+            "endurance": { "type": "integer", "minimum": 1, "maximum": 1000 },
+            "rally": { "type": "integer", "minimum": 1, "maximum": 1000 }
           },
           "required": ["sprint", "standard", "endurance"],
           "additionalProperties": false

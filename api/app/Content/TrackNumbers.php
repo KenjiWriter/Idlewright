@@ -17,7 +17,7 @@ use App\Domain\Run\TrackModel;
 final class TrackNumbers
 {
     /** The load of the engine of the kinds of track, in ml of fuel for every second of a lap, when the rules do not say. */
-    public const DEFAULT_FUEL_ML_PER_S = ['sprint' => 12, 'standard' => 20, 'endurance' => 32];
+    public const DEFAULT_FUEL_ML_PER_S = ['sprint' => 12, 'standard' => 20, 'endurance' => 32, 'rally' => 26];
 
     /** The kind of a track that does not say. */
     public const DEFAULT_KIND = 'standard';

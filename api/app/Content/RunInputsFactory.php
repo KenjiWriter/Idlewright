@@ -72,7 +72,7 @@ final class RunInputsFactory
 
         foreach (array_keys($region['weather_ppm']) as $weather) {
             $effect = $this->rules->weather()[$weather];
-            $multipliersPpm = $this->statMultipliersPpm($effect, $weather, $track['surface'], $tireKind, $tireAffixes, $tireCondition, $surfaceLossPpm, $tractionPpm, $mounted, $kind);
+            $multipliersPpm = $this->mixedMultipliersPpm($effect, $weather, $this->rules->trackSurfaceMixPpm($trackSlug) ?? [$track['surface'] => Ppm::ONE], $tireKind, $tireAffixes, $tireCondition, $surfaceLossPpm, $tractionPpm, $mounted, $kind);
 
             $effects[$weather] = new WeatherEffect(
                 array_map(static fn (int $ppm): float => $ppm / 1_000_000, $multipliersPpm),
@@ -158,6 +158,34 @@ final class RunInputsFactory
             $this->uniquePpm($mounted, 'tires', 'surface_loss'),
             $this->rules->drivetrain($vehicle['drivetrain'])['traction_ppm'],
         ];
+    }
+
+    /**
+     * What the weather, the tires and the drive of the car multiply the statistics by on a track made of one surface or of a mix of them (a rally), in ppm: on a mix, the
+     * multipliers of each surface (see `statMultipliersPpm`) weighted by its share of the lap. A track of one surface is what that surface gives, to the ppm.
+     *
+     * @param  array<string, int>  $mixPpm  the share of the lap on `asphalt` and on `gravel`, in millionths
+     * @param  array<string, mixed>  $weather
+     * @param  array<string, int>  $tireAffixes
+     * @param  array<string, int>  $tractionPpm
+     * @param  array<string, string|array{slug: string, rarity: int, upgrade?: int, wear?: int, affixes?: array<string, int>, tuning?: array<int, array{key: string, ppm: int}|null>}>  $mounted
+     * @return array<string, int>
+     */
+    private function mixedMultipliersPpm(array $weather, string $weatherKey, array $mixPpm, string $tireKind, array $tireAffixes, int $tireCondition, int $surfaceLossPpm, array $tractionPpm, array $mounted, ?string $kind): array
+    {
+        if (count($mixPpm) === 1) {
+            return $this->statMultipliersPpm($weather, $weatherKey, (string) array_key_first($mixPpm), $tireKind, $tireAffixes, $tireCondition, $surfaceLossPpm, $tractionPpm, $mounted, $kind);
+        }
+
+        $sums = [];
+
+        foreach ($mixPpm as $trackSurface => $share) {
+            foreach ($this->statMultipliersPpm($weather, $weatherKey, (string) $trackSurface, $tireKind, $tireAffixes, $tireCondition, $surfaceLossPpm, $tractionPpm, $mounted, $kind) as $stat => $ppm) {
+                $sums[$stat] = ($sums[$stat] ?? 0) + $ppm * $share;
+            }
+        }
+
+        return array_map(static fn (int $sum): int => (int) round($sum / array_sum($mixPpm)), $sums);
     }
 
     /**

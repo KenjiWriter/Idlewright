@@ -941,6 +941,12 @@ final class Rules
      */
     public function surfaceShares(string $slug): array
     {
+        $mix = $this->trackSurfaceMixPpm($slug);
+
+        if ($mix !== null) {
+            return array_map(static fn (int $ppm): float => $ppm / Ppm::ONE, $mix);
+        }
+
         $thread = $this->thread($slug);
         $surface = (string) $this->data['tracks'][$slug]['surface'];
 
@@ -955,6 +961,29 @@ final class Rules
         }
 
         return array_map(static fn (float $length): float => $length / array_sum($metres), $metres);
+    }
+
+    /**
+     * The mix of surfaces that a track says it is made of (`surface_mix`: a rally), as millionths by `asphalt` and `gravel`, or null for a track that is made of its surface
+     * alone. It is what the tires of a car grip the track by, and what the parts of the car wear on.
+     *
+     * @return array<string, int>|null
+     */
+    public function trackSurfaceMixPpm(string $slug): ?array
+    {
+        $mix = $this->data['tracks'][$slug]['surface_mix'] ?? null;
+
+        if (! is_array($mix) || $mix === []) {
+            return null;
+        }
+
+        $shares = [];
+
+        foreach ($mix as $part) {
+            $shares[(string) $part['surface']] = ($shares[(string) $part['surface']] ?? 0) + (int) $part['share_ppm'];
+        }
+
+        return $shares;
     }
 
     /** The constants of the model of a lap on a thread: the section `dynamics` of the rules, or the defaults of the model where they say nothing. */

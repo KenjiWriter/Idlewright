@@ -143,7 +143,8 @@ final readonly class TrackReport
     {
         return array_values(array_unique(array_map(
             static fn (TrackOutcome $track): string => $track->winner->vehicle,
-            array_filter($this->tracks, static fn (TrackOutcome $track): bool => $track->surface === $surface),
+            // A rally is driven on both surfaces, so it is neither a gravel track nor an asphalt one.
+            array_filter($this->tracks, static fn (TrackOutcome $track): bool => $track->surface === $surface && $track->kind !== 'rally'),
         )));
     }
 }

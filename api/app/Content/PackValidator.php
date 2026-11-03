@@ -452,6 +452,7 @@ final class PackValidator
 
         $this->checkTrackNumbers($rules, $result);
         $this->checkThreads($rules, $result);
+        $this->checkSurfaceMixes($rules, $result);
 
         foreach ($rules['regions'] ?? [] as $slug => $region) {
             $chances = $region['weather_ppm'] ?? [];
@@ -762,6 +763,58 @@ final class PackValidator
 
         if (is_array($agility) && ($agility['min_ppm'] ?? 0) > ($agility['max_ppm'] ?? 0)) {
             $result->addError($file, '/dynamics/agility', 'The share of handling in a wide bend is more than in a hairpin; it is the other way round.');
+        }
+    }
+
+    /**
+     * The mix of surfaces of a track (a rally): its shares add up to the whole lap, each surface is there once, a rally has a mix of two surfaces and the track says it is made
+     * mostly of the one that has the larger share (the surface of the track is the one the reference car is measured on).
+     *
+     * @param  array<string, mixed>  $rules
+     */
+    private function checkSurfaceMixes(array $rules, PackValidationResult $result): void
+    {
+        $file = 'rules/starter.json';
+
+        foreach ($rules['tracks'] ?? [] as $slug => $track) {
+            if (! is_array($track)) {
+                continue;
+            }
+
+            $mix = is_array($track['surface_mix'] ?? null) ? $track['surface_mix'] : [];
+
+            if (($track['kind'] ?? null) === 'rally' && count($mix) < 2) {
+                $result->addError($file, "/tracks/{$slug}/surface_mix", 'A rally is driven on a mix of two surfaces: it needs the share of the lap on asphalt and on gravel.');
+
+                continue;
+            }
+
+            if ($mix === []) {
+                continue;
+            }
+
+            $surfaces = array_map(static fn (mixed $part): string => (string) ($part['surface'] ?? ''), $mix);
+            $total = array_sum(array_map(static fn (mixed $part): int => (int) ($part['share_ppm'] ?? 0), $mix));
+
+            if (count(array_unique($surfaces)) !== count($surfaces)) {
+                $result->addError($file, "/tracks/{$slug}/surface_mix", 'A surface is in the mix twice: give each surface one share.');
+            }
+
+            if ($total !== 1_000_000) {
+                $result->addError($file, "/tracks/{$slug}/surface_mix", 'The shares of the mix add up to '.($total / 10_000).'% of the lap, and they have to add up to 100%.');
+            }
+
+            $largest = null;
+
+            foreach ($mix as $part) {
+                if ($largest === null || (int) ($part['share_ppm'] ?? 0) > (int) ($largest['share_ppm'] ?? 0)) {
+                    $largest = $part;
+                }
+            }
+
+            if (is_array($largest) && ($largest['surface'] ?? null) !== ($track['surface'] ?? null) && count($mix) === 2 && $mix[0]['share_ppm'] !== $mix[1]['share_ppm']) {
+                $result->addWarning($file, "/tracks/{$slug}/surface", 'The track says it is made of '.($track['surface'] ?? '?').', and the larger share of its mix is '.($largest['surface'] ?? '?').'.');
+            }
         }
     }
 
