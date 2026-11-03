@@ -86,5 +86,17 @@ return [
             'range' => 'Von 0 bis 100 (aus dem Schema).',
             'tip' => 'Das Tempo auf rauem Untergrund und wie schnell ein tiefes Auto langsamer wird, stehen im Studio („Tempo auf einem rauen Abschnitt“, „Verlangsamung auf einem rauen Abschnitt“).',
         ],
+        'scale_factor' => [
+            'label' => 'Faktor',
+            'help' => 'Die Zahl, mit der jeder Radius multipliziert wird: 1,2 macht die Kurven 20 % weiter, 0,8 enger.',
+            'range' => 'Von 0,2 bis 5.',
+            'tip' => 'Nach dem Skalieren der Radien schließt sich die Schleife meist nicht mehr: schließe sie erneut.',
+        ],
+        'stretch_length' => [
+            'label' => 'Länge (m)',
+            'help' => 'Die Länge in Metern, die die längste Gerade des Streckenverlaufs bekommt.',
+            'range' => 'Von 5 bis 5000 m (aus dem Schema).',
+            'tip' => 'Eine längere Gerade macht die Strecke schneller und gibt Leistung und Höchstgeschwindigkeit mehr Gewicht.',
+        ],
     ],
 ];

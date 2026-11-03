@@ -46,9 +46,12 @@
             @endif
         </p>
 
-        <svg viewBox="0 0 {{ $width }} {{ $height }}" role="img" style="width: 100%; max-width: 640px; background: rgba(127,127,127,0.06); border-radius: 0.5rem;">
+        {{-- A click on a section of the line takes the person to that section in the list: it scrolls to it and outlines it for a moment. --}}
+        <svg viewBox="0 0 {{ $width }} {{ $height }}" role="img" style="width: 100%; max-width: 640px; background: rgba(127,127,127,0.06); border-radius: 0.5rem;"
+            x-data="{ pick(index) { const item = document.querySelectorAll('.fi-fo-repeater-item')[index]; if (! item) { return; } item.scrollIntoView({ behavior: 'smooth', block: 'center' }); item.style.outline = '2px solid #f59e0b'; setTimeout(() => { item.style.outline = ''; }, 1600); } }">
             @for ($i = 1; $i < count($points); $i++)
                 <line x1="{{ round($px($points[$i - 1]['x']), 1) }}" y1="{{ round($py($points[$i - 1]['y']), 1) }}" x2="{{ round($px($points[$i]['x']), 1) }}" y2="{{ round($py($points[$i]['y']), 1) }}" stroke="{{ $colour((float) ($points[$i]['speed_kmh'] ?? 0)) }}" stroke-width="5" stroke-linecap="round" />
+                <line data-section="{{ $points[$i]['section'] }}" x1="{{ round($px($points[$i - 1]['x']), 1) }}" y1="{{ round($py($points[$i - 1]['y']), 1) }}" x2="{{ round($px($points[$i]['x']), 1) }}" y2="{{ round($py($points[$i]['y']), 1) }}" stroke="transparent" stroke-width="16" stroke-linecap="round" style="cursor: pointer;" x-on:click="pick({{ $points[$i]['section'] }})"><title>{{ __('admin.thread.pick_section', ['number' => $points[$i]['section'] + 1]) }}</title></line>
                 @if (! isset($marked[$points[$i]['section']]))
                     @php $marked[$points[$i]['section']] = true; @endphp
                     <text x="{{ round($px($points[$i]['x']) + 7, 1) }}" y="{{ round($py($points[$i]['y']) - 7, 1) }}" font-size="11" fill="currentColor" opacity="0.7">{{ $points[$i]['section'] + 1 }}</text>

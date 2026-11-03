@@ -86,5 +86,17 @@ return [
             'range' => 'Od 0 do 100 (ze schematu).',
             'tip' => 'Prędkość po nierównym i to, jak szybko zwalnia niskie auto, są w studiu („Prędkość po nierównym odcinku”, „Zwalnianie na nierównym odcinku”).',
         ],
+        'scale_factor' => [
+            'label' => 'Współczynnik',
+            'help' => 'Liczba, przez którą mnoży się każdy promień: 1,2 robi zakręty o 20% szersze, 0,8 ciaśniejsze.',
+            'range' => 'Od 0,2 do 5.',
+            'tip' => 'Po przeskalowaniu promieni pętla zwykle przestaje się zamykać: zamknij ją jeszcze raz.',
+        ],
+        'stretch_length' => [
+            'label' => 'Długość (m)',
+            'help' => 'Długość w metrach, jaką dostanie najdłuższa prosta nitki.',
+            'range' => 'Od 5 do 5000 m (ze schematu).',
+            'tip' => 'Dłuższa prosta robi tor szybszym i daje większą wagę mocy i prędkości maksymalnej.',
+        ],
     ],
 ];

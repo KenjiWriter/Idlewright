@@ -86,5 +86,17 @@ return [
             'range' => 'De 0 a 100 (do esquema).',
             'tip' => 'A velocidade em terreno irregular e o quão rápido um carro baixo reduz estão no estúdio (“Velocidade em um trecho irregular”, “Redução de velocidade em um trecho irregular”).',
         ],
+        'scale_factor' => [
+            'label' => 'Fator',
+            'help' => 'O número pelo qual cada raio é multiplicado: 1,2 deixa as curvas 20% mais abertas, 0,8 mais fechadas.',
+            'range' => 'De 0,2 a 5.',
+            'tip' => 'Depois de escalar os raios, o circuito costuma deixar de fechar: feche-o de novo.',
+        ],
+        'stretch_length' => [
+            'label' => 'Comprimento (m)',
+            'help' => 'O comprimento, em metros, que a reta mais longa do traçado recebe.',
+            'range' => 'De 5 a 5000 m (do esquema).',
+            'tip' => 'Uma reta mais longa deixa a pista mais rápida e dá mais peso à potência e à velocidade máxima.',
+        ],
     ],
 ];

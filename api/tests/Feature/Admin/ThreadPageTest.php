@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Content\Definitions\JsonDocument;
+use App\Content\Definitions\ThreadCloser;
 use App\Content\Definitions\ThreadForm;
 use App\Filament\Pages\ThreadPage;
 use App\Models\Admin;
@@ -156,4 +157,97 @@ it('puts ready-made pieces, the mirror and the other way round on the sections',
         ->and(array_column($reversed, 'type'))->toBe(['corner', 'straight', 'corner', 'straight'])
         ->and($reversed[0]['turn'])->toBe('left')
         ->and(ThreadForm::preset('nonsense'))->toBe([]);
+});
+
+it('closes the loop from the page: the last corner and two straights move, and it says which', function () {
+    signedInAdmin();
+    $opened = threadState(function (array $state): array {
+        $state['sections'][0]['length_m'] += 120;
+        $state['sections'][3]['angle_deg'] += 17;
+
+        return $state;
+    });
+    $expected = ThreadCloser::close(array_values($opened['sections']));
+
+    $page = Livewire::test(ThreadPage::class)->fillForm($opened)->call('closeLoop');
+    $sections = array_values($page->instance()->data['sections']);
+
+    $page->assertNotified(__('admin.thread.close_done', ['first' => $expected['moved']['straights'][0], 'second' => $expected['moved']['straights'][1], 'corner' => $expected['moved']['corner'], 'gap' => round($expected['gap_m'], 1)]));
+
+    // The corners turn a full circle again, and the sections are the ones the closer made.
+    $turn = array_sum(array_map(static fn (array $section): float => $section['type'] === 'corner' ? ($section['turn'] === 'left' ? 1 : -1) * (float) $section['angle_deg'] : 0.0, $sections));
+
+    expect(abs($turn))->toEqualWithDelta(360.0, 0.001)
+        ->and($sections)->toHaveCount(14)
+        ->and($sections[0]['length_m'])->toBe($expected['sections'][0]['length_m']);
+});
+
+it('says why a run cannot be closed, and a loop without a corner', function () {
+    signedInAdmin();
+
+    Livewire::test(ThreadPage::class)
+        ->fillForm(threadState(function (array $state): array {
+            $state['mode'] = 'run';
+
+            return $state;
+        }))
+        ->call('closeLoop')
+        ->assertNotified(__('admin.thread.close_run'));
+
+    Livewire::test(ThreadPage::class)
+        ->fillForm(threadState(function (array $state): array {
+            $state['sections'] = [threadSections()[0], threadSections()[2]];
+
+            return $state;
+        }))
+        ->call('closeLoop')
+        ->assertNotified(__('admin.thread.close_no_corner'));
+});
+
+it('scales the radii, stretches the longest straight and starts from a template, from the page', function () {
+    signedInAdmin();
+
+    $page = Livewire::test(ThreadPage::class)->fillForm(threadState());
+    $radii = fn (): array => array_column(array_filter(array_values($page->instance()->data['sections']), static fn (array $section): bool => $section['type'] === 'corner'), 'radius_m');
+    $was = $radii();
+
+    $page->call('scaleRadii', 2.0);
+
+    expect($radii())->toBe(array_map(static fn (int|float $radius): int|float => $radius * 2, $was));
+
+    $page->call('stretchLongest', 900.0);
+    $lengths = array_column(array_filter(array_values($page->instance()->data['sections']), static fn (array $section): bool => $section['type'] === 'straight'), 'length_m');
+
+    expect(max($lengths))->toBe(900);
+
+    $page->call('useTemplate', 'drag');
+    $data = $page->instance()->data;
+
+    expect($data['mode'])->toBe('run')
+        ->and($data['return_s'])->toBe(5)
+        ->and(array_values($data['sections']))->toHaveCount(1);
+});
+
+it('has templates that are loops that close and runs that can be driven, and radii and straights that stay within the limits', function () {
+    foreach (['city', 'rally', 'oval'] as $name) {
+        $template = ThreadForm::template($name);
+
+        expect($template['mode'])->toBe('circuit');
+
+        $closed = ThreadCloser::close($template['sections']);
+
+        expect($closed['gap_m'])->toBeLessThan(3.0, $name);
+    }
+
+    foreach (['drag', 'hillclimb'] as $name) {
+        expect(ThreadForm::template($name)['mode'])->toBe('run')->and(ThreadForm::template($name)['return_s'])->toBeGreaterThan(0);
+    }
+
+    $radiiOf = static fn (array $sections): array => array_values(array_filter(array_column($sections, 'radius_m'), static fn (mixed $radius): bool => $radius !== null));
+    $city = ThreadForm::template('city')['sections'];
+
+    expect(max($radiiOf(ThreadForm::scaledRadii($city, 100.0))))->toBe(1000)
+        ->and(min($radiiOf(ThreadForm::scaledRadii($city, 0.01))))->toBe(8)
+        ->and(ThreadForm::stretched([['type' => 'corner']], 500.0))->toBe([['type' => 'corner']])
+        ->and(ThreadForm::template('nonsense')['sections'])->toBe([]);
 });

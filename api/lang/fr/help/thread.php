@@ -86,5 +86,17 @@ return [
             'range' => 'De 0 à 100 (d’après le schéma).',
             'tip' => 'La vitesse sur terrain accidenté et la rapidité avec laquelle une voiture basse ralentit sont dans le studio (« Vitesse sur un tronçon accidenté », « Ralentissement sur un tronçon accidenté »).',
         ],
+        'scale_factor' => [
+            'label' => 'Facteur',
+            'help' => 'Le nombre par lequel chaque rayon est multiplié : 1,2 élargit les virages de 20 %, 0,8 les resserre.',
+            'range' => 'De 0,2 à 5.',
+            'tip' => 'Une fois les rayons changés, la boucle cesse en général de se refermer : fermez-la de nouveau.',
+        ],
+        'stretch_length' => [
+            'label' => 'Longueur (m)',
+            'help' => 'La longueur, en mètres, que reçoit la plus longue ligne droite du tracé.',
+            'range' => 'De 5 à 5000 m (d’après le schéma).',
+            'tip' => 'Une ligne droite plus longue rend le circuit plus rapide et donne plus de poids à la puissance et à la vitesse maximale.',
+        ],
     ],
 ];

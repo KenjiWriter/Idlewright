@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Filament\Pages;
 
 use App\Content\Catalog;
+use App\Content\Definitions\ThreadCannotClose;
+use App\Content\Definitions\ThreadCloser;
 use App\Content\Definitions\ThreadForm;
 use App\Content\ThreadPreview;
 use App\Filament\Forms\ContentOptions;
@@ -13,6 +15,7 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Text;
@@ -96,6 +99,7 @@ class ThreadPage extends RulesDocumentPage
                 ->hiddenLabel()
                 ->live()
                 ->reorderableWithButtons()
+                ->cloneable()
                 ->itemNumbers()
                 ->defaultItems(0)
                 ->addActionLabel(__('admin.thread.add_section'))
@@ -128,7 +132,26 @@ class ThreadPage extends RulesDocumentPage
                     ->label(__('admin.thread.reverse'))
                     ->color('gray')
                     ->action(fn (Get $get, Set $set) => $set('sections', ThreadForm::reversed(array_values((array) $get('sections'))))),
+                $this->closeAction(),
+                Action::make('scale')
+                    ->label(__('admin.thread.scale'))
+                    ->color('gray')
+                    ->modalHeading(__('admin.thread.scale'))
+                    ->modalDescription(__('admin.thread.scale_hint'))
+                    ->modalSubmitActionLabel(__('admin.thread.scale_use'))
+                    ->schema([TextInput::make('factor')->helpKey('thread.scale_factor')->numeric()->minValue(0.2)->maxValue(5)->step(0.05)->default(1.2)->required()])
+                    ->action(fn (array $data) => $this->scaleRadii((float) $data['factor'])),
+                Action::make('stretch')
+                    ->label(__('admin.thread.stretch'))
+                    ->color('gray')
+                    ->modalHeading(__('admin.thread.stretch'))
+                    ->modalDescription(__('admin.thread.stretch_hint'))
+                    ->modalSubmitActionLabel(__('admin.thread.stretch_use'))
+                    ->schema([TextInput::make('length')->helpKey('thread.stretch_length')->numeric()->minValue(5)->maxValue(5000)->suffix('m')->required()])
+                    ->action(fn (array $data) => $this->stretchLongest((float) $data['length'])),
             ]),
+            Text::make(__('admin.thread.templates'))->color('gray'),
+            Actions::make(array_map(fn (string $name): Action => $this->templateAction($name), ['city', 'drag', 'hillclimb', 'rally', 'oval'])),
             View::make('filament.forms.thread-preview')->viewData(fn (Get $get): array => ['preview' => $this->previewOf([
                 'track' => $get('track'),
                 'lap_from' => $get('lap_from'),
@@ -169,6 +192,76 @@ class ThreadPage extends RulesDocumentPage
         sort($cars);
 
         return app(ThreadPreview::class)->of($made, $slug, $cars);
+    }
+
+    /** Makes the sections of a circuit into a loop (the last corner and two straights are moved), or says why they cannot be. */
+    private function closeAction(): Action
+    {
+        return Action::make('close')
+            ->label(__('admin.thread.close'))
+            ->color('gray')
+            ->action(fn () => $this->closeLoop());
+    }
+
+    /** Makes the sections of the form into a loop (the last corner and two straights are moved), or says why they cannot be. */
+    public function closeLoop(): void
+    {
+        if (($this->data['mode'] ?? null) === 'run') {
+            Notification::make()->warning()->title(__('admin.thread.close_run'))->send();
+
+            return;
+        }
+
+        try {
+            $closed = ThreadCloser::close($this->sections());
+        } catch (ThreadCannotClose $why) {
+            Notification::make()->warning()->title(__('admin.thread.close_'.$why->reason, $why->replace))->send();
+
+            return;
+        }
+
+        $this->data['sections'] = $closed['sections'];
+        Notification::make()->success()->title(__('admin.thread.close_done', ['first' => $closed['moved']['straights'][0], 'second' => $closed['moved']['straights'][1], 'corner' => $closed['moved']['corner'], 'gap' => round($closed['gap_m'], 1)]))->send();
+    }
+
+    /** Multiplies the radius of every corner of the form. */
+    public function scaleRadii(float $factor): void
+    {
+        $this->data['sections'] = ThreadForm::scaledRadii($this->sections(), $factor);
+    }
+
+    /** Makes the longest straight of the form as long as asked. */
+    public function stretchLongest(float $length): void
+    {
+        $this->data['sections'] = ThreadForm::stretched($this->sections(), $length);
+    }
+
+    /** Puts a whole track in the form in place of how it is driven and its sections. */
+    public function useTemplate(string $name): void
+    {
+        $template = ThreadForm::template($name);
+
+        $this->data['mode'] = $template['mode'];
+        $this->data['return_s'] = $template['return_s'];
+        $this->data['sections'] = $template['sections'];
+    }
+
+    /** @return list<array<string, mixed>> the sections of the form, in their order */
+    private function sections(): array
+    {
+        return array_values((array) ($this->data['sections'] ?? []));
+    }
+
+    /** A whole track to start from: it replaces how the track is driven and all its sections, so it asks first. */
+    private function templateAction(string $name): Action
+    {
+        return Action::make('template_'.$name)
+            ->label(__('admin.thread.template_'.$name))
+            ->color('gray')
+            ->requiresConfirmation()
+            ->modalHeading(__('admin.thread.template_'.$name))
+            ->modalDescription(__('admin.thread.template_hint'))
+            ->action(fn () => $this->useTemplate($name));
     }
 
     private function addPiece(string $name): Action

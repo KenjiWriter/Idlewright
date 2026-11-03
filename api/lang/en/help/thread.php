@@ -86,5 +86,17 @@ return [
             'range' => 'From 0 to 100 (from the schema).',
             'tip' => 'The speed over rough ground and how fast a low car slows down are in the studio (“Speed over a rough stretch”, “Slowing on a rough stretch”).',
         ],
+        'scale_factor' => [
+            'label' => 'Factor',
+            'help' => 'The number every radius is multiplied by: 1.2 makes the corners 20% wider, 0.8 makes them tighter.',
+            'range' => 'From 0.2 to 5.',
+            'tip' => 'After the radii are scaled the loop usually stops meeting itself: close it again.',
+        ],
+        'stretch_length' => [
+            'label' => 'Length (m)',
+            'help' => 'The length, in metres, that the longest straight of the thread gets.',
+            'range' => 'From 5 to 5000 m (from the schema).',
+            'tip' => 'A longer straight makes the track faster and puts more weight on power and top speed.',
+        ],
     ],
 ];
