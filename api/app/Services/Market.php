@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services;
 
+use App\Content\CarPerformance;
 use App\Content\Catalog;
 use App\Content\Rules;
 use App\Domain\Market\ExchangeListings;
@@ -40,6 +41,7 @@ final class Market
         private readonly CityGarages $garages,
         private readonly CarSales $sales,
         private readonly TutorialScript $script,
+        private readonly CarPerformance $performance,
     ) {
         $pricing = new UsedCarPricing($rules->marketPricing());
 
@@ -456,6 +458,8 @@ final class Market
             'power_kw' => $vehicle['power_kw'],
             'top_speed_kmh' => $vehicle['top_speed_kmh'],
             'mass_kg' => $vehicle['mass_kg'],
+            // How strong the car is as it comes, with its stock parts: the PI and the class the PI is in.
+            'performance' => $this->performance->ratingOf($slug),
         ];
     }
 }

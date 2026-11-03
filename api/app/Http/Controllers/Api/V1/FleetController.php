@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Content\CarPerformance;
 use App\Content\Catalog;
 use App\Content\Rules;
 use App\Content\RunInputsFactory;
@@ -44,6 +45,7 @@ final class FleetController extends Controller
         private readonly Catalog $catalog,
         private readonly RunInputsFactory $inputs,
         private readonly Slots $slots,
+        private readonly CarPerformance $performance,
     ) {}
 
     /** The cars and the garages as they are now: what is due is carried out first, and every car is settled, so the laps and the cash are current. */
@@ -217,6 +219,8 @@ final class FleetController extends Controller
         return [
             'id' => $car->id,
             'level' => $car->level,
+            // How strong the car is: its PI and the class the PI is in (the rating of the competition, not the kind of body).
+            'performance' => $this->performance->ratingOf($car->vehicle_slug, $car->mountedParts()),
             'selected' => $selected?->id === $car->id,
             // The place of the car among the cars that drive, or null for a car in storage (or when the game has no limit).
             'slot_no' => $car->slot_no,

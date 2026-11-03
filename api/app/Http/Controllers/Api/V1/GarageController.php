@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Content\CarPerformance;
 use App\Content\Catalog;
 use App\Content\Rules;
 use App\Content\RunInputsFactory;
@@ -47,6 +48,7 @@ final class GarageController extends Controller
         private readonly WorkshopEquipment $equipment,
         private readonly Ledger $ledger,
         private readonly PartTuning $tuning,
+        private readonly CarPerformance $performance,
     ) {}
 
     /** The garage as it is now: what is due in the workshop is carried out first. */
@@ -147,12 +149,14 @@ final class GarageController extends Controller
         $transmutes = $this->transmutations->quotes($userId, $inventory, $busy);
         // What "put on" would cost and take for each part of the inventory (the fee of the vulcanizer, the taking off of the part that sits there), with this workshop.
         $mounts = $car === null ? [] : $this->workshop->mountQuotes($car, $inventory, collect($pending), $gear);
+        // What the car would show with each part of the inventory put on in its slot: the PI and the class after, to warn of a part that changes the class.
+        $fitted = $car === null ? [] : $car->mountedParts();
 
         return response()->json([
             'data' => [
                 'car' => $car === null ? null : $this->carData($car, $run, $gear, $level),
                 // What is in the inventory, and for each part what merging it would do (null when it cannot be merged now).
-                'inventory' => $inventory->map(fn (Part $part): array => [...PartResource::make($part)->resolve(), 'merge' => $quotes[$part->id] ?? null, 'transmute' => $transmutes[$part->id] ?? null, 'repair_next' => $this->workshop->repairQuote($part, $gear), 'mount_next' => $mounts[$part->id] ?? null, 'tune_next' => $this->tuning->offer($part, $level, $gear)])->all(),
+                'inventory' => $inventory->map(fn (Part $part): array => [...PartResource::make($part)->resolve(), 'merge' => $quotes[$part->id] ?? null, 'transmute' => $transmutes[$part->id] ?? null, 'repair_next' => $this->workshop->repairQuote($part, $gear), 'mount_next' => $mounts[$part->id] ?? null, 'tune_next' => $this->tuning->offer($part, $level, $gear), 'performance_after' => $car === null ? null : $this->performance->ratingWith($car->vehicle_slug, $fitted, $part)])->all(),
                 // The last results of merging: they are drawn when the mechanic is done, so the driver may be told of them later.
                 'merges' => $this->merges->recent($userId),
                 'workshop' => [
@@ -184,6 +188,8 @@ final class GarageController extends Controller
         return [
             'id' => $car->id,
             'level' => $car->level,
+            // How strong the car is: its PI and the class the PI is in.
+            'performance' => $this->performance->ratingOf($car->vehicle_slug, $slugs),
             // The experience of the car, and where its level begins and ends: the bar of the garage is `total` between the two.
             'xp' => [
                 'total' => $car->xp,

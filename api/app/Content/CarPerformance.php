@@ -6,6 +6,7 @@ namespace App\Content;
 
 use App\Domain\Competition\PerformanceIndex;
 use App\Models\Car;
+use App\Models\Part;
 use InvalidArgumentException;
 
 /**
@@ -19,7 +20,7 @@ final class CarPerformance
     /** @var array<string, int>|null the statistics of the reference car, in thousandths */
     private ?array $reference = null;
 
-    public function __construct(private readonly RunInputsFactory $inputs, private readonly Rules $rules) {}
+    public function __construct(private readonly RunInputsFactory $inputs, private readonly Rules $rules, private readonly Catalog $catalog) {}
 
     /**
      * The PI of a car of the pack with these parts on it.
@@ -37,6 +38,41 @@ final class CarPerformance
     public function ofCar(Car $car): int
     {
         return $this->of($car->vehicle_slug, $car->mountedParts());
+    }
+
+    /**
+     * What a car shows: its PI and the class the PI is in.
+     *
+     * @param  array<string, string|array{slug: string, rarity: int, upgrade?: int, wear?: int, affixes?: array<string, int>}>  $mounted  the parts on the car, by slot
+     * @return array{pi: int, class: string}
+     */
+    public function ratingOf(string $carSlug, array $mounted = []): array
+    {
+        $pi = $this->of($carSlug, $mounted);
+
+        return ['pi' => $pi, 'class' => $this->classOf($pi)];
+    }
+
+    /**
+     * What the car would show with this part put on in its slot, in place of the part that is there: the PI and the class, or null when the part has no slot in the game or
+     * does not go on the car.
+     *
+     * @param  array<string, string|array{slug: string, rarity: int, upgrade?: int, wear?: int, affixes?: array<string, int>}>  $mounted  the parts on the car now, by slot
+     * @return array{pi: int, class: string}|null
+     */
+    public function ratingWith(string $carSlug, array $mounted, Part $part): ?array
+    {
+        $slot = $this->catalog->part($part->part_slug)['slot'] ?? null;
+
+        if ($slot === null) {
+            return null;
+        }
+
+        try {
+            return $this->ratingOf($carSlug, [...$mounted, $slot => ['slug' => $part->part_slug, 'rarity' => (int) $part->rarity, 'upgrade' => (int) $part->upgrade_level, 'wear' => (int) $part->wear_ppb, 'affixes' => $part->affixes ?? [], 'tuning' => $part->tuning ?? []]]);
+        } catch (InvalidArgumentException) {
+            return null;
+        }
     }
 
     /** The class that a PI is in. */

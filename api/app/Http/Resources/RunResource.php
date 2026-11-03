@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Resources;
 
+use App\Content\CarPerformance;
 use App\Content\Catalog;
 use App\Content\Rules;
 use App\Content\RunInputsFactory;
@@ -50,6 +51,8 @@ final class RunResource extends JsonResource
                 // The kind of body and the tier of the car: the bar at the top of every screen says what car is played.
                 'class' => $vehicle['class'] ?? null,
                 'tier' => $vehicle['tier'] ?? null,
+                // How strong the car is: its PI and the class the PI is in.
+                'performance' => $vehicle === null ? null : app(CarPerformance::class)->ratingOf($this->car_slug, $this->car?->mountedParts() ?? []),
             ],
             'track' => [
                 'slug' => $this->track_slug,
