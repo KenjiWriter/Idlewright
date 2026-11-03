@@ -116,7 +116,10 @@
     "xp": "{value} XP",
     "score": "Score global",
     "tier": "T{tier}",
-    "tierTitle": "Palier de la voiture : {tier}"
+    "tierTitle": "Palier de la voiture : {tier}",
+    "classTitle": "Classe {class}, {pi} PI",
+    "classChange": "La classe change : {from} → {to}",
+    "classSame": "Classe {class} inchangée : {from} → {to} PI"
   },
   "run": {
     "laps": "{n} tour | {n} tours",

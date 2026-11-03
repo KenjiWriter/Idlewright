@@ -116,7 +116,10 @@
     "xp": "{value} XP",
     "score": "Overall score",
     "tier": "T{tier}",
-    "tierTitle": "Car tier: {tier}"
+    "tierTitle": "Car tier: {tier}",
+    "classTitle": "Class {class}, {pi} PI",
+    "classChange": "The class changes: {from} → {to}",
+    "classSame": "Class {class} stays: {from} → {to} PI"
   },
   "run": {
     "laps": "{n} lap | {n} laps",

@@ -5,6 +5,7 @@ import { RouterLink, useRouter } from 'vue-router'
 
 import { ApiError } from '@/api/client'
 import type { FleetCar, FleetGarage } from '@/api/types'
+import ClassBadge from '@/components/ClassBadge.vue'
 import CarSale from '@/components/CarSale.vue'
 import CarStage from '@/components/CarStage.vue'
 import GameShell from '@/components/GameShell.vue'
@@ -255,6 +256,7 @@ const buyGarage = (garage: FleetGarage) =>
             </span>
             <span class="thumb-body">
               <span class="thumb-name" data-test="thumb-name">{{ car.vehicle.name }}</span>
+              <span v-if="car.performance" class="thumb-meta" data-test="thumb-class">{{ car.performance.class }} {{ car.performance.pi }}</span>
               <span class="thumb-meta">{{ car.city.name }}</span>
               <span class="thumb-meta text-amber">{{ t('fleet.value', { price: money(car.sale_cents) }) }}</span>
             </span>
@@ -268,6 +270,7 @@ const buyGarage = (garage: FleetGarage) =>
               <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
                 <b class="truncate text-[17px]" data-test="car-name">{{ focused.vehicle.name }}</b>
                 <span v-if="focused.vehicle.tier" class="tier">{{ t('car.tier', { tier: focused.vehicle.tier }) }}</span>
+                <ClassBadge v-if="focused.performance" :performance="focused.performance" />
                 <span v-if="focused.selected" class="tag tag-am" data-test="car-selected">{{ t('fleet.selected') }}</span>
               </div>
             </div>

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 
+import type { CarPerformance } from '@/api/types'
+import ClassBadge from '@/components/ClassBadge.vue'
 import { useFormat } from '@/i18n/useFormat'
 
 withDefaults(
@@ -11,13 +13,15 @@ withDefaults(
     kicker?: string | null
     /** The tier of the car, as the plate beside the name; none for a car that does not say. */
     tier?: number | null
+    /** How strong the car is (its PI and class), shown beside the tier; none for a car that does not say. */
+    performance?: CarPerformance | null
     /** The overall score, or null for a card that has no statistics to count it from. */
     score?: number | null
     /** The heading the name is: the title of a screen, or a heading inside one. */
     level?: 'h1' | 'h2'
     headingId?: string
   }>(),
-  { kicker: null, tier: null, score: null, level: 'h2', headingId: undefined },
+  { kicker: null, tier: null, performance: null, score: null, level: 'h2', headingId: undefined },
 )
 
 const { t } = useI18n()
@@ -32,6 +36,7 @@ const { number } = useFormat()
         <div class="flex flex-wrap items-center gap-x-2.5 gap-y-1">
           <component :is="level" :id="headingId" class="ttl" data-test="car">{{ name }}</component>
           <span v-if="tier" class="tier" :title="t('car.tierTitle', { tier })" data-test="car-tier">{{ t('car.tier', { tier }) }}</span>
+          <ClassBadge v-if="performance" :performance="performance" />
         </div>
       </div>
       <div v-if="score !== null" class="score flex-none" data-test="score">

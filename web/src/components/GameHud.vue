@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink } from 'vue-router'
 
+import ClassBadge from '@/components/ClassBadge.vue'
 import { useCarClass } from '@/features/car/useCarClass'
 import { gameTime } from '@/features/clock/gameClock'
 import { levelOf } from '@/features/player/level'
@@ -133,6 +134,7 @@ const phaseName = computed(() => (te(`clock.phase.${time.value.phase}`) ? t(`clo
       <template v-if="car">
         <span class="hud-car-name" data-test="hud-car-name">{{ car.name }}</span>
         <span v-if="car.tier" class="tier tier-cy" data-test="hud-car-tier">{{ t('car.tier', { tier: car.tier }) }}</span>
+        <ClassBadge v-if="car.performance" :performance="car.performance" />
         <span v-if="carKind" class="hud-car-kind" data-test="hud-car-kind">{{ carKind }}</span>
       </template>
       <span v-if="premium.vipActiveAt(now)" class="tag tag-am" :title="t('hud.vipTitle')" data-test="hud-vip">{{ t('hud.vip') }}</span>

@@ -2,6 +2,7 @@
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 
 import type { ExchangeListing, YardCar } from '@/api/types'
+import ClassBadge from '@/components/ClassBadge.vue'
 import CarStage from '@/components/CarStage.vue'
 import CityTabs from '@/components/CityTabs.vue'
 import GameShell from '@/components/GameShell.vue'
@@ -115,6 +116,7 @@ const buyWreck = (wreck: YardCar) =>
             <b class="truncate text-base" data-test="name">{{ listing.vehicle.name }}</b>
             <span class="tag flex-none">{{ className(listing.vehicle.class) }}</span>
             <span v-if="listing.vehicle.tier" class="tier !h-5 flex-none !px-2 !text-sm" data-test="tier">{{ t('car.tier', { tier: listing.vehicle.tier }) }}</span>
+            <ClassBadge v-if="listing.vehicle.performance" :performance="listing.vehicle.performance" />
           </div>
           <div class="flex-none font-display text-[26px] font-bold leading-none text-amber" data-test="price">{{ money(listing.price_cents) }}</div>
         </div>

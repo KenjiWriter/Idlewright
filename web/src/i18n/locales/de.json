@@ -116,7 +116,10 @@
     "xp": "{value} XP",
     "score": "Gesamtwertung",
     "tier": "T{tier}",
-    "tierTitle": "Stufe des Autos: {tier}"
+    "tierTitle": "Stufe des Autos: {tier}",
+    "classTitle": "Klasse {class}, {pi} PI",
+    "classChange": "Die Klasse ändert sich: {from} → {to}",
+    "classSame": "Klasse {class} bleibt: {from} → {to} PI"
   },
   "run": {
     "laps": "{n} Runde | {n} Runden",

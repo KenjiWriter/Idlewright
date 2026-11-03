@@ -116,7 +116,10 @@
     "xp": "{value} XP",
     "score": "Pontuação geral",
     "tier": "T{tier}",
-    "tierTitle": "Nível do carro: {tier}"
+    "tierTitle": "Nível do carro: {tier}",
+    "classTitle": "Classe {class}, {pi} PI",
+    "classChange": "A classe muda: {from} → {to}",
+    "classSame": "A classe {class} continua: {from} → {to} PI"
   },
   "run": {
     "laps": "{n} volta | {n} voltas",

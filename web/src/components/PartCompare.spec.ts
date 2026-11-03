@@ -119,4 +119,22 @@ describe('PartCompare', () => {
 
     expect(wrapper.get('[data-test="compare-surface:asphalt_wet"]').text()).toBe('▲ Mokro +10% (lepiej)')
   })
+
+  it('warns when the part moves the car to another class, and only says the PI when the class stays', () => {
+    const props = { offer: { stats: { power_mult: 1.45 } }, fitted: FITTED }
+    const warn = mount(PartCompare, { props: { ...props, performanceNow: { pi: 399, class: 'D' }, performanceAfter: { pi: 412, class: 'C' } }, global: { plugins: [i18n] } })
+    const same = mount(PartCompare, { props: { ...props, performanceNow: { pi: 300, class: 'D' }, performanceAfter: { pi: 312, class: 'D' } }, global: { plugins: [i18n] } })
+    const none = mount(PartCompare, { props: { ...props, performanceNow: { pi: 300, class: 'D' }, performanceAfter: { pi: 300, class: 'D' } }, global: { plugins: [i18n] } })
+
+    expect(warn.get('[data-test="class-change"]').text()).toBe('The class changes: D 399 → C 412')
+    expect(same.get('[data-test="class-same"]').text()).toBe('Class D stays: 300 → 312 PI')
+    expect(none.find('[data-test="class-change"]').exists() || none.find('[data-test="class-same"]').exists()).toBe(false)
+  })
+
+  it('says the class even for a slot that holds the factory part, which has nothing to set the part against', () => {
+    const wrapper = mount(PartCompare, { props: { offer: { stats: { power_mult: 1.45 } }, fitted: null, performanceNow: { pi: 300, class: 'D' }, performanceAfter: { pi: 420, class: 'C' } }, global: { plugins: [i18n] } })
+
+    expect(wrapper.find('[data-test="part-compare"]').exists()).toBe(false)
+    expect(wrapper.get('[data-test="class-change"]').text()).toBe('The class changes: D 300 → C 420')
+  })
 })

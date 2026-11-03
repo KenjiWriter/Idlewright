@@ -47,4 +47,9 @@ describe('SpecCard', () => {
     expect(show({ tier: 3 }).get('[data-test="car-tier"]').attributes('title')).toBe('Tier auta: 3')
     expect(show({ score: 1 }).get('[data-test="score"] small').text()).toBe('Wynik ogólny')
   })
+
+  it('shows the class and the PI of the car beside the tier, and nothing when the car does not say', () => {
+    expect(show({ tier: 2, performance: { pi: 300, class: 'D' } }).get('[data-test="car-class"]').text()).toBe('D 300')
+    expect(show({ tier: 2 }).find('[data-test="car-class"]').exists()).toBe(false)
+  })
 })

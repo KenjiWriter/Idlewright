@@ -2,6 +2,7 @@
 import { computed, onMounted } from 'vue'
 
 import type { DealerOffer } from '@/api/types'
+import ClassBadge from '@/components/ClassBadge.vue'
 import CarStage from '@/components/CarStage.vue'
 import CityTabs from '@/components/CityTabs.vue'
 import GameShell from '@/components/GameShell.vue'
@@ -59,6 +60,7 @@ const buy = (offer: DealerOffer) =>
             <b class="truncate text-base" data-test="name">{{ offer.vehicle.name }}</b>
             <span class="tag flex-none">{{ className(offer.vehicle.class) }}</span>
             <span v-if="offer.vehicle.tier" class="tier !h-5 flex-none !px-2 !text-sm" data-test="tier">{{ t('car.tier', { tier: offer.vehicle.tier }) }}</span>
+            <ClassBadge v-if="offer.vehicle.performance" :performance="offer.vehicle.performance" />
           </div>
           <div class="flex-none font-display text-[26px] font-bold leading-none text-amber" data-test="price">{{ money(offer.price_cents) }}</div>
         </div>

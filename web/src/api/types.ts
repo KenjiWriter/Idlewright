@@ -70,10 +70,16 @@ export interface RunField {
   rows: FieldRow[]
 }
 
+/** How strong a car is: its performance index (0 to 999) and the class the index is in (F to SS), which is not the kind of body. */
+export interface CarPerformance {
+  pi: number
+  class: string
+}
+
 /** A run: a car driving laps on a track (GET /api/v1/runs/current). Times are ms of the server clock, fuel is in ml. */
 export interface Run {
   id: number
-  car: { slug: string; name: string; image_url?: string | null; class?: string | null; tier?: number | null }
+  car: { slug: string; name: string; image_url?: string | null; class?: string | null; tier?: number | null; performance?: CarPerformance | null }
   track: { slug: string; name: string; kind?: TrackKind }
   status: RunStatus
   stop_reason: StopReason | null
@@ -517,6 +523,8 @@ export interface TuneNext {
 export interface OwnedPart extends PartInfo {
   id: number
   mounted: boolean
+  /** What the car would show with this part put on its slot (null when it does not go on the car): the class changes or not. */
+  performance_after?: CarPerformance | null
   car_id: number | null
   /** How much of its life the part has left, in percent: 100 is new, and the statistics above already count it (x 0.6 + 0.4 x condition). */
   condition_percent: number
@@ -670,6 +678,8 @@ export interface GarageSlot {
 export interface GarageCar {
   id: number
   level: number
+  /** How strong the car is, with the parts on it. */
+  performance?: CarPerformance
   /** The experience of the car, and where its level begins and ends; `next_level_at` is null at the highest level. */
   xp: { total: number; level_start: number; next_level_at: number | null }
   /** The next tier of parts the car cannot have mounted yet, and the level that opens it, or null when no level does. */
@@ -1134,6 +1144,8 @@ export interface FinishTravelResponse extends MapResponse {
 export interface FleetCar {
   id: number
   level: number
+  /** How strong the car is, with the parts on it. */
+  performance?: CarPerformance
   /** The car the driver plays. */
   selected: boolean
   /** How worn the car is: 100 is perfect, and a worn car breaks down more. */
@@ -1216,6 +1228,8 @@ export interface MarketVehicle {
   power_kw: number
   top_speed_kmh: number
   mass_kg: number
+  /** How strong the car is as it comes. */
+  performance?: CarPerformance
 }
 
 /** What a listing says of the condition of a car, which is only roughly the truth: an inspection tells it. */

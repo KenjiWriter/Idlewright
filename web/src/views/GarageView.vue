@@ -249,7 +249,7 @@ async function useCode(): Promise<void> {
           <SlotDetail :slot="picked" :engine="car.vehicle.engine" :mounted="mountedCount" :total="car.slots.length" @close="clearPick" />
         </template>
 
-        <SpecCard :name="run.run.car.name" :kicker="className(car?.vehicle.class)" :tier="car?.vehicle.tier ?? null" :score="car ? score : null" level="h1" heading-id="run-title">
+        <SpecCard :name="run.run.car.name" :kicker="className(car?.vehicle.class)" :tier="car?.vehicle.tier ?? null" :performance="car?.performance ?? run.run.car.performance ?? null" :score="car ? score : null" level="h1" heading-id="run-title">
           <p class="sub -mt-1" data-test="track">{{ run.run.track.name }}</p>
 
           <!-- The experience of the car, and what is left to the next level, as the board of the garage has it. -->

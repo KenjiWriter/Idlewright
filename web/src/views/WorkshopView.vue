@@ -696,7 +696,7 @@ async function finish(jobId: number): Promise<void> {
               </p>
               <PartStats :part="part" />
               <PartAffixes :part="part" />
-              <PartCompare :offer="part" :fitted="fittedOf(part)" />
+              <PartCompare :offer="part" :fitted="fittedOf(part)" :performance-now="car.performance ?? null" :performance-after="part.performance_after ?? null" />
               <PartCondition :percent="part.condition_percent" :unserviceable="part.unserviceable" class="mt-1.5" />
               <p v-if="part.repair_next?.locked?.reason === 'worn_out'" class="sub mt-1" :data-test="`repair-info-${part.id}`">{{ t('workshop.repairWornOut') }}</p>
               </div>
@@ -772,7 +772,7 @@ async function finish(jobId: number): Promise<void> {
           </li>
         </ul>
       </section>
-      <SpecCard :name="car.vehicle.name" :kicker="className(car.vehicle.class)" :tier="car.vehicle.tier ?? null" :score="score" level="h2" heading-id="car-title">
+      <SpecCard :name="car.vehicle.name" :kicker="className(car.vehicle.class)" :tier="car.vehicle.tier ?? null" :performance="car.performance ?? null" :score="score" level="h2" heading-id="car-title">
       <div class="flex flex-col gap-1" :aria-label="t('workshop.stats')">
         <div v-for="stat in STATS" :key="stat" class="st" :data-test="`stat-${stat}`">
           <span>{{ t(`carStat.${stat}`) }}</span>
