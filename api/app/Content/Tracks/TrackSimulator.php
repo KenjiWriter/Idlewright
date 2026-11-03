@@ -64,6 +64,7 @@ final class TrackSimulator
         $winner = null;
         $fastest = [];
         $byCar = [];
+        $dryByCar = [];
 
         foreach ($this->vehiclesFor($track['min_player_level']) as $vehicle) {
             foreach ($this->buildsOf($vehicle, $tierCap) as $build) {
@@ -77,6 +78,7 @@ final class TrackSimulator
                 }
 
                 $byCar[$build->vehicle] = max($byCar[$build->vehicle] ?? 0.0, $income);
+                $dryByCar[$build->vehicle] = min($dryByCar[$build->vehicle] ?? PHP_INT_MAX, $frozen['lap_ms']['dry'] ?? PHP_INT_MAX);
 
                 if ($winner === null || $this->beats($income, $build, $winner['income'], $winner['build'])) {
                     $winner = ['income' => $income, 'build' => $build, 'lap_ms' => $frozen['lap_ms']];
@@ -96,7 +98,7 @@ final class TrackSimulator
             throw new RuntimeException("No car of the pack can drive the track {$slug}.");
         }
 
-        return new TrackOutcome($slug, $track['surface'], $track['min_player_level'], $tierCap, $candidates, $winner['build'], $winner['income'], $winner['lap_ms'], $byCar, $fastest, $this->rules->trackKind($slug));
+        return new TrackOutcome($slug, $track['surface'], $track['min_player_level'], $tierCap, $candidates, $winner['build'], $winner['income'], $winner['lap_ms'], $byCar, $fastest, $this->rules->trackKind($slug), array_filter($dryByCar, static fn (int $lap): bool => $lap !== PHP_INT_MAX), $this->rules->lapFrom($slug));
     }
 
     /** Whether a build earning `$income` is better than the one that is the best so far: more an hour, and for the same, cheaper. */

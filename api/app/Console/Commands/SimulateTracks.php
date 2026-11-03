@@ -51,7 +51,7 @@ final class SimulateTracks extends Command
         $this->newLine();
         $this->line('The best build on every track, by what it earns an hour in the climate of the region (parts up to the tier of the level of the track):');
         $this->table(
-            ['track', 'level', 'tier', 'builds', 'car', 'parts', '$/h', 'runner-up', 'best dry', 'best rain'],
+            ['track', 'level', 'tier', 'builds', 'car', 'parts', '$/h', 'runner-up', 'best dry', 'best rain', 'spread'],
             array_map(fn (TrackOutcome $track): array => [
                 $track->track,
                 $track->minPlayerLevel,
@@ -63,6 +63,7 @@ final class SimulateTracks extends Command
                 $this->runnerUp($track),
                 $this->fastest($track, 'dry'),
                 $this->fastest($track, 'rain'),
+                $track->spread() === null ? '-' : sprintf('%.2f', $track->spread()),
             ], $report->tracks),
         );
 
@@ -71,6 +72,19 @@ final class SimulateTracks extends Command
         $this->gate($report->terrainPassed(), 'Terrain: no car that wins a gravel track wins an asphalt track.', 'Terrain: the same car wins a gravel track and an asphalt track, so off-road asks for nothing of a car.');
 
         $this->m3($report);
+        $this->threadWarnings($report);
+    }
+
+    /** What is worth a look on the tracks that are driven on their thread: it fails nothing. */
+    private function threadWarnings(TrackReport $report): void
+    {
+        foreach ($report->threadWarnings() as $warning) {
+            $this->warn(match ($warning['type']) {
+                'spread_narrow' => "Thread: {$warning['track']}: the slowest car takes only {$warning['spread']} times the lap of the fastest (below ".TrackReport::SPREAD_NARROW.'), so the track asks for little of a car.',
+                'spread_wide' => "Thread: {$warning['track']}: the slowest car takes {$warning['spread']} times the lap of the fastest (above ".TrackReport::SPREAD_WIDE.'), so most cars are lost on it.',
+                default => "Thread: {$warning['track']} is won by {$warning['car']}, which wins ".implode(', ', $warning['also']).' too: the track asks for what those ask for.',
+            });
+        }
     }
 
     private function printSurfaces(TrackReport $report): void
@@ -179,6 +193,9 @@ final class SimulateTracks extends Command
                 'parts' => $track->winner->mounted,
                 'cents_per_hour' => round($track->centsPerHour, 2),
                 'cents_per_hour_by_car' => array_map(static fn (float $cents): float => round($cents, 2), $track->centsPerHourByCar),
+                'lap_from' => $track->lapFrom,
+                'dry_lap_ms_by_car' => $track->dryLapByCar,
+                'spread' => $track->spread() === null ? null : round($track->spread(), 3),
                 'lap_ms' => $track->lapMs,
                 'fastest' => array_map(static fn (array $fastest): array => ['car' => $fastest['build']->vehicle, 'parts' => $fastest['build']->mounted, 'lap_ms' => $fastest['lap_ms']], $track->fastest),
             ], $report->tracks),
@@ -187,6 +204,7 @@ final class SimulateTracks extends Command
                 'terrain' => $report->terrainPassed(),
                 'no_car_wins_more_than_two' => $report->m3Passed(),
             ],
+            'thread_warnings' => $report->threadWarnings(),
             'wins' => $report->winsByCar(),
             'wins_by_kind' => $report->winsByKind(),
             'surface_names' => Surface::ALL,

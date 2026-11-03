@@ -32,6 +32,15 @@ final readonly class TrackReport
     public const MOST_TRACKS_PER_CAR = 2;
 
     /**
+     * How far the slowest car may be from the fastest on a track that is driven on its thread, as the quotient of their best dry laps, before the track is worth a look: the
+     * tracks that are driven by the formula of the demands are between 1.2 and 2.0, so a track below the lower bound asks for nothing of a car, and one above the upper bound
+     * is lost by most of the cars.
+     */
+    public const SPREAD_NARROW = 1.15;
+
+    public const SPREAD_WIDE = 2.2;
+
+    /**
      * @param  list<SurfaceOutcome>  $surfaces
      * @param  list<TrackOutcome>  $tracks
      */
@@ -65,6 +74,40 @@ final readonly class TrackReport
         $asphalt = $this->winnersOn('asphalt');
 
         return array_intersect($gravel, $asphalt) === [];
+    }
+
+    /**
+     * What is worth a look on the tracks that are driven on their thread (a warning, never a failure): the cars lap too nearly alike or too far apart, and the winner of the
+     * track is a car that wins other tracks as well, so the track asks for what the other tracks ask for.
+     *
+     * @return list<array{track: string, type: string, spread?: float, car?: string, also?: list<string>}>
+     */
+    public function threadWarnings(): array
+    {
+        $wins = $this->winsByCar();
+        $warnings = [];
+
+        foreach ($this->tracks as $track) {
+            if ($track->lapFrom !== 'thread') {
+                continue;
+            }
+
+            $spread = $track->spread();
+
+            if ($spread !== null && $spread < self::SPREAD_NARROW) {
+                $warnings[] = ['track' => $track->track, 'type' => 'spread_narrow', 'spread' => round($spread, 2)];
+            } elseif ($spread !== null && $spread > self::SPREAD_WIDE) {
+                $warnings[] = ['track' => $track->track, 'type' => 'spread_wide', 'spread' => round($spread, 2)];
+            }
+
+            $also = array_values(array_diff($wins[$track->winner->vehicle] ?? [], [$track->track]));
+
+            if (count($also) >= self::MOST_TRACKS_PER_CAR) {
+                $warnings[] = ['track' => $track->track, 'type' => 'same_winner', 'car' => $track->winner->vehicle, 'also' => $also];
+            }
+        }
+
+        return $warnings;
     }
 
     /**

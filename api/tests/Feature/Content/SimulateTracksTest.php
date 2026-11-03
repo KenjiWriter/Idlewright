@@ -187,3 +187,46 @@ describe('the gates of the track simulator', function () {
             ->and($report->tracks[0]->winner->mounted['tires'])->not->toBe('rain-tires-t3');
     });
 });
+
+describe('the cars on a track that is driven on its thread', function () {
+    /** The rules with the tracks that are asked for driven on their threads. */
+    $onThread = static fn (array $data): array => [...$data, 'tracks' => array_map(static fn (array $track): array => [...$track, 'lap_from' => 'thread'], $data['tracks'])];
+
+    it('says how far the slowest car is from the fastest on every track', function () {
+        $track = simulateTracks(['zlomowo-street'])->tracks[0];
+
+        expect(count($track->dryLapByCar))->toBeGreaterThan(2)
+            ->and($track->spread())->toBeGreaterThan(1.1)->toBeLessThan(2.5)
+            ->and($track->lapFrom)->toBe('stats');
+    });
+
+    it('has nothing to warn of on tracks that are driven by the formula, whatever the spread', function () {
+        expect(simulateTracks(['zlomowo-street', 'zlomowo-yard-dash'])->threadWarnings())->toBe([]);
+    });
+
+    it('warns that a sprint on its thread asks for little of a car when the cars lap almost alike', function () use ($onThread) {
+        $report = simulateTracks(['zlomowo-yard-dash'], $onThread);
+        $warnings = $report->threadWarnings();
+
+        expect($report->tracks[0]->lapFrom)->toBe('thread')
+            ->and($warnings)->toHaveCount(1)
+            ->and($warnings[0])->toMatchArray(['track' => 'zlomowo-yard-dash', 'type' => 'spread_narrow'])
+            ->and($warnings[0]['spread'])->toBeLessThan(TrackReport::SPREAD_NARROW);
+    });
+
+    it('warns that the winner of a track on its thread wins other tracks as well', function () use ($onThread) {
+        $warnings = simulateTracks(['zlomowo-street', 'suchy-pas-drag', 'zlomowo-ring-road'], $onThread)->threadWarnings();
+        $same = array_values(array_filter($warnings, static fn (array $warning): bool => $warning['type'] === 'same_winner'));
+
+        expect($same)->toHaveCount(3)
+            ->and($same[0]['car'])->toBe('bizon-m-2')
+            ->and($same[0]['also'])->toHaveCount(2);
+    });
+
+    it('prints the warnings and puts them in the report without failing the command', function () {
+        $json = trackReportJson();
+
+        expect($json['thread_warnings'])->toBe([])
+            ->and(collect($json['tracks'])->every(fn (array $track): bool => $track['lap_from'] === 'stats' && $track['spread'] > 1.0))->toBeTrue();
+    });
+});

@@ -17,6 +17,8 @@ final readonly class TrackOutcome
      * @param  array<string, array{build: Build, lap_ms: int}>  $fastest  the fastest build in the dry and in the rain, when the region has them
 
      * @param  string  $kind  what the track asks of the driver (`sprint`, `standard`, `endurance`): the gate M3 counts the tracks of a kind among themselves
+     * @param  array<string, int>  $dryLapByCar  the fastest dry lap of every car, whatever the parts: how far the cars are from each other on the track
+     * @param  string  $lapFrom  where the lap comes from: `stats` (the formula of the demands) or `thread` (the lap driven on the thread of the track)
      */
     public function __construct(
         public string $track,
@@ -30,7 +32,15 @@ final readonly class TrackOutcome
         public array $centsPerHourByCar,
         public array $fastest,
         public string $kind = 'standard',
+        public array $dryLapByCar = [],
+        public string $lapFrom = 'stats',
     ) {}
+
+    /** How much slower the slowest car is than the fastest on the track, in its best dry lap (1.5 is half as long again); null with fewer than two cars. */
+    public function spread(): ?float
+    {
+        return count($this->dryLapByCar) < 2 ? null : max($this->dryLapByCar) / max(1, min($this->dryLapByCar));
+    }
 
     /**
      * The best of the other cars and how far it is behind the winner, as a share of what the winner earns; null when no other car drives here.
