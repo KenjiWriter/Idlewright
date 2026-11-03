@@ -48,7 +48,7 @@ Co jest w grze (stan `main` na 2026-11-02; szczegóły w [`docs/api-runs.md`](do
 
 ## Instrukcja obsługi panelu
 
-Panel jest pod adresem `/admin`: lokalnie `http://127.0.0.1:8000/admin`, na serwerze na osobnym hoście (na przykład `admin.raceidle.cerasusdigital.pl`, patrz [`deploy/README.md`](deploy/README.md)). Język panelu ustawia `ADMIN_LOCALE` (domyślnie polski). Zrzuty poniżej pochodzą z lokalnej instalacji z grą RideIdle i sześcioma graczami testowymi.
+Panel jest pod adresem `/admin`: lokalnie `http://127.0.0.1:8000/admin`, na serwerze na osobnym hoście (na przykład `admin.raceidle.cerasusdigital.pl`, patrz [`deploy/README.md`](deploy/README.md)). Język panelu ustawia `ADMIN_LOCALE` (domyślnie polski). Zrzuty poniżej pochodzą z lokalnej instalacji z grą RideIdle i sześcioma graczami testowymi. **Pełny podręcznik krok po kroku, ze zrzutami z numerowanymi polami, jest w [`docs/podrecznik-panelu.md`](docs/podrecznik-panelu.md)**; ta sekcja to jego skrót.
 
 ### Jak zmiana trafia do gry
 

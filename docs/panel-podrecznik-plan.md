@@ -1,5 +1,7 @@
 # Podręcznik operatora panelu: plan (etap P7, do napisania po skończeniu funkcji)
 
+**Stan (2026-11-03):** pierwsza część podręcznika jest napisana: [`podrecznik-panelu.md`](podrecznik-panelu.md) (rozdziały 1–14 z zrzutami z numerowanymi polami i legendami z katalogu pomocy; zrzuty odtwarza skrypt z [`podrecznik/zrzuty/`](podrecznik/zrzuty/README.md)). **Jeszcze nie ma** rozdziałów o stronach, które powstają: rywalizacja (klasy i PI), zlecenia (gigs), retencja i push w panelu, symulator z autami testowymi (pkt 13 poniżej). Dopisze się je po sygnale koordynatora; plan niżej zostaje listą kontrolną.
+
 Właściciel poprosił o podręcznik użytkownika, **gdy wszystko będzie gotowe** (po P3, P4, P5 i G4). To jest bieżąca lista tego, co musi w nim być, żeby nic nie zginęło. Podręcznik to Markdown w `docs/` po polsku oraz strona „Pomoc” w panelu. **Źródłem treści jest katalog pomocy** (`api/lang/pl/help/*.php`, etap P6): opisy pól w podręczniku mają być tymi samymi zdaniami, które operator widzi w formularzu, więc podręcznik nie może się z nimi rozjechać (najlepiej generować z katalogu to, co da się wygenerować: tabele pól z etykietą, opisem, przykładem i zakresem).
 
 ## Rozdziały, po jednym na zadanie operatora
