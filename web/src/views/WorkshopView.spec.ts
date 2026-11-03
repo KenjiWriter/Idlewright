@@ -2081,6 +2081,44 @@ describe('WorkshopView', () => {
       expect(wrapper.find('[data-test="transmute-41"]').exists()).toBe(false)
     })
 
+    it('marks a part that was transmuted', async () => {
+      serve({ 'GET /api/v1/garage': () => respond(200, aGarage({ inventory: [base({ transmuted: true, rarity: 'uncommon', rarity_rank: 2 }), base({ id: 43, name: 'Plain tires' })] })), 'GET /api/v1/runs/current': noRun })
+
+      const { wrapper } = await mountView(WorkshopView, '/workshop')
+      await flushPromises()
+
+      expect(wrapper.get('[data-test="part-41"] [data-test="part-transmuted"]').text()).toBe('Transmuted')
+      expect(wrapper.find('[data-test="part-43"] [data-test="part-transmuted"]').exists()).toBe(false)
+    })
+
+    it('lists the last transmutations next to the merges: what the part became and what it cost', async () => {
+      const garage = aGarage({ inventory: [] })
+      garage.data.transmutations = [
+        { id: 7, name: 'Street tires T2', slot: 'tires', tier: 2, from: 'common', to: 'uncommon', coins: 3, cash_cents: 3_800, at_ms: NOW, part: after() },
+        { id: 6, name: 'Sport exhaust', slot: 'exhaust', tier: 2, from: 'uncommon', to: 'rare', coins: 0, cash_cents: 12_500, at_ms: NOW - 60_000, part: null },
+      ]
+      serve({ 'GET /api/v1/garage': () => respond(200, garage), 'GET /api/v1/runs/current': noRun })
+
+      const { wrapper } = await mountView(WorkshopView, '/workshop')
+      await flushPromises()
+
+      expect(wrapper.get('[data-test="transmutations"] h2').text()).toBe('Last transmutations')
+      expect(wrapper.get('[data-test="transmutation-7"]').text()).toContain('Street tires T2 was raised to Uncommon')
+      expect(wrapper.get('[data-test="transmutation-7"] [data-test="transmutation-paid"]').text()).toBe('Paid: 3 RideCoin and $38.00')
+      expect(wrapper.get('[data-test="transmutation-7"] [data-test="part-affixes"]').text()).toBe('✦ Grip +3.5%')
+      expect(wrapper.get('[data-test="transmutation-6"] [data-test="transmutation-paid"]').text()).toBe('Paid: $125.00')
+      expect(wrapper.findAll('[data-test="transmutation-6"] [data-test="rarity"]').map((mark) => mark.text())).toEqual(['Uncommon', 'Rare'])
+    })
+
+    it('has no list when nothing was transmuted', async () => {
+      serve({ 'GET /api/v1/garage': () => respond(200, aGarage({ inventory: [base()] })), 'GET /api/v1/runs/current': noRun })
+
+      const { wrapper } = await mountView(WorkshopView, '/workshop')
+      await flushPromises()
+
+      expect(wrapper.find('[data-test="transmutations"]').exists()).toBe(false)
+    })
+
     it('says what the server refused with and leaves the card open', async () => {
       serve({
         'GET /api/v1/garage': () => respond(200, aGarage({ inventory: [base()] })),

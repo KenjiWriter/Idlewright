@@ -595,7 +595,12 @@
       },
       "confirm": "Transmutuj",
       "close": "Zamknij",
-      "done": "{part} ma teraz rzadkość: {rarity}."
+      "done": "{part} ma teraz rzadkość: {rarity}.",
+      "mark": "Przerobiona",
+      "recent": "Ostatnie przeróbki",
+      "made": "{name} ma teraz rzadkość: {rarity}",
+      "paid": "Zapłacono: {coins} RideCoin i {cash}",
+      "paidCash": "Zapłacono: {cash}"
     },
     "mergeTitle": "Łączenie części",
     "mergeChoose": "Połącz z:",

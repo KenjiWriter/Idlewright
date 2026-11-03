@@ -595,7 +595,12 @@
       },
       "confirm": "Transmuter",
       "close": "Fermer",
-      "done": "{part} a maintenant la rareté {rarity}."
+      "done": "{part} a maintenant la rareté {rarity}.",
+      "mark": "Transmutée",
+      "recent": "Dernières transmutations",
+      "made": "{name} est passée à la rareté {rarity}",
+      "paid": "Payé : {coins} RideCoin et {cash}",
+      "paidCash": "Payé : {cash}"
     },
     "mergeTitle": "Fusion de pièces",
     "mergeChoose": "Fusionner avec :",

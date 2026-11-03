@@ -595,7 +595,12 @@
       },
       "confirm": "Transmutieren",
       "close": "Schließen",
-      "done": "{part} hat jetzt die Seltenheit {rarity}."
+      "done": "{part} hat jetzt die Seltenheit {rarity}.",
+      "mark": "Transmutiert",
+      "recent": "Letzte Transmutationen",
+      "made": "{name} wurde auf {rarity} angehoben",
+      "paid": "Bezahlt: {coins} RideCoin und {cash}",
+      "paidCash": "Bezahlt: {cash}"
     },
     "mergeTitle": "Teile verschmelzen",
     "mergeChoose": "Verschmelzen mit:",

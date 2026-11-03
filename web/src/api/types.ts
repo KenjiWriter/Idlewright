@@ -538,6 +538,8 @@ export interface OwnedPart extends PartInfo {
   merge?: MergeOffer | null
   /** What transmuting it would be: null when it cannot be at all. Only the parts of the inventory of the garage have it. */
   transmute?: TransmuteOffer | null
+  /** Whether the rarity of the part was raised by a transmutation (such a part is not used to merge). */
+  transmuted?: boolean
   /** What putting it on would cost and take, with the taking off of the part that sits in its slot: the parts of the inventory of the garage have it. */
   mount_next?: SlotJobNext | null
   /** How many places for bonuses the part has, and what each holds (null for an empty one); absent in the answers of an older server. */
@@ -906,6 +908,22 @@ export interface MergeResult {
   finished_ms: number
 }
 
+/** One transmutation, as the garage tells the last five: what the part was and became, and what it cost. */
+export interface TransmuteResult {
+  id: number
+  /** The model of the part, in the language of the driver. */
+  name: string
+  slot: string
+  tier: number | null
+  from: PartRarity
+  to: PartRarity
+  coins: number
+  cash_cents: number
+  at_ms: number | null
+  /** The part as it is now: null when it is gone. */
+  part: OwnedPart | null
+}
+
 /** GET /api/v1/garage, and the answer of POST /api/v1/garage/jobs. `now_ms` is the clock of the server. */
 export interface GarageResponse {
   data: {
@@ -913,6 +931,8 @@ export interface GarageResponse {
     inventory: OwnedPart[]
     /** The last results of merging, the newest first. */
     merges: MergeResult[]
+    /** The last transmutations of the rarity of a part, the newest first (absent in older answers). */
+    transmutations?: TransmuteResult[]
     /** The workshop of the city the car stands in: its queue, its mechanics (several work at once when it has bays for them) and what it has bought. */
     workshop: { city: { slug: string; name: string }; queue_max: number; mechanic: { level: number; time_cut_ppm: number }; gear: WorkshopGear; jobs: WorkshopJob[] }
   }

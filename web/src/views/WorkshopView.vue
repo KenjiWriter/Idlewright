@@ -122,6 +122,7 @@ const busyPartIds = computed(() => new Set(jobs.value.flatMap((job) => [job.part
 /** A service that waits for the mechanic or is done by him: there is no use in asking for a second. */
 const servicing = computed(() => jobs.value.some((job) => job.kind === 'service'))
 const merges = computed(() => store.garage?.merges ?? [])
+const transmutations = computed(() => store.garage?.transmutations ?? [])
 /** The part of the inventory whose chooser of a merge is open. */
 const merging = ref<number | null>(null)
 /** The part of the inventory whose card of a transmutation is open. */
@@ -686,6 +687,7 @@ async function finish(jobId: number): Promise<void> {
               <p class="flex items-center gap-2 text-[15px] font-bold text-ink">
                 {{ part.name }}
                 <span class="tag">{{ t('part.tier', { tier: part.tier ?? 0 }) }}</span>
+                <span v-if="part.transmuted" class="tag tag-ok" data-test="part-transmuted">{{ t('workshop.transmute.mark') }}</span>
               </p>
               <p class="sub">{{ t(`slot.${part.slot}`) }}</p>
               <!-- Worth fitting in place of the part on the car or not, and what is better and what is worse. -->
@@ -818,6 +820,25 @@ async function finish(jobId: number): Promise<void> {
             <p class="sub">{{ t(`slot.${result.slot}`) }} · {{ t('workshop.mergeChance', { chance: percent(result.chance_ppm / 10_000) }) }}</p>
             <p v-if="!result.success" class="sub" data-test="merge-result-scrap">{{ t('workshop.mergeScrap', { scrap: money(result.scrap_cents, 2) }) }}</p>
             <PartAffixes v-if="result.success && result.part" :part="result.part" />
+          </li>
+        </ul>
+      </section>
+
+      <!-- What was raised in rarity lately, next to the merges: what the part was and became, and what it cost. -->
+      <section v-if="transmutations.length > 0" class="flex flex-col gap-2" aria-labelledby="transmutations-title" data-test="transmutations">
+        <h2 id="transmutations-title" class="kick !mb-0">{{ t('workshop.transmute.recent') }}</h2>
+        <ul class="flex flex-col gap-2">
+          <li v-for="entry in transmutations" :key="entry.id" class="card flex flex-col gap-1 !p-3" :style="{ borderColor: `var(--color-r${rankOf(entry.to)})` }" :data-test="`transmutation-${entry.id}`">
+            <p class="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[13px] font-semibold text-ink">
+              {{ t('workshop.transmute.made', { name: entry.name, rarity: t(`rarity.${entry.to}`) }) }}
+              <RarityMark :rarity="entry.from" />
+              <span class="mono text-muted" aria-hidden="true">→</span>
+              <RarityMark :rarity="entry.to" />
+            </p>
+            <p class="sub" data-test="transmutation-paid">
+              {{ entry.coins > 0 ? t('workshop.transmute.paid', { coins: number(entry.coins), cash: money(entry.cash_cents, 2) }) : t('workshop.transmute.paidCash', { cash: money(entry.cash_cents, 2) }) }}
+            </p>
+            <PartAffixes v-if="entry.part" :part="entry.part" />
           </li>
         </ul>
       </section>

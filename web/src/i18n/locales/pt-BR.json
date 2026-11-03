@@ -595,7 +595,12 @@
       },
       "confirm": "Transmutar",
       "close": "Fechar",
-      "done": "{part} agora tem a raridade {rarity}."
+      "done": "{part} agora tem a raridade {rarity}.",
+      "mark": "Transmutada",
+      "recent": "Últimas transmutações",
+      "made": "{name} subiu para {rarity}",
+      "paid": "Pago: {coins} RideCoin e {cash}",
+      "paidCash": "Pago: {cash}"
     },
     "mergeTitle": "Fundir peças",
     "mergeChoose": "Fundir com:",
