@@ -1053,7 +1053,7 @@ export interface MapCity {
 }
 
 /** What a track asks of the driver: a lap of seconds that burns little, the usual one, or a lap of minutes that burns a tank in about twenty. */
-export type TrackKind = 'sprint' | 'standard' | 'endurance'
+export type TrackKind = 'sprint' | 'standard' | 'endurance' | 'rally'
 
 /** A track of a city, and what a lap of it is for the car that is played (null without a car). */
 export interface MapTrack {

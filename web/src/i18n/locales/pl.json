@@ -1041,7 +1041,7 @@
     "streakTaken": "Odebrane za Ciebie: {cash}, {xp} XP"
   },
   "trackPicker": {
-    "kind": { "sprint": "Sprint", "standard": "Standardowy", "endurance": "Dystans" },
+    "kind": { "sprint": "Sprint", "standard": "Standardowy", "endurance": "Dystans", "rally": "Rajd" },
     "title": "Tory w tym mieście",
     "note": "Sprint spala mało paliwa na godzinę, więc zbiornik starcza na długo. Tor długodystansowy spala zbiornik w kilka minut. Zarobek na godzinę jest liczony po paliwie, dla tego auta.",
     "current": "Teraz",

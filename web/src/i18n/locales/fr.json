@@ -1041,7 +1041,7 @@
     "streakTaken": "Récupéré pour vous : {cash}, {xp} XP"
   },
   "trackPicker": {
-    "kind": { "sprint": "Sprint", "standard": "Standard", "endurance": "Endurance" },
+    "kind": { "sprint": "Sprint", "standard": "Standard", "endurance": "Endurance", "rally": "Rallye" },
     "title": "Circuits de cette ville",
     "note": "Un sprint consomme peu à l’heure, donc le réservoir dure longtemps. Une endurance vide un réservoir en quelques minutes. Le gain à l’heure est compté après le carburant, pour cette voiture.",
     "current": "Actuel",

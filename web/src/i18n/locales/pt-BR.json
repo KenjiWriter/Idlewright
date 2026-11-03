@@ -1041,7 +1041,7 @@
     "streakTaken": "Recebido por você: {cash}, {xp} XP"
   },
   "trackPicker": {
-    "kind": { "sprint": "Sprint", "standard": "Padrão", "endurance": "Endurance" },
+    "kind": { "sprint": "Sprint", "standard": "Padrão", "endurance": "Endurance", "rally": "Rali" },
     "title": "Pistas desta cidade",
     "note": "Um sprint gasta pouco por hora, então o tanque dura muito. Uma endurance esvazia um tanque em minutos. O ganho por hora é contado depois do combustível, para este carro.",
     "current": "Agora",
