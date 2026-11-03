@@ -13,6 +13,7 @@ use App\Http\Resources\PartResource;
 use App\Models\Part;
 use App\Models\PartTransmutation;
 use App\Models\WorkshopJob;
+use App\Support\I18nText;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
@@ -44,6 +45,35 @@ final class PartTransmutations
      * @param  list<int>  $busy  the ids of the parts that wait in a job
      * @return array<int, array{to: string, coins: int, cash_cents: int, blocked: string|null}|null>
      */
+    /**
+     * The last transmutations of the driver, the newest first, for the list next to the last merges: what the part was and became, what it cost, and the part as it is now.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function recent(int $userId, int $limit = 5): array
+    {
+        $log = PartTransmutation::query()->where('user_id', $userId)->orderByDesc('id')->limit($limit)->get();
+        $parts = Part::query()->whereIn('id', $log->pluck('part_id'))->get()->keyBy('id');
+
+        return $log->map(function (PartTransmutation $entry) use ($parts): array {
+            $definition = $this->catalog->part($entry->part_slug);
+            $part = $parts->get($entry->part_id);
+
+            return [
+                'id' => $entry->id,
+                'name' => isset($definition['name']) ? I18nText::from($definition['name'])->for() : $entry->part_slug,
+                'slot' => $definition['slot'] ?? ($part?->slot ?? ''),
+                'tier' => $definition['tier'] ?? null,
+                'from' => Rarity::from($entry->from_rarity)->key(),
+                'to' => Rarity::from($entry->to_rarity)->key(),
+                'coins' => $entry->coins,
+                'cash_cents' => $entry->cash_cents,
+                'at_ms' => $entry->created_at?->getTimestampMs(),
+                'part' => $part === null ? null : PartResource::make($part)->resolve(),
+            ];
+        })->values()->all();
+    }
+
     public function quotes(int $userId, Collection $inventory, array $busy): array
     {
         $quotes = [];

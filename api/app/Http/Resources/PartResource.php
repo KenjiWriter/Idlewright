@@ -142,6 +142,8 @@ final class PartResource extends JsonResource
             // How much less the part gives for it than a new one, in percent (50% of life left is 20% less).
             'condition_loss_percent' => 100 - (int) round(app(Rules::class)->conditionStatPpm($this->resource->conditionPpm()) / 10_000),
             'mounted' => $this->resource->isMounted(),
+            // Whether the rarity of the part was raised by a transmutation (such a part is not used to merge).
+            'transmuted' => $this->resource->wasTransmuted(),
             'car_id' => $this->resource->car_id,
             // How many places for bonuses the part has (its model may say, else the rules do), and what they hold: a list with one entry for each place.
             'tuning_slots' => $slots,

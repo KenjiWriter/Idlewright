@@ -264,3 +264,36 @@ describe('a transmuted part', function () {
         transmuteCall($driver, $part->id, 'step-3')->assertStatus(422)->assertJsonPath('code', 'transmute_max');
     });
 });
+
+describe('what the driver is told of afterwards', function () {
+    it('marks the part as transmuted, and lists the last transmutations next to the last merges', function () {
+        $driver = transmuteDriver();
+        $first = transmuteStock($driver);
+        $plain = transmuteStock($driver);
+
+        transmuteCall($driver, $first->id)->assertCreated();
+
+        $garage = $this->getJson('/api/v1/garage', bearerFor($driver))->assertOk();
+        $inventory = collect($garage->json('data.inventory'))->keyBy('id');
+
+        expect($inventory[$first->id]['transmuted'])->toBeTrue()->and($inventory[$plain->id]['transmuted'])->toBeFalse();
+
+        $garage->assertJsonPath('data.transmutations.0.from', 'common')->assertJsonPath('data.transmutations.0.to', 'uncommon')->assertJsonPath('data.transmutations.0.coins', 4)
+            ->assertJsonPath('data.transmutations.0.cash_cents', 45_600)->assertJsonPath('data.transmutations.0.slot', 'tires')->assertJsonPath('data.transmutations.0.part.id', $first->id)
+            ->assertJsonPath('data.transmutations.0.part.transmuted', true);
+
+        expect($garage->json('data.transmutations.0.name'))->toBeString()->and($garage->json('data.transmutations.0.at_ms'))->toBeInt();
+    });
+
+    it('lists the newest first, at most five', function () {
+        $driver = transmuteDriver(cash: 50_000_000);
+
+        foreach (range(1, 6) as $number) {
+            transmuteCall($driver, transmuteStock($driver)->id, "req-{$number}")->assertCreated();
+        }
+
+        $list = $this->getJson('/api/v1/garage', bearerFor($driver))->json('data.transmutations');
+
+        expect($list)->toHaveCount(5)->and($list[0]['id'])->toBeGreaterThan($list[4]['id']);
+    });
+});

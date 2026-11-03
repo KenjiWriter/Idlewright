@@ -159,6 +159,8 @@ final class GarageController extends Controller
                 'inventory' => $inventory->map(fn (Part $part): array => [...PartResource::make($part)->resolve(), 'merge' => $quotes[$part->id] ?? null, 'transmute' => $transmutes[$part->id] ?? null, 'repair_next' => $this->workshop->repairQuote($part, $gear), 'mount_next' => $mounts[$part->id] ?? null, 'tune_next' => $this->tuning->offer($part, $level, $gear), 'performance_after' => $car === null ? null : $this->performance->ratingWith($car->vehicle_slug, $fitted, $part)])->all(),
                 // The last results of merging: they are drawn when the mechanic is done, so the driver may be told of them later.
                 'merges' => $this->merges->recent($userId),
+                // The last transmutations of the rarity of a part: what it was and became, and what it cost.
+                'transmutations' => $this->transmutations->recent($userId),
                 'workshop' => [
                     'queue_max' => $this->rules->workshopMaxQueue($gear->workers()),
                     'mechanic' => $this->rules->mechanic(),
