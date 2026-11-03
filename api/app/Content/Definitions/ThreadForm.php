@@ -100,6 +100,78 @@ final class ThreadForm
     }
 
     /**
+     * The sections with every radius multiplied: the same track with wider or tighter corners. A radius stays between 8 and 1000 m, in tenths of a metre.
+     *
+     * @param  list<array<string, mixed>>  $sections
+     * @return list<array<string, mixed>>
+     */
+    public static function scaledRadii(array $sections, float $factor): array
+    {
+        return array_map(static function (array $section) use ($factor): array {
+            if (($section['type'] ?? null) !== 'corner' || ! is_numeric($section['radius_m'] ?? null)) {
+                return $section;
+            }
+
+            $radius = round(min(1000.0, max(8.0, (float) $section['radius_m'] * $factor)), 1);
+
+            return [...$section, 'radius_m' => $radius === floor($radius) ? (int) $radius : $radius];
+        }, array_values($sections));
+    }
+
+    /**
+     * The sections with the longest straight made as long as asked (a straight is 5 to 5000 m, to a metre). With no straight, they are as they were.
+     *
+     * @param  list<array<string, mixed>>  $sections
+     * @return list<array<string, mixed>>
+     */
+    public static function stretched(array $sections, float $length): array
+    {
+        $sections = array_values($sections);
+        $longest = null;
+
+        foreach ($sections as $index => $section) {
+            if (($section['type'] ?? null) === 'straight' && is_numeric($section['length_m'] ?? null) && ($longest === null || (float) $section['length_m'] > (float) $sections[$longest]['length_m'])) {
+                $longest = $index;
+            }
+        }
+
+        if ($longest !== null) {
+            $sections[$longest]['length_m'] = (int) round(min(5000.0, max(5.0, $length)));
+        }
+
+        return $sections;
+    }
+
+    /**
+     * A whole track to start from, as the state of the form: how it is driven, the way back of a run, and its sections. The loops close.
+     *
+     * @return array{mode: string, return_s: int|float|null, sections: list<array<string, mixed>>}
+     */
+    public static function template(string $name): array
+    {
+        $line = static fn (array $section): array => ['type' => 'straight', 'length_m' => null, 'radius_m' => null, 'angle_deg' => null, 'turn' => null, 'surface' => null, 'limit_kmh' => null, 'rough' => null, ...$section];
+        $straight = static fn (int $length, ?string $surface = null, ?int $rough = null): array => $line(['type' => 'straight', 'length_m' => $length, 'surface' => $surface, 'rough' => $rough]);
+        $corner = static fn (int $radius, int $angle, string $turn, ?string $surface = null, ?int $rough = null): array => $line(['type' => 'corner', 'radius_m' => $radius, 'angle_deg' => $angle, 'turn' => $turn, 'surface' => $surface, 'rough' => $rough]);
+
+        return match ($name) {
+            'city' => ['mode' => 'circuit', 'return_s' => null, 'sections' => [
+                $straight(160), $corner(70, 90, 'right'), $straight(347), $corner(40, 90, 'left'), $straight(15), $corner(90, 90, 'right'), $straight(475), $corner(28, 180, 'right'),
+                $straight(318), $corner(80, 45, 'left'), $straight(462), $corner(80, 45, 'right'), $straight(209), $corner(55, 90, 'right'),
+            ]],
+            'drag' => ['mode' => 'run', 'return_s' => 5, 'sections' => [$straight(800)]],
+            'hillclimb' => ['mode' => 'run', 'return_s' => 60, 'sections' => [
+                $straight(180), $corner(24, 170, 'right'), $straight(140), $corner(24, 170, 'left'), $straight(140), $corner(24, 170, 'right'), $straight(140), $corner(24, 170, 'left'), $straight(200),
+            ]],
+            'rally' => ['mode' => 'circuit', 'return_s' => null, 'sections' => [
+                $straight(410, 'asphalt'), $corner(100, 90, 'right', 'asphalt'), $straight(260, 'gravel', 35), $corner(45, 90, 'right', 'gravel', 35), $straight(520, 'gravel', 35),
+                $corner(45, 90, 'right', 'gravel', 35), $straight(260, 'asphalt'), $corner(100, 90, 'right', 'asphalt'),
+            ]],
+            'oval' => ['mode' => 'circuit', 'return_s' => null, 'sections' => [$straight(600), $corner(150, 180, 'right'), $straight(600), $corner(150, 180, 'right')]],
+            default => ['mode' => 'circuit', 'return_s' => null, 'sections' => []],
+        };
+    }
+
+    /**
      * The sections with every corner turning the other way: the same track in the mirror.
      *
      * @param  list<array<string, mixed>>  $sections
