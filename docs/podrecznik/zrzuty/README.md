@@ -18,6 +18,10 @@ Skrypt kończy się kodem 1 i wypisuje listę, gdy któryś znacznik nie znalaz�
 
 Jedno uruchomienie loguje się raz. Kilka uruchomień w ciągu minuty (na przykład przy poprawianiu jednego ekranu) może zatrzymać logowanie zabezpieczeniem panelu przed zgadywaniem haseł: skrypt kończy się wtedy błędem „Nie udało się zalogować”. Poczekaj minutę i uruchom go jeszcze raz.
 
+## Kontrola spójności
+
+`node docs/podrecznik/zrzuty/sprawdz.mjs` nie robi zrzutów i nie potrzebuje serwera. Sprawdza, że spis treści prowadzi do nagłówków i zawiera wszystkie rozdziały, że numeracja rozdziałów jest ciągła, że „rozdział N” w tekście wskazuje rozdział, który jest, że każdy ekran z `strony.json` ma plik obrazka, użyty w podręczniku raz, i blok legendy z tylu wierszami, ile jest znaczników, oraz że odnośniki do plików prowadzą do plików. Uruchom go po każdej zmianie podręcznika; kończy się kodem 1 i listą niezgodności.
+
 ## Wymagania
 
 - Node.js 22 lub nowszy (ma `WebSocket` i `fetch`), skrypt nie ma zależności z npm.
