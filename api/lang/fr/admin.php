@@ -963,6 +963,11 @@ return [
         ],
     ],
     'pending' => [
+        'thread_group' => 'Tracé de :track',
+        'thread_place' => 'Place de la section :section',
+        'thread_section_field' => 'Section :number : :field',
+        'thread_added' => 'Section :number ajoutée',
+        'thread_removed' => 'Section :number supprimée',
         'nav' => 'Modifications à publier',
         'title' => 'Modifications à publier',
         'intro' => 'C’est la différence entre les brouillons et ce que contient le paquet en ligne. Rien ici ne change le jeu : un paquet se demande sur la page Publications et passe les barrières avant de pouvoir être mis en ligne.',

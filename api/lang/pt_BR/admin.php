@@ -963,6 +963,11 @@ return [
         ],
     ],
     'pending' => [
+        'thread_group' => 'Traçado de :track',
+        'thread_place' => 'Posição do trecho :section',
+        'thread_section_field' => 'Trecho :number: :field',
+        'thread_added' => 'Trecho :number adicionado',
+        'thread_removed' => 'Trecho :number removido',
         'nav' => 'Mudanças a publicar',
         'title' => 'Mudanças a publicar',
         'intro' => 'Esta é a diferença entre os rascunhos e o que o pacote no ar tem. Nada aqui muda o jogo: um pacote é pedido na página Publicações e passa pelas barreiras antes de poder ir ao ar.',

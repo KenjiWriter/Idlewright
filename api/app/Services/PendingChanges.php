@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Services;
 
 use App\Content\Definitions\DocumentDiff;
+use App\Content\Definitions\ThreadDiff;
 use App\Content\Studio\Parameter;
 use App\Content\Studio\ParameterCatalog;
+use App\Filament\Support\FieldHelp;
 use App\Models\ContentDefinition;
 use Illuminate\Support\Str;
 
@@ -48,12 +50,18 @@ final class PendingChanges
 
             $changes = DocumentDiff::between($published, $draft);
             $numbers = $definition->kind === ContentDefinition::KIND_RULES ? $this->numbers($catalog ??= ParameterCatalog::ofTheGame(), $draft, $published) : [];
+            $threads = [];
+
+            // The sections of a thread are said as a person would say it (this one moved, that one changed), not place by place.
+            if ($definition->kind === ContentDefinition::KIND_RULES) {
+                [$changes, $threads] = $this->threads($changes, $published, $draft);
+            }
 
             $entries[] = [
                 'definition' => $definition,
-                'state' => $changes === [] ? self::SAME : self::CHANGED,
-                'count' => count($changes),
-                'changes' => array_map(fn (array $change): array => $this->described($change, $numbers), array_slice($changes, 0, self::LISTED)),
+                'state' => $changes === [] && $threads === [] ? self::SAME : self::CHANGED,
+                'count' => count($changes) + count($threads),
+                'changes' => array_slice([...array_map(fn (array $change): array => $this->described($change, $numbers), $changes), ...$threads], 0, self::LISTED),
             ];
         }
 
@@ -64,6 +72,95 @@ final class PendingChanges
     public function waiting(): int
     {
         return ContentDefinition::query()->whereNotNull('draft')->count();
+    }
+
+    /**
+     * The changes of the sections of the threads taken out of the list of changes, and said by what was done to the sections instead.
+     *
+     * @param  list<array{pointer: string, type: string, from: mixed, to: mixed}>  $changes
+     * @param  array<string, mixed>  $published
+     * @param  array<string, mixed>  $draft
+     * @return array{0: list<array{pointer: string, type: string, from: mixed, to: mixed}>, 1: list<array{type: string, group: string|null, label: string, from: string|null, to: string|null}>}
+     */
+    private function threads(array $changes, array $published, array $draft): array
+    {
+        $tracks = [];
+        $rest = [];
+
+        foreach ($changes as $change) {
+            if (preg_match('#^/tracks/([^/]+)/thread/sections(/|$)#', $change['pointer'], $matches) === 1) {
+                $tracks[str_replace(['~1', '~0'], ['/', '~'], $matches[1])] = true;
+            } else {
+                $rest[] = $change;
+            }
+        }
+
+        $lines = [];
+
+        foreach (array_keys($tracks) as $track) {
+            $track = (string) $track;
+            $group = __('admin.pending.thread_group', ['track' => $track]);
+
+            foreach (ThreadDiff::between((array) ($published['tracks'][$track]['thread']['sections'] ?? []), (array) ($draft['tracks'][$track]['thread']['sections'] ?? [])) as $operation) {
+                foreach ($this->threadLines($operation, $group) as $line) {
+                    $lines[] = $line;
+                }
+            }
+        }
+
+        return [$rest, $lines];
+    }
+
+    /**
+     * What was done to one section, as the rows of the table.
+     *
+     * @param  array{op: string, from: int|null, to: int|null, section: array<string, mixed>, fields: array<string, array{0: mixed, 1: mixed}>}  $operation
+     * @return list<array{type: string, group: string|null, label: string, from: string|null, to: string|null}>
+     */
+    private function threadLines(array $operation, string $group): array
+    {
+        $summary = $this->sectionSummary($operation['section']);
+
+        return match ($operation['op']) {
+            ThreadDiff::MOVED => [['type' => 'changed', 'group' => $group, 'label' => __('admin.pending.thread_place', ['section' => $summary]), 'from' => (string) $operation['from'], 'to' => (string) $operation['to']]],
+            ThreadDiff::ADDED => [['type' => 'added', 'group' => $group, 'label' => __('admin.pending.thread_added', ['number' => $operation['to']]), 'from' => null, 'to' => $summary]],
+            ThreadDiff::REMOVED => [['type' => 'removed', 'group' => $group, 'label' => __('admin.pending.thread_removed', ['number' => $operation['from']]), 'from' => $summary, 'to' => null]],
+            default => array_values(array_map(
+                fn (string $field, array $values): array => [
+                    'type' => 'changed',
+                    'group' => $group,
+                    'label' => __('admin.pending.thread_section_field', ['number' => $operation['to'], 'field' => $this->fieldName($field)]),
+                    'from' => $this->fieldValue($field, $values[0]),
+                    'to' => $this->fieldValue($field, $values[1]),
+                ],
+                array_keys($operation['fields']),
+                $operation['fields'],
+            )),
+        };
+    }
+
+    /** @param  array<string, mixed>  $section */
+    private function sectionSummary(array $section): string
+    {
+        return ($section['type'] ?? null) === 'corner'
+            ? __('admin.thread.corner_label', ['radius' => $section['radius_m'] ?? '?', 'angle' => $section['angle_deg'] ?? '?'])
+            : __('admin.thread.straight_label', ['length' => $section['length_m'] ?? '?']);
+    }
+
+    private function fieldName(string $field): string
+    {
+        $key = ['length_m' => 'length', 'radius_m' => 'radius', 'angle_deg' => 'angle', 'limit_kmh' => 'limit'][$field] ?? $field;
+
+        return (string) (FieldHelp::entry('thread.'.$key)['label'] ?? $field);
+    }
+
+    private function fieldValue(string $field, mixed $value): ?string
+    {
+        return match (true) {
+            $value === null => null,
+            $field === 'turn' || $field === 'surface' => FieldHelp::options('thread.'.$field, [(string) $value])[(string) $value] ?? (string) $value,
+            default => (string) $value,
+        };
     }
 
     /**

@@ -105,6 +105,48 @@ describe('what the drafts would change', function () {
             ->and($change['label'])->not->toStartWith('/');
     });
 
+    it('says the sections of a thread the way a person would: one moved, one changed, none of the others touched', function () {
+        signedInAdmin();
+        pendingDraft(pendingDefinition(ContentDefinition::KIND_RULES, 'starter'), function (array &$document): void {
+            $sections = $document['tracks']['zlomowo-street']['thread']['sections'];
+            // The last section is moved to the front, and the fourth gets a speed limit (a thread that is still as long as the track says).
+            $moved = array_pop($sections);
+            array_unshift($sections, $moved);
+            $sections[3]['limit_kmh'] = 70;
+            $document['tracks']['zlomowo-street']['thread']['sections'] = $sections;
+        });
+
+        $entry = app(PendingChanges::class)->all()[0];
+        $changes = $entry['changes'];
+
+        // Two lines, not a line for every place of the list between the two.
+        expect($entry['count'])->toBe(2)
+            ->and($changes)->toHaveCount(2)
+            ->and($changes[0])->toMatchArray(['type' => 'changed', 'group' => 'Nitka toru zlomowo-street', 'from' => '14', 'to' => '1'])
+            ->and($changes[0]['label'])->toContain('R55')
+            ->and($changes[1])->toMatchArray(['type' => 'changed', 'from' => null, 'to' => '70'])
+            ->and($changes[1]['label'])->toStartWith('Odcinek 4: ');
+    });
+
+    it('says a section that was added or taken away, and leaves the other changes of the rules as they were', function () {
+        signedInAdmin();
+        pendingDraft(pendingDefinition(ContentDefinition::KIND_RULES, 'starter'), function (array &$document): void {
+            // The first corner (R70, 90 degrees: an arc of 110 m) is taken away, and the track is as long as the sections that are left.
+            array_splice($document['tracks']['zlomowo-street']['thread']['sections'], 1, 1);
+            $document['tracks']['zlomowo-street']['length_m'] -= 110;
+            $document['player']['other_cars_xp_ppm'] = 250_000;
+        });
+
+        $changes = app(PendingChanges::class)->all()[0]['changes'];
+        $removed = array_values(array_filter($changes, static fn (array $change): bool => $change['type'] === 'removed'));
+
+        // One line for the section that went, one for the length of the track, one for the number of the rules that was changed: not a line for every place of the list.
+        expect($changes)->toHaveCount(3)
+            ->and($removed)->toHaveCount(1)
+            ->and($removed[0])->toMatchArray(['label' => 'Usunięto odcinek 2', 'to' => null])
+            ->and(collect($changes)->pluck('to')->contains('25%'))->toBeTrue();
+    });
+
     it('says a draft that says what was published has no difference', function () {
         signedInAdmin();
         // The panel keeps no draft that says what was published; one can still be left when the pack that is live was made from the same document.

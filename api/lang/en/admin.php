@@ -999,6 +999,11 @@ return [
         ],
     ],
     'pending' => [
+        'thread_group' => 'Thread of :track',
+        'thread_place' => 'Place of :section',
+        'thread_section_field' => 'Section :number: :field',
+        'thread_added' => 'Section :number added',
+        'thread_removed' => 'Section :number taken away',
         'nav' => 'Changes to publish',
         'title' => 'Changes to publish',
         'intro' => 'This is the difference between the drafts and what the live pack has. Nothing here changes the game: a pack is asked for on the Publications page, and it goes through the gates before it can be made live.',

@@ -963,6 +963,11 @@ return [
         ],
     ],
     'pending' => [
+        'thread_group' => 'Streckenverlauf von :track',
+        'thread_place' => 'Platz von :section',
+        'thread_section_field' => 'Abschnitt :number: :field',
+        'thread_added' => 'Abschnitt :number hinzugefügt',
+        'thread_removed' => 'Abschnitt :number entfernt',
         'nav' => 'Änderungen zur Veröffentlichung',
         'title' => 'Änderungen zur Veröffentlichung',
         'intro' => 'Das ist der Unterschied zwischen den Entwürfen und dem, was das aktive Paket hat. Hier ändert sich nichts am Spiel: Ein Paket wird auf der Seite Veröffentlichungen angefordert und durchläuft die Prüfungen, bevor es aktiv geschaltet werden kann.',

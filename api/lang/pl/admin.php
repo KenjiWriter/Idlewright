@@ -999,6 +999,11 @@ return [
         ],
     ],
     'pending' => [
+        'thread_group' => 'Nitka toru :track',
+        'thread_place' => 'Miejsce odcinka: :section',
+        'thread_section_field' => 'Odcinek :number: :field',
+        'thread_added' => 'Dodano odcinek :number',
+        'thread_removed' => 'Usunięto odcinek :number',
         'nav' => 'Zmiany do publikacji',
         'title' => 'Zmiany do publikacji',
         'intro' => 'To jest różnica między szkicami a tym, co ma żywa paczka. Nic tu nie zmienia gry: paczkę zleca się na stronie Publikacje i przechodzi ona bramki, zanim da się ją uruchomić.',
