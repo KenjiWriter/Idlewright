@@ -1,6 +1,6 @@
 # Podręcznik operatora panelu Idlewright
 
-Ten podręcznik jest dla osoby, która ma zmieniać grę w panelu administracyjnym: dodać auto, poprawić cenę, ustawić tory, przepisać słowa aplikacji, postawić nową grę na własnej domenie, a potem bezpiecznie opublikować zmianę. Nie musisz znać kodu. Po przeczytaniu rozdziałów 1–9 umiesz: zalogować się z kodem z telefonu, wybrać grę, edytować auta i części, świat, reguły (Studio, tryb prosty), słownik i markę, obejrzeć graczy, opublikować zmianę przez bramki i wdrożyć domenę z certyfikatem. Rozdział 13 uczy zmieniać wiele rzeczy naraz rozmową z asystentem AI.
+Ten podręcznik jest dla osoby, która ma zmieniać grę w panelu administracyjnym: dodać auto, poprawić cenę, ustawić tory, przepisać słowa aplikacji, postawić nową grę na własnej domenie, a potem bezpiecznie opublikować zmianę. Nie musisz znać kodu. Po przeczytaniu rozdziałów 1–9 umiesz: zalogować się z kodem z telefonu, wybrać grę, edytować auta i części, świat, reguły (Studio, tryb prosty), słownik i markę, obejrzeć graczy, opublikować zmianę przez bramki i wdrożyć domenę z certyfikatem. Rozdział 17 uczy zmieniać wiele rzeczy naraz rozmową z asystentem AI, a rozdziały 13–16 opisują strony kursów i zleceń, bonusów części, klas aut i powiadomień push.
 
 Krótka wersja, z tym samym planem, jest w [README](../README.md) (sekcja „Instrukcja obsługi panelu”). Tu jest wersja pełna: krok po kroku, z przykładami z liczbami prawdziwej gry RideIdle.
 
@@ -26,8 +26,12 @@ Krótka wersja, z tym samym planem, jest w [README](../README.md) (sekcja „Ins
 10. [Wycofanie zmian](#10-wycofanie-zmian)
 11. [Gracze i dziennik](#11-gracze-i-dziennik)
 12. [Płatne funkcje i misje](#12-płatne-funkcje-i-misje)
-13. [Most AI: zmiany rozmową z asystentem](#13-most-ai-zmiany-rozmową-z-asystentem)
-14. [Co robić, gdy coś nie działa](#14-co-robić-gdy-coś-nie-działa)
+13. [Kursy i zlecenia](#13-kursy-i-zlecenia)
+14. [Bonusy części](#14-bonusy-części)
+15. [Klasy aut (F–SS) i PI](#15-klasy-aut-fss-i-pi)
+16. [Powiadomienia push](#16-powiadomienia-push)
+17. [Most AI: zmiany rozmową z asystentem](#17-most-ai-zmiany-rozmową-z-asystentem)
+18. [Co robić, gdy coś nie działa](#18-co-robić-gdy-coś-nie-działa)
 - [Dodatek A. Jak odtworzyć zrzuty tego podręcznika](#dodatek-a-jak-odtworzyć-zrzuty-tego-podręcznika)
 
 ## Najważniejsza zasada: jak zmiana trafia do graczy
@@ -237,7 +241,7 @@ Dodamy „Rdzak GT-9”, mocniejszego brata istniejącego Rdzaka GT-4 (hatchback
 - **Wycofaj z oferty:** auta nie da się już kupić ani wylosować, ale gracze, którzy je mają, nadal je mają i używają. **Przywróć do oferty** odwraca to.
 - **Zarchiwizuj:** usuwa auto z kolejnych paczek; działa tylko wtedy, gdy nikt go nie używa.
 - **Usuń szkic:** tylko dla definicji, która nigdy nie była opublikowana.
-- **Przygotuj dla AI (ten rekord):** instrukcja dla asystenta AI dotycząca tylko tego auta (rozdział 13).
+- **Przygotuj dla AI (ten rekord):** instrukcja dla asystenta AI dotycząca tylko tego auta (rozdział 17).
 
 ---
 
@@ -315,7 +319,12 @@ Miasto ma własną pogodę (szanse wpisuje się w **procentach**), garaże, wars
 
 ### Tory
 
-Tor ma rodzaj (standardowy, sprint, wytrzymałościowy i inne; puste pole to standard), miasto, nawierzchnię, a gdy jedzie się po kilku nawierzchniach (rajd), mieszankę nawierzchni z udziałami. Do tego poziom kierowcy, od którego tor jest otwarty, i to, czy jest oświetlony nocą.
+Tor ma **rodzaj**, miasto, nawierzchnię, poziom kierowcy, od którego tor jest otwarty, i to, czy jest oświetlony nocą. Rodzaj mówi, czego tor wymaga od kierowcy, i ustala obciążenie silnika, a więc paliwo okrążenia: sprint spala 12 ml na sekundę okrążenia, standard 20, dystans 32 (te liczby są w Studiu, pole „Paliwo na sekundę okrążenia”). Rodzaj jest też etykietą na liście torów gracza i grupą, którą liczy bramka balansu.
+
+- **Sprint:** okrążenie 10–15 s, mało wypłaty i mało paliwa za okrążenie; zbiornik starcza na ok. godzinę.
+- **Standardowy** (puste pole): okrążenie ok. minuty lub dłuższe, zwykła wypłata i zużycie paliwa.
+- **Dystans:** okrążenie rzędu minut, dużo wypłaty i zbiornik opróżniony w ok. dwadzieścia minut, więc łapczywe auta zarabiają na nim mniej.
+- **Rajd:** okrążenie po mieszance asfaltu i żwiru, które dobrze płaci i pali więcej niż zwykły tor; żadne auto nie powinno być najlepsze w więcej niż dwóch rajdach.
 
 **Długość okrążenia jest źródłem liczb toru.** Okrążenie wzorcowe to długość podzielona przez prędkość toru, więc dłuższy tor trwa dłużej, a szybsze auto pokonuje ten sam dystans szybciej, chyba że tor ma utrudnienia (dlatego prędkość toru jest średnia z zakrętami, nawierzchnią i ruchem). Paliwo wynika z rodzaju toru i czasu, a wypłata i XP są liczone **na godzinę jazdy**, więc krótszy tor nie płaci więcej za samo bycie krótkim. Pod formularzem toru jest linia „Auto wzorcowe”, która mówi, co z tych liczb wyjdzie.
 
@@ -324,19 +333,52 @@ Tor ma rodzaj (standardowy, sprint, wytrzymałościowy i inne; puste pole to sta
 <!-- legenda:swiat-tory -->
 1. **Slug toru.** Krótka nazwa, którą biegi i reszta reguł wskazują ten tor. Nazwę widzianą przez graczy wpisujesz niżej. Zakres: Do 64 znaków: małe litery, cyfry i pojedyncze myślniki; inny dla każdego toru. Przykład: zlomowo-street, kruszyn-gravel-sprint. Wskazówka: Stały, gdy gracze jeżdżą na torze: zmiana sluga to usunięcie toru i dodanie nowego, czego zapis szkicu nie przyjmie, dopóki jakieś auto tam jeździ.
 2. **Rodzaj.** Czego tor wymaga od kierowcy: krótkiego sprintu, zwykłego okrążenia czy długiego dystansu. Puste pole to tor standardowy. Wskazówka: Rodzaj ustala obciążenie silnika, a więc paliwo okrążenia: sprint spala 12 ml na sekundę okrążenia, standard 20, dystans 32 (liczby są w Studiu, „Paliwo na sekundę okrążenia”). Jest też etykietą na liście torów gracza i grupą, którą liczy bramka balansu (żadne auto nie wygrywa więcej niż dwóch torów jednego rodzaju).
-3. **Długość okrążenia.** Długość jednego okrążenia: to ona jest źródłem liczb toru. Okrążenie wzorcowe to długość podzielona przez prędkość toru, a paliwo, wypłata i XP za okrążenie rosną razem z długością (to, co daje godzina, i to, na jak długo starcza zbiornik, zostają takie same). Każde okrążenie dodaje też tyle do przebiegu auta i zużywa o tyle jego części. Zakres: Liczba całkowita metrów, co najmniej 1; dla toru z prędkością co najmniej 200 m i okrążenie nie krótsze niż 8 s. Przykład: Tor uliczny Złomowo: 2600 m; Sprint po złomowisku: 420 m; Długi dystans Autodrom: 14 400 m. Wskazówka: Przy tej samej prędkości dłuższy tor to dłuższe okrążenie, więcej paliwa i większa wypłata za okrążenie, a nie większy zarobek na godzinę: ten ustawia „Wypłata na godzinę”. Na bardzo krótkim torze zaokrąglenie XP za okrążenie do całych potrafi zmienić wynik o kilkanaście procent.
-4. **Prędkość toru.** Średnia prędkość auta wzorcowego na tym torze, ze wszystkimi trudnościami wliczonymi: zakrętami, nawierzchnią, wzniesieniami i ruchem. Okrążenie wzorcowe to długość podzielona przez tę prędkość; z jego czasu wynikają paliwo, wypłata i XP za okrążenie. Prawdziwe auto jedzie szybciej lub wolniej zależnie od dopasowania do toru. Zakres: Od 20 do 300 km/h, najwyżej cztery miejsca po przecinku. Przykład: Sprint uliczny Złomowo: 124,8 km/h (2600 m w 75 s); Tor Autodrom: 144 km/h; Kamieniołom Kruszyn (żwir): ok. 91 km/h. Wskazówka: Nie wiesz, ile wpisać? Przycisk „Podpowiedz prędkość” liczy ją z zakrętów, wzniesień i ruchu. Wolniejszy tor to dłuższe okrążenie i więcej paliwa na kilometr; wypłata na godzinę zostaje taka, jaką ustawisz.
-5. **Wypłata na godzinę ($).** Ile dolarów płaci godzina jazdy auta wzorcowego na tym torze w suchą pogodę, zanim zmienią to tier auta, miejsce wśród botów i pogoda. Wpisujesz dolary; gra trzyma centy. Wypłata za okrążenie wychodzi z tej liczby i z czasu okrążenia, więc dłuższy tor nie płaci mniej na godzinę. Zakres: Co najmniej 0,01 $. Przykład: 744 $ (tor uliczny Złomowo: 15,50 $ za okrążenie 75 s), 600 $ (Sprint po złomowisku), 1192,50 $ (Tor Autodrom). Wskazówka: Zarobek na godzinę to wypłata na godzinę minus paliwo na godzinę: to porównują kontrole balansu między torami, więc nowa wypłata zmienia, który tor jest najlepszy na danym poziomie. Deszcz, ulewa i śnieg płacą o 7% mniej (dziś).
-6. **XP na godzinę.** Ile doświadczenia daje godzina jazdy na tym torze w suchą pogodę: podnosi poziom kierowcy, który otwiera nowe miasta, tory i części. XP za okrążenie wychodzi z tej liczby i z czasu okrążenia, zaokrąglone do całych. Szybsze auto dostaje proporcjonalnie mniej za okrążenie, więc w godzinę każde auto daje tyle samo XP. Zakres: Od 0 do 3600, najwyżej dwa miejsca po przecinku. Przykład: 960 XP (tor uliczny Złomowo, 20 XP za okrążenie), 900 XP (Tor Autodrom i sprinty). Wskazówka: Na bardzo krótkim torze zaokrąglenie XP za okrążenie do całych zmienia wynik nawet o jedną piątą; w mokrej pogodzie jest o 7% mniej.
+3. **Poziom kierowcy.** Poziom kierowcy (nie auta), od którego tor jest otwarty. Miasto otwiera się na najniższym poziomie spośród jego torów. Zakres: Liczba całkowita, co najmniej 1. Przykład: Złomowo 1, Kruszyn 3, Suchy Pas 5, Wilcza Przełęcz 8, Autodrom 12. Wskazówka: Pierwszy tor z listy musi mieć 1. Poziom rośnie z XP, więc to główny hamulec tempa, w jakim kierowca poznaje nowe miejsca.
+4. **Oświetlony nocą.** Oświetlony tor jeździ się w nocy tak samo jak za dnia. Na torze bez świateł okrążenie zaczęte w nocy trwa o 3% dłużej (liczba w regułach zegara), a wypłata i XP zostają bez zmian. Wskazówka: Doba gry trwa 3 godziny realne, a noc to 22:00–5:00 czasu gry, czyli ok. 52 minuty z każdych 3 godzin.
+5. **Mieszanka nawierzchni.** Tylko dla toru, którym jedzie się po więcej niż jednej nawierzchni, czyli rajdu: jaka część okrążenia jest na której. Opony auta chwytają tor według tych udziałów, więc rajd wymaga opon, które radzą sobie na obu. Zostaw puste dla toru na jednej nawierzchni.
+6. **Opony auta odniesienia.** Tylko gdy opony seryjne nie są tym, czego tor wymaga (żwir): rywale (boty) w wyścigu są zrobieni wokół auta z tymi oponami. Bez tego mają opony seryjne. Zmienia to tylko rywali, nie to, co gracze mogą zamontować. Przykład: Kamieniołom Kruszyn: Opony terenowe T2 (offroad-tires-t2). Wskazówka: Na żwirze każde auto z oponami seryjnymi jest o sekundę wolniejsze niż z właściwymi, więc stawka botów zrobiona wokół opon seryjnych płaciłaby premię każdemu, kto kupi właściwe. Na asfalcie zostaw puste.
+7. **Długość okrążenia.** Długość jednego okrążenia: to ona jest źródłem liczb toru. Okrążenie wzorcowe to długość podzielona przez prędkość toru, a paliwo, wypłata i XP za okrążenie rosną razem z długością (to, co daje godzina, i to, na jak długo starcza zbiornik, zostają takie same). Każde okrążenie dodaje też tyle do przebiegu auta i zużywa o tyle jego części. Zakres: Liczba całkowita metrów, co najmniej 1; dla toru z prędkością co najmniej 200 m i okrążenie nie krótsze niż 8 s. Przykład: Tor uliczny Złomowo: 2600 m; Sprint po złomowisku: 420 m; Długi dystans Autodrom: 14 400 m. Wskazówka: Przy tej samej prędkości dłuższy tor to dłuższe okrążenie, więcej paliwa i większa wypłata za okrążenie, a nie większy zarobek na godzinę: ten ustawia „Wypłata na godzinę”. Na bardzo krótkim torze zaokrąglenie XP za okrążenie do całych potrafi zmienić wynik o kilkanaście procent.
+8. **Prędkość toru.** Średnia prędkość auta wzorcowego na tym torze, ze wszystkimi trudnościami wliczonymi: zakrętami, nawierzchnią, wzniesieniami i ruchem. Okrążenie wzorcowe to długość podzielona przez tę prędkość; z jego czasu wynikają paliwo, wypłata i XP za okrążenie. Prawdziwe auto jedzie szybciej lub wolniej zależnie od dopasowania do toru. Zakres: Od 20 do 300 km/h, najwyżej cztery miejsca po przecinku. Przykład: Sprint uliczny Złomowo: 124,8 km/h (2600 m w 75 s); Tor Autodrom: 144 km/h; Kamieniołom Kruszyn (żwir): ok. 91 km/h. Wskazówka: Nie wiesz, ile wpisać? Przycisk „Podpowiedz prędkość” liczy ją z zakrętów, wzniesień i ruchu. Wolniejszy tor to dłuższe okrążenie i więcej paliwa na kilometr; wypłata na godzinę zostaje taka, jaką ustawisz.
+9. **Wypłata na godzinę ($).** Ile dolarów płaci godzina jazdy auta wzorcowego na tym torze w suchą pogodę, zanim zmienią to tier auta, miejsce wśród botów i pogoda. Wpisujesz dolary; gra trzyma centy. Wypłata za okrążenie wychodzi z tej liczby i z czasu okrążenia, więc dłuższy tor nie płaci mniej na godzinę. Zakres: Co najmniej 0,01 $. Przykład: 744 $ (tor uliczny Złomowo: 15,50 $ za okrążenie 75 s), 600 $ (Sprint po złomowisku), 1192,50 $ (Tor Autodrom). Wskazówka: Zarobek na godzinę to wypłata na godzinę minus paliwo na godzinę: to porównują kontrole balansu między torami, więc nowa wypłata zmienia, który tor jest najlepszy na danym poziomie. Deszcz, ulewa i śnieg płacą o 7% mniej (dziś).
+10. **XP na godzinę.** Ile doświadczenia daje godzina jazdy na tym torze w suchą pogodę: podnosi poziom kierowcy, który otwiera nowe miasta, tory i części. XP za okrążenie wychodzi z tej liczby i z czasu okrążenia, zaokrąglone do całych. Szybsze auto dostaje proporcjonalnie mniej za okrążenie, więc w godzinę każde auto daje tyle samo XP. Zakres: Od 0 do 3600, najwyżej dwa miejsca po przecinku. Przykład: 960 XP (tor uliczny Złomowo, 20 XP za okrążenie), 900 XP (Tor Autodrom i sprinty). Wskazówka: Na bardzo krótkim torze zaokrąglenie XP za okrążenie do całych zmienia wynik nawet o jedną piątą; w mokrej pogodzie jest o 7% mniej.
 <!-- /legenda -->
 
 ### Przykład: jak liczby toru przekładają się na zarobek
 
 Tor „Sprint uliczny Złomowo” ma długość 2600 m i prędkość 124,8 km/h. Linia pod formularzem liczy z tego: okrążenie wzorcowe 1 min 15 s, 48 okrążeń na godzinę, paliwo około 1,50 l na okrążenie, wypłata 15,50 $ i 20 XP za okrążenie (744 $ i 960 XP na godzinę). Gdy podniesiesz wypłatę na godzinę do 800 $, okrążenie zacznie płacić około 16,70 $, a cała zmiana zadziała dopiero po paczce.
 
+### Rajd: mieszanka nawierzchni i opony odniesienia
+
+Tor rajdowy jedzie się po więcej niż jednej nawierzchni. W polu **Mieszanka nawierzchni** wpisujesz, jaka część okrążenia jest na której (udziały dają razem 100%): opony auta chwytają tor według tych udziałów, więc rajd wymaga opon, które radzą sobie na obu nawierzchniach. Zestaw zostaje pusty dla toru na jednej nawierzchni. Na zrzucie „Rajd leśny pod Kruszynem” ma rodzaj Rajd, nawierzchnię żwir i mieszankę, w której żwir to 63% okrążenia (reszta, 37%, to asfalt). Pole **Opony auta odniesienia** ustawia się tylko wtedy, gdy opony seryjne nie są tym, czego tor wymaga (żwir): rywale w wyścigu są wtedy zrobieni wokół auta z tymi oponami.
+
+![Świat: tor rajdowy](img/podrecznik-swiat-tory-rajd.png)
+
+<!-- legenda:swiat-tory-rajd -->
+1. **Slug toru.** Krótka nazwa, którą biegi i reszta reguł wskazują ten tor. Nazwę widzianą przez graczy wpisujesz niżej. Zakres: Do 64 znaków: małe litery, cyfry i pojedyncze myślniki; inny dla każdego toru. Przykład: zlomowo-street, kruszyn-gravel-sprint. Wskazówka: Stały, gdy gracze jeżdżą na torze: zmiana sluga to usunięcie toru i dodanie nowego, czego zapis szkicu nie przyjmie, dopóki jakieś auto tam jeździ.
+2. **Rodzaj.** Czego tor wymaga od kierowcy: krótkiego sprintu, zwykłego okrążenia czy długiego dystansu. Puste pole to tor standardowy. Wskazówka: Rodzaj ustala obciążenie silnika, a więc paliwo okrążenia: sprint spala 12 ml na sekundę okrążenia, standard 20, dystans 32 (liczby są w Studiu, „Paliwo na sekundę okrążenia”). Jest też etykietą na liście torów gracza i grupą, którą liczy bramka balansu (żadne auto nie wygrywa więcej niż dwóch torów jednego rodzaju).
+3. **Mieszanka nawierzchni.** Tylko dla toru, którym jedzie się po więcej niż jednej nawierzchni, czyli rajdu: jaka część okrążenia jest na której. Opony auta chwytają tor według tych udziałów, więc rajd wymaga opon, które radzą sobie na obu. Zostaw puste dla toru na jednej nawierzchni.
+4. **Nawierzchnia.** Jedna z nawierzchni, z których jest tor: asfalt albo żwir. Pogoda moczy ją albo robi z niej błoto tak samo jak resztę okrążenia.
+5. **Udział okrążenia (%).** Jaka część okrążenia jest na tej nawierzchni, w procentach. Udziały toru dają razem 100.
+6. **Opony auta odniesienia.** Tylko gdy opony seryjne nie są tym, czego tor wymaga (żwir): rywale (boty) w wyścigu są zrobieni wokół auta z tymi oponami. Bez tego mają opony seryjne. Zmienia to tylko rywali, nie to, co gracze mogą zamontować. Przykład: Kamieniołom Kruszyn: Opony terenowe T2 (offroad-tires-t2). Wskazówka: Na żwirze każde auto z oponami seryjnymi jest o sekundę wolniejsze niż z właściwymi, więc stawka botów zrobiona wokół opon seryjnych płaciłaby premię każdemu, kto kupi właściwe. Na asfalcie zostaw puste.
+<!-- /legenda -->
+
+### Auto odniesienia toru i przycisk „Weź z auta”
+
+Niżej w formularzu toru są dwie listy. **Czego wymaga tor** to udziały statystyk (razem dokładnie 100%). **Auto odniesienia** to dla każdej statystyki wartość, przy której auto jest dla tego toru dokładnie „normalne”: auto powyżej niej jedzie okrążenie szybciej, poniżej wolniej. Każda statystyka z „Czego wymaga tor” potrzebuje tu wartości. Przycisk z ikoną ciężarówki (**„Weź z auta”**, przy nagłówku „Auto odniesienia”) wypełnia te wartości statystykami auta z gry, z jakim startuje i z częściami, z którymi startuje; bierze je z **opublikowanej paczki**, nie ze szkiców, w liczbach całkowitych, a każdą możesz potem zmienić.
+
+![Świat: wymagania toru i auto odniesienia](img/podrecznik-swiat-tory-wymagania.png)
+
+<!-- legenda:swiat-tory-wymagania -->
+1. **Czego wymaga tor.** Ile liczy się każda statystyka auta na tym torze, w procentach: statystyka z dużym udziałem mocniej decyduje o okrążeniu. Udziały wszystkich linii muszą dawać razem dokładnie 100. Zakres: Każdy udział 1 – 100, razem 100. Przykład: Drag Suchy Pas: Przyspieszenie 50, Prędkość maks. 15, Przyczepność 25, Prowadzenie 5, Hamowanie 5. Kamieniołom Kruszyn: Terenowość 35, Przyczepność 25, Prowadzenie 25, Hamowanie 10, Przyspieszenie 5. Wskazówka: Każda statystyka wymagana tutaj musi mieć też linię w „Aucie odniesienia”. Statystyka, której tu nie ma, nie liczy się na tym torze wcale.
+2. **Auto odniesienia.** Dla każdej statystyki: wartość, przy której auto jest dla tego toru dokładnie „normalne”. Auto powyżej niej jeździ okrążenie szybciej, poniżej wolniej (wartość auta liczy się od 0,2 do 1,6 razy tyle co odniesienie). Przykład: Tor uliczny Złomowo: Przyspieszenie 97, Prędkość maks. 175, Przyczepność 90, Prowadzenie 88, Hamowanie 90; fabryczny Rdzak GT-4 pasuje do niego dokładnie (dopasowanie 100). Wskazówka: Każda statystyka z „Czego wymaga tor” potrzebuje tu wartości odniesienia.
+3. **Weź z auta.** Wypełnia auto wzorcowe statystykami auta z gry takiego, z jakim startuje, z częściami, z którymi startuje (z opublikowanej paczki, nie ze szkiców). To, co jest teraz w liniach, zostaje zastąpione. Tor jeżdżony po nitce potrzebuje wszystkich pięciu statystyk modelu.
+<!-- /legenda -->
+
+Tor, którego auto odniesienia nie ma wartości któregoś z pięciu statystyk modelu (przyspieszenie, prędkość maks., przyczepność, prowadzenie, hamowanie), dostaje w grze tylko linię toru, bez zdania o tym, co auto robi dobrze (według dokumentacji nitki toru dziś są to trzy tory Kruszyna: żwirowe referencje nie mają prędkości maksymalnej). Przycisk „Weź z auta” pozwala je uzupełnić, ale to, jaką prędkość maksymalną dać żwirowi, jest decyzją właściciela gry.
+
 ### Nitka toru
 
-Menu Treść → Nitka toru rysuje tor z odcinków (prosta, zakręt i inne), każdy z długością, nawierzchnią, limitem prędkości i nierównością. Strona pokazuje linię toru z góry i pozwala wybrać, czy czas okrążenia liczy wzór statystyczny, czy jazda po nitce.
+Menu Treść → Nitka toru rysuje jeden tor naraz (lista **Tor**) z odcinków: proste i zakręty, każdy z długością albo promieniem i kątem, kierunkiem, nawierzchnią, limitem prędkości i nierównością. Kolejność odcinków zmienia się strzałkami, a przycisk „Duplikuj” robi kopię odcinka. Obok formularza (po każdej zmianie) strona rysuje linię toru z góry, **tak jak ją tworzą odcinki**: pokolorowaną prędkością auta wzorcowego (ciepło to wolno, zielono to szybko), z numerami odcinków i, gdy linia się nie zamyka, czerwoną przerywaną linią do startu. Lista **Czas okrążenia z** mówi, czy czas okrążenia liczy wzór (statystyki auta przez wymagania toru), czy jazda po nitce; przy wzorze nitka tylko rysuje tor. Według dokumentacji nitki wszystkie piętnaście torów ma narysowaną nitkę, ale czas okrążenia liczy nadal wzór; które tory przestawić na nitkę, decyduje właściciel gry, po jednym.
 
 ![Nitka toru](img/podrecznik-nitka-toru.png)
 
@@ -347,7 +389,36 @@ Menu Treść → Nitka toru rysuje tor z odcinków (prosta, zakręt i inne), ka�
 4. **Odcinki.** Nitka jako łańcuch odcinków w kolejności jazdy: proste i zakręty. Kolejność zmieniasz strzałkami; linia obok jest z nich rysowana.
 <!-- /legenda -->
 
-**Jak sprawdzić, że nowy tor nie psuje tempa gry:** zrób paczkę. Bramka `tracks:simulate --strict` pilnuje, że każde opony pytają o swoją nawierzchnię i że żadne auto nie wygrywa więcej niż dwóch torów, a bramka ekonomii mierzy tempo trzech rodzajów graczy na drabince aut. Ten sam pomiar bez paczki daje „Podgląd balansu” w Studiu (rozdział 7). Jeśli bramka zatrzyma paczkę, raport mówi, który tor i co mu przeszkadza (rozdział 9).
+### Narzędzia strony „Nitka toru”
+
+Pod listą odcinków są narzędzia, które oszczędzają ręczne liczenie. Wszystkie działają na szkicu: nic się nie zapisze, dopóki nie zapiszesz szkicu.
+
+![Nitka toru: narzędzia i podgląd](img/podrecznik-nitka-toru-narzedzia.png)
+
+<!-- legenda:nitka-toru-narzedzia -->
+1. **Dodaj gotowy kawałek.** Gotowe kawałki toru: agrafka, ciasny zakręt, szeroki łuk i szykana.
+2. **Odbij linię lustrzanie.** Odbija linię toru lustrzanie.
+3. **Odwróć kierunek jazdy.** Odwraca kierunek jazdy po torze.
+4. **Przeskaluj promienie.** Mnoży promień każdego zakrętu przez liczbę: 1,2 robi zakręty o 20% szersze, 0,8 ciaśniejsze. Promień zostaje między 8 a 1000 m. Pętla zapewne przestanie się zamykać: użyj „Zamknij pętlę”.
+5. **Rozciągnij najdłuższą prostą.** Robi z najdłuższej prostej nitki prostą o podanej długości, w metrach. Pętla zapewne przestanie się zamykać.
+6. **Zamknij pętlę.** Zmienia dwie proste i kąt jednego zakrętu tak, żeby linia wróciła do startu; działa tylko dla przejazdu „Pętla”.
+7. **Zacznij od gotowego toru.** To zastępuje sposób jazdy i wszystkie odcinki toru szablonem. Nic się nie zapisze, dopóki nie zapiszesz szkicu.
+8. **Na co idzie czas okrążenia.** Przyspieszanie, jazda na limicie, hamowanie, zakręty i powrót na start auta wzorcowego.
+9. **Auta: ze wzoru i po nitce.** Ze wzoru to okrążenie, które tor daje dziś; po nitce to okrążenie, które dałby, gdyby jego czas brał się z nitki („Czas okrążenia z” ustawiony na nitkę). Różnica to to, co zmieniłoby przestawienie toru.
+<!-- /legenda -->
+
+- **Gotowe kawałki** (agrafka, ciasny zakręt, szeroki łuk, szykana) dopisują kilka odcinków naraz. **Odbij linię lustrzanie** i **Odwróć kierunek jazdy** zmieniają całą linię.
+- **Zamknij pętlę** rusza tylko trzy liczby: kąt ostatniego zakrętu (tak, żeby zakręty dawały pełny obrót) i długości dwóch prostych (tak, żeby linia wróciła na start). Działa dla przejazdu „Pętla”. Gdy nie może, mówi po ludzku dlaczego: przejazd się nie zamyka, brakuje liczb w odcinku, brakuje zakrętu albo drugiej prostej, zakręty nie dają pełnego obrotu, żadna para prostych nie zamknie linii.
+- **Przeskaluj promienie** i **Rozciągnij najdłuższą prostą** zmieniają kształt; po nich pętla zwykle przestaje się zamykać, więc obok jest „Zamknij pętlę”.
+- **Zacznij od gotowego toru** (ulice miasta, dragster, podjazd, rajd, owal) **zastępuje** sposób jazdy i wszystkie odcinki szablonem i pyta o potwierdzenie.
+- Kliknięcie linii na rysunku przewija listę do odpowiedniego odcinka i na chwilę go obwodzi.
+- Pod rysunkiem są dwa bloki: **na co idzie czas okrążenia** auta wzorcowego (przyspieszanie, jazda na limicie, hamowanie, zakręty, powrót na start) i **auta katalogu: okrążenie ze wzoru i po nitce** z różnicą w procentach, czyli to, jak zmieniłoby się okrążenie każdego auta po przestawieniu toru na nitkę, zanim to zapiszesz.
+
+**Jak sprawdzić, że nowy tor nie psuje tempa gry:** zrób paczkę. Bramka `tracks:simulate --strict` pilnuje, że każde opony pytają o swoją nawierzchnię i że żadne auto nie wygrywa więcej niż dwóch torów, a bramka ekonomii mierzy tempo trzech rodzajów graczy na drabince aut. Ten sam pomiar bez paczki daje „Podgląd balansu” w Studiu (rozdział 7). Dla torów jeżdżonych po nitce `tracks:simulate` liczy też **rozrzut** (najwolniejsze auto podzielone przez najszybsze) i **ostrzega, nie zatrzymując paczki**, gdy jest poniżej 1,15 (tor prawie nic nie wymaga od auta), powyżej 2,2 (większość aut przepada) albo gdy zwycięzca toru wygrywa też co najmniej dwa inne tory. Dlatego przestawiaj tory na nitkę po jednym, patrząc na ostrzeżenia. Jeśli bramka zatrzyma paczkę, raport mówi, który tor i co mu przeszkadza (rozdział 9).
+
+### Co z tego widzi gracz: wybór toru
+
+Na mapie, w mieście, w którym stoi auto gracza, karta każdego toru pokazuje miniaturę jego linii (z nitki), zdanie o tym, czego tor wymaga (tor zakrętów, limitu, mocy albo zrównoważony, z udziału czasu okrążenia auta wzorcowego w zakrętach, na limicie i w przyspieszaniu) oraz pasek: w których grupach (przyspieszanie, limit, hamowanie, zakręty) auto gracza zyskuje albo traci względem auta wzorcowego, i jedno zdanie, gdzie zyskuje najwięcej, a gdzie traci najwięcej. Pokazywane są grupy, w których różnica wynosi co najmniej 2% okrążenia. Na torze, którego czas okrążenia liczy wzór, pasek mówi, że czas okrążenia jest ustalony ręcznie, a pasek opisuje kształt toru, nie ten czas; tor bez pełnego auta odniesienia ma tylko linię. Na ekranie wyścigu auto jedzie po linii toru z prędkością auta takiego, jakie jest teraz, a czas okrążenia zostaje ten, który rozliczenie zamroziło na początku biegu.
 
 ---
 
@@ -513,7 +584,7 @@ Strona zbiera wszystkie szkice gry. Na górze jest podsumowanie („Definicji ze
 
 ### Zrób paczkę
 
-Na stronie **Publikacje** przycisk **„Zrób paczkę z szkiców”** zleca zbudowanie paczki. Paczkę robi zadanie w tle: sprawdza, że nic, czego używają gracze, nie zniknęło, waliduje treść, przelicza tabele pochodne i uruchamia cztery **bramki symulatorów**. Lista pokazuje stan każdej paczki: **Czeka**, **Robi się**, **Gotowa** albo **Zatrzymana** (kolumna „Zatrzymana na” mówi wtedy, na którym kroku).
+Na stronie **Publikacje** przycisk **„Zrób paczkę z szkiców”** zleca zbudowanie paczki. Paczkę robi zadanie w tle: sprawdza, że nic, czego używają gracze, nie zniknęło, waliduje treść, przelicza tabele pochodne i uruchamia pięć **bramek symulatorów**. Lista pokazuje stan każdej paczki: **Czeka**, **Robi się**, **Gotowa** albo **Zatrzymana** (kolumna „Zatrzymana na” mówi wtedy, na którym kroku).
 
 ![Publikacje](img/podrecznik-publikacje.png)
 
@@ -544,7 +615,8 @@ Przycisk otwiera okno: lista szkiców, które wejdą do paczki (dokument i to, c
 | `tracks:simulate --strict` | każde opony pytają o swoją nawierzchnię, teren się liczy, a żadne auto nie wygrywa więcej niż dwóch torów |
 | `economy:simulate --strict --strict-game` | tempo trzech rodzajów graczy po drabince aut jest takie, jak w projekcie; liczby reguł są kotwicami; drabinka poziomów i flota gry są w normie |
 | `missions:budget --strict` | miesiąc nagród misji to zatwierdzony udział gotówki i XP (15–100% gotówki i 5–50% XP z 30 baków dla kierowcy na 12. poziomie) |
-| `tuning:budget --strict` | najlepszy zestaw bonusów części nie zdejmuje z okrążenia więcej, niż zatwierdzono |
+| `tuning:budget --strict` | najlepszy zestaw bonusów części nie zdejmuje z okrążenia więcej, niż zatwierdzono (pułap 12% okrążenia, projekt 10%) |
+| `gigs:report --strict` | godzina kursów nie płaci poza granicami wobec drabiny aut (R1) i nie bije okrążeń tego samego auta na jego najlepszej trasie (R2) |
 
 Bramka, która nie przeszła, **zatrzymuje paczkę** (stan „Zatrzymana”): „Raport” przy paczce wskazuje, która bramka, i pokazuje fragment jej wyjścia. Wróć do formularza, popraw liczbę i zrób paczkę jeszcze raz. Paczka, która się zatrzymała, nie zmienia niczego w grze.
 
@@ -556,7 +628,7 @@ Bramka, która nie przeszła, **zatrzymuje paczkę** (stan „Zatrzymana”): �
 
 <!-- legenda:raport-paczki -->
 1. **Nagłówek raportu.** Numer paczki; niżej stan (tu: Gotowa), numer i suma kontrolna paczki treści, kto ją zamówił i notatka.
-2. **Bramki symulatorów.** Cztery bramki z czasem działania i werdyktem: przeszła albo nie.
+2. **Bramki symulatorów.** Bramki z czasem działania i werdyktem: przeszła albo nie (przy niepowodzeniu także fragment wyjścia).
 3. **Co zmienia paczka.** Dokumenty, które paczka zmienia, i co z nimi zrobiono.
 4. **Tabele pochodne.** Tabele liczone z treści i to, czy się zmieniły (tu: przeliczona, bez zmian).
 5. **Kroki.** Czas każdego kroku zadania, od zbierania szkiców do robienia paczki.
@@ -691,13 +763,202 @@ Strona ma zakładki **Nagrody i okresy**, **Zestawy**, **Misje główne** i **Wa
 
 ---
 
-## 13. Most AI: zmiany rozmową z asystentem
+## 13. Kursy i zlecenia
+
+**Cel:** ustawić zlecenia poboczne gry: tablicę ofert w mieście, to, ile płaci godzina kursu na każdym poziomie, i szablony, z których losowane są oferty.
+
+Menu Treść → Kursy i zlecenia. Strona ma pięć zakładek: **Tablica**, **Wypłata**, **Rodzaje**, **Szablony ofert** i **Nocny kurs**. Ostatnia (okazja, którą może zatrzymać policja) jest jeszcze w budowie i nie jest tu opisana. Jak zwykle: zapis robi szkic, a gracze zobaczą zmianę z następną paczką.
+
+### Jak to działa dla gracza
+
+- Kierowca dostaje zakładkę Kursy po kroku samouczka, który wskazuje formularz („Otwierają się po kroku samouczka”); kierowca, który skończył samouczek, ma ją od razu.
+- Każde miasto ma tablicę ofert. Tablica odświeża się **falami** (na zrzucie 22,5 minuty, tyle co kawałek pogody). W każdej fali pojawiają się nowe oferty: każdy kierowca ma własną tablicę losowaną z ziarna, a oferta zostaje tyle fal, ile mówi jej szablon. Ile ofert dochodzi w fali, zależy od pory dnia (świt, dzień, zmierzch, noc).
+- Wzięty kurs można **wycofać** w ciągu kilkudziesięciu sekund (na zrzucie 60): paliwo wraca, a przepadają tylko okrążenia z tych sekund. Zero wyłącza wycofywanie.
+- Kurs płaci według szczebla drabiny aut (kotwica w dolarach na godzinę po paliwie). Poziom kierowcy zmienia to, jaką część kotwicy płaci kurs, jaki najdłuższy kurs jest na tablicy i ile kursów kierowca może wziąć w ciągu doby. **Rzadkość** oferty (na zrzucie zwykła, dobra i świetna) mnoży wypłatę (100%, 115%, 135%), a jej szansa wynika z wag (700, 250 i 50, czyli 70%, 25% i 5%).
+
+### Tablica
+
+![Kursy i zlecenia: tablica](img/podrecznik-zlecenia.png)
+
+<!-- legenda:zlecenia -->
+1. **Wypłata.** Ile płaci godzina kursu na każdym poziomie: prędkość odniesienia, kotwice drabiny i przedziały poziomów; na dole przycisk „Policz wypłatę”.
+2. **Rodzaje.** Rodzaje kursów (na przykład taksówki, towary, dostawy) z nazwami w językach gry; to znacznik oferty na tablicy.
+3. **Szablony ofert.** Z czego losowane są oferty: co musi mieć auto, jak długa jest trasa, ile płaci i jak jest prawdopodobna o każdej porze dnia.
+4. **Kursy są włączone.** Czy gra ma kursy. Gdy wyłączone, zakładka Kursy mówi, że tablica jest zamknięta, i nie można wziąć nowego kursu; kurs, który już jest w drodze, kończy się i wypłaca jak zwykle. Wskazówka: Włącz dopiero po przeczytaniu wypłaty pod formularzem: bramka publikacji zatrzymuje paczkę, której wypłata jest poza granicami.
+5. **Otwierają się po kroku samouczka.** Krok samouczka, po którym kierowcy otwiera się zakładka Kursy. Kierowca, który skończył samouczek, ma ją od razu. Przykład: away. Wskazówka: Krok musi być w samouczku gry: inaczej strona odmówi zapisu.
+6. **Strefa czasowa.** Strefa czasowa, w której zaczyna się doba dziennego limitu. Sama tablica od niej nie zależy. Przykład: Europe/Warsaw.
+7. **Godzina początku doby.** Godzina w tej strefie, o której zaczyna się doba dziennego limitu. Kurs wzięty przed nią liczy się do poprzedniej doby. Zakres: 0 – 23. Przykład: 4: o 4:00 każdy kierowca ma znów cały limit.
+8. **Minut trwania fali.** Jak długo trwa fala. W każdej fali na tablicy pojawiają się nowe oferty (każdy kierowca ma własną tablicę, losowaną z ziarna), a oferta zostaje tyle fal, ile mówi jej szablon. Zakres: 1 – 60 minut. Przykład: 22,5 minuty to długość jednego kawałka pogody. Wskazówka: Krótka fala sprawia, że tablica często się zmienia i opłaca się do niej zaglądać; długa — że jest spokojna.
+9. **Sekund na wycofanie kursu.** Jak długo po wzięciu kursu kierowca może go wycofać: paliwo wraca, przepadają tylko okrążenia z tych sekund. 0 wyłącza wycofywanie. Zakres: 0 – 600 sekund. Przykład: 60.
+10. **Ofert o danej porze dnia.** Ile ofert dostaje miasto w fali, która zaczyna się w każdej porze dnia: świt, dzień, zmierzch i noc. Oferty, które zostały na tablicy z wcześniejszych fal, dochodzą do tych. Zakres: 0 – 12 każda. Wskazówka: W dostarczonej grze najwięcej ofert ma zmierzch (gorączka taksówek), a najmniej noc.
+11. **Rzadkości oferty.** Jak dobra może być oferta. Każda oferta dostaje rzadkość przy losowaniu: waga to jej szansa wobec pozostałych, a mnożnik wypłaty sprawia, że dobra oferta płaci więcej. Pierwsza to zwykła oferta i musi mieć wagę; najwyżej pięć rzadkości. Przykład: zwykła 700, dobra 250, świetna 50: 70%, 25% i 5% ofert, płacą 100%, 115% i 135%.
+<!-- /legenda -->
+
+Przełącznik „Kursy są włączone” wyłączony zamyka tablicę: nie można wziąć nowego kursu, a kurs, który już jest w drodze, kończy się i wypłaca jak zwykle.
+
+### Wypłata
+
+![Kursy i zlecenia: wypłata](img/podrecznik-zlecenia-wyplata.png)
+
+<!-- legenda:zlecenia-wyplata -->
+1. **Prędkość odniesienia.** Prędkość, przy której liczy się czas kursu do wypłaty (czas odniesienia): kurs na 70 km płaci jak godzina przy 70 km/h, jakim autem by nie jechał. Zakres: 10 – 300 km/h. Przykład: 70. Wskazówka: Auto szybsze od tej wartości zarabia więcej na godzinę własnego czasu, do limitu prędkości.
+2. **Limit prędkości.** Najszybciej, jak auto jedzie na kursie (drogi mają ograniczenia). Auto szybsze od tego nie skończy wcześniej, więc szybkie auto nie robi z kursów bułki z masłem. Zakres: 10 – 300 km/h. Przykład: 80.
+3. **XP kierowcy na godzinę.** Doświadczenie kierowcy za godzinę czasu odniesienia kursu. Zakres: 0 – 3600. Wskazówka: Porównaj z tym, co dają okrążenia; doświadczenie z kursów nie powinno być najszybszą drogą do poziomu.
+4. **XP auta na godzinę.** Doświadczenie auta za godzinę czasu odniesienia kursu. Zakres: 0 – 3600.
+5. **Kotwice drabiny.** Ile płaci godzina jazdy po paliwie na każdym szczeblu drabiny aut, w dolarach. Kurs płaci według szczebla auta, które go robi, czyli tego, do którego należy poziom otwierający to auto. Wiersze zaczynają się od poziomu 1 i każdy jest dla wyższego poziomu niż poprzedni. Przykład: 600 na godzinę na poziomie 1, 690 od poziomu 3. Wskazówka: To kotwice ekonomii (600 razy 1,15 do potęgi szczebla); sprawdza je bramka ekonomii, więc zmieniaj je razem z ekonomią.
+6. **Przedziały poziomów.** Co zmienia poziom kierowcy: jaką część kotwicy płaci kurs, najdłuższy kurs na tablicy i ile kursów kierowca może wziąć w ciągu doby. Rosną z poziomem, bo auto jedzie dłużej na jednym baku, a kurs jest wobec tego warty mniej. Wiersze zaczynają się od poziomu 1 i rosną.
+7. **Policz wypłatę.** Naciśnij przycisk, by zobaczyć, ile płaci godzina każdego szablonu na każdym aucie paczki, z liczbami takimi, jakie są teraz w formularzu (nic się nie zapisuje). To liczby komendy gigs:report.
+8. **Ile płaci godzina zleceń.** R1 to wypłata godziny (po paliwie) wobec szczebla drabiny auta; R2 to to samo wobec okrążeń tego samego auta na jego najlepszej trasie. Zakresy dotyczą aut, które mogą wziąć szablon.
+<!-- /legenda -->
+
+**„Policz wypłatę”** liczy dla szablonów i aut paczki, z liczbami takimi, jakie są teraz w formularzu (nic się nie zapisuje), ile płaci godzina każdego szablonu. Tabela pod przyciskiem ma dla każdego szablonu liczbę aut, które mogą go wziąć, i dwa zakresy: **R1** to wypłata godziny (po paliwie) wobec szczebla drabiny auta, a **R2** to to samo wobec okrążeń tego samego auta na jego najlepszej trasie. Pod tabelą strona mówi wprost, czy **bramka publikacji** (`gigs:report --strict`) przepuści te liczby, czy zatrzymałaby paczkę, i wskazuje wiersze poza granicami z powodem (wypłata godziny poza granicami wobec drabiny albo bije okrążenia tego auta). Zrób to przed zapisaniem szkicu, zamiast czekać na wynik paczki.
+
+### Rodzaje i szablony ofert
+
+Zakładka **Rodzaje** to rodzaje kursów (na przykład taxi, towary, dostawa) z nazwami w pięciu językach: nazwa jest znacznikiem oferty na tablicy, a każdy szablon należy do jednego rodzaju. Zakładka **Szablony ofert** to to, z czego losowane są oferty. Szablon mówi, co musi mieć auto (miejsca albo ładunek, może klasę), jak długa jest trasa, ile płaci i jak jest prawdopodobny o każdej porze dnia. Szablon, którego nie może wziąć żadne auto paczki, nawet w najmniejszej ofercie, jest odrzucany.
+
+![Kursy i zlecenia: szablon oferty](img/podrecznik-zlecenia-szablony.png)
+
+<!-- legenda:zlecenia-szablony -->
+1. **Szablony ofert.** Z czego losowane są oferty. Szablon mówi, co musi mieć auto (miejsca albo ładunek, może klasę), jak długa jest trasa, ile płaci i jak jest prawdopodobny o każdej porze dnia. Szablon, którego nie może wziąć żadne auto paczki, nawet w najmniejszej ofercie, jest odrzucany. Przykład: Kurs taxi po mieście: 1 – 4 osoby, 8 – 14 km, 90% wypłaty, 140% o zmierzchu.
+2. **Klucz szablonu.** Krótka nazwa szablonu, dla osób pracujących nad paczką. Gracze jej nie czytają. Zakres: Małe litery, cyfry i myślniki, zaczyna się od litery. Przykład: taxi-city.
+3. **Rodzaj.** Rodzaj ofert tego szablonu: znacznik na ofercie. Rodzaje są z zakładki Rodzaje.
+4. **Od poziomu.** Poziom kierowcy, od którego oferta jest losowana. Zakres: 1 – 100. Przykład: 1 dla taxi po mieście, 9 dla ładunku hurtowego.
+5. **Co wiezie auto.** Czego oferta wymaga od auta: ludzi czy ładunku. Wskazówka: Auto musi mieć miejsce na wylosowaną ilość.
+6. **Najmniej do przewiezienia.** Najmniej, ile niesie oferta tego szablonu: osób albo kilogramów, zależnie od wyboru obok. Ilość jest losowana między najmniejszą a największą. Zakres: Co najmniej 1; nie więcej niż największa. Przykład: 1 osoba albo 20 kg.
+7. **Rodzaj trasy.** Czy oferta to jazda po mieście, czy do innego miasta. Wskazówka: Trasa do innego miasta jest tak długa, jak droga do niego, więc długość trasy po mieście jej nie dotyczy.
+8. **Wypłata szablonu.** Przez ile procent ten szablon mnoży wypłatę. 100 to zwykła wypłata; hurtowy ładunek, który zajmuje auto na godziny, płaci więcej. Zakres: 10 – 500%. Przykład: 90 dla taxi po mieście, 110 dla ładunku hurtowego. Wskazówka: Bramka publikacji mierzy wynik dla każdego auta, które może wziąć szablon.
+9. **Termin.** Jeśli ustawiony, auto musi skończyć w tej części czasu odniesienia, w procentach (100 to dokładnie czas przy prędkości odniesienia): wolne auto nie weźmie ekspresu. Puste znaczy brak terminu. Zakres: 50 – 500%. Przykład: 100 dla ekspresu.
+<!-- /legenda -->
+
+**Przykład: „Kurs taxi po mieście” (`taxi-city`).** Rodzaj Taxi, od 1. poziomu kierowcy; wymaga miejsc (od 1 do 4 osób), trasa po mieście od 8 do 14 km, zostaje na tablicy jedną falę; wypłata szablonu 90%, a mnożnik wypłaty o porze dnia: świt 100%, dzień 100%, zmierzch 140% (gorączka taksówek o zmierzchu), noc 125%. Pole „Tylko auta klas” zostaje puste, więc kurs może wziąć każde auto, które ma miejsce; pole „Termin” puste znaczy brak terminu (wolne auto nie jest odrzucane).
+
+**Co się stanie w grze i kiedy:** po uruchomieniu paczki nowe fale na tablicach losują z nowych szablonów; kursy, które kierowcy już wzięli, kończą się i wypłacają po staremu.
+
+**Co sprawdzić po zapisaniu:** „Policz wypłatę” pokazuje zielone „Bramka publikacji przepuści te liczby”, a każdy szablon w tabeli ma co najmniej jedno auto, które może go wziąć (szablon, którego nie może wziąć żadne auto, jest odrzucany).
+
+**Jeszcze nie opisane:** zakładka „Nocny kurs” (policja i zatrzymanie) i jej pola; dojdą do podręcznika po zakończeniu prac.
+
+---
+
+## 14. Bonusy części
+
+**Cel:** wiedzieć, jakie bonusy kierowca może włożyć w warsztacie w części, i sprawdzić, czy najlepszy możliwy zestaw nie psuje balansu.
+
+Menu Treść → Bonusy części. To strona **tylko do odczytu**: pokazuje bonusy, a liczby zmienia się w Studiu parametrów (przycisk „Zmień liczby w studiu” prowadzi do Studia; bonusy mają tam sekcję „Bonusy części (dostrajanie)”) i wchodzą do gry z paczką. Ile miejsc na bonusy ma konkretna część, ustawia pole „Miejsca na bonusy” w formularzu części (rozdział 4).
+
+Jak działają bonusy: kierowca w warsztacie „próbuje” bonus; próba losuje wartość z dzwonu wokół średniej bonusu, a ponowna próba bonusu, który miejsce już ma, zostawia lepszą wartość. Na zrzucie: 3 miejsca na część, od poziomu 3, próba kosztuje 3% ceny modelu, wybranie bonusu 10%; jeden bonus daje najwyżej 8% wszędzie albo 12% na niektórych torach, a bonusy wszystkich części razem dają najwyżej 25% jednej statystyki auta.
+
+![Bonusy części](img/podrecznik-bonusy-czesci.png)
+
+<!-- legenda:bonusy-czesci -->
+1. **Podsumowanie.** Bonusy, które kierowca wkłada w warsztacie w części: próba losuje wartość z dzwonu wokół średniej bonusu, a ponowna próba bonusu, który miejsce już ma, zostawia lepszą wartość. Ta strona tylko je pokazuje; liczby zmienia się w studiu parametrów i wchodzą do gry z paczką.
+2. **Zmień liczby w studiu.** Prowadzi do Studia parametrów; ta strona tylko pokazuje bonusy, liczby zmienia się w Studiu.
+3. **Jak działają bonusy części.** Rozwijany opis działania bonusów.
+4. **Bonus.** Nazwa bonusu, jego klucz i to, co zmienia (tu: statystykę auta „accel”); niżej nazwy w pięciu językach.
+5. **Sloty.** W które sloty części można go wylosować.
+6. **Waga w losowaniu.** Szansa bonusu wobec pozostałych.
+7. **Działa.** Na każdym torze albo tylko na wskazanych rodzajach toru, nawierzchniach lub pogodach.
+8. **Co daje próba.** Średnia, rozrzut oraz najmniejsza i największa wartość jednej próby.
+9. **Średnio prób do wartości.** Ile prób średnio trzeba, żeby trafić co najmniej taką wartość.
+<!-- /legenda -->
+
+### Ile jest warty najlepszy zestaw
+
+Na dole strony przycisk **„Policz”** pokazuje, dla aut wzorcowych na torze każdego rodzaju i nawierzchni, ile najlepsze bonusy tych reguł (każdy w największej wartości, jaką da próba, we wszystkich miejscach zestawu ze sklepu) zdejmują z okrążenia w porównaniu z tym samym zestawem bez nich. To liczba, którą ocenia bramka `tuning:budget --strict` przed publikacją paczki.
+
+![Bonusy części: budżet](img/podrecznik-bonusy-budzet.png)
+
+<!-- legenda:bonusy-budzet -->
+1. **Ile jest warty najlepszy zestaw.** Dla aut wzorcowych na torze każdego rodzaju i nawierzchni: ile najlepsze bonusy tych reguł, każdy w największej wartości, jaką da próba, we wszystkich miejscach zestawu ze sklepu, zdejmują z okrążenia w porównaniu z tym samym zestawem bez nich. To liczba, którą ocenia bramka tuning:budget przed publikacją paczki.
+2. **Policz.** Liczy wartość najlepszego zestawu bonusów dla aut wzorcowych; to samo mierzy bramka tuning:budget przed publikacją.
+<!-- /legenda -->
+
+**Jak czytać wynik:** pomarańczowe ostrzeżenie mówi, ile najlepszy zestaw zdejmuje z okrążenia i na którym aucie i torze (na zrzucie 11,0% dla `bizon-m-2` na `kruszyn-quarry-marathon`, ponad 10% z projektu, ale pod zatwierdzonym pułapem 12%, więc bramka to przepuszcza). Linia z haczykiem podaje największy spadek i granicę, powyżej której bramka zawodzi. Tabela pokazuje okrążenie bez bonusów i z nimi, spadek okrążenia w procentach i zmianę dochodu. Gdy bramka zatrzymała paczkę, zmniejsz w Studiu granice jednego bonusu (tam decyduje się, jak daleko ponad 10% da się dojść) i policz jeszcze raz.
+
+**Co sprawdzić po zmianie liczb:** „Policz” po każdej zmianie w Studiu i zapisaniu szkicu.
+
+**Jeszcze nie opisane:** zmiany bonusów, które są w toku (kolejny etap), dojdą po zakończeniu prac.
+
+---
+
+## 15. Klasy aut (F–SS) i PI
+
+**Cel:** wiedzieć, jak gra mierzy siłę auta (PI), z jakich klas składa się rywalizacja i gdzie to zmienić.
+
+**PI (indeks osiągów)** to liczba z samych statystyk auta: średnia ważona jego statystyk względem statystyk auta odniesienia, razy PI auta odniesienia. Nie bierze się z czasu okrążenia, więc nie zależy od toru ani od tego, jak gra liczy bieg. **Klasa** to pierwsza klasa, której górny próg jest nie niższy od PI auta; auta powyżej ostatniego progu są w klasie najwyższej. Auto pokazuje się jako klasa i PI, od F0 do SS999.
+
+W dostarczonej grze: auto odniesienia (seryjny Rdzak GT-4) ma PI 300, więc jest w klasie D. Górne progi klas to F 199, E 299, D 399, C 499, B 599, A 699 i S 799; powyżej jest SS, a najwyższe pokazywane PI to 999.
+
+### Gdzie to ustawić
+
+Studio parametrów, sekcja **Rywalizacja** (wyłącz „Tryb prosty”, bo te liczby nie są w nim). Dla klas i PI ważne są: PI auta odniesienia, sufit jednej statystyki w PI, najwyższe pokazywane PI, wagi statystyk w PI (razem 100%, dotyczą statystyk modelu gry) i górne progi klas.
+
+![Studio: rywalizacja, PI i klasy](img/podrecznik-studio-rywalizacja.png)
+
+<!-- legenda:studio-rywalizacja -->
+1. **Tryb prosty.** Włączony: tylko liczby, które ustawiają tempo i pieniądze gry (ceny, nagrody za okrążenie, czasy warsztatu, poziomy), czyli mała część z około 750. Wyłączony: wszystkie liczby sekcji, także rzadko ruszane. Wskazówka: Tryb prosty jest włączony na starcie. Przełączenie odświeża formularz z zapisanego szkicu, więc zapisz zmiany przed przełączeniem.
+2. **Sekcja.** Liczby gry są podzielone na sekcje; pokazana jest jedna naraz, z liczbą jej liczb w nawiasie (w trybie prostym tylko tych prostych) i zdaniem o tym, co zmiana jej liczb zmieni w grze. Zapisz zmiany, zanim zmienisz sekcję: niezapisane znikną.
+3. **PI auta odniesienia.** Ile PI jest warte auto odniesienia (seryjne, bez części). To skala, na której stoją progi klas: zmiana tej liczby przesuwa PI wszystkich aut o ten sam procent, więc razem z nią trzeba przesunąć progi klas. Zakres: 1 – 100 000 (PI). Przykład: 300: seryjny Rdzak GT-4 ma PI 300, auto o 50% lepszych statystykach ma 450.
+4. **Sufit jednej statystyki w PI (% auta odniesienia).** Ile najwyżej liczy się jedna statystyka auta w PI, jako wielokrotność statystyki auta odniesienia (100% to tyle samo). Sufit nie pozwala, żeby jedna ogromna liczba kupiła klasę. Zakres: 100% – 10 000%. Przykład: 400%: przyspieszenie cztery razy większe niż w aucie odniesienia liczy się jak cztery razy, nie więcej.
+5. **Najwyższe pokazywane PI.** Najwyższe PI, jakie auto może mieć: silniejsze auto nadal ma tyle. Na tym PI kończy się klasa najwyższa (auto pokazuje się jako klasa i PI, od F0 do SS999). Musi być powyżej progu ostatniej klasy z progiem. Zakres: 1 – 100 000 (PI). Przykład: 999: najsilniejsze auto to SS 999.
+<!-- /legenda -->
+
+**Uwaga o skali:** zmiana PI auta odniesienia przesuwa PI wszystkich aut o ten sam procent, więc razem z nią trzeba przesunąć progi klas. **Uwaga o tekstach:** tytuły grup i ich krótkie opisy w tej sekcji Studia są dziś po angielsku (na przykład „Competition › Pi”); opisy pól pod nimi są po polsku. Pozostałe liczby sekcji (Respekt, dywizje, mecze, sezon) dotyczą turniejów i rankingów, których nie ma w wersji demonstracyjnej gry; nie zmieniaj ich bez potrzeby.
+
+### Rywale w wyższej klasie
+
+Studio, sekcja **Boty**, pole **Krok rywali na klasę**: o ile szybsze są boty za każdą klasę, o którą auto jest wyżej niż klasa najlepszego seryjnego auta jego tieru (klasa natywna tieru), jako część czasu okrążenia. Seryjne auta nigdy nie są powyżej klasy natywnej, więc spotykają tych samych rywali co zawsze, a auto dotuningowane do wyższej klasy trafia na rywali tej klasy. **0 wyłącza** (w dostarczonej grze jest 0, czyli klasy nie zmieniają rywali). Zakres 0–30% okrążenia; przy 8% auto o klasę wyżej ma boty szybsze o 8%, o dwie klasy wyżej o 16%.
+
+![Studio: rywale w klasie](img/podrecznik-studio-boty.png)
+
+<!-- legenda:studio-boty -->
+1. **Sekcja.** Liczby gry są podzielone na sekcje; pokazana jest jedna naraz, z liczbą jej liczb w nawiasie (w trybie prostym tylko tych prostych) i zdaniem o tym, co zmiana jej liczb zmieni w grze. Zapisz zmiany, zanim zmienisz sekcję: niezapisane znikną.
+2. **Krok rywali na klasę (% okrążenia).** O ile szybsze są boty za każdą klasę, o którą auto jest wyżej niż klasa najlepszego seryjnego auta jego tieru (klasa natywna tieru), jako część czasu okrążenia. Seryjne auta nigdy nie są powyżej klasy natywnej, więc spotykają tych samych rywali co zawsze, a auto dotuningowane do wyższej klasy trafia na rywali tej klasy: przeskok klasy nie zawsze się opłaca. Zero (albo gra bez rywalizacji) zostawia boty bez zmian. Zakres: 0% – 30% okrążenia; 0 wyłącza. Przykład: 8%: auto o klasę wyżej niż klasa natywna ma boty szybsze o 8%, o dwie klasy wyżej o 16%. Dla Rdzaka GT-4 przeskok z D do C przy 10% kosztuje 24 – 32% dochodu na czterech torach z pięciu.
+<!-- /legenda -->
+
+### Co z tego widzi gracz
+
+Przy aucie gracz widzi odznakę klasy i PI (na przykład „B 612”: nagłówek gry, karta auta, dealer, giełda i flota). W porównaniu części w warsztacie jest jedna linia o klasie: „Klasa się zmienia: C 480 → B 520” (na bursztynowo), gdy część przenosi auto do innej klasy, albo „Klasa B bez zmian: 512 → 520 PI”. Dzięki temu gracz wie, że tuning, który podnosi klasę, przeniesie go do rywali wyższej klasy (gdy krok rywali jest większy od zera).
+
+**Co sprawdzić po zmianie progów:** odznaki klasy kilku aut w grze zgadzają się z tym, co zamierzałeś (na przykład seryjny Rdzak GT-4 nadal ma klasę D). Most AI (rozdział 17) potrafi zmienić te liczby rozmową: wyłącz „Tylko najważniejsze liczby” i wybierz sekcję „competition”.
+
+---
+
+## 16. Powiadomienia push
+
+**Cel:** sprawdzić, czy gra może wysyłać powiadomienia push, ile urządzeń i kont się zgodziło i co wysłano w ostatnich siedmiu dniach.
+
+Menu Treść → Powiadomienia. To strona **tylko do odczytu**: nic tu nie zmienia gry. Limity na dobę, ciche godziny i grupa kont, która nigdy nie dostaje powiadomień, to liczby ze Studia (sekcja push); klucze robi administrator serwera poleceniem `php artisan push:keys`, **gdy tekst polityki prywatności jest już wdrożony**. Bez kluczy nic się nie wysyła i nikt nie jest pytany o zgodę.
+
+![Powiadomienia push](img/podrecznik-push.png)
+
+<!-- legenda:push -->
+1. **Co pokazuje strona.** Jak stoją powiadomienia tej gry: czy może je wysyłać, ile urządzeń i kont się zgodziło i co wysłano w ostatnich siedmiu dniach. Nic tu nie zmienia gry: limity, ciche godziny i grupa, która nigdy nie dostaje powiadomień, to liczby ze Studia (sekcja push), a klucze robi się na serwerze poleceniem push:keys, gdy tekst polityki prywatności jest już wdrożony.
+2. **Stan reguł.** Czy reguły push w Studiu są włączone; gdy wyłączone, nic się nie wysyła.
+3. **Klucze.** Bez kluczy nic się nie wysyła i nikt nie jest pytany. Uruchom php artisan push:keys na serwerze, gdy tekst polityki prywatności będzie wdrożony.
+4. **Grupa, która nie dostaje powiadomień.** Odsetek kont, które nigdy nie dostają powiadomień; to liczba ze Studia (sekcja push).
+5. **Kto się zgodził.** Urządzenia z włączonymi powiadomieniami i konta, które można powiadamiać.
+6. **Ostatnie siedem dni.** Po dniach: wiadomości w kolejce, otwarte i ogłoszone sprawy, a gdy coś pominięto, to z powodem (gracz to wyłączył, limit na dobę i inne).
+<!-- /legenda -->
+
+Kolumny tabeli z ostatnich siedmiu dni: wiadomości w kolejce, otwarte i ogłoszone sprawy. Gdy coś pominięto, strona podaje powód: gracz to wyłączył, gracz sam to widział, limit na dobę, wstrzymane do powrotu gracza, brak urządzenia albo inne.
+
+**Co sprawdzić:** „Włączone w regułach” i „Klucze są” to dwa warunki, żeby cokolwiek zostało wysłane. Zielone „Włączone w regułach” przy braku kluczy („Nie ma jeszcze kluczy”) znaczy, że trzeba poprosić administratora serwera o `push:keys` (po wdrożeniu polityki prywatności).
+
+**Nie sprawdzono:** prawdziwej wysyłki do przeglądarek (panel pokazuje liczby, ale wysyłka na prawdziwe urządzenia nie była próbowana).
+
+**Jeszcze nie opisane:** pozostałe elementy retencji w panelu (po zakończeniu prac).
+
+---
+
+## 17. Most AI: zmiany rozmową z asystentem
 
 **Cel:** zmienić wiele rzeczy naraz rozmową z asystentem AI zamiast klikania po formularzach, na przykład „wszystkie silniki tieru 3 mają mieć 12% więcej mocy” albo „zmień cenę VIP”.
 
 Most składa się z dwóch przepływów: panel **przygotowuje instrukcję** dla czatu, a po rozmowie **sprawdza i wprowadza odpowiedź jako szkice**. **Nic nie jest publikowane**: wynik to zwykłe szkice, które potem przechodzą zwykłą drogę (rozdział 9).
 
-### 13.1. Przygotuj instrukcję
+### 17.1. Przygotuj instrukcję
 
 Menu Treść → Most AI, karta „1. Przygotuj instrukcję”. Wybierz, co dołączyć: auta, części, liczby reguł (tryb prosty albo wszystkie), sekcje, teksty (przełącznik „Dołącz teksty”), a także tryb „zaprojektuj tę grę od nowa”. Panel pokazuje **rozmiar instrukcji w tokenach** (to szacunek) i kolor: do 30 tysięcy zielony, do 80 tysięcy żółty, powyżej czerwony (zmniejsz wybór, bo instrukcja może się nie zmieścić w oknie czatu).
 
@@ -714,11 +975,11 @@ Menu Treść → Most AI, karta „1. Przygotuj instrukcję”. Wybierz, co doł
 
 Kliknij „Kopiuj instrukcję”. Gdy przeglądarka blokuje schowek, panel pokazuje tekst w polu do zaznaczenia („Pokaż tekst”), skopiuj go ręcznie. Wklej instrukcję jako **pierwszą wiadomość** do czatu z asystentem.
 
-### 13.2. Rozmowa w czacie
+### 17.2. Rozmowa w czacie
 
 Czego się spodziewać: asystent się przywita i zapyta, co zmienić (**bez bloku**), potem dopyta, streści i **poczeka na twoje „tak”**. Dopiero wtedy da **jeden blok** w ramce `ride-changes`. Zgłoś (poprawką w rozmowie), gdy asystent **zgaduje zamiast pytać**, wymyśla nazwy, ścieżki albo liczby, myli jednostki albo daje blok razem z pytaniami.
 
-### 13.3. Wklej odpowiedź AI i sprawdź
+### 17.3. Wklej odpowiedź AI i sprawdź
 
 Karta „2. Wklej odpowiedź AI”. Wklej całą odpowiedź asystenta (z tekstem wokół bloku też może być) i kliknij „Sprawdź odpowiedź”. Panel pokazuje **werdykt** i tabelę zmian: „na żywo / teraz / będzie” oraz opis liczby. Uwagi przy wierszu: „zaokrąglone”, „dokłada się do szkicu”, „tłumaczenie AI, nieprzejrzane”, „nowe”.
 
@@ -742,28 +1003,28 @@ Gdy odpowiedź ma **problemy**, panel opisuje je po ludzku (które pole, co jest
 3. **Kopiuj błędy dla AI.** Daje numerowaną listę do wklejenia z powrotem do czatu; asystent poprawia tylko to i wysyła cały blok jeszcze raz.
 <!-- /legenda -->
 
-### 13.4. Policz wpływ na balans, zapisz jako szkic, cofnij
+### 17.4. Policz wpływ na balans, zapisz jako szkic, cofnij
 
 - **„Policz wpływ na balans”** puszcza bramki publikacji i symulator na treści z odpowiedzią, obok żywej paczki: widzisz skutek, zanim cokolwiek zapiszesz.
 - **„Zapisz jako szkic”** wprowadza zmiany jako szkice (w jednej transakcji: albo wszystkie, albo żadna). Potem: „Zmiany do publikacji” i zwykła publikacja przez bramki.
 - **Historia ostatnich odpowiedzi** (dziesięć ostatnich) i **„Cofnij”**: przywraca szkice sprzed zapisu, ale **tylko dopóki nikt nie pracował nad tymi szkicami**; inaczej panel pokazuje listę konfliktów.
 
-### 13.5. Jeden rekord
+### 17.5. Jeden rekord
 
 Przy zmianie tylko jednego auta albo jednej części użyj przycisku **„Przygotuj dla AI (ten rekord)”** na formularzu: instrukcja dotyczy tylko tego rekordu i jest znacznie krótsza.
 
-### 13.6. Przykładowe rozmowy
+### 17.6. Przykładowe rozmowy
 
 1. **„Wszystkie silniki T3 +12% mocy.”** Asystent powinien zapytać, czy dotyczy to też turbosprężarek (to inny slot), streścić („zmieniam moc silników tieru 3 o +12%, turbosprężarki zostają”) i dopiero po „tak” dać blok z operacją skali.
 2. **„Zmień cenę VIP.”** Cena VIP jest w **monetach**, więc asystent pyta o nową liczbę monet i podaje ją w jednostkach Studia. Ceny w prawdziwych pieniądzach most pomija (rozdział 12).
 3. **„Dodaj nowe auto na wzór Rdzaka GT-4.”** Asystent kopiuje istniejące auto, zmienia pola i prosi o nowy slug, którego gra jeszcze nie użyła.
 4. **„Przemianuj Rdzaka GT-4 w tej grze.”** Operacja tekstu w jednym języku; inne języki (francuski, niemiecki, portugalski) są oznaczone jako tłumaczenie AI, nieprzejrzane.
 
-### 13.7. Czego most nie robi
+### 17.7. Czego most nie robi
 
-Most **nie publikuje**, nie zakłada gier, nie zmienia cen w prawdziwych pieniądzach, nie wysyła obrazków, nie kasuje, nie wycofuje i nie archiwizuje. Zmienia wyłącznie to, co objęła instrukcja.
+Most **nie publikuje**, nie zakłada gier, nie zmienia cen w prawdziwych pieniądzach, nie wysyła obrazków, nie kasuje, nie wycofuje i nie archiwizuje. Zmienia wyłącznie to, co objęła instrukcja. Mapa liczb, które most potrafi zmienić, jest ta sama co w Studiu, więc obejmuje też klasy aut i PI (sekcja „competition”, przy wyłączonym „Tylko najważniejsze liczby”; rozdział 15).
 
-### 13.8. Jak wypróbować most po raz pierwszy
+### 17.8. Jak wypróbować most po raz pierwszy
 
 1. Menu Treść → Most AI, zostaw domyślne wybory i kliknij „Kopiuj instrukcję” (albo „Pokaż tekst”).
 2. Wklej ją jako pierwszą wiadomość do czatu. Asystent ma się przywitać i zapytać, co zmienić, **bez bloku**.
@@ -774,7 +1035,7 @@ Most **nie publikuje**, nie zakłada gier, nie zmienia cen w prawdziwych pienią
 
 ---
 
-## 14. Co robić, gdy coś nie działa
+## 18. Co robić, gdy coś nie działa
 
 | Objaw | Co znaczy i co zrobić |
 |---|---|
@@ -788,7 +1049,10 @@ Most **nie publikuje**, nie zakłada gier, nie zmienia cen w prawdziwych pienią
 | „Zarchiwizuj” odmawia | Przedmiot ktoś używa; wycofaj go z oferty zamiast archiwizować. |
 | Domena się nie ustawia | Sprawdź DNS (rekord A), potem log zlecenia na stronie „Domena i SSL” (rozdział 2). Gdy log pokazuje błąd certbota albo nginx, napisz do administratora serwera z treścią loga. |
 | Strona „Domena i SSL” nic nie robi po kliknięciu | Zlecenia wykonuje worker na serwerze raz na minutę. Poczekaj minutę; gdy nadal nic, administrator serwera sprawdza `systemctl list-timers rideidle-domains.timer`. |
-| Most AI: odpowiedź odrzucona | Przeczytaj „Problemy”, kliknij „Kopiuj błędy dla AI” i wklej do czatu (rozdział 13). |
+| Paczkę zatrzymała bramka kursów (`gigs:report --strict`) | Strona „Kursy i zlecenia”, zakładka Wypłata, „Policz wypłatę”: wiersze poza granicami (R1 i R2) mówią, który szablon. Popraw wypłatę szablonu, kotwice drabiny albo przedziały poziomów i policz jeszcze raz (rozdział 13). |
+| Paczkę zatrzymała bramka bonusów części (`tuning:budget --strict`) | Strona „Bonusy części”, przycisk „Policz”: najlepszy zestaw zdejmuje z okrążenia więcej niż pułap. Zmniejsz granice jednego bonusu w Studiu i policz jeszcze raz (rozdział 14). |
+| Powiadomienia push: „Nie ma jeszcze kluczy” | Administrator serwera uruchamia `php artisan push:keys`, gdy tekst polityki prywatności jest wdrożony (rozdział 16). |
+| Most AI: odpowiedź odrzucona | Przeczytaj „Problemy”, kliknij „Kopiuj błędy dla AI” i wklej do czatu (rozdział 17). |
 
 **Kiedy pisać do administratora serwera:** gdy paczka stoi na „Czeka”, gdy domena lub certyfikat się nie ustawia po sprawdzeniu DNS, gdy panel zwraca błąd serwera (502 albo 500) albo gdy trzeba zmienić rolę, zresetować kod z aplikacji lub założyć konto administratora.
 
