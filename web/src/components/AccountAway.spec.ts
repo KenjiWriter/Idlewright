@@ -158,6 +158,21 @@ describe('AccountAway', () => {
     expect(wrapper.get('[data-test="away-gig-1"]').text()).toBe('Freight · Złomowo · +$61')
   })
 
+  it('tells what the police made of a night run in the break', () => {
+    const wrapper = mountAway(
+      aSummary({
+        gigs: [
+          { kind: 'night', kind_name: 'Night run', to: 'Kruszyn', finished_ms: 0, reward_cents: 95_100, bonus_cents: 0, police: { outcome: 'escaped', fine_cents: 0, arrest_until_ms: null } },
+          { kind: 'night', kind_name: 'Night run', to: 'Kruszyn', finished_ms: 0, reward_cents: 0, bonus_cents: 0, police: { outcome: 'arrested', fine_cents: 57_060, arrest_until_ms: 1 } },
+        ],
+        gigs_cents: 95_100,
+      }),
+    )
+
+    expect(wrapper.get('[data-test="away-gig-0"]').text()).toBe('Night run · Kruszyn · +$951 · got away from the police')
+    expect(wrapper.get('[data-test="away-gig-1"]').text()).toBe('Night run · Kruszyn · +$0 · arrested, fine $570.60')
+  })
+
   it('shows no gigs when there were none', () => {
     expect(mountAway(aSummary()).find('[data-test="away-gigs"]').exists()).toBe(false)
   })

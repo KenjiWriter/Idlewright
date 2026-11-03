@@ -1,4 +1,4 @@
-import type { GigActive, GigOffer, GigsResponse } from '@/api/types'
+import type { GigActive, GigArrest, GigOffer, GigOpportunity, GigsResponse } from '@/api/types'
 import { NOW } from '@/test/garageFixtures'
 
 /** One offer of the board: a taxi ride across the city for two people that the Rdzak can take. */
@@ -16,6 +16,7 @@ export function anOffer(extra: Partial<GigOffer> = {}): GigOffer {
     capacity: 'seats',
     amount: 2,
     class_in: null,
+    opportunity: false,
     rarity: 'ordinary',
     phase: 'day',
     until_ms: NOW + 25 * 60_000,
@@ -55,6 +56,7 @@ export function anActiveGig(extra: Partial<GigActive> = {}): GigActive {
     bonus_cents: 0,
     xp: 38,
     status: 'active',
+    police: null,
     ...extra,
   }
 }
@@ -73,6 +75,8 @@ export function aBoard(extra: Partial<GigsResponse['data']> = {}): GigsResponse 
       wave: { number: 1327920, ends_ms: NOW + 15 * 60_000 },
       cancel_window_ms: 60_000,
       car: { id: 1, seats: 4, cargo_kg: 120, class: 'hatchback', speed_kmh: 80 },
+      arrest: null,
+      opportunity: null,
       offers: [
         anOffer(),
         anOffer({
@@ -90,10 +94,60 @@ export function aBoard(extra: Partial<GigsResponse['data']> = {}): GigsResponse 
         }),
       ],
       active: null,
-      limits: { daily_used: 1, daily_limit: 6, resets_ms: NOW + 10 * 3_600_000 },
+      limits: { daily_used: 1, daily_limit: 6, night_used: 0, night_limit: 2, resets_ms: NOW + 10 * 3_600_000 },
       ...extra,
     },
     now_ms: NOW,
     wallet: { cash_cents: 600_000, xp: 1_200 },
   }
+}
+
+/** The night run of this night for the Rdzak (a quiet hatchback): 36% of the patrols less 14 points, a stop is a getaway three times in five. */
+export function anOpportunity(extra: Partial<GigOpportunity> = {}): GigOpportunity {
+  return {
+    ...anOffer({
+      key: 'zlomowo.1327900.99.cccccccc',
+      template: 'night',
+      title: 'Cargo without an invoice',
+      kind: 'night',
+      kind_name: 'Night run',
+      to: 'kruszyn',
+      to_name: 'Kruszyn',
+      km: 76,
+      capacity: 'cargo_kg',
+      amount: 40,
+      phase: 'night',
+      until_ms: NOW + 43 * 60_000,
+      duration_ms: 57 * 60_000,
+      fuel_ml: 4_560,
+      reward_cents: 190_200,
+      opportunity: true,
+    }),
+    night: {
+      multiplier_ppm: 2_500_000,
+      plain_reward_cents: 76_080,
+      escape_pay_ppm: 500_000,
+      arrest_ms: 1_500_000,
+      fine_cents: 57_060,
+      bail_cents: 95_100,
+      heated: false,
+      odds: {
+        patrol_ppm: 360_000,
+        class_ppm: -140_000,
+        heat_ppm: 0,
+        control_ppm: 220_000,
+        escape_share_ppm: 580_000,
+        clean_ppm: 780_000,
+        escaped_ppm: 127_600,
+        arrested_ppm: 92_400,
+        noise: 'low',
+      },
+    },
+    ...extra,
+  }
+}
+
+/** An arrest that began a minute ago and lasts another 24 minutes. */
+export function anArrest(extra: Partial<GigArrest> = {}): GigArrest {
+  return { gig: 9, since_ms: NOW - 60_000, until_ms: NOW + 24 * 60_000, bail_cents: 95_100, ...extra }
 }

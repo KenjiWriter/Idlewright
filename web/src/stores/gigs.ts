@@ -54,11 +54,16 @@ export const useGigsStore = defineStore('gigs', () => {
     return response.gig ?? null
   }
 
+  /** Pays the bail of the arrest the driver is under: it ends at once. */
+  async function bail(): Promise<void> {
+    apply(await api<GigsResponse>('/v1/gigs/bail', { method: 'POST' }))
+  }
+
   /** Takes a gig back in the first seconds after it was taken. */
   async function cancel(id: number): Promise<void> {
     apply(await api<GigsResponse>(`/v1/gigs/${id}`, { method: 'DELETE' }))
     syncRun()
   }
 
-  return { board, cash, loaded, serverNow, load, take, cancel }
+  return { board, cash, loaded, serverNow, load, take, cancel, bail }
 })

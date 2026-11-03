@@ -2,7 +2,7 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
-import type { AwayAccount, AwayJourney } from '@/api/types'
+import type { AwayAccount, AwayGig, AwayJourney } from '@/api/types'
 import { formatDuration } from '@/i18n/format'
 import { useFormat } from '@/i18n/useFormat'
 
@@ -28,6 +28,17 @@ const chargesUsed = computed(() => cars.value.reduce((sum, car) => sum + (car.re
 const bonus = computed(() => cars.value.reduce((sum, car) => sum + (car.bonus_cents ?? 0), 0))
 /** What the missions did in the break: how many were done, and what the server took for the driver when a period ended. */
 const missions = computed(() => props.summary.missions ?? null)
+
+/** What the police made of a night run, in words (nothing when they did not stop the car). */
+function gigPolice(gig: AwayGig): string | null {
+  const stop = gig.police ?? null
+
+  if (stop === null) {
+    return null
+  }
+
+  return stop.outcome === 'escaped' ? t('awayAccount.gigEscaped') : t('awayAccount.gigArrested', { fine: money(stop.fine_cents, 2) })
+}
 
 /** What the police made of a boosted journey, in words (nothing when they did not stop the car). */
 function police(journey: AwayJourney): string | null {
@@ -108,7 +119,7 @@ function police(journey: AwayJourney): string | null {
     <div v-if="gigs.length > 0" class="flex flex-col gap-1.5" data-test="away-gigs">
       <p class="kick !mb-0">{{ t('awayAccount.gigs', { count: number(gigs.length), pay: money(summary.gigs_cents ?? 0) }) }}</p>
       <ul class="flex flex-col gap-1">
-        <li v-for="(gig, index) in gigs" :key="index" class="text-[13px] text-ink" :data-test="`away-gig-${index}`">{{ t('awayAccount.gig', { kind: gig.kind_name, city: gig.to, pay: money(gig.reward_cents) }) }}</li>
+        <li v-for="(gig, index) in gigs" :key="index" class="text-[13px] text-ink" :data-test="`away-gig-${index}`">{{ t('awayAccount.gig', { kind: gig.kind_name, city: gig.to, pay: money(gig.reward_cents) }) }}<template v-if="gigPolice(gig)"> · {{ gigPolice(gig) }}</template></li>
       </ul>
     </div>
 

@@ -1017,7 +1017,54 @@
       "gig_no_fuel": "Il faut {required} l de carburant",
       "gig_busy": "La voiture est déjà en course",
       "car_cannot_travel": "La voiture ne peut pas partir maintenant",
-      "gig_daily_limit": "Limite du jour atteinte"
+      "gig_daily_limit": "Limite du jour atteinte",
+      "arrested": "Tu es en garde à vue",
+      "gig_night_limit": "Limite de courses de nuit du jour atteinte"
+    },
+    "night": {
+      "link": "Course de nuit",
+      "title": "Course de nuit",
+      "chip": "OCCASION · FENÊTRE NOCTURNE",
+      "untilDawn": "jusqu’à l’aube {time}",
+      "pay": "Paie",
+      "multiplier": "×{factor} la paie normale",
+      "plain": "même trajet en course ordinaire : {pay}",
+      "load": "chargement {kg} kg · trajet {time}",
+      "risk": "Risque policier",
+      "patrols": "Patrouilles de la région la nuit",
+      "classLow": "Voiture discrète",
+      "classHigh": "Voiture bruyante",
+      "points": "pts",
+      "heat": "Recherché dans cette ville",
+      "control": "Chance d’être contrôlé",
+      "escape": "Chance de s’échapper (voiture contre patrouille)",
+      "clean": "Passage tranquille",
+      "cleanText": "paie complète",
+      "escaped": "Évasion",
+      "escapedText": "paie −{percent} %",
+      "arrested": "Arrestation",
+      "arrestedText": "chargement saisi, amende {fine}, garde à vue {minutes} min",
+      "vehicle": "Ta voiture : la place pour {kg} kg suffit · bruit {noise}",
+      "noise": {
+        "low": "faible",
+        "normal": "normal",
+        "high": "fort"
+      },
+      "note": "Une arrestation ne bloque que tes voyages et tes courses. Les garages, l’atelier et les voitures garées continuent de travailler. La caution ({bail}) y met fin tout de suite.",
+      "take": "Prendre le risque",
+      "skip": "Pas maintenant",
+      "none": "Il n’y a pas de course de nuit pour toi en ce moment.",
+      "back": "Retour aux courses"
+    },
+    "arrest": {
+      "text": "Tu es en garde à vue : ni voyage ni course pendant {time}.",
+      "note": "Les garages, l’atelier et les voitures garées continuent de travailler.",
+      "bail": "Payer la caution {amount}",
+      "bailed": "Caution payée, la garde à vue est terminée."
+    },
+    "police": {
+      "escaped": "La police a arrêté la voiture, mais elle s’est échappée : elle sera payée {pay}.",
+      "arrested": "La police a arrêté la voiture : chargement saisi, amende {fine}."
     }
   },
   "awayAccount": {
@@ -1029,6 +1076,8 @@
     "arrived": "Arrivée à {city}",
     "gigs": "Courses : {count} · +{pay}",
     "gig": "{kind} · {city} · +{pay}",
+    "gigEscaped": "échappée à la police",
+    "gigArrested": "arrestation, amende {fine}",
     "waiting": {
       "fuel_empty": "à court de carburant",
       "breakdown": "en panne"

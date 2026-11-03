@@ -1361,6 +1361,54 @@ export interface GigActive {
   bonus_cents: number
   xp: number
   status: 'active' | 'done' | 'cancelled'
+  /** What the police made of a night run, once they have stopped it; null before, and for a gig they do not look at. */
+  police: GigPoliceView | null
+}
+
+/** The stop of a night run that the police made, as the driver may know it. */
+export interface GigPoliceView {
+  outcome: 'escaped' | 'arrested'
+  at_ms: number
+  fine_cents: number
+  bail_cents: number
+  arrest_until_ms: number | null
+  bailed: boolean
+  /** What the gig pays in the end: half for a car that got away, nothing for an arrest. */
+  paid_cents: number
+}
+
+/** The chances of a night run for the car that was asked about, in parts per million. */
+export interface GigOdds {
+  patrol_ppm: number
+  /** What the body class of the car changes: below zero for a quiet car, above for a loud one. */
+  class_ppm: number
+  heat_ppm: number
+  control_ppm: number
+  escape_share_ppm: number
+  clean_ppm: number
+  escaped_ppm: number
+  arrested_ppm: number
+  noise: 'low' | 'normal' | 'high'
+}
+
+/** What is special about the night run: the chances, what each end costs, and the plain pay of the same trip to put beside it. */
+export interface GigNight {
+  multiplier_ppm: number
+  plain_reward_cents: number
+  escape_pay_ppm: number
+  arrest_ms: number
+  fine_cents: number
+  bail_cents: number
+  heated: boolean
+  odds: GigOdds | null
+}
+
+/** The arrest the driver is under: no journeys and no gigs until `until_ms`, or until the bail is paid. */
+export interface GigArrest {
+  gig: number
+  since_ms: number
+  until_ms: number
+  bail_cents: number
 }
 
 /** Why a car cannot take an offer, with the numbers the words need. */
@@ -1383,6 +1431,8 @@ export interface GigOffer {
   capacity: string
   amount: number
   class_in: string[] | null
+  /** The night run of the night: not an offer of the wave, and the police look at it. */
+  opportunity: boolean
   rarity: string
   phase: string
   until_ms: number
@@ -1393,6 +1443,11 @@ export interface GigOffer {
   xp: number
   eligible: boolean
   blocked: GigBlocked | null
+}
+
+/** The night run on the board: an offer with what is special about it. */
+export interface GigOpportunity extends GigOffer {
+  night: GigNight
 }
 
 /** GET /api/v1/gigs, and the answer of the calls that take a gig or take it back. */
@@ -1409,9 +1464,13 @@ export interface GigsResponse {
     wave: { number: number; ends_ms: number }
     cancel_window_ms: number
     car: { id: number; seats: number; cargo_kg: number; class: string | null; speed_kmh: number } | null
+    /** The arrest the driver is under, or null. */
+    arrest: GigArrest | null
     offers: GigOffer[]
+    /** The night run of this night, when there is one for this car and the driver has not taken it. */
+    opportunity: GigOpportunity | null
     active: GigActive | null
-    limits: { daily_used: number; daily_limit: number; resets_ms: number } | null
+    limits: { daily_used: number; daily_limit: number; night_used: number; night_limit: number; resets_ms: number } | null
   }
   now_ms: number
   wallet: { cash_cents: number; xp: number }
@@ -1428,6 +1487,8 @@ export interface AwayGig {
   finished_ms: number
   reward_cents: number
   bonus_cents: number
+  /** What the police made of a night run, when they stopped it. */
+  police?: { outcome: 'escaped' | 'arrested'; fine_cents: number; arrest_until_ms: number | null } | null
 }
 
 /** GET /api/v1/market, and the answer of the calls that buy or inspect a car. The market is the one of the city where the car the driver plays stands. */

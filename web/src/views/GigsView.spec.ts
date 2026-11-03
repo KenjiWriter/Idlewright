@@ -5,7 +5,7 @@ import { storeToken } from '@/auth/token'
 import { setLocale } from '@/i18n'
 import { NOW } from '@/test/garageFixtures'
 import { respond, serveApi } from '@/test/fetchServer'
-import { aBoard, anActiveGig, anOffer } from '@/test/gigsFixtures'
+import { aBoard, anActiveGig, anArrest, anOffer, anOpportunity } from '@/test/gigsFixtures'
 import { mountView } from '@/test/mountView'
 
 import GigsView from './GigsView.vue'
@@ -151,6 +151,54 @@ describe('GigsView', () => {
     await flushPromises()
 
     expect(wrapper.get('[data-test="empty"]').text()).toBe('No offers for this car right now. The board changes in 15 min 00 s.')
+  })
+
+  it('has a way to the night run when the board has one, and none when it has not', async () => {
+    serve({ 'GET /api/v1/gigs': () => respond(200, aBoard({ phase: 'night', opportunity: anOpportunity() })), 'GET /api/v1/runs/current': noRun })
+
+    const { wrapper } = await mountView(GigsView, '/gigs')
+    await flushPromises()
+
+    expect(wrapper.get('[data-test="night-link"]').text()).toBe('Night run')
+    expect(wrapper.get('[data-test="night-link"]').attributes('href')).toBe('/gigs/night')
+
+    serve({ 'GET /api/v1/gigs': () => respond(200, aBoard()), 'GET /api/v1/runs/current': noRun })
+
+    const day = await mountView(GigsView, '/gigs')
+    await flushPromises()
+
+    expect(day.wrapper.find('[data-test="night-link"]').exists()).toBe(false)
+  })
+
+  it('tells the driver who is under arrest how long it lasts and what the bail is, and pays it on request', async () => {
+    const calls = serve({
+      'GET /api/v1/gigs': () => respond(200, aBoard({ arrest: anArrest() })),
+      'POST /api/v1/gigs/bail': () => respond(200, aBoard({ arrest: null })),
+      'GET /api/v1/runs/current': noRun,
+    })
+
+    const { wrapper } = await mountView(GigsView, '/gigs')
+    await flushPromises()
+
+    expect(wrapper.get('[data-test="arrest"]').text()).toContain('You are under arrest: no journeys and no gigs for 24 min 00 s.')
+    expect(wrapper.get('[data-test="bail"]').text()).toBe('Pay the bail $951')
+
+    await wrapper.get('[data-test="bail"]').trigger('click')
+    await flushPromises()
+
+    expect(calls.some((call) => call.method === 'POST' && call.url.endsWith('/api/v1/gigs/bail'))).toBe(true)
+    expect(wrapper.get('[data-test="done"]').text()).toBe('The bail is paid, the arrest is over.')
+    expect(wrapper.find('[data-test="arrest"]').exists()).toBe(false)
+  })
+
+  it('says what the police made of the night run that the car is out on, once they have stopped it', async () => {
+    const stopped = anActiveGig({ police: { outcome: 'arrested', at_ms: NOW, fine_cents: 57_060, bail_cents: 95_100, arrest_until_ms: NOW + 25 * 60_000, bailed: false, paid_cents: 0 } })
+    serve({ 'GET /api/v1/gigs': () => respond(200, aBoard({ active: stopped, offers: [] })), 'GET /api/v1/runs/current': noRun })
+
+    const { wrapper } = await mountView(GigsView, '/gigs')
+    await flushPromises()
+
+    expect(wrapper.get('[data-test="active-police"]').text()).toBe('The police stopped the car: the load is taken, the fine is $571.')
   })
 
   it('shows the good and the great offers with a mark', async () => {

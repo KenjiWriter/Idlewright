@@ -1017,7 +1017,54 @@
       "gig_no_fuel": "Needs {required} l of fuel",
       "gig_busy": "The car is out already",
       "car_cannot_travel": "The car cannot leave now",
-      "gig_daily_limit": "Daily limit reached"
+      "gig_daily_limit": "Daily limit reached",
+      "arrested": "You are under arrest",
+      "gig_night_limit": "Night run limit of the day reached"
+    },
+    "night": {
+      "link": "Night run",
+      "title": "Night run",
+      "chip": "OPPORTUNITY · NIGHT WINDOW",
+      "untilDawn": "until dawn {time}",
+      "pay": "Pay",
+      "multiplier": "×{factor} the plain pay",
+      "plain": "the same trip as a plain gig: {pay}",
+      "load": "load {kg} kg · drive {time}",
+      "risk": "Police risk",
+      "patrols": "Patrols in the region at night",
+      "classLow": "Quiet car",
+      "classHigh": "Loud car",
+      "points": "pp",
+      "heat": "Wanted in this city",
+      "control": "Chance of a stop",
+      "escape": "Chance to get away (car against the patrol)",
+      "clean": "Clean run",
+      "cleanText": "full pay",
+      "escaped": "Got away",
+      "escapedText": "pay −{percent}%",
+      "arrested": "Arrest",
+      "arrestedText": "the load is taken, fine {fine}, arrest {minutes} min",
+      "vehicle": "Your car: room for {kg} kg is enough · noise {noise}",
+      "noise": {
+        "low": "low",
+        "normal": "normal",
+        "high": "high"
+      },
+      "note": "An arrest blocks only your journeys and gigs. Garages, the workshop and parked cars keep working. The bail ({bail}) ends it at once.",
+      "take": "Take the risk",
+      "skip": "Not now",
+      "none": "There is no night run for you now.",
+      "back": "Back to gigs"
+    },
+    "arrest": {
+      "text": "You are under arrest: no journeys and no gigs for {time}.",
+      "note": "Garages, the workshop and parked cars keep working.",
+      "bail": "Pay the bail {amount}",
+      "bailed": "The bail is paid, the arrest is over."
+    },
+    "police": {
+      "escaped": "The police stopped the car, but it got away: it will be paid {pay}.",
+      "arrested": "The police stopped the car: the load is taken, the fine is {fine}."
     }
   },
   "awayAccount": {
@@ -1029,6 +1076,8 @@
     "arrived": "Arrived in {city}",
     "gigs": "Gigs: {count} · +{pay}",
     "gig": "{kind} · {city} · +{pay}",
+    "gigEscaped": "got away from the police",
+    "gigArrested": "arrested, fine {fine}",
     "waiting": {
       "fuel_empty": "out of fuel",
       "breakdown": "broken down"

@@ -1017,7 +1017,54 @@
       "gig_no_fuel": "Precisa de {required} l de combustível",
       "gig_busy": "O carro já está em uma corrida",
       "car_cannot_travel": "O carro não pode sair agora",
-      "gig_daily_limit": "Limite do dia atingido"
+      "gig_daily_limit": "Limite do dia atingido",
+      "arrested": "Você está preso",
+      "gig_night_limit": "Limite de corridas noturnas do dia atingido"
+    },
+    "night": {
+      "link": "Corrida noturna",
+      "title": "Corrida noturna",
+      "chip": "OPORTUNIDADE · JANELA NOTURNA",
+      "untilDawn": "até o amanhecer {time}",
+      "pay": "Pagamento",
+      "multiplier": "×{factor} do pagamento normal",
+      "plain": "mesma viagem como corrida comum: {pay}",
+      "load": "carga {kg} kg · viagem {time}",
+      "risk": "Risco de polícia",
+      "patrols": "Patrulhas na região à noite",
+      "classLow": "Carro discreto",
+      "classHigh": "Carro barulhento",
+      "points": "p.p.",
+      "heat": "Procurado nesta cidade",
+      "control": "Chance de ser parado",
+      "escape": "Chance de fugir (carro contra patrulha)",
+      "clean": "Passagem limpa",
+      "cleanText": "pagamento completo",
+      "escaped": "Fuga",
+      "escapedText": "pagamento −{percent}%",
+      "arrested": "Prisão",
+      "arrestedText": "carga apreendida, multa {fine}, prisão de {minutes} min",
+      "vehicle": "Seu carro: espaço para {kg} kg é suficiente · ruído {noise}",
+      "noise": {
+        "low": "baixo",
+        "normal": "normal",
+        "high": "alto"
+      },
+      "note": "Uma prisão bloqueia apenas suas viagens e corridas. Garagens, oficina e carros estacionados continuam trabalhando. A fiança ({bail}) a encerra na hora.",
+      "take": "Correr o risco",
+      "skip": "Agora não",
+      "none": "Não há corrida noturna para você agora.",
+      "back": "Voltar às corridas"
+    },
+    "arrest": {
+      "text": "Você está preso: sem viagens e sem corridas por {time}.",
+      "note": "Garagens, oficina e carros estacionados continuam trabalhando.",
+      "bail": "Pagar a fiança {amount}",
+      "bailed": "Fiança paga, a prisão acabou."
+    },
+    "police": {
+      "escaped": "A polícia parou o carro, mas ele fugiu: vai receber {pay}.",
+      "arrested": "A polícia parou o carro: carga apreendida, multa {fine}."
     }
   },
   "awayAccount": {
@@ -1029,6 +1076,8 @@
     "arrived": "Chegou a {city}",
     "gigs": "Corridas: {count} · +{pay}",
     "gig": "{kind} · {city} · +{pay}",
+    "gigEscaped": "fugiu da polícia",
+    "gigArrested": "prisão, multa {fine}",
     "waiting": {
       "fuel_empty": "sem combustível",
       "breakdown": "quebrado"

@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { RouterLink } from 'vue-router'
 
 import { ApiError } from '@/api/client'
-import type { GigBlocked, GigOffer } from '@/api/types'
+import type { GigActive, GigBlocked, GigOffer } from '@/api/types'
 import CityTabs from '@/components/CityTabs.vue'
 import GameShell from '@/components/GameShell.vue'
 import { useFlash } from '@/features/run/useFlash'
@@ -39,12 +40,17 @@ const waveLeftMs = computed(() => (board.value ? board.value.wave.ends_ms - now.
 const activeLeftMs = computed(() => (active.value ? active.value.finish_ms - now.value : 0))
 /** Taking a gig back is for the first seconds only. */
 const canCancel = computed(() => active.value !== null && now.value <= active.value.cancel_until_ms)
+/** The arrest the driver is under: no journeys and no gigs until it is over or the bail is paid. */
+const arrest = computed(() => board.value?.arrest ?? null)
+const arrestLeftMs = computed(() => (arrest.value ? arrest.value.until_ms - now.value : 0))
 
 async function load(): Promise<void> {
   lastAsk = Date.now()
 
   try {
     await store.load()
+    // The clock of the server is known now: the countdowns do not start from the clock of this device.
+    now.value = store.serverNow()
     loadError.value = false
   } catch (failure) {
     if (!endSessionIfUnauthorized(failure)) {
@@ -57,7 +63,7 @@ function tick(): void {
   now.value = store.serverNow()
 
   // The server makes a new board when the wave is over, and brings the car back when its time is over; it says so only when it is asked.
-  if (store.board && (waveLeftMs.value <= 0 || (active.value !== null && activeLeftMs.value <= 0)) && Date.now() - lastAsk >= MIN_ASK_MS) {
+  if (store.board && (waveLeftMs.value <= 0 || (active.value !== null && activeLeftMs.value <= 0) || (arrest.value !== null && arrestLeftMs.value <= 0)) && Date.now() - lastAsk >= MIN_ASK_MS) {
     void load()
   }
 }
@@ -116,6 +122,24 @@ const cancel = () =>
     return t('gigs.cancelled')
   })
 
+const bail = () =>
+  attempt(async () => {
+    await store.bail()
+
+    return t('gigs.arrest.bailed')
+  })
+
+/** What the police made of the night run that the car is out on, once they have stopped it. */
+function policeText(gig: GigActive): string | null {
+  const stop = gig.police
+
+  if (stop === null) {
+    return null
+  }
+
+  return stop.outcome === 'escaped' ? t('gigs.police.escaped', { pay: money(stop.paid_cents) }) : t('gigs.police.arrested', { fine: money(stop.fine_cents) })
+}
+
 /** Where the trip goes, in words: a trip in the city or there and back. */
 function routeText(item: { region: string; to_name: string | null; km: number }, cityName: string): string {
   return item.to_name === null ? t('gigs.local', { km: distanceKm(item.km) }) : t('gigs.route', { from: cityName, to: item.to_name, km: distanceKm(item.km) })
@@ -162,9 +186,17 @@ const phaseText = computed(() => (board.value ? t(`gigs.phase.${board.value.phas
       <p v-if="error" class="text-danger" role="alert" data-test="error">{{ error }}</p>
       <p v-if="done" class="card card-cy text-sm" role="status" data-test="done">{{ done }}</p>
 
+      <!-- An arrest blocks the journeys and the gigs of the driver, and nothing else; the bail ends it at once. -->
+      <section v-if="arrest" class="card flex flex-col gap-2 border-danger !p-3" role="alert" data-test="arrest">
+        <p class="text-sm">{{ t('gigs.arrest.text', { time: formatDuration(arrestLeftMs) }) }}</p>
+        <p class="sub">{{ t('gigs.arrest.note') }}</p>
+        <button type="button" class="btn btn-secondary btn-sm self-start" :disabled="busy" data-test="bail" @click="bail">{{ t('gigs.arrest.bail', { amount: money(arrest.bail_cents) }) }}</button>
+      </section>
+
       <!-- The gig the car is out on looks like a journey: where it goes, how long until it is back, and what it pays. -->
       <section v-if="active" class="card card-hi flex flex-col gap-2 !p-3" role="status" data-test="active">
         <p class="text-sm">{{ t('gigs.active', { route: routeText(active, board.city_name), time: formatDuration(activeLeftMs), pay: money(active.reward_cents) }) }}</p>
+        <p v-if="policeText(active)" class="text-xs text-danger" data-test="active-police">{{ policeText(active) }}</p>
         <button v-if="canCancel" type="button" class="btn btn-secondary btn-sm self-start" :disabled="busy" data-test="cancel" @click="cancel">{{ t('gigs.cancel') }}</button>
       </section>
 
@@ -172,6 +204,9 @@ const phaseText = computed(() => (board.value ? t(`gigs.phase.${board.value.phas
         <span class="sub" data-test="car">{{ t('gigs.car', { seats: board.car.seats, cargo: number(board.car.cargo_kg), speed: speed(board.car.speed_kmh) }) }}</span>
         <span v-if="board.limits" class="chip" data-test="limit">{{ t('gigs.limit', { used: board.limits.daily_used, limit: board.limits.daily_limit }) }}</span>
       </div>
+
+      <!-- The night run of the night is not an offer of the wave: it has a screen of its own, with the chances. -->
+      <RouterLink v-if="board.opportunity" :to="{ name: 'gigs-night' }" class="btn btn-secondary btn-sm self-start" data-test="night-link">{{ t('gigs.night.link') }}</RouterLink>
 
       <p v-if="offers.length === 0" class="text-muted" data-test="empty">{{ t('gigs.empty', { time: formatDuration(waveLeftMs) }) }}</p>
 

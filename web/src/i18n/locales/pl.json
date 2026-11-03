@@ -1017,7 +1017,54 @@
       "gig_no_fuel": "Potrzeba {required} l paliwa",
       "gig_busy": "Auto jest już na zleceniu",
       "car_cannot_travel": "Auto nie może teraz wyjechać",
-      "gig_daily_limit": "Limit dobowy wykorzystany"
+      "gig_daily_limit": "Limit dobowy wykorzystany",
+      "arrested": "Jesteś w areszcie",
+      "gig_night_limit": "Limit nocnych kursów na dobę wyczerpany"
+    },
+    "night": {
+      "link": "Nocny kurs",
+      "title": "Nocny kurs",
+      "chip": "OKAZJA · OKNO NOCNE",
+      "untilDawn": "do świtu {time}",
+      "pay": "Wypłata",
+      "multiplier": "×{factor} zwykłej stawki",
+      "plain": "ta sama trasa jako zwykły kurs: {pay}",
+      "load": "ładunek {kg} kg · jazda {time}",
+      "risk": "Ryzyko policji",
+      "patrols": "Patrole w regionie nocą",
+      "classLow": "Cichy samochód",
+      "classHigh": "Głośny samochód",
+      "points": "pp",
+      "heat": "Poszukiwany w tym mieście",
+      "control": "Szansa kontroli",
+      "escape": "Szansa ucieczki (auto vs patrol)",
+      "clean": "Czysty przejazd",
+      "cleanText": "pełna wypłata",
+      "escaped": "Ucieczka",
+      "escapedText": "wypłata −{percent}%",
+      "arrested": "Areszt",
+      "arrestedText": "konfiskata, mandat {fine}, areszt {minutes} min",
+      "vehicle": "Twoje auto: ładunek {kg} kg wystarcza · hałas {noise}",
+      "noise": {
+        "low": "niski",
+        "normal": "zwykły",
+        "high": "wysoki"
+      },
+      "note": "Areszt blokuje tylko Twoje podróże i kursy. Garaże, warsztat i zaparkowane auta pracują dalej. Kaucja ({bail}) kończy go od razu.",
+      "take": "Podejmij ryzyko",
+      "skip": "Odrzuć",
+      "none": "Teraz nie ma dla Ciebie nocnego kursu.",
+      "back": "Wróć do kursów"
+    },
+    "arrest": {
+      "text": "Jesteś w areszcie: żadnych podróży ani kursów przez {time}.",
+      "note": "Garaże, warsztat i zaparkowane auta pracują dalej.",
+      "bail": "Wpłać kaucję {amount}",
+      "bailed": "Kaucja wpłacona, areszt skończony."
+    },
+    "police": {
+      "escaped": "Policja zatrzymała auto, ale uciekło: dostanie {pay}.",
+      "arrested": "Policja zatrzymała auto: ładunek skonfiskowany, mandat {fine}."
     }
   },
   "awayAccount": {
@@ -1029,6 +1076,8 @@
     "arrived": "Dojazd do: {city}",
     "gigs": "Zlecenia: {count} · +{pay}",
     "gig": "{kind} · {city} · +{pay}",
+    "gigEscaped": "uciekło policji",
+    "gigArrested": "areszt, mandat {fine}",
     "waiting": {
       "fuel_empty": "brak paliwa",
       "breakdown": "awaria"

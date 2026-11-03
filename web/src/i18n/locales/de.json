@@ -1017,7 +1017,54 @@
       "gig_no_fuel": "Braucht {required} l Kraftstoff",
       "gig_busy": "Das Auto ist schon unterwegs",
       "car_cannot_travel": "Das Auto kann jetzt nicht losfahren",
-      "gig_daily_limit": "Tageslimit erreicht"
+      "gig_daily_limit": "Tageslimit erreicht",
+      "arrested": "Du bist in Haft",
+      "gig_night_limit": "Tageslimit der Nachtfahrten erreicht"
+    },
+    "night": {
+      "link": "Nachtfahrt",
+      "title": "Nachtfahrt",
+      "chip": "GELEGENHEIT · NACHTFENSTER",
+      "untilDawn": "bis zum Morgengrauen {time}",
+      "pay": "Lohn",
+      "multiplier": "×{factor} des normalen Lohns",
+      "plain": "dieselbe Strecke als gewöhnlicher Auftrag: {pay}",
+      "load": "Ladung {kg} kg · Fahrt {time}",
+      "risk": "Polizeirisiko",
+      "patrols": "Streifen in der Region nachts",
+      "classLow": "Leises Auto",
+      "classHigh": "Lautes Auto",
+      "points": "Pp.",
+      "heat": "In dieser Stadt gesucht",
+      "control": "Chance auf eine Kontrolle",
+      "escape": "Chance zu entkommen (Auto gegen Streife)",
+      "clean": "Saubere Fahrt",
+      "cleanText": "voller Lohn",
+      "escaped": "Entkommen",
+      "escapedText": "Lohn −{percent} %",
+      "arrested": "Festnahme",
+      "arrestedText": "Ladung beschlagnahmt, Strafe {fine}, Haft {minutes} Min.",
+      "vehicle": "Dein Auto: Platz für {kg} kg reicht · Lautstärke {noise}",
+      "noise": {
+        "low": "niedrig",
+        "normal": "normal",
+        "high": "hoch"
+      },
+      "note": "Eine Festnahme sperrt nur deine Reisen und Aufträge. Garagen, Werkstatt und geparkte Autos arbeiten weiter. Die Kaution ({bail}) beendet sie sofort.",
+      "take": "Risiko eingehen",
+      "skip": "Nicht jetzt",
+      "none": "Für dich gibt es jetzt keine Nachtfahrt.",
+      "back": "Zurück zu den Aufträgen"
+    },
+    "arrest": {
+      "text": "Du bist in Haft: keine Reisen und keine Aufträge für {time}.",
+      "note": "Garagen, Werkstatt und geparkte Autos arbeiten weiter.",
+      "bail": "Kaution zahlen {amount}",
+      "bailed": "Die Kaution ist bezahlt, die Haft ist vorbei."
+    },
+    "police": {
+      "escaped": "Die Polizei hat das Auto angehalten, aber es ist entkommen: Es bekommt {pay}.",
+      "arrested": "Die Polizei hat das Auto angehalten: Ladung beschlagnahmt, Strafe {fine}."
     }
   },
   "awayAccount": {
@@ -1029,6 +1076,8 @@
     "arrived": "Angekommen in {city}",
     "gigs": "Aufträge: {count} · +{pay}",
     "gig": "{kind} · {city} · +{pay}",
+    "gigEscaped": "der Polizei entkommen",
+    "gigArrested": "Festnahme, Strafe {fine}",
     "waiting": {
       "fuel_empty": "kein Kraftstoff",
       "breakdown": "Panne"
