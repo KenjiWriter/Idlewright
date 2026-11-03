@@ -12,6 +12,9 @@ use InvalidArgumentException;
  */
 final class GigCatalog
 {
+    /** The name of the template that a night run is filed under (it is not one of the templates of the document, but its offers and its gigs need one). */
+    public const NIGHT = 'night';
+
     /** The phases of the day of the game, as the clock names them. */
     public const PHASES = ['dawn', 'day', 'dusk', 'night'];
 
@@ -150,6 +153,18 @@ final class GigCatalog
     public function kinds(): array
     {
         return $this->data['kinds'] ?? [];
+    }
+
+    /**
+     * The night run, or null when the game has none or it is switched off.
+     *
+     * @return array<string, mixed>|null
+     */
+    public function night(): ?array
+    {
+        $night = $this->data['night'] ?? null;
+
+        return $this->enabled() && is_array($night) && ($night['enabled'] ?? false) === true ? $night : null;
     }
 
     /** @return array<string, array<string, mixed>> */

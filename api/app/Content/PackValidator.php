@@ -1271,6 +1271,45 @@ final class PackValidator
                 $result->addWarning($file, "/bands/{$index}", "No trip in the city fits the longest gig of level {$band['from_level']}: a driver of that level has no gig in a city with no other city open.");
             }
         }
+
+        $this->checkNightRun($gigs, $cars, $classes, $file, $result);
+    }
+
+    /**
+     * What the schema cannot say about the night run: its kind is one of the kinds of the document, the smallest load is not more than the biggest, some car of the pack can
+     * carry the smallest load, a class that changes the chance of a stop is a class of the pack, and what a car that got away is paid is not more than the plain pay.
+     *
+     * @param  array<string, mixed>  $gigs
+     * @param  list<array<string, mixed>>  $cars
+     * @param  array<int, string>  $classes
+     */
+    private function checkNightRun(array $gigs, array $cars, array $classes, string $file, PackValidationResult $result): void
+    {
+        $night = $gigs['night'] ?? null;
+
+        if (! is_array($night)) {
+            return;
+        }
+
+        if (! isset($gigs['kinds'][$night['kind']])) {
+            $result->addError($file, '/night/kind', "The kind {$night['kind']} is not one of the kinds of the document.");
+        }
+
+        if ($night['amount']['min'] > $night['amount']['max']) {
+            $result->addError($file, '/night/amount', 'The smallest is more than the biggest.');
+        }
+
+        if ($night['enabled'] && array_filter($cars, static fn (array $car): bool => ($car['cargo_kg'] ?? 0) >= $night['amount']['min']) === []) {
+            $result->addError($file, '/night/amount', 'No car of the pack can take even the smallest load of the night run.');
+        }
+
+        foreach ($night['risk']['modifiers'] as $index => $modifier) {
+            foreach ($modifier['class_in'] as $position => $class) {
+                if (! in_array($class, $classes, true)) {
+                    $result->addWarning($file, "/night/risk/modifiers/{$index}/class_in/{$position}", "No car of the pack is of the class {$class}.");
+                }
+            }
+        }
     }
 
     /**
@@ -1603,6 +1642,10 @@ final class PackValidator
 
             foreach ($data['templates'] ?? [] as $key => $template) {
                 $texts["/templates/{$key}/title"] = $template['title'] ?? null;
+            }
+
+            if (isset($data['night'])) {
+                $texts['/night/title'] = $data['night']['title'] ?? null;
             }
         }
 

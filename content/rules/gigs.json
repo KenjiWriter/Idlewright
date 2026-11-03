@@ -151,6 +151,15 @@
         "de": "Großauftrag",
         "pt-BR": "Atacado"
       }
+    },
+    "night": {
+      "name": {
+        "en": "Night run",
+        "pl": "Nocny kurs",
+        "fr": "Course de nuit",
+        "de": "Nachtfahrt",
+        "pt-BR": "Corrida noturna"
+      }
     }
   },
   "templates": {
@@ -411,6 +420,55 @@
       },
       "window_waves": 4,
       "min_player_level": 9
+    }
+  },
+  "night": {
+    "enabled": true,
+    "kind": "night",
+    "title": {
+      "en": "Cargo without an invoice",
+      "pl": "Towar bez faktury",
+      "fr": "Marchandise sans facture",
+      "de": "Ware ohne Rechnung",
+      "pt-BR": "Carga sem nota fiscal"
+    },
+    "amount": {
+      "min": 10,
+      "max": 60
+    },
+    "pay_ppm": 2500000,
+    "min_player_level": 9,
+    "daily_limit": 2,
+    "risk": {
+      "control_ppm": 360000,
+      "modifiers": [
+        {
+          "class_in": [
+            "hatchback",
+            "sedan",
+            "van"
+          ],
+          "delta_ppm": -140000
+        },
+        {
+          "class_in": [
+            "gt",
+            "muscle",
+            "super",
+            "hyper"
+          ],
+          "delta_ppm": 100000
+        }
+      ],
+      "escape_ppm": 580000,
+      "heat_ms": 21600000,
+      "heat_ppm": 100000
+    },
+    "escape_pay_ppm": 500000,
+    "arrest": {
+      "ms": 1500000,
+      "fine_ppm": 300000,
+      "bail_ppm": 500000
     }
   }
 }

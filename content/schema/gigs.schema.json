@@ -142,6 +142,62 @@
         "required": ["kind", "title", "capacity", "amount", "mode", "pay_ppm", "phases", "window_waves", "min_player_level"],
         "additionalProperties": false
       }
+    },
+    "night": {
+      "description": "The night run: one opportunity for each game night in each city, a small load across the border of the law that pays several times the plain pay and may be stopped by the police. The driver sees the chances before they take it. It is not one of the templates because it is not drawn from the board: it is made once for a night, from the seed.",
+      "type": "object",
+      "properties": {
+        "enabled": { "description": "Whether the night run is offered. Off means no opportunity; a night run that is on the road is finished.", "type": "boolean" },
+        "kind": { "description": "The kind of the offer, one of the kinds of the document.", "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+        "title": { "$ref": "common.schema.json#/$defs/i18n" },
+        "amount": {
+          "description": "How many kilograms the load is.",
+          "type": "object",
+          "properties": { "min": { "type": "integer", "minimum": 1 }, "max": { "type": "integer", "minimum": 1 } },
+          "required": ["min", "max"],
+          "additionalProperties": false
+        },
+        "pay_ppm": { "description": "What the night run multiplies the plain pay of the same trip by (2 500 000 is two and a half times).", "type": "integer", "minimum": 100000, "maximum": 10000000 },
+        "min_player_level": { "type": "integer", "minimum": 1, "maximum": 100 },
+        "daily_limit": { "description": "How many night runs a driver may take in a day (the day of the daily limit of the gigs).", "type": "integer", "minimum": 1, "maximum": 50 },
+        "risk": {
+          "type": "object",
+          "properties": {
+            "control_ppm": { "description": "The chance that the patrols stop a night run, before the car changes it.", "type": "integer", "minimum": 0, "maximum": 1000000 },
+            "modifiers": {
+              "description": "What the body class of the car changes in that chance: a quiet car draws less attention, a loud one more.",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "class_in": { "type": "array", "items": { "type": "string", "pattern": "^[a-z_]+$" }, "minItems": 1, "uniqueItems": true },
+                  "delta_ppm": { "type": "integer", "minimum": -1000000, "maximum": 1000000 }
+                },
+                "required": ["class_in", "delta_ppm"],
+                "additionalProperties": false
+              }
+            },
+            "escape_ppm": { "description": "Of the stops, the part that the car drives away from; the rest is an arrest.", "type": "integer", "minimum": 0, "maximum": 1000000 },
+            "heat_ms": { "description": "How long after an escape the patrols of that city look harder for the car.", "type": "integer", "minimum": 0, "maximum": 604800000 },
+            "heat_ppm": { "description": "How much more the chance of a stop is in that time.", "type": "integer", "minimum": 0, "maximum": 1000000 }
+          },
+          "required": ["control_ppm", "modifiers", "escape_ppm", "heat_ms", "heat_ppm"],
+          "additionalProperties": false
+        },
+        "escape_pay_ppm": { "description": "The part of the pay that a car which got away is paid.", "type": "integer", "minimum": 0, "maximum": 1000000 },
+        "arrest": {
+          "type": "object",
+          "properties": {
+            "ms": { "description": "How long the arrest lasts from the moment of the stop. It blocks the journeys and the gigs of the driver, and nothing else.", "type": "integer", "minimum": 60000, "maximum": 86400000 },
+            "fine_ppm": { "description": "The fine, as a part of the pay of the night run, taken when the car is back (never more than the driver has).", "type": "integer", "minimum": 0, "maximum": 5000000 },
+            "bail_ppm": { "description": "The bail, as a part of the same pay: what the driver pays to end the arrest at once.", "type": "integer", "minimum": 0, "maximum": 5000000 }
+          },
+          "required": ["ms", "fine_ppm", "bail_ppm"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["enabled", "kind", "title", "amount", "pay_ppm", "min_player_level", "daily_limit", "risk", "escape_pay_ppm", "arrest"],
+      "additionalProperties": false
     }
   },
   "required": ["schema", "version", "enabled", "unlock_after_step", "timezone", "reset_hour", "wave_ms", "cancel_window_ms", "slots", "rarities", "pay", "bands", "kinds", "templates"],
