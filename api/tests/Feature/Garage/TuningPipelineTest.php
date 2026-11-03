@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Content\CarPerformance;
 use App\Content\Catalog;
 use App\Content\Rules;
 use App\Content\RunInputsFactory;
@@ -116,6 +117,23 @@ describe('the bonuses of the tuning in the pipeline', function () {
 
         expect($dry['dry'])->toBeLessThan($base['dry'])->and($dry['rain'])->toBe($base['rain'])
             ->and($rain['rain'])->toBeLessThan($base['rain'])->and($rain['dry'])->toBe($base['dry']);
+    });
+
+    it('leave the class of a car alone when they work only on some tracks, and count when they work everywhere: the PI is worked out for no track', function () {
+        $plainRules = Rules::fromSource(contentWith(['rules/starter' => function (array $rules): array {
+            // A bonus with no context at all: it works on every track, so the car has it whatever the track is.
+            $rules['tuning']['definitions']['everywhere-grip'] = [...$rules['tuning']['definitions']['dry-grip'], 'effect' => 'stat', 'stat' => 'grip', 'context' => [], 'max_ppm' => 80_000, 'mean_ppm' => 40_000];
+
+            return $rules;
+        }]));
+        $pi = fn (array $mounted): int => (new CarPerformance(tuningFactory($plainRules), $plainRules, app(Catalog::class)))->of('rdzak-gt-4', $mounted);
+
+        $none = $pi(tunedCar());
+
+        // A bonus that works on sprint tracks only, or on one surface, does not make the car a better car for the class it races in.
+        expect($pi(tunedCar(['brakes' => [tuned('sprint-brake', 120_000)], 'tires' => [tuned('dry-grip', 120_000)]])))->toBe($none)
+            // One that works everywhere is part of what the car is.
+            ->and($pi(tunedCar(['tires' => [tuned('everywhere-grip', 80_000)]])))->toBeGreaterThan($none);
     });
 
     it('of a weather multiply the statistic in that weather and in no other', function () {
