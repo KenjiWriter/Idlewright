@@ -478,12 +478,36 @@ Menu Treść → Samouczek. Góra strony to ustawienia pierwszego przejazdu (pal
 5. **Kroki samouczka.** Kroki w kolejności, w jakiej kierowca je spotyka. Krok zaczyna się, gdy poprzedni jest zrobiony i zachodzi jego początek, a kończy, gdy zachodzi jego koniec. Przykład: Obecnie 20 kroków: 5 w fazie 1, 5 w fazie 2, 6 w fazie 3 i 4 w fazie 4. Wskazówka: Kolejność jest ważna: krok, którego początek nie zachodzi, wstrzymuje wszystkie za nim. Krok dodany później zaczyna się u każdego kierowcy, który nie zrezygnował z samouczka i nie ma dla niego wiersza, także u tego, który jest już dalej albo go skończył (gdy tylko zachodzi jego początek); u kierowcy, który jest już za nim, nie wstrzymuje kroków za sobą i nie liczy się do jego postępu, dopóki się nie zacznie. Kierowca, który z samouczka zrezygnował, takiego kroku nie dostaje. Kroku, w którym są gracze, nie można usunąć z paczki.
 6. **Klucz kroku.** Stały identyfikator kroku: małe litery, cyfry i myślniki, najwyżej 64 znaki, unikatowy. Na nim opiera się postęp kierowców, więc go nie zmieniaj i nie usuwaj kroku, w którym są gracze: publikacja takiej paczki jest odrzucana. Przykład: first-lap, rain, network. Wskazówka: Trzy klucze zna sam serwer: „repair” (awaria pierwszego auta trwa, dopóki ten krok nie jest zrobiony; symulator ekonomii nie liczy jego gotówki jako daru), „mount” (od zrobionej naprawy do zrobionego montażu pierwsze zlecenie jest krótkie) i „crate” (od zrobionego montażu do zrobionej skrzynki pierwsza skrzynka jest za darmo). Nie zmieniaj ich ani kolejności tych kroków. Sprawdzenie paczki ostrzega, gdy któregoś z trzech brakuje.
 7. **Faza.** Do której części samouczka należy krok. Pasek celu pokazuje cztery kropki, wypełnione do fazy kroku. Symulator ekonomii liczy XP, gotówkę i garaże kroków faz 1–2 jako „pierwsze piętnaście minut” i porównuje je z modelem (economy.json, model.tutorial: dziś 4 700 XP, $590 i 1 garaż). Zakres: 1 – 4.
-8. **Numer mentora.** Zmyślony numer, z którego mentor pisze w tym kroku; widać go na górze telefonu. Mentor się ukrywa, więc zmienia numer w każdym kroku. Zakres: Dokładnie „+48 555 010” i trzy cyfry. Przykład: +48 555 010 120.
+8. **Nadawca.** Od kogo są wiadomości tego kroku; widać to na górze urządzenia (telefonu, listu, tabletu). Dowolny tekst, ten sam w każdym języku: numer, nazwa, znak wywoławczy. Puste pole to nadawca urządzenia (sekcja „Urządzenie”). W RideIdle mentor się ukrywa, więc w każdym kroku pisze z innego zmyślonego numeru. Zakres: Najwyżej 40 znaków. Przykład: +48 555 010 120; Kapitanat portu; Kanał 7.
 <!-- /legenda -->
 
 **Wersja samouczka** (rok, miesiąc i kolejny numer, na przykład `2026.10.4`) to tylko etykieta wydania: silnik nie podejmuje na jej podstawie decyzji, ale zwiększ ją, gdy zmieniasz kroki, żeby odróżniać wydania. **Kroku, w którym są gracze, nie można usunąć:** publikacja takiej paczki jest odrzucana.
 
-**Co się stanie w grze i kiedy:** nowi gracze po następnej paczce zaczynają od nowej wersji samouczka.
+### Urządzenie, słowa i historia na start
+
+Każda gra ma własny samouczek: RideIdle pisze z pękniętego telefonu, gra o statkach może pisać listy, a gra kosmiczna z tabletu albo z urządzenia narysowanego przez grę. Między ustawieniami pierwszego przejazdu a krokami są trzy sekcje:
+
+- **Urządzenie.** Na czym mentor pisze: telefon, list, tablet, zwykłe okno w kolorach gry albo **własny obraz** (wgrywasz obraz ramki z przezroczystym miejscem na ekran i podajesz, ile procent obrazu zostaje od ekranu do każdej krawędzi). Przełączniki wyłączają części urządzenia (pęknięcia ekranu, pasek sieci i baterii, pole odpowiedzi, przycisk „Kto to?”). **Nadawca urządzenia** to nadawca kroków, które nie mają własnego: wpisz go raz, gdy mentor pisze zawsze z tego samego miejsca. **Ikona** to mała ikona na pasku celu (bez niej gra rysuje ikonę urządzenia).
+- **Słowa samouczka.** Każdy komunikat samouczka aplikacji (sieć, „Kto to?”, odpowiedź mentora, „Wyślij”, okno pomijania, komunikaty nagród, pasek celu) w pięciu językach. Puste pole to tekst aplikacji, który widać jako podpowiedź; nazwy w klamrach (`{cash}`) muszą zostać. Te słowa nie są już na stronie Słownik.
+- **Historia na start.** Co gracz widzi między nadaniem imienia a wyborem wraku: **historia aplikacji** (cztery sceny RideIdle), **własna historia** (obraz, od jednej do sześciu scen z czasem, ruchem kamery i punktem skupienia, pierwsza wiadomość i słowa ekranu) albo **bez historii** (gracz od razu wybiera wrak; sceny zostają w dokumencie na później). `{name}` w tekście sceny to imię gracza.
+
+Nadawca kroku to teraz dowolny tekst (numer, nazwa, znak wywoławczy), najwyżej 40 znaków; gdy ma się różnić między językami, rozwiń „Nadawca w językach”. Wiadomość ma najwyżej 200 znaków, a w liście 400.
+
+![Samouczek: urządzenie i historia](img/podrecznik-samouczek-urzadzenie.png)
+
+<!-- legenda:samouczek-urzadzenie -->
+1. **Urządzenie.** Na czym mentor pisze do kierowcy. Zmienia wygląd okna wiadomości na każdym ekranie gry i pierwszej wiadomości w historii na start. Przykład: RideIdle: Telefon. Gra o statkach: List. Gra kosmiczna: Tablet.
+2. **Nadawca urządzenia.** Od kogo są wiadomości kroków, które nie mają własnego nadawcy. Wpisz go raz, gdy mentor pisze zawsze z tego samego miejsca, a pola „Nadawca” w krokach zostaw puste. Zakres: Najwyżej 40 znaków. Przykład: Kapitanat portu.
+3. **Pęknięcia ekranu.** Rysuje pęknięcia na ekranie telefonu. Pęknięcia ma tylko telefon; przy innych urządzeniach przełącznik nic nie zmienia.
+4. **Słowa samouczka.** Rozwiń, żeby powiedzieć słowa samouczka po swojemu; puste pole to tekst aplikacji.
+5. **Historia na start.** Co kierowca widzi między nadaniem imienia a wyborem wraku.
+6. **Sceny.** Od jednej do sześciu scen, w kolejności. Każda zostaje na ekranie przez swój czas albo do dotknięcia; w ostatniej przychodzi pierwsza wiadomość. Zakres: 1–6 scen. Przykład: RideIdle: 4 sceny, razem 24 s.
+7. **Ruch kamery.** Jak kamera porusza się po obrazie w tej scenie.
+<!-- /legenda -->
+
+**Przez asystenta AI:** zaznacz „Samouczek” w Moście AI (rozdział 17). Asystent zmieni urządzenie, nadawców, teksty kroków, słowa i sceny oraz doda nowy krok, ale nie usunie kroku, nie zmieni kolejności i nie wgra obrazu.
+
+**Co się stanie w grze i kiedy:** nowi gracze po następnej paczce zaczynają od nowej wersji samouczka. Urządzenie, nadawcy i słowa zmieniają się po paczce także u graczy, którzy są w trakcie (słowa najpóźniej minutę po niej, bo przeglądarka trzyma je przez 60 s).
 
 **Nie rozstrzygnięte:** co dzieje się z krokami dodanymi później u graczy, którzy są już dalej w samouczku (czy dostaną je, czy nie), nie jest dziś ustalone i nie jest tu opisane. Zanim dodasz krok w środku działającej gry, sprawdź to na koncie testowym.
 
@@ -1099,12 +1123,12 @@ Most składa się z dwóch przepływów: panel **przygotowuje instrukcję** dla 
 
 ### 17.1. Przygotuj instrukcję
 
-Menu Treść → Most AI, karta „1. Przygotuj instrukcję”. Wybierz, co dołączyć: auta, części, liczby reguł (tryb prosty albo wszystkie), sekcje, teksty (przełącznik „Dołącz teksty”), a także tryb „zaprojektuj tę grę od nowa”. Panel pokazuje **rozmiar instrukcji w tokenach** (to szacunek) i kolor: do 30 tysięcy zielony, do 80 tysięcy żółty, powyżej czerwony (zmniejsz wybór, bo instrukcja może się nie zmieścić w oknie czatu).
+Menu Treść → Most AI, karta „1. Przygotuj instrukcję”. Wybierz, co dołączyć: auta, części, liczby reguł (tryb prosty albo wszystkie), samouczek (kroki po kluczach, urządzenie, nadawcy, słowa i historia), sekcje, teksty (przełącznik „Dołącz teksty”), a także tryb „zaprojektuj tę grę od nowa”. Panel pokazuje **rozmiar instrukcji w tokenach** (to szacunek) i kolor: do 30 tysięcy zielony, do 80 tysięcy żółty, powyżej czerwony (zmniejsz wybór, bo instrukcja może się nie zmieścić w oknie czatu).
 
 ![Most AI: instrukcja](img/podrecznik-most-ai-instrukcja.png)
 
 <!-- legenda:most-ai-instrukcja -->
-1. **Co dołączyć.** Co asystent ma wiedzieć o grze: auta, części i liczby reguł. Odpowiedź będzie mogła zmienić tylko to, co tu zaznaczysz. Przykład: Same części, gdy chcesz zmienić ich ceny: odznacz auta i reguły. Wskazówka: Im mniej zaznaczysz, tym krótsza instrukcja i tym dokładniejsza rozmowa.
+1. **Co dołączyć.** Co asystent ma wiedzieć o grze: auta, części, liczby reguł i samouczek. Odpowiedź będzie mogła zmienić tylko to, co tu zaznaczysz. Przykład: Same części, gdy chcesz zmienić ich ceny: odznacz auta i reguły. Wskazówka: Im mniej zaznaczysz, tym krótsza instrukcja i tym dokładniejsza rozmowa.
 2. **Tylko najważniejsze liczby.** Włączone: z reguł trafiają do instrukcji tylko liczby trybu prostego Studia (ceny, nagrody, czasy, poziomy). Wyłączone: wszystkie liczby wybranych sekcji. Wskazówka: Instrukcja ze wszystkimi liczbami jest kilka razy dłuższa.
 3. **Dołącz teksty.** Włączone: do instrukcji trafiają nazwy i opisy aut i części oraz teksty wybranych sekcji reguł, we wszystkich językach (to kilka tysięcy tokenów więcej). Bez tego asystent nie widzi tekstów, więc nie zmieni ani nie przetłumaczy żadnego. Wskazówka: Włącz, gdy chcesz zmieniać nazwy albo tłumaczyć.
 4. **Język opisów.** W jakim języku są etykiety i opisy liczb w instrukcji. Zasady rozmowy i format bloku są zawsze po angielsku, a asystent odpowiada w języku, w którym do niego piszesz.
@@ -1158,10 +1182,12 @@ Przy zmianie tylko jednego auta albo jednej części użyj przycisku **„Przygo
 2. **„Zmień cenę VIP.”** Cena VIP jest w **monetach**, więc asystent pyta o nową liczbę monet i podaje ją w jednostkach Studia. Ceny w prawdziwych pieniądzach most pomija (rozdział 12).
 3. **„Dodaj nowe auto na wzór Rdzaka GT-4.”** Asystent kopiuje istniejące auto, zmienia pola i prosi o nowy slug, którego gra jeszcze nie użyła.
 4. **„Przemianuj Rdzaka GT-4 w tej grze.”** Operacja tekstu w jednym języku; inne języki (francuski, niemiecki, portugalski) są oznaczone jako tłumaczenie AI, nieprzejrzane.
+5. **„W grze o statkach mentor ma pisać listy od kapitanatu portu.”** Zaznacz w instrukcji **Samouczek**. Asystent pyta, czy wszystkie kroki mają pisać od tego samego nadawcy i czy zmienić też słowa (na przykład „Wyślij” na „Nadaj list”), streszcza i dopiero potem daje blok: wybór urządzenia (`/messenger/device` = `letter`), nadawcę (`/messenger/sender`) i słowa (`/messenger/labels/send`). Kroki wskazuje **kluczem**, nie numerem (`/steps/refuel/sms/0`), bo numery przesuwają się po dodaniu kroku.
+6. **„Dodaj krok po tankowaniu, w którym mentor przypomina o serwisie.”** Asystent wstawia nowy krok operacją `insert` po kroku `refuel`, z nowym kluczem i tekstami w pięciu językach. Panel sprawdza cały samouczek tak jak przy zapisie strony (klucz wolny, warunki z listy, nadawca, długość wiadomości).
 
 ### 17.7. Czego most nie robi
 
-Most **nie publikuje**, nie zakłada gier, nie zmienia cen w prawdziwych pieniądzach, nie wysyła obrazków, nie kasuje, nie wycofuje i nie archiwizuje. Zmienia wyłącznie to, co objęła instrukcja. Mapa liczb, które most potrafi zmienić, jest ta sama co w Studiu, więc obejmuje też klasy aut i PI (sekcja „competition”, przy wyłączonym „Tylko najważniejsze liczby”; rozdział 15).
+Most **nie publikuje**, nie zakłada gier, nie zmienia cen w prawdziwych pieniądzach, nie wysyła obrazków (także ramki urządzenia, ikony i obrazu historii samouczka), nie kasuje, nie wycofuje i nie archiwizuje. W samouczku nie usuwa kroków i nie zmienia ich kolejności: to robi się na stronie Samouczek. Zmienia wyłącznie to, co objęła instrukcja. Mapa liczb, które most potrafi zmienić, jest ta sama co w Studiu, więc obejmuje też klasy aut i PI (sekcja „competition”, przy wyłączonym „Tylko najważniejsze liczby”; rozdział 15).
 
 ### 17.8. Jak wypróbować most po raz pierwszy
 

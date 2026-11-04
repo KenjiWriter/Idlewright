@@ -594,6 +594,55 @@
       ]
     },
     {
+      "slug": "samouczek-urzadzenie",
+      "url": "/admin/tutorial",
+      "czekaj": "form",
+      "od": {
+        "selektor": ".fi-section-header",
+        "zawiera": "Urządzenie",
+        "wyzej": 40
+      },
+      "kroki": [
+        {
+          "js": "[...document.querySelectorAll('.fi-section-header')].find((e) => e.textContent.includes('Historia na start'))?.click()",
+          "pauza_po": 900
+        }
+      ],
+      "maks_wysokosc": 2600,
+      "znaczniki": [
+        {
+          "pomoc": "tutorial.device",
+          "ktory": 0
+        },
+        {
+          "pomoc": "tutorial.messenger_sender",
+          "ktory": 0
+        },
+        {
+          "pomoc": "tutorial.part_crack",
+          "ktory": 0
+        },
+        {
+          "selektor": ".fi-section-header",
+          "zawiera": "Słowa samouczka",
+          "nazwa": "Słowa samouczka",
+          "opis": "rozwiń, żeby powiedzieć słowa samouczka po swojemu; puste pole to tekst aplikacji"
+        },
+        {
+          "pomoc": "tutorial.story_mode",
+          "ktory": 0
+        },
+        {
+          "pomoc": "tutorial.story_scenes",
+          "ktory": 0
+        },
+        {
+          "pomoc": "tutorial.scene_camera",
+          "ktory": 0
+        }
+      ]
+    },
+    {
       "slug": "misje",
       "url": "/admin/missions",
       "czekaj": "form",
