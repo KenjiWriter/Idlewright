@@ -33,12 +33,17 @@ final class GigReport
     ) {}
 
     /**
-     * One row for every pair of a car and a template that can be taken. Dollars and ratios; an ordinary offer in a phase that pays plain.
+     * One row for every pair of a car and a template that can be taken. Dollars and ratios; an ordinary offer in a phase that pays plain. A game whose content has no
+     * gigs (a pack made before they came has no document of them) has no row: there is no gig to measure, and no pay of a level to look up.
      *
      * @return list<array{car: string, class: string, level: int, template: string, kind: string, anchor: float, speed_kmh: float, gross_per_hour: float, net_per_hour: float, r1: float, track: string, track_net: float, r2: float}>
      */
     public function rows(): array
     {
+        if ($this->gigs->isEmpty()) {
+            return [];
+        }
+
         $rows = [];
 
         foreach ($this->catalog->vehicles() as $slug => $car) {

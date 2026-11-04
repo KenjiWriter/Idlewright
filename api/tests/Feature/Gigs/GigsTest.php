@@ -460,4 +460,14 @@ describe('the report', function () {
         $this->artisan('gigs:report', ['--strict' => true])->assertExitCode(1);
         $this->artisan('gigs:report')->assertExitCode(0);
     });
+
+    it('has nothing to measure, and lets a pack through, in a game whose content has no gigs', function () {
+        // A pack made before the gigs came has no document of them: the game has no gigs, and the gate has no gig to hold against the ladder.
+        app()->instance(GigCatalog::class, GigCatalog::fromArray([]));
+
+        $this->artisan('gigs:report', ['--strict' => true])->assertExitCode(0);
+
+        expect(Artisan::call('gigs:report', ['--json' => true]))->toBe(0)
+            ->and(json_decode(Artisan::output(), true))->toBe(['rows' => [], 'offences' => []]);
+    });
 });
