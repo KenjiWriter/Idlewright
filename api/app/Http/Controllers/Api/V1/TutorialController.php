@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers\Api\V1;
 
+use App\Content\TutorialSteps;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\TutorialResource;
+use App\Http\Resources\TutorialStoryResource;
 use App\Services\Tutorial;
 use App\Services\TutorialState;
 use Illuminate\Http\JsonResponse;
@@ -24,6 +26,12 @@ final class TutorialController extends Controller
     public function show(Request $request): JsonResponse
     {
         return $this->respond($this->tutorial->evaluate($request->user()));
+    }
+
+    /** The story before the choice of a wreck: the same for every driver of the game, in the language of the driver. */
+    public function story(TutorialSteps $steps): JsonResponse
+    {
+        return TutorialStoryResource::make($steps)->response()->header('Cache-Control', 'no-store');
     }
 
     /** The driver answered the messages of the step that waits. Answering twice answers once. */

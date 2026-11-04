@@ -270,7 +270,12 @@ final class Tutorial
         $step = $active === null ? null : $this->steps->find($active->step_key);
 
         // A step with no messages is carried out without being shown.
-        $current = $step === null || $step['sms'] === [] ? null : [...$step, 'number' => $this->steps->numberOf($step['key']), 'acknowledged' => $active->acknowledged_at !== null];
+        $current = $step === null || $step['sms'] === [] ? null : [
+            ...$step,
+            'number' => $this->steps->numberOf($step['key']),
+            'sender' => $step['sender'] ?? $this->steps->messenger()['sender'] ?? '',
+            'acknowledged' => $active->acknowledged_at !== null,
+        ];
 
         $status = match (true) {
             $rows->contains('state', TutorialProgress::STATE_SKIPPED) => TutorialState::SKIPPED,
@@ -278,7 +283,7 @@ final class Tutorial
             default => TutorialState::IN_PROGRESS,
         };
 
-        return new TutorialState($status, $total, $done, $current, $rewarded, $status === TutorialState::IN_PROGRESS ? $this->goal($rows) : null);
+        return new TutorialState($status, $total, $done, $current, $rewarded, $status === TutorialState::IN_PROGRESS ? $this->goal($rows) : null, $this->steps->messenger());
     }
 
     /**

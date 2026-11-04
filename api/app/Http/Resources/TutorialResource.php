@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Resources;
 
 use App\Content\TutorialSteps;
+use App\Services\ContentImages;
 use App\Services\TutorialState;
 use App\Support\I18nText;
 use Illuminate\Http\Request;
@@ -33,7 +34,7 @@ final class TutorialResource extends JsonResource
             'current' => $step === null ? null : [
                 'key' => $step['key'],
                 'number' => $step['number'],
-                'sender' => $step['sender'],
+                'sender' => I18nText::from($step['sender'])->for(),
                 'sms' => array_map(static fn (array $text): string => I18nText::from($text)->for(), $step['sms']),
                 'reply' => I18nText::from($step['reply'] ?? null)->for() ?: self::DEFAULT_REPLY,
                 'optional' => (bool) ($step['optional'] ?? false),
@@ -45,7 +46,44 @@ final class TutorialResource extends JsonResource
             // What the steps completed by this call paid, so the client can say it and refresh the cash.
             'rewarded' => $state->rewarded,
             'goal' => $state->goal === null ? null : $this->goal($state->goal),
+            'messenger' => self::messenger($state->messenger),
         ];
+    }
+
+    /**
+     * What the mentor writes on, as the app draws it: the device, which of its parts are drawn (all of them unless the tutorial leaves one out), the icon of the
+     * button that brings the messages back, and for a device of the game's own its frame and where its screen is.
+     *
+     * @param  array<string, mixed>  $messenger
+     * @return array{device: string, parts: array{crack: bool, status_bar: bool, input: bool, who: bool}, icon_url: string|null, frame_url: string|null, screen: array{top: int, right: int, bottom: int, left: int}|null}
+     */
+    public static function messenger(array $messenger): array
+    {
+        $parts = (array) ($messenger['parts'] ?? []);
+        $picture = is_array($messenger['picture'] ?? null) ? $messenger['picture'] : null;
+
+        return [
+            'device' => (string) ($messenger['device'] ?? TutorialSteps::DEFAULT_DEVICE),
+            'parts' => [
+                'crack' => (bool) ($parts['crack'] ?? true),
+                'status_bar' => (bool) ($parts['status_bar'] ?? true),
+                'input' => (bool) ($parts['input'] ?? true),
+                'who' => (bool) ($parts['who'] ?? true),
+            ],
+            'icon_url' => self::pictureUrl($messenger['icon'] ?? null),
+            'frame_url' => self::pictureUrl($picture['frame'] ?? null),
+            'screen' => $picture === null ? null : [
+                'top' => (int) ($picture['screen']['top'] ?? 0),
+                'right' => (int) ($picture['screen']['right'] ?? 0),
+                'bottom' => (int) ($picture['screen']['bottom'] ?? 0),
+                'left' => (int) ($picture['screen']['left'] ?? 0),
+            ],
+        ];
+    }
+
+    private static function pictureUrl(mixed $name): ?string
+    {
+        return is_string($name) && preg_match(ContentImages::NAME, $name) === 1 ? ContentImages::url($name) : null;
     }
 
     /**

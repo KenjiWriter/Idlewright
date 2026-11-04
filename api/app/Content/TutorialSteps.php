@@ -52,6 +52,47 @@ final class TutorialSteps
         return $this->data['script'];
     }
 
+    /**
+     * What the mentor writes on: the device and the rest of the messenger, or the old cracked phone of RideIdle for a tutorial that says nothing of it.
+     *
+     * @return array<string, mixed>
+     */
+    public function messenger(): array
+    {
+        return is_array($this->data['messenger'] ?? null) ? $this->data['messenger'] : ['device' => self::DEFAULT_DEVICE];
+    }
+
+    /**
+     * The story before the choice of a wreck, or null for a tutorial that says nothing of it (the app then tells the story of RideIdle).
+     *
+     * @return array<string, mixed>|null
+     */
+    public function story(): ?array
+    {
+        return is_array($this->data['story'] ?? null) ? $this->data['story'] : null;
+    }
+
+    /** The device of a tutorial that names none. */
+    public const DEFAULT_DEVICE = 'phone';
+
+    /**
+     * The pictures that a document of the tutorial names (the frame of a device of its own, the icon of the button and the picture of the story): what a bundle has
+     * to carry.
+     *
+     * @param  array<string, mixed>  $document
+     * @return list<string>
+     */
+    public static function pictures(array $document): array
+    {
+        $names = [
+            $document['messenger']['icon'] ?? null,
+            $document['messenger']['picture']['frame'] ?? null,
+            $document['story']['picture'] ?? null,
+        ];
+
+        return array_values(array_unique(array_filter($names, static fn (mixed $name): bool => is_string($name) && $name !== '')));
+    }
+
     public function count(): int
     {
         return count($this->data['steps']);

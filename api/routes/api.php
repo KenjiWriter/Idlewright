@@ -152,6 +152,7 @@ Route::prefix('v1')->group(function (): void {
         Route::post('/parts/{part}/transmute', [TransmuteController::class, 'store'])->whereNumber('part');
 
         Route::get('/tutorial', [TutorialController::class, 'show']);
+        Route::get('/tutorial/story', [TutorialController::class, 'story']);
         Route::post('/tutorial/reply', [TutorialController::class, 'reply']);
         Route::post('/tutorial/decline', [TutorialController::class, 'decline']);
         Route::post('/tutorial/skip', [TutorialController::class, 'skip']);

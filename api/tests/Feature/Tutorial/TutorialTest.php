@@ -72,6 +72,8 @@ describe('the tutorial', function () {
                 'status' => 'in_progress', 'total' => 24, 'done' => 0, 'current' => null, 'rewarded' => [],
                 // The goal is in front of the driver from the first screen: the wreck is the first thing to do.
                 'goal' => ['key' => 'wreck', 'number' => 1, 'phase' => 1, 'title' => 'Pick your wreck', 'waiting' => null, 'target' => null, 'tire_kind' => null, 'optional' => false, 'reward' => ['cash_cents' => 0, 'car_xp' => 0, 'xp' => 0, 'part' => null, 'garage' => null]],
+                // What the mentor writes on: the old phone of RideIdle, with all its parts.
+                'messenger' => ['device' => 'phone', 'parts' => ['crack' => true, 'status_bar' => true, 'input' => true, 'who' => true], 'icon_url' => null, 'frame_url' => null, 'screen' => null],
             ]]);
     });
 

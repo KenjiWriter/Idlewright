@@ -8,6 +8,7 @@ use App\Content\Branding\Branding;
 use App\Content\ContentException;
 use App\Content\ContentSource;
 use App\Content\ImageRefused;
+use App\Content\TutorialSteps;
 use App\Models\ContentImage;
 use Illuminate\Support\Facades\Schema;
 
@@ -186,6 +187,14 @@ final class ContentImages
         if ($source->has('rules/branding')) {
             foreach (Branding::pictures($source->document('rules/branding')) as $name) {
                 $names[$name] = $name;
+            }
+        }
+
+        if ($source->has('rules/tutorial')) {
+            foreach (TutorialSteps::pictures($source->document('rules/tutorial')) as $name) {
+                if (preg_match(self::NAME, $name) === 1) {
+                    $names[$name] = $name;
+                }
             }
         }
 

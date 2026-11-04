@@ -174,6 +174,7 @@ final class PackValidator
                 $this->checkVocabulary("rules/{$name}.json", $name, $data, $result, GameModel::fromSource($source));
                 $this->checkModelDocument("rules/{$name}.json", $name, $data, $result);
                 $this->checkBrandingDocument("rules/{$name}.json", $name, $data, $result);
+                $this->checkTutorialDocument("rules/{$name}.json", $name, $data, $result);
             }
         }
 
@@ -223,6 +224,7 @@ final class PackValidator
             $this->checkVocabulary($relative, (string) $slug, $data, $result, $model);
             $this->checkModelDocument($relative, (string) $slug, $data, $result);
             $this->checkBrandingDocument($relative, (string) $slug, $data, $result);
+            $this->checkTutorialDocument($relative, (string) $slug, $data, $result);
 
             return $result;
         }
@@ -1656,6 +1658,21 @@ final class PackValidator
                 }
 
                 $texts["/steps/{$index}/reply"] = $step['reply'] ?? null;
+                $texts["/steps/{$index}/sender"] = $step['sender'] ?? null;
+            }
+
+            $texts['/messenger/sender'] = $data['messenger']['sender'] ?? null;
+            $texts['/story/sender'] = $data['story']['sender'] ?? null;
+            $texts['/story/sms'] = $data['story']['sms'] ?? null;
+
+            foreach ($data['story']['scenes'] ?? [] as $index => $scene) {
+                $texts["/story/scenes/{$index}/text"] = $scene['text'] ?? null;
+            }
+
+            foreach (['messenger', 'story'] as $section) {
+                foreach ((array) ($data[$section]['labels'] ?? []) as $label => $text) {
+                    $texts["/{$section}/labels/{$label}"] = $text;
+                }
             }
         }
 
@@ -1706,26 +1723,115 @@ final class PackValidator
                 continue;
             }
 
-            $expected = MessageCatalog::placeholders($key, $original);
-            $isServer = MessageCatalog::isServer($key);
+            if (str_starts_with($key, 'tutorial.') || str_starts_with($key, 'story.')) {
+                $result->addWarning($relative, "/messages/{$key}", 'The words of the tutorial and of the story are set on the page of the tutorial now (its labels): where the tutorial has a word of its own, that word is shown and this one is not.');
+            }
 
-            foreach ($texts as $locale => $text) {
-                $pointer = "/messages/{$key}/{$locale}";
-                $left = preg_replace('/\{[A-Za-z0-9_]+\}/', '', $text) ?? $text;
+            $this->checkMessageTexts($relative, "/messages/{$key}", $key, $texts, $original, $catalog, $result);
+        }
+    }
 
-                if (MessageCatalog::placeholders($key, $text) !== $expected) {
-                    $written = implode(', ', array_map(static fn (string $placeholder): string => MessageCatalog::written($key, $placeholder), $expected));
-                    $result->addError($relative, $pointer, 'The text must fill in the same names as the original: '.($expected === [] ? 'none' : $written).'.');
-                } elseif (! $isServer && (str_contains($left, '{') || str_contains($left, '}'))) {
-                    $result->addError($relative, $pointer, 'A brace that is not a {name} cannot be shown: the app reads it as a part of a message.');
-                } elseif (! $isServer && (str_contains($text, '@:') || str_contains($text, '@.'))) {
-                    $result->addError($relative, $pointer, 'A link to another message (@:key) is not allowed in the vocabulary.');
-                } elseif (substr_count($text, '|') !== substr_count($catalog->text($key, $locale) ?? $original, '|')) {
-                    // The forms of a plural are the ones of the language: Polish has three where English has two.
-                    $forms = substr_count($catalog->text($key, $locale) ?? $original, '|') + 1;
-                    $result->addError($relative, $pointer, "The message has {$forms} form(s) of a plural in this language, separated by |: the text must have the same number.");
+    /**
+     * The texts of one message of the app that a pack says in its own words (in the vocabulary, or among the words of the tutorial), against the original: the
+     * same names filled in, no brace that is not a name, no link to another message, and the forms of a plural of the language.
+     *
+     * @param  array<string, string>  $texts  language => text
+     */
+    private function checkMessageTexts(string $relative, string $at, string $key, array $texts, string $original, MessageCatalog $catalog, PackValidationResult $result): void
+    {
+        $expected = MessageCatalog::placeholders($key, $original);
+        $isServer = MessageCatalog::isServer($key);
+
+        foreach ($texts as $locale => $text) {
+            $pointer = "{$at}/{$locale}";
+            $left = preg_replace('/\{[A-Za-z0-9_]+\}/', '', $text) ?? $text;
+
+            if (MessageCatalog::placeholders($key, $text) !== $expected) {
+                $written = implode(', ', array_map(static fn (string $placeholder): string => MessageCatalog::written($key, $placeholder), $expected));
+                $result->addError($relative, $pointer, 'The text must fill in the same names as the original: '.($expected === [] ? 'none' : $written).'.');
+            } elseif (! $isServer && (str_contains($left, '{') || str_contains($left, '}'))) {
+                $result->addError($relative, $pointer, 'A brace that is not a {name} cannot be shown: the app reads it as a part of a message.');
+            } elseif (! $isServer && (str_contains($text, '@:') || str_contains($text, '@.'))) {
+                $result->addError($relative, $pointer, 'A link to another message (@:key) is not allowed in the words of a pack.');
+            } elseif (substr_count($text, '|') !== substr_count($catalog->text($key, $locale) ?? $original, '|')) {
+                // The forms of a plural are the ones of the language: Polish has three where English has two.
+                $forms = substr_count($catalog->text($key, $locale) ?? $original, '|') + 1;
+                $result->addError($relative, $pointer, "The message has {$forms} form(s) of a plural in this language, separated by |: the text must have the same number.");
+            }
+        }
+    }
+
+    /** The longest message of the mentor on every device but the letter, which has room for paragraphs. */
+    public const TUTORIAL_MESSAGE_MAX = 200;
+
+    /**
+     * What the schema cannot say about one document of the tutorial: a step that shows messages has someone they come from (its own sender, or the one of the
+     * messenger), a message fits its device, the words of the tutorial are messages of the app that fill in the same names, a scene of the story fills in only the
+     * name of the driver, and the pictures it names are in the store (the pack is whole without one, but the person who makes it live should know).
+     *
+     * @param  array<string, mixed>  $data
+     */
+    private function checkTutorialDocument(string $relative, string $name, array $data, PackValidationResult $result): void
+    {
+        if ($name !== 'tutorial') {
+            return;
+        }
+
+        $messenger = (array) ($data['messenger'] ?? []);
+        $device = (string) ($messenger['device'] ?? TutorialSteps::DEFAULT_DEVICE);
+
+        foreach ($data['steps'] ?? [] as $index => $step) {
+            if (($step['sms'] ?? []) !== [] && ! isset($step['sender']) && ! isset($messenger['sender'])) {
+                $result->addError($relative, "/steps/{$index}/sender", 'The step shows messages, and nobody sends them: give the step a sender, or the messenger one for every step.');
+            }
+
+            if ($device === 'letter') {
+                continue;
+            }
+
+            foreach ($step['sms'] ?? [] as $position => $sms) {
+                foreach ((array) $sms as $locale => $text) {
+                    if (is_string($text) && mb_strlen($text) > self::TUTORIAL_MESSAGE_MAX) {
+                        $result->addError($relative, "/steps/{$index}/sms/{$position}/{$locale}", sprintf('A message on the %s has at most %d characters (a letter has room for 400), and this one has %d.', $device, self::TUTORIAL_MESSAGE_MAX, mb_strlen($text)));
+                    }
                 }
             }
+        }
+
+        $catalog = MessageCatalog::fromConfig();
+
+        foreach (['messenger' => 'tutorial', 'story' => 'story'] as $section => $prefix) {
+            foreach ((array) ($data[$section]['labels'] ?? []) as $label => $texts) {
+                $key = "{$prefix}.{$label}";
+
+                if (! $catalog->canJudge($key)) {
+                    continue;
+                }
+
+                $original = $catalog->all()[$key] ?? null;
+
+                if ($original === null) {
+                    $result->addError($relative, "/{$section}/labels/{$label}", "The app has no word {$label} in its {$prefix}: the words that can be said in another way are the messages {$prefix}.* of the app.");
+
+                    continue;
+                }
+
+                $this->checkMessageTexts($relative, "/{$section}/labels/{$label}", $key, (array) $texts, $original, $catalog, $result);
+            }
+        }
+
+        foreach ($data['story']['scenes'] ?? [] as $index => $scene) {
+            foreach ((array) ($scene['text'] ?? []) as $locale => $text) {
+                preg_match_all('/\{([A-Za-z0-9_]+)\}/', (string) $text, $names);
+
+                foreach (array_diff(array_unique($names[1]), ['name']) as $placeholder) {
+                    $result->addError($relative, "/story/scenes/{$index}/text/{$locale}", "A scene fills in only {name}, the name of the driver: {{$placeholder}} would show as it is written.");
+                }
+            }
+        }
+
+        foreach (app(ContentImages::class)->missing(TutorialSteps::pictures($data)) as $picture) {
+            $result->addWarning($relative, '', "The picture {$picture} is not in the store of images of this environment: upload it in the panel, or import the bundle that carries it.");
         }
     }
 

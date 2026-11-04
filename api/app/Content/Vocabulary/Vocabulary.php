@@ -22,15 +22,29 @@ final class Vocabulary
         return self::fromSource(app(ContentSource::class));
     }
 
+    /**
+     * The words of the pack: those of its vocabulary, and the words of its tutorial (its labels, as the messages tutorial.* and story.* of the app), which win
+     * over the vocabulary, because the page of the tutorial is where they are set now.
+     */
     public static function fromSource(ContentSource $source): self
     {
-        if (! $source->has('rules/vocabulary')) {
+        $messages = $source->has('rules/vocabulary') ? (array) ($source->document('rules/vocabulary')['messages'] ?? []) : [];
+
+        if ($source->has('rules/tutorial')) {
+            $tutorial = $source->document('rules/tutorial');
+
+            foreach (['messenger' => 'tutorial', 'story' => 'story'] as $section => $prefix) {
+                foreach ((array) ($tutorial[$section]['labels'] ?? []) as $label => $texts) {
+                    $messages["{$prefix}.{$label}"] = (array) $texts;
+                }
+            }
+        }
+
+        if ($messages === [] && ! $source->has('rules/vocabulary')) {
             return new self('', []);
         }
 
-        $document = $source->document('rules/vocabulary');
-
-        return new self($source->has('pack') ? (string) ($source->manifest()['version'] ?? '') : '', $document['messages'] ?? []);
+        return new self($source->has('pack') ? (string) ($source->manifest()['version'] ?? '') : '', $messages);
     }
 
     /** The number of the pack that the words are from: what a copy of them is called. */
