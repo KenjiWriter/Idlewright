@@ -119,7 +119,7 @@ class AiBridgePage extends Page implements HasSchemas
         return $schema->statePath('data')->columns(2)->components([
             CheckboxList::make('include')
                 ->helpKey('ai.include')
-                ->options(['vehicles' => __('admin.ai.vehicles'), 'parts' => __('admin.ai.parts'), 'rules' => __('admin.ai.rules')])
+                ->options(['vehicles' => __('admin.ai.vehicles'), 'parts' => __('admin.ai.parts'), 'rules' => __('admin.ai.rules'), 'tutorial' => __('admin.ai.tutorial')])
                 ->live()
                 ->columnSpanFull(),
             Toggle::make('simple')->helpKey('ai.simple')->live(),

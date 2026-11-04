@@ -25,6 +25,7 @@ final class AiBrief extends Command
         {--all-numbers : Every number of the sections, not only those of the simple mode of the studio}
         {--texts : Also the names, descriptions and texts of the content, in every language}
         {--design : The manner of designing a whole game in stages, not of changing parameters}
+        {--tutorial : Also the tutorial: its steps, numbers, choices and texts}
         {--game= : The slug of the game (the default game when left out)}';
 
     protected $description = 'Make the instruction for an AI chat about the content of the game, as the panel does';
@@ -41,6 +42,7 @@ final class AiBrief extends Command
             locale: in_array((string) $this->option('locale'), BriefSelection::LOCALES, true) ? (string) $this->option('locale') : 'pl',
             texts: (bool) $this->option('texts'),
             design: (bool) $this->option('design'),
+            tutorial: (bool) $this->option('tutorial'),
         );
 
         $brief = $recorder->prepare($selection);

@@ -113,6 +113,46 @@ final class DocumentPointer
     }
 
     /**
+     * The document with a value put at the keys, the objects on the way made when they are not there (a word of the tutorial that the game has not said yet, a part
+     * of the device that was left out). Only objects are made: a place in a list has to be there already.
+     *
+     * @param  array<string, mixed>  $document
+     * @param  list<string|int>  $keys
+     * @return array<string, mixed>
+     *
+     * @throws InvalidArgumentException when the way goes through a value that is not an object
+     */
+    public static function place(array $document, array $keys, mixed $value): array
+    {
+        $at = &$document;
+
+        foreach ($keys as $position => $key) {
+            if (is_object($at) && (array) $at === []) {
+                $at = [];
+            }
+
+            if (! is_array($at)) {
+                throw new InvalidArgumentException('There is no object at '.self::join(array_slice($keys, 0, $position)).'.');
+            }
+
+            if (! array_key_exists($key, $at)) {
+                if (array_is_list($at) && $at !== []) {
+                    throw new InvalidArgumentException('There is nothing at '.self::join(array_slice($keys, 0, $position + 1)).'.');
+                }
+
+                $at[$key] = [];
+            }
+
+            $at = &$at[$key];
+        }
+
+        $at = $value;
+        unset($at);
+
+        return $document;
+    }
+
+    /**
      * Whether the keys are the ones the pattern names: a `*` in the pattern stands for exactly one name, anything else has to be the same.
      *
      * @param  list<string>  $pattern

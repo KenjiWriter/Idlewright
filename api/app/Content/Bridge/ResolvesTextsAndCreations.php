@@ -35,9 +35,24 @@ trait ResolvesTextsAndCreations
             return;
         }
 
+        $keyed = $path;
+        $path = $this->stepPath($key, $path, $number, $id);
+
+        if ($path === null) {
+            return;
+        }
+
         $definition = $this->definition($key);
         $document = $this->documents[$key] ?? $definition->workingDocument();
         $texts = DocumentPointer::get($document, $path);
+        // A sender of one text for every language, or a word of the app that the game has not said: what the text starts from in every language.
+        $start = $this->startOfTutorialText($key, $keyed, $path, $texts, $document, $number, $id);
+
+        if ($start === []) {
+            return;
+        }
+
+        $texts = $start ?? $texts;
 
         if (! TextIndex::isText($texts)) {
             $this->issues[] = BridgeIssue::error('not_text', 'There is no text in several languages at '.DocumentPointer::join($path).'. Give the place of one, such as /name.', $number, $id, $where);
@@ -63,14 +78,14 @@ trait ResolvesTextsAndCreations
         }
 
         $texts[$locale] = $value;
-        $place = $key.' '.DocumentPointer::join([...$path, $locale]);
+        $place = $key.' '.DocumentPointer::join([...$keyed, $locale]);
 
         if (isset($this->written[$place])) {
             $this->issues[] = BridgeIssue::warning('overwritten', "Op {$this->written[$place]} had written this text; this one writes it again.", $number, $id, $where);
         }
 
         $this->written[$place] = $number;
-        $this->documents[$key] = DocumentPointer::set($document, $path, $texts);
+        $this->documents[$key] = DocumentPointer::place($document, $path, $texts);
         $this->touched[$key] ??= ['draft' => $definition->hasDraft(), 'saved_at' => $definition->draft_saved_at?->toIso8601String()];
 
         $published = $definition->publishedDocument();
@@ -80,8 +95,8 @@ trait ResolvesTextsAndCreations
             op: $number,
             opId: $id,
             document: $key,
-            path: [...$path, $locale],
-            label: ucfirst(str_replace('_', ' ', implode(' › ', array_map('strval', $path)))).' ('.$locale.')',
+            path: [...$keyed, $locale],
+            label: ucfirst(str_replace('_', ' ', implode(' › ', array_map('strval', $keyed)))).' ('.$locale.')',
             unit: null,
             published: is_string($was) ? $was : null,
             before: $before,

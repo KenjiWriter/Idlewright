@@ -13,10 +13,11 @@ use App\Models\Game;
 use App\Services\ContentPacks;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
+use stdClass;
 
 /**
  * Makes the instruction that a person gives an AI before the two talk: the role and the manners of the conversation, the format of the block of changes it ends in, and the
- * game itself (the cars and parts as tables, the numbers of the rules with their limits and what each is for), as it is being worked on. The data is JSON lines between two
+ * game itself (the cars and parts as tables, the numbers of the rules with their limits and what each is for, and the tutorial when it is asked for), as it is being worked on. The data is JSON lines between two
  * markers with a nonce that is new every time, with every character of a name or a description that could look like a marker written as an escape, so that what is in the
  * game cannot end the data and start talking to the AI.
  *
@@ -137,6 +138,8 @@ final class BriefBuilder
         // The design of a game is a talk about the words of it, so the texts are in the data whatever was asked.
         $texts = $selection->texts || $selection->design ? $this->texts($selection, $held) : [];
         $collections = $selection->rules ? $this->collections($held) : [];
+        $tutorial = $selection->tutorial ? $this->tutorialDocument() : null;
+        $tutorialLines = $tutorial === null ? [] : (new TutorialBrief)->lines($tutorial, $selection->locale, $selection->texts || $selection->design);
 
         $lines = [
             'GAME '.$this->json(['slug' => (string) $game?->slug, 'name' => (string) $game?->name, 'descriptions_in' => $selection->locale]),
@@ -146,13 +149,15 @@ final class BriefBuilder
             ...$rules,
             ...$collections,
             ...$texts,
+            ...$tutorialLines,
         ];
 
-        $envelope = ['format' => 'ride-changes/1', 'game' => (string) $game?->slug, 'base' => $base, 'summary' => 'One sentence saying what the block does', 'ops' => $this->examples($scope, $base, (string) $game?->slug, $picked)];
+        $envelope = ['format' => 'ride-changes/1', 'game' => (string) $game?->slug, 'base' => $base, 'summary' => 'One sentence saying what the block does', 'ops' => $this->examples($scope, $base, (string) $game?->slug, $picked, $tutorial)];
 
         $text = ($selection->design ? BriefTexts::designRole() : BriefTexts::role())."\n\n"
+            .($tutorial === null ? '' : BriefTexts::tutorial()."\n\n")
             .BriefTexts::format($this->schema(), json_encode($envelope, self::JSON | JSON_PRETTY_PRINT))."\n\n"
-            .BriefTexts::dataIntro($nonce)."\n".implode("\n", $lines)."\n"
+            .BriefTexts::dataIntro($nonce, $tutorial !== null)."\n".implode("\n", $lines)."\n"
             .BriefTexts::dataEnd($nonce)."\n";
 
         return new Brief($text, $scope, $code, $base['pack'], $base['snapshot'], strlen($text), (int) ceil(strlen($text) / 3.2));
@@ -332,6 +337,12 @@ final class BriefBuilder
     }
 
     /** @return array<string, mixed>|null */
+    private function tutorialDocument(): ?array
+    {
+        return ContentDefinition::query()->where('kind', ContentDefinition::KIND_RULES)->where('slug', BriefSelection::TUTORIAL)->where('status', '!=', ContentDefinition::STATUS_ARCHIVED)->first()?->workingDocument();
+    }
+
+    /** @return array<string, mixed>|null */
     private function rulesDocument(): ?array
     {
         return ContentDefinition::query()->where('kind', ContentDefinition::KIND_RULES)->where('slug', BriefSelection::RULES)->where('status', '!=', ContentDefinition::STATUS_ARCHIVED)->first()?->workingDocument();
@@ -353,11 +364,12 @@ final class BriefBuilder
      * @param  list<string>  $scope
      * @param  array{pack: string, snapshot: string, brief: string}  $base
      * @param  list<Parameter>  $numbers  the numbers of the rules the instruction holds
+     * @param  array<string, mixed>|null  $tutorial  the tutorial, when the instruction holds it
      * @return list<array<string, mixed>>
      */
-    private function examples(array $scope, array $base, string $game, array $numbers): array
+    private function examples(array $scope, array $base, string $game, array $numbers, ?array $tutorial = null): array
     {
-        $candidates = [];
+        $candidates = $tutorial === null ? [] : $this->tutorialExamples($tutorial);
 
         $part = ContentDefinition::query()->where('kind', ContentDefinition::KIND_PART)->where('status', '!=', ContentDefinition::STATUS_ARCHIVED)->orderBy('slug')->get()
             ->map(fn (ContentDefinition $definition): array => $definition->workingDocument())
@@ -396,6 +408,44 @@ final class BriefBuilder
         }));
 
         return $kept !== [] ? $kept : [['op' => 'scale', 'select' => ['kind' => 'part', 'where' => ['slot' => 'a slot of the tables']], 'path' => '/price_cents', 'percent' => 10]];
+    }
+
+    /**
+     * Operations on the tutorial for the example block: a text of a step by its key, a choice, and a new step after the first one.
+     *
+     * @param  array<string, mixed>  $tutorial
+     * @return list<array<string, mixed>>
+     */
+    private function tutorialExamples(array $tutorial): array
+    {
+        $target = ['rules' => BriefSelection::TUTORIAL];
+        $candidates = [];
+        $first = collect($tutorial['steps'] ?? [])->first(fn (mixed $step): bool => is_array($step) && isset($step['key'], $step['goal']['en']));
+
+        if ($first !== null) {
+            $candidates[] = ['op' => 'text', 'id' => 'goal', 'target' => $target, 'path' => "/steps/{$first['key']}/goal", 'locale' => 'en', 'value' => $first['goal']['en'].' (renamed)'];
+        }
+
+        $device = (string) ($tutorial['messenger']['device'] ?? 'phone');
+        $candidates[] = ['op' => 'set', 'id' => 'device', 'target' => $target, 'path' => '/messenger/device', 'value' => $device === 'letter' ? 'plain' : 'letter', 'unit' => 'choice'];
+
+        if ($first !== null) {
+            $words = fn (string $text): array => ['en' => $text, 'pl' => $text, 'fr' => $text, 'de' => $text, 'pt-BR' => $text];
+            $candidates[] = ['op' => 'insert', 'id' => 'new-step', 'target' => $target, 'path' => '/steps', 'after' => $first['key'], 'value' => [
+                'key' => 'a-new-step',
+                'phase' => (int) ($first['phase'] ?? 1),
+                'trigger' => 'none',
+                'completion' => 'acknowledged',
+                'target' => null,
+                'goal' => $words('The goal in a few words'),
+                'sender' => 'The sender',
+                'sms' => [$words('The message of the mentor')],
+                'reply' => $words('The words of the button'),
+                'reward' => new stdClass,
+            ]];
+        }
+
+        return $candidates;
     }
 
     /** The schema of the block as the panel holds it, on one line. */

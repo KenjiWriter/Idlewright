@@ -18,6 +18,7 @@ use InvalidArgumentException;
 final class ChangeResolver
 {
     use ResolvesTextsAndCreations;
+    use ResolvesTutorial;
 
     public const MAX_TARGETS = 200;
 
@@ -56,7 +57,7 @@ final class ChangeResolver
      */
     public function resolve(array $block, ?array $scope = null): ChangeCheck
     {
-        $this->definitions = $this->indexes = $this->documents = $this->touched = $this->written = $this->changes = $this->issues = $this->created = [];
+        $this->definitions = $this->indexes = $this->documents = $this->touched = $this->written = $this->changes = $this->issues = $this->created = $this->insertedSteps = [];
         $this->scope = $scope;
 
         foreach ($block['ops'] as $position => $operation) {
@@ -69,6 +70,7 @@ final class ChangeResolver
                 'text' => $this->text($number, $id, $operation),
                 'create' => $this->create($number, $id, $operation),
                 'add' => $this->add($number, $id, $operation),
+                'insert' => $this->insert($number, $id, $operation),
             };
 
             if (count($this->changes) > self::MAX_CHANGES) {
@@ -97,10 +99,23 @@ final class ChangeResolver
             return;
         }
 
+        $keyed = $path;
+        $path = $this->stepPath($key, $path, $number, $id);
+
+        if ($path === null) {
+            return;
+        }
+
+        if ((! is_int($operation['value']) && ! is_float($operation['value'])) || in_array($operation['unit'], ['choice', 'text'], true)) {
+            $this->setChoiceOrWord($number, $id, $key, $keyed, $path, $operation);
+
+            return;
+        }
+
         $parameter = $this->index($key)->find(DocumentPointer::join($path));
 
         if ($parameter === null) {
-            $this->issues[] = $this->unknownPath($key, $path, $number, $id);
+            $this->issues[] = $this->unknownPath($key, $keyed, $number, $id);
 
             return;
         }
@@ -175,7 +190,16 @@ final class ChangeResolver
                 return;
             }
 
-            $found = $this->index($key)->expand($pattern);
+            $mapped = $this->stepPath($key, $pattern, $number, $id);
+
+            if ($mapped === null) {
+                return;
+            }
+
+            $found = array_values(array_filter(
+                $this->index($key)->expand(array_map('strval', $mapped)),
+                fn (Parameter $parameter): bool => ! $this->inInsertedStep($key, $parameter->path),
+            ));
 
             if ($found === []) {
                 $skipped[] = $key;
@@ -299,7 +323,7 @@ final class ChangeResolver
             op: $number,
             opId: $id,
             document: $key,
-            path: $parameter->path,
+            path: $this->keyedPath($key, $parameter->path),
             label: $parameter->group.' › '.$parameter->label,
             unit: $parameter->unit,
             published: is_numeric($was) ? $was : null,
@@ -536,7 +560,30 @@ final class ChangeResolver
 
     private function where(string $key, Parameter $parameter): string
     {
-        return $key.' '.DocumentPointer::join($parameter->path);
+        return $key.' '.DocumentPointer::join($this->keyedPath($key, $parameter->path));
+    }
+
+    /**
+     * A place as the instruction and the table of changes write it: a step of the tutorial by its key.
+     *
+     * @param  list<string|int>  $path
+     * @return list<string|int>
+     */
+    private function keyedPath(string $key, array $path): array
+    {
+        return $key === TutorialBridge::KEY ? TutorialBridge::toKeys($this->documents[$key] ?? $this->definition($key)?->workingDocument() ?? [], $path) : $path;
+    }
+
+    /**
+     * Whether a place is in a step that this block inserted, which no other operation of the block changes.
+     *
+     * @param  list<string|int>  $path
+     */
+    private function inInsertedStep(string $key, array $path): bool
+    {
+        $keyed = $this->keyedPath($key, $path);
+
+        return $key === TutorialBridge::KEY && ($keyed[0] ?? null) === 'steps' && isset($keyed[1]) && isset($this->insertedSteps[(string) $keyed[1]]);
     }
 
     private function show(Parameter $parameter, int|float $raw): string

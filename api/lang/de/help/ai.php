@@ -4,13 +4,14 @@ return [
     'entries' => [
         'include' => [
             'label' => 'Was enthalten sein soll',
-            'help' => 'Was der Assistent über das Spiel wissen soll: die Autos, die Teile und die Zahlen der Regeln. Eine Antwort darf nur ändern, was du hier ankreuzt.',
+            'help' => 'Was der Assistent über das Spiel wissen soll: die Autos, die Teile, die Zahlen der Regeln und das Tutorial. Eine Antwort darf nur ändern, was du hier ankreuzt.',
             'example' => 'Nur die Teile, wenn du ihre Preise ändern willst: Hake die Autos und die Regeln ab.',
             'tip' => 'Je weniger du ankreuzt, desto kürzer die Anweisung und desto genauer das Gespräch.',
             'options' => [
                 'vehicles' => ['label' => 'Autos', 'help' => 'Eine Tabelle der Autos mit ihren Zahlen und den Feldern, nach denen man sie auswählen kann (Antrieb, Klasse).'],
                 'parts' => ['label' => 'Teile', 'help' => 'Eine Tabelle je Platz (Motor, Reifen, …), mit den Zahlen der Teile.'],
                 'rules' => ['label' => 'Zahlen der Regeln', 'help' => 'Die Zahlen des Studios mit ihren Grenzen und einer Beschreibung jeder Zahl.'],
+                'tutorial' => ['label' => 'Tutorial', 'help' => 'Die Schritte des Tutorials mit ihren Schlüsseln, das Gerät des Mentors und seine Teile (Auswahlen), die Zahlen der ersten Fahrt, der Belohnungen und der Geschichte und alle Texte und Wörter des Tutorials. Der Assistent kann sie ändern und einen Schritt hinzufügen, aber keinen Schritt löschen, ihre Reihenfolge oder ein Bild ändern.'],
             ],
         ],
         'simple' => [

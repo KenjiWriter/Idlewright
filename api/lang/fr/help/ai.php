@@ -4,13 +4,14 @@ return [
     'entries' => [
         'include' => [
             'label' => 'Quoi inclure',
-            'help' => 'Ce que l’assistant doit savoir du jeu : les voitures, les pièces et les chiffres des règles. Une réponse ne pourra changer que ce que vous cochez ici.',
+            'help' => 'Ce que l’assistant doit savoir du jeu : les voitures, les pièces, les chiffres des règles et le tutoriel. Une réponse ne pourra changer que ce que vous cochez ici.',
             'example' => 'Seulement les pièces, pour changer leurs prix : décochez les voitures et les règles.',
             'tip' => 'Moins vous cochez, plus l’instruction est courte et plus la conversation est précise.',
             'options' => [
                 'vehicles' => ['label' => 'Voitures', 'help' => 'Un tableau des voitures avec leurs chiffres et les champs qui permettent de les choisir (transmission, classe).'],
                 'parts' => ['label' => 'Pièces', 'help' => 'Un tableau par emplacement (moteur, pneus, …), avec les chiffres des pièces.'],
                 'rules' => ['label' => 'Chiffres des règles', 'help' => 'Les chiffres du Studio avec leurs limites et une description de chacun.'],
+                'tutorial' => ['label' => 'Tutoriel', 'help' => 'Les étapes du tutoriel avec leurs clés, l’appareil du mentor et ses parties (choix), les chiffres de la première course, des récompenses et de l’histoire, et tous les textes et mots du tutoriel. L’assistant peut les modifier et ajouter une étape, mais pas supprimer une étape, changer leur ordre ni une image.'],
             ],
         ],
         'simple' => [

@@ -4,13 +4,14 @@ return [
     'entries' => [
         'include' => [
             'label' => 'What to include',
-            'help' => 'What the assistant is to know about the game: the cars, the parts and the numbers of the rules. An answer may change only what you tick here.',
+            'help' => 'What the assistant is to know about the game: the cars, the parts, the numbers of the rules and the tutorial. An answer may change only what you tick here.',
             'example' => 'Only the parts, when you want to change their prices: untick the cars and the rules.',
             'tip' => 'The less you tick, the shorter the instruction and the more exact the conversation.',
             'options' => [
                 'vehicles' => ['label' => 'Cars', 'help' => 'A table of the cars with their numbers and the fields they can be picked by (drivetrain, class).'],
                 'parts' => ['label' => 'Parts', 'help' => 'One table for each slot (engine, tires, …), with the numbers of the parts.'],
                 'rules' => ['label' => 'Numbers of the rules', 'help' => 'The numbers of the studio with their limits and a description of each.'],
+                'tutorial' => ['label' => 'Tutorial', 'help' => 'The steps of the tutorial with their keys, the device of the mentor and its parts (choices), the numbers of the first run, of the rewards and of the story, and every text and word of the tutorial. The assistant can change them and add a step, but not delete a step, change their order or a picture.'],
             ],
         ],
         'simple' => [

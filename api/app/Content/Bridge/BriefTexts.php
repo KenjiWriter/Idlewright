@@ -64,6 +64,23 @@ You help one person design the content of a game that starts as a copy of a temp
 TEXT;
     }
 
+    /** What else can be done when the instruction holds the tutorial: its steps by key, its choices, its senders, its words and a new step. */
+    public static function tutorial(): string
+    {
+        return <<<'TEXT'
+## The tutorial
+
+The scope holds rules:tutorial, so you can also change the tutorial of the game: the device the mentor writes on (a phone, a letter, a tablet, a plain window or a picture of the game's own), who the messages come from, the words of the steps and of the story before the first choice, the numbers of the first run and the rewards of the steps, and you can add a step.
+- A step is named by its KEY, never by its number: /steps/refuel/sms/0 is the first message of the step refuel, /steps/refuel/reward/cash_cents its reward in cash. The STEPS line lists the keys in the order the driver meets the steps. A number in place of a key is refused.
+- `set` also gives a CHOICE a value: for a place that a CHOICES line lists, `value` is one of the values the line allows (a text, true, false or null), and `unit` is `choice`.
+- A sender (who a message comes from: a number, a name, a call sign, at most 40 characters) is set with `set`, `unit` `text` and the text as `value`: it is then the same in every language. To give it another text in one language, use `text` on it.
+- `text` works on the texts of the tutorial as on any other. A TEXTS line that ends with "app" is a word of the app that the game has not said in its own way: setting one language of it makes it the game's own word, and the other languages keep the words of the app until you set them too. The words fill in the same {names} as the words of the app, and a scene of the story fills in only {name}, the name of the driver.
+- A message of the mentor has at most 200 characters, and 400 in a letter.
+- `insert` adds a NEW step: `path` is /steps, `after` is the key of the step it comes after (null for the very start), and `value` is the whole step, written like the steps beside it: key, phase, trigger, completion, target, goal, sms, reply, reward (an empty object when it pays nothing) and a sender unless the messenger has one, every text in all five languages. Its key is new: lower case words joined by dashes. Its trigger and completion are conditions the STEPS line lists. A step you insert cannot be changed by another operation of the same block: put its values in the insert.
+- You cannot delete a step, change the order of the steps or the key of a step, or set a picture (the frame or the icon of a device, the picture of the story): those are done in the panel by hand.
+TEXT;
+    }
+
     /** @param  string  $schema  the schema of the block, as the panel holds it */
     public static function format(string $schema, string $envelope): string
     {
@@ -95,8 +112,14 @@ A complete block looks like this (the values in `base` are the ones of this game
 TEXT;
     }
 
-    public static function dataIntro(string $nonce): string
+    /** @param  bool  $tutorial  the data holds the tutorial, whose lines are told as well */
+    public static function dataIntro(string $nonce, bool $tutorial = false): string
     {
+        $more = $tutorial ? <<<'TEXT'
+
+- STEPS lists the steps of the tutorial in order as [key, phase, trigger, completion, target, optional], with the conditions a trigger or a completion may name (one of them, or a list of them that must all hold). RULES of the document tutorial are its numbers, each place written with the key of its step. CHOICES lines list [pointer, the values it may take, its value now]. TEXTS of the document tutorial are [pointer, {language: text}], or [pointer, text] for a sender that is the same in every language, and end with "app" for a word of the app.
+TEXT : '';
+
         return <<<TEXT
 ## The data of the game
 
@@ -106,7 +129,7 @@ Below are the facts about the game, between two markers with the same nonce. Eac
 - COLLECTIONS lists the places of the rules where a new entry can be added with `add`.
 - TEXTS lines, when there are any, list the texts that have several languages as [slug or pointer, {language: text}].
 - RULES lines list the numbers of one section of the rules as [pointer, unit, value, minimum, maximum]; EXPLAIN says what each kind of number is for (a * in the pointer stands for one name).
-- Values are in the unit named next to them, not in the units of the file: a percent is 12.5 for 12.5%, a dollar amount is in dollars, a time in seconds.
+- Values are in the unit named next to them, not in the units of the file: a percent is 12.5 for 12.5%, a dollar amount is in dollars, a time in seconds.{$more}
 
 <<<DATA nonce={$nonce}>>>
 TEXT;

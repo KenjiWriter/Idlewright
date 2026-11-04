@@ -63,6 +63,18 @@ it('gives the text of the instruction when it is asked for, records it, and does
         ->and(json_encode($page->instance()->data))->not->toContain('Assistant for changing');
 });
 
+it('holds the tutorial when it is ticked, and only then', function () {
+    signedInAdmin();
+
+    $page = Livewire::test(AiBridgePage::class)->assertSee(__('admin.ai.tutorial'))->set('data.include', ['tutorial'])->set('data.locale', 'en');
+    $text = $page->instance()->brief();
+
+    expect(AiExchange::query()->firstOrFail()->scope)->toBe(['rules:tutorial'])
+        ->and($text)->toContain('STEPS {"document":"tutorial"')
+        ->and($text)->toContain('CHOICES {"document":"tutorial"}')
+        ->and($text)->not->toContain('"kind":"part"');
+});
+
 it('counts the sections of the rules and lets the choice be narrowed to some of them', function () {
     signedInAdmin();
 

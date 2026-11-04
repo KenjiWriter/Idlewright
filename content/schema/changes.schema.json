@@ -43,7 +43,8 @@
           { "$ref": "#/$defs/scale" },
           { "$ref": "#/$defs/text" },
           { "$ref": "#/$defs/create" },
-          { "$ref": "#/$defs/add" }
+          { "$ref": "#/$defs/add" },
+          { "$ref": "#/$defs/insert" }
         ]
       }
     }
@@ -63,14 +64,14 @@
       "pattern": "^[A-Za-z0-9_-]{1,32}$"
     },
     "pointer": {
-      "description": "Where the number is in the document: a JSON pointer (RFC 6901) with no escapes. In a scale of the rules a * stands for exactly one name (a track, a rung, a product).",
+      "description": "Where the number or the text is in the document: a JSON pointer (RFC 6901) with no escapes. In a scale of the rules a * stands for exactly one name (a track, a rung, a product). A step of the tutorial is named by its key, not by its number: /steps/refuel/sms/0.",
       "type": "string",
       "pattern": "^(/[A-Za-z0-9_*-]+)+$",
       "maxLength": 200
     },
     "unit": {
       "description": "What the value is counted in, as the instruction says for that number. It must be the unit of the number; this is how a mistake between a percent and a millionth is caught.",
-      "enum": ["plain", "percent", "seconds", "dollars", "liters"]
+      "enum": ["plain", "percent", "seconds", "dollars", "liters", "choice", "text"]
     },
     "target": {
       "description": "One document: a document of the rules, or one car or part.",
@@ -189,15 +190,29 @@
       "required": ["op", "target", "path", "key", "value"],
       "additionalProperties": false
     },
+    "insert": {
+      "description": "Inserts a NEW step into the tutorial: `path` is /steps, `after` is the key of the step it comes after (null for the very start), and `value` is the whole step, written like the steps beside it, with every text in all five languages. Its key is new. A step that is inserted cannot be changed by another operation of the same block.",
+      "type": "object",
+      "properties": {
+        "op": { "const": "insert" },
+        "id": { "$ref": "#/$defs/id" },
+        "target": { "$ref": "#/$defs/rulesTarget" },
+        "path": { "$ref": "#/$defs/pointer" },
+        "after": { "oneOf": [{ "$ref": "#/$defs/slug" }, { "type": "null" }] },
+        "value": { "type": "object", "minProperties": 1 }
+      },
+      "required": ["op", "target", "path", "after", "value"],
+      "additionalProperties": false
+    },
     "set": {
-      "description": "Sets one number to a value.",
+      "description": "Sets one number to a value, or one choice (unit choice: a value the CHOICES line allows) or one plain text that is the same in every language (unit text: a sender of the tutorial).",
       "type": "object",
       "properties": {
         "op": { "const": "set" },
         "id": { "$ref": "#/$defs/id" },
         "target": { "$ref": "#/$defs/target" },
         "path": { "$ref": "#/$defs/pointer" },
-        "value": { "description": "The number in the unit of the number, as the instruction shows it (a percent as 12.5, dollars as 21500).", "type": "number" },
+        "value": { "description": "The number in the unit of the number, as the instruction shows it (a percent as 12.5, dollars as 21500); for a choice one of the values it allows (a text, true, false or null); for a plain text the text.", "type": ["number", "string", "boolean", "null"] },
         "unit": { "$ref": "#/$defs/unit" }
       },
       "required": ["op", "target", "path", "value", "unit"],

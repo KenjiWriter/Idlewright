@@ -4,13 +4,14 @@ return [
     'entries' => [
         'include' => [
             'label' => 'O que incluir',
-            'help' => 'O que o assistente deve saber sobre o jogo: os carros, as peças e os números das regras. Uma resposta só poderá mudar o que você marcar aqui.',
+            'help' => 'O que o assistente deve saber sobre o jogo: os carros, as peças, os números das regras e o tutorial. Uma resposta só poderá mudar o que você marcar aqui.',
             'example' => 'Só as peças, quando quiser mudar os preços delas: desmarque os carros e as regras.',
             'tip' => 'Quanto menos você marcar, mais curta é a instrução e mais exata é a conversa.',
             'options' => [
                 'vehicles' => ['label' => 'Carros', 'help' => 'Uma tabela dos carros com seus números e os campos pelos quais podem ser escolhidos (tração, classe).'],
                 'parts' => ['label' => 'Peças', 'help' => 'Uma tabela por encaixe (motor, pneus, …), com os números das peças.'],
                 'rules' => ['label' => 'Números das regras', 'help' => 'Os números do Studio com seus limites e uma descrição de cada um.'],
+                'tutorial' => ['label' => 'Tutorial', 'help' => 'As etapas do tutorial com suas chaves, o aparelho do mentor e suas partes (escolhas), os números da primeira corrida, das recompensas e da história, e todos os textos e palavras do tutorial. O assistente pode alterá-los e adicionar uma etapa, mas não apagar uma etapa, mudar a ordem delas nem uma imagem.'],
             ],
         ],
         'simple' => [

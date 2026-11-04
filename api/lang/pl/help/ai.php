@@ -4,13 +4,14 @@ return [
     'entries' => [
         'include' => [
             'label' => 'Co dołączyć',
-            'help' => 'Co asystent ma wiedzieć o grze: auta, części i liczby reguł. Odpowiedź będzie mogła zmienić tylko to, co tu zaznaczysz.',
+            'help' => 'Co asystent ma wiedzieć o grze: auta, części, liczby reguł i samouczek. Odpowiedź będzie mogła zmienić tylko to, co tu zaznaczysz.',
             'example' => 'Same części, gdy chcesz zmienić ich ceny: odznacz auta i reguły.',
             'tip' => 'Im mniej zaznaczysz, tym krótsza instrukcja i tym dokładniejsza rozmowa.',
             'options' => [
                 'vehicles' => ['label' => 'Auta', 'help' => 'Tabela aut z liczbami i polami, po których można wybierać (napęd, klasa).'],
                 'parts' => ['label' => 'Części', 'help' => 'Po jednej tabeli na slot (silnik, opony, …), z liczbami części.'],
                 'rules' => ['label' => 'Liczby reguł', 'help' => 'Liczby ze Studia z granicami i opisem każdej.'],
+                'tutorial' => ['label' => 'Samouczek', 'help' => 'Kroki samouczka z kluczami, urządzenie mentora i jego części (wybory), liczby pierwszego przejazdu, nagród i historii oraz wszystkie teksty i słowa samouczka. Asystent może je zmienić i dodać nowy krok, ale nie usunie kroku, nie zmieni ich kolejności ani obrazów.'],
             ],
         ],
         'simple' => [
