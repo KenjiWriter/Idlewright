@@ -308,7 +308,7 @@ return [
         ],
         'messenger_sender' => [
             'label' => 'Expéditeur de l’appareil',
-            'help' => 'De qui viennent les messages des étapes qui n’ont pas d’expéditeur à elles. Écrivez-le une fois quand le mentor écrit toujours du même endroit, et laissez vide la case « Expéditeur » des étapes.',
+            'help' => 'De qui viennent les messages des étapes qui n’ont pas d’expéditeur à elles. Le premier message de l’histoire vient aussi de lui quand l’histoire n’a pas d’expéditeur. Écrivez-le une fois quand le mentor écrit toujours du même endroit, et cliquez sur « Toutes les étapes de cet expéditeur » : une étape qui a son propre expéditeur écrit de celui-là.',
             'example' => 'Capitainerie.',
             'range' => '40 caractères au plus.',
         ],
@@ -417,7 +417,7 @@ return [
         ],
         'story_sender' => [
             'label' => 'Expéditeur du premier message',
-            'help' => 'De qui vient le message de la dernière scène. N’importe quel texte, le même dans chaque langue ; une case vide est un message sans expéditeur.',
+            'help' => 'De qui vient le message de la dernière scène. N’importe quel texte, le même dans chaque langue ; une case vide est l’expéditeur de l’appareil (section « Appareil »), et un message sans expéditeur quand lui aussi est vide.',
             'example' => '+48 555 010 112.',
             'range' => '40 caractères au plus.',
         ],

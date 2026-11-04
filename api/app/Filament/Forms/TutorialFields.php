@@ -13,6 +13,7 @@ use App\Filament\Resources\Definitions\Forms\DefinitionFields;
 use App\Filament\Support\FieldHelp;
 use App\Models\ContentDefinition;
 use App\Services\ContentImages;
+use Filament\Actions\Action;
 use Filament\Forms\Components\CheckboxList;
 use Filament\Forms\Components\Field;
 use Filament\Forms\Components\FileUpload;
@@ -22,11 +23,14 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Notifications\Notification;
+use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Text;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Components\View;
 
 /**
@@ -154,6 +158,7 @@ final class TutorialFields
                 TextInput::make('messenger_sender')->helpKey('tutorial.messenger_sender')->maxLength(self::SENDER_MAX),
             ]),
             self::senderTexts('messenger_sender', 'tutorial.messenger_sender_texts'),
+            Actions::make([self::senderEverywhereAction()])->key('senderEverywhere'),
             Grid::make(4)->schema($parts),
             Fieldset::make(__('admin.tutorial.icon'))->schema(self::picture('icon', 'tutorial.icon_upload', 'tutorial.icon_remove'))->columns(1),
             Fieldset::make(__('admin.tutorial.picture'))
@@ -167,6 +172,37 @@ final class TutorialFields
                 ->columns(1)
                 ->visible(fn (Get $get): bool => $get('device') === 'picture'),
         ]);
+    }
+
+    /**
+     * One sender for the whole tutorial: the move empties the sender of every step and of the story, so that every message comes from the sender of the messenger
+     * (a step that names a sender of its own writes from it, which is how RideIdle changes its number at every step). It changes the form; saving keeps it.
+     */
+    private static function senderEverywhereAction(): Action
+    {
+        return Action::make('senderEverywhere')
+            ->label(__('admin.tutorial.sender_everywhere'))
+            ->icon('heroicon-m-arrow-down-on-square-stack')
+            ->color('gray')
+            ->requiresConfirmation()
+            ->modalHeading(__('admin.tutorial.sender_everywhere'))
+            ->modalDescription(__('admin.tutorial.sender_everywhere_hint'))
+            ->disabled(fn (Get $get): bool => trim((string) $get('messenger_sender')) === '' && array_filter((array) $get('messenger_sender_texts'), 'filled') === [])
+            ->action(function (Get $get, Set $set): void {
+                $steps = (array) $get('steps');
+                $empty = DefinitionForm::texts([]);
+
+                foreach ($steps as $item => $step) {
+                    $steps[$item]['sender'] = null;
+                    $steps[$item]['sender_texts'] = $empty;
+                }
+
+                $set('steps', $steps);
+                $set('story_sender', null);
+                $set('story_sender_texts', $empty);
+
+                Notification::make()->success()->title(__('admin.tutorial.sender_everywhere_done', ['count' => count($steps)]))->send();
+            });
     }
 
     /**

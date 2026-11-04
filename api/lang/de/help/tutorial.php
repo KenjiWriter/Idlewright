@@ -308,7 +308,7 @@ return [
         ],
         'messenger_sender' => [
             'label' => 'Absender des Geräts',
-            'help' => 'Von wem die Nachrichten der Schritte kommen, die keinen eigenen Absender haben. Trage ihn einmal ein, wenn der Mentor immer vom selben Ort schreibt, und lass das Feld „Absender“ der Schritte leer.',
+            'help' => 'Von wem die Nachrichten der Schritte kommen, die keinen eigenen Absender haben. Auch die erste Nachricht der Geschichte kommt von ihm, wenn die Geschichte keinen Absender hat. Trage ihn einmal ein, wenn der Mentor immer vom selben Ort schreibt, und klicke auf „Alle Schritte von diesem Absender“: Ein Schritt mit eigenem Absender schreibt von diesem.',
             'example' => 'Hafenmeister.',
             'range' => 'Höchstens 40 Zeichen.',
         ],
@@ -417,7 +417,7 @@ return [
         ],
         'story_sender' => [
             'label' => 'Absender der ersten Nachricht',
-            'help' => 'Von wem die Nachricht der letzten Szene kommt. Beliebiger Text, in jeder Sprache gleich; ein leeres Feld ist eine Nachricht ohne Absender.',
+            'help' => 'Von wem die Nachricht der letzten Szene kommt. Beliebiger Text, in jeder Sprache gleich; ein leeres Feld ist der Absender des Geräts (Abschnitt „Gerät“), und eine Nachricht ohne Absender, wenn auch dieser leer ist.',
             'example' => '+48 555 010 112.',
             'range' => 'Höchstens 40 Zeichen.',
         ],

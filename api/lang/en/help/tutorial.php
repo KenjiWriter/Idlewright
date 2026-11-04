@@ -308,7 +308,7 @@ return [
         ],
         'messenger_sender' => [
             'label' => 'Sender of the device',
-            'help' => 'Who the messages of the steps that name no sender of their own come from. Write it once when the mentor always writes from the same place, and leave the box “Sender” of the steps empty.',
+            'help' => 'Who the messages of the steps that name no sender of their own come from. The first message of the story comes from it too when the story names no sender. Write it once when the mentor always writes from the same place, and press “Every step from this sender”: a step that names a sender of its own writes from that one.',
             'example' => 'Harbour master.',
             'range' => 'At most 40 characters.',
         ],
@@ -417,7 +417,7 @@ return [
         ],
         'story_sender' => [
             'label' => 'Sender of the first message',
-            'help' => 'Who the message of the last scene comes from. Any text, the same in every language; an empty box is a message with no sender.',
+            'help' => 'Who the message of the last scene comes from. Any text, the same in every language; an empty box is the sender of the device (section “Device”), and a message with no sender when that is empty too.',
             'example' => '+48 555 010 112.',
             'range' => 'At most 40 characters.',
         ],

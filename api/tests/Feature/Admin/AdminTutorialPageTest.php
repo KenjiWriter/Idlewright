@@ -9,6 +9,7 @@ use App\Content\Definitions\VocabularyForm;
 use App\Content\Vocabulary\MessageCatalog;
 use App\Filament\Pages\TutorialPage;
 use App\Models\ContentDefinition;
+use Filament\Actions\Testing\TestAction;
 use Illuminate\Http\UploadedFile;
 use Livewire\Livewire;
 
@@ -108,6 +109,37 @@ describe('the page of the tutorial', function () {
             ->and($draft['story']['sender'])->toBe('Kapitanat portu')
             ->and($draft['story']['sms'])->toBe($published['story']['sms'])
             ->and($draft['story']['labels'])->toBe(['choose' => ['en' => 'Pick a boat', 'pl' => 'Wybierz łódź']]);
+    });
+
+    it('writes every step and the story from the sender of the device at one press, and keeps it when the draft is saved', function () {
+        signedInAdmin();
+        $published = tutorialPagePublished();
+
+        expect(array_filter(array_column($published['steps'], 'sender')))->not->toBe([]);
+
+        $page = Livewire::test(TutorialPage::class)
+            ->fillForm(tutorialPageState(function (array $state): array {
+                $state['messenger_sender'] = 'K';
+
+                return $state;
+            }))
+            ->callAction(TestAction::make('senderEverywhere')->schemaComponent('senderEverywhere', 'form'))
+            ->assertNotified(__('admin.tutorial.sender_everywhere_done', ['count' => count($published['steps'])]));
+
+        $page->call('save')->assertHasNoFormErrors();
+
+        $draft = tutorialPageDraft();
+
+        expect(array_filter($draft['steps'], fn (array $step): bool => array_key_exists('sender', $step)))->toBe([])
+            ->and($draft['messenger']['sender'])->toBe('K')
+            ->and($draft['story'])->not->toHaveKey('sender')
+            ->and($draft['story']['sms'])->toBe($published['story']['sms']);
+    });
+
+    it('has nothing to give every step while the device has no sender', function () {
+        signedInAdmin();
+
+        Livewire::test(TutorialPage::class)->assertActionDisabled(TestAction::make('senderEverywhere')->schemaComponent('senderEverywhere', 'form'));
     });
 
     it('keeps a sender in the languages of the game, and shows it again', function () {

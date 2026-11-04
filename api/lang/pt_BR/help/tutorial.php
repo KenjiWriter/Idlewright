@@ -308,7 +308,7 @@ return [
         ],
         'messenger_sender' => [
             'label' => 'Remetente do aparelho',
-            'help' => 'De quem vêm as mensagens das etapas que não têm remetente próprio. Escreva uma vez quando o mentor escreve sempre do mesmo lugar e deixe vazio o campo “Remetente” das etapas.',
+            'help' => 'De quem vêm as mensagens das etapas que não têm remetente próprio. A primeira mensagem da história também vem dele quando a história não tem remetente. Escreva uma vez quando o mentor escreve sempre do mesmo lugar e clique em “Todas as etapas deste remetente”: uma etapa que tem remetente próprio escreve dele.',
             'example' => 'Capitania dos portos.',
             'range' => 'No máximo 40 caracteres.',
         ],
@@ -417,7 +417,7 @@ return [
         ],
         'story_sender' => [
             'label' => 'Remetente da primeira mensagem',
-            'help' => 'De quem vem a mensagem da última cena. Qualquer texto, igual em todos os idiomas; um campo vazio é uma mensagem sem remetente.',
+            'help' => 'De quem vem a mensagem da última cena. Qualquer texto, igual em todos os idiomas; um campo vazio é o remetente do aparelho (seção “Aparelho”), e uma mensagem sem remetente quando ele também está vazio.',
             'example' => '+48 555 010 112.',
             'range' => 'No máximo 40 caracteres.',
         ],

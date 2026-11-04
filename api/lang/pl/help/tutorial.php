@@ -308,7 +308,7 @@ return [
         ],
         'messenger_sender' => [
             'label' => 'Nadawca urządzenia',
-            'help' => 'Od kogo są wiadomości kroków, które nie mają własnego nadawcy. Wpisz go raz, gdy mentor pisze zawsze z tego samego miejsca, a pola „Nadawca” w krokach zostaw puste.',
+            'help' => 'Od kogo są wiadomości kroków, które nie mają własnego nadawcy. Od niego jest też pierwsza wiadomość historii na start, gdy historia nie ma własnego nadawcy. Wpisz go raz, gdy mentor pisze zawsze z tego samego miejsca, i kliknij „Wszystkie kroki od tego nadawcy”: kroki, które mają własnego nadawcę, piszą od niego.',
             'example' => 'Kapitanat portu.',
             'range' => 'Najwyżej 40 znaków.',
         ],
@@ -417,7 +417,7 @@ return [
         ],
         'story_sender' => [
             'label' => 'Nadawca pierwszej wiadomości',
-            'help' => 'Od kogo jest wiadomość w ostatniej scenie. Dowolny tekst, ten sam w każdym języku; puste pole to wiadomość bez nadawcy.',
+            'help' => 'Od kogo jest wiadomość w ostatniej scenie. Dowolny tekst, ten sam w każdym języku; puste pole to nadawca urządzenia (sekcja „Urządzenie”), a gdy i jego nie ma, wiadomość bez nadawcy.',
             'example' => '+48 555 010 112.',
             'range' => 'Najwyżej 40 znaków.',
         ],
