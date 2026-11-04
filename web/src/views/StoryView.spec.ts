@@ -163,6 +163,16 @@ describe('StoryView', () => {
       expect(wrapper.get('[data-test="story-sms"]').classes()).toContain('story-note-letter')
     })
 
+    it('writes the first message of the story of the app from the sender of the device that the game gave', async () => {
+      tells({ builtin: true, picture_url: null, sender: 'K', messenger: { ...letter, device: 'phone' } })
+      const { wrapper } = await show()
+      for (let scene = 0; scene < 3; scene += 1) {
+        await wrapper.get('[data-test="story-stage"]').trigger('click')
+      }
+
+      expect(wrapper.get('[data-test="story-sms"]').text()).toBe('K: It’s me. Don’t ask. Pick a car, I’ll text you the rest. — K.')
+    })
+
     it('goes straight to the choice of a wreck when the game tells no story', async () => {
       tells({ enabled: false })
       const { router } = await show()

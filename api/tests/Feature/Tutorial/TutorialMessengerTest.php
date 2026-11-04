@@ -110,6 +110,24 @@ describe('the story', function () {
         test()->getJson('/api/v1/tutorial/story', bearerFor($driver))->assertOk()->assertJsonPath('data.builtin', false)->assertJsonPath('data.enabled', false);
     });
 
+    it('writes its first message from the sender of the device when it names none, the story of the app too', function () {
+        $driver = User::factory()->guest()->create(['locale' => 'pl']);
+        $device = ['device' => 'phone', 'sender' => ['en' => 'Harbour master', 'pl' => 'Kapitanat portu']];
+        $scene = ['text' => ['en' => 'Ahoy.', 'pl' => 'Ahoj.'], 'ms' => 4000, 'camera' => 'still', 'focus' => ['x' => 50, 'y' => 50]];
+
+        messengerTutorial([messengerStep('ahoy')], ['messenger' => $device]);
+        test()->getJson('/api/v1/tutorial/story', bearerFor($driver))->assertOk()->assertJsonPath('data.builtin', true)->assertJsonPath('data.sender', 'Kapitanat portu');
+
+        messengerTutorial([messengerStep('ahoy')], ['messenger' => $device, 'story' => ['enabled' => true, 'scenes' => [$scene], 'sms' => ['en' => 'Hi.', 'pl' => 'Cześć.']]]);
+        test()->getJson('/api/v1/tutorial/story', bearerFor($driver))->assertOk()->assertJsonPath('data.sender', 'Kapitanat portu');
+
+        messengerTutorial([messengerStep('ahoy')], ['messenger' => $device, 'story' => ['enabled' => true, 'scenes' => [$scene], 'sender' => 'K.', 'sms' => ['en' => 'Hi.', 'pl' => 'Cześć.']]]);
+        test()->getJson('/api/v1/tutorial/story', bearerFor($driver))->assertOk()->assertJsonPath('data.sender', 'K.');
+
+        messengerTutorial([messengerStep('ahoy', ['sender' => 'K.'])]);
+        test()->getJson('/api/v1/tutorial/story', bearerFor($driver))->assertOk()->assertJsonPath('data.sender', null);
+    });
+
     it('requires a token', function () {
         test()->getJson('/api/v1/tutorial/story')->assertUnauthorized();
     });

@@ -12,8 +12,9 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 /**
  * The story that comes between the name of a new driver and the choice of a wreck, in the language of the driver: whether the game tells one, its picture, its
- * scenes (the words still with {name} in them, which the app fills in), the first message and what it is written on. A tutorial that says nothing of a story is
- * `builtin`: the app tells the story of RideIdle with its own words and picture.
+ * scenes (the words still with {name} in them, which the app fills in), the first message and who it is from (the sender of the messenger when the story names
+ * none) and what it is written on. A tutorial that says nothing of a story is `builtin`: the app tells the story of RideIdle with its own words and picture, and
+ * `sender` is the sender of the messenger, or null for the number of the app.
  *
  * @property-read TutorialSteps $resource
  */
@@ -24,9 +25,11 @@ final class TutorialStoryResource extends JsonResource
     {
         $story = $this->resource->story();
         $messenger = TutorialResource::messenger($this->resource->messenger());
+        // The first message comes from the sender of the story, and from the one of the messenger when the story names none (also in the story of the app).
+        $deviceSender = $this->resource->messenger()['sender'] ?? null;
 
         if ($story === null) {
-            return ['enabled' => true, 'builtin' => true, 'picture_url' => null, 'scenes' => [], 'sender' => null, 'sms' => null, 'messenger' => $messenger];
+            return ['enabled' => true, 'builtin' => true, 'picture_url' => null, 'scenes' => [], 'sender' => self::text($deviceSender), 'sms' => null, 'messenger' => $messenger];
         }
 
         $picture = $story['picture'] ?? null;
@@ -41,9 +44,15 @@ final class TutorialStoryResource extends JsonResource
                 'camera' => (string) ($scene['camera'] ?? 'still'),
                 'focus' => ['x' => (int) ($scene['focus']['x'] ?? 50), 'y' => (int) ($scene['focus']['y'] ?? 50)],
             ], array_values((array) ($story['scenes'] ?? []))),
-            'sender' => isset($story['sender']) ? I18nText::from($story['sender'])->for() : null,
+            'sender' => self::text($story['sender'] ?? $deviceSender),
             'sms' => isset($story['sms']) ? I18nText::from($story['sms'])->for() : null,
             'messenger' => $messenger,
         ];
+    }
+
+    /** @param  array<string, string>|string|null  $text */
+    private static function text(array|string|null $text): ?string
+    {
+        return $text === null ? null : I18nText::from($text)->for();
     }
 }

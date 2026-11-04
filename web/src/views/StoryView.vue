@@ -104,8 +104,9 @@ const message = computed(() => {
     return null
   }
 
+  // The story of the app writes from the sender the game gave its messenger, and from its own number when the game gave none.
   if (story.value.builtin) {
-    return { sender: BUILTIN_SENDER, text: t('story.sms') }
+    return { sender: story.value.sender ?? BUILTIN_SENDER, text: t('story.sms') }
   }
 
   return story.value.sms ? { sender: story.value.sender, text: story.value.sms } : null
