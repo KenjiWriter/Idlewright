@@ -122,10 +122,16 @@ return [
             ],
         ],
         'sender' => [
-            'label' => 'Numéro du mentor',
-            'help' => 'Le numéro inventé d’où le mentor écrit à cette étape ; il s’affiche en haut du téléphone. Le mentor se cache, donc le numéro change à chaque étape.',
-            'example' => '+48 555 010 120.',
-            'range' => 'Exactement « +48 555 010 » et trois chiffres.',
+            'label' => 'Expéditeur',
+            'help' => 'De qui viennent les messages de cette étape ; on le voit en haut de l’appareil (téléphone, lettre, tablette). N’importe quel texte, le même dans chaque langue, un numéro, un nom ou un indicatif. Une case vide est l’expéditeur de l’appareil (section « Appareil »). Dans RideIdle, le mentor se cache, donc chaque étape vient d’un autre numéro inventé.',
+            'example' => '+48 555 010 120 ; Capitainerie ; Canal 7.',
+            'range' => '40 caractères au plus.',
+        ],
+        'sender_texts' => [
+            'label' => 'Expéditeur dans les langues',
+            'help' => 'Un expéditeur qui se dit autrement dans chaque langue (un nom, pas un numéro). Dès que quelque chose est écrit ici, le jeu prend ces textes au lieu de la case « Expéditeur » ; le polonais et l’anglais sont alors obligatoires.',
+            'example' => 'Kapitanat portu / Harbour master.',
+            'range' => '40 caractères au plus dans chaque langue.',
         ],
         'trigger' => [
             'label' => 'Commence quand',
@@ -181,14 +187,14 @@ return [
             'label' => 'Messages du mentor',
             'help' => 'Deux messages courts au plus que le mentor envoie au téléphone du pilote au début de l’étape : en général une salutation et la demande. Une étape sans message est exécutée sans montrer le téléphone.',
             'example' => 'Étape « refuel » : « Nouveau numéro, même moi. Ne pose pas de questions. » et « Le réservoir est presque vide. Touche « Faire le plein » pour que la voiture continue de rouler, même en ton absence. — K. »',
-            'range' => '2 messages au plus, de 200 caractères.',
+            'range' => '2 messages au plus, de 200 caractères (400 dans une lettre).',
             'tip' => 'Le téléphone apparaît quand l’étape commence et disparaît quand le pilote répond ou remet l’étape à plus tard. Ensuite, seuls la barre d’objectif et la mise en avant restent à l’écran.',
         ],
         'message' => [
             'label' => 'Message',
             'help' => 'Le texte d’une bulle de message sur le téléphone du mentor. Le premier salue en général (« C’est moi. Le numéro a encore changé. »), le second dit quoi faire et où, et finit par la signature « — K. ». Écrivez les noms des écrans et des boutons comme dans le jeu (« Atelier », « Faire le plein »).',
             'example' => 'J’ai mis une paire de pneus neufs dans ton inventaire. Ouvre « Atelier » dans la barre du bas et monte-les sur la voiture. — K.',
-            'range' => '200 caractères au plus dans chaque langue (en général 85 à 170).',
+            'range' => '200 caractères au plus dans chaque langue (en général 85 à 170), jusqu’à 400 quand l’appareil est une lettre.',
         ],
         'reply' => [
             'label' => 'Bouton de réponse',
@@ -271,6 +277,165 @@ return [
             'label' => 'Garage dans la ville (récompense)',
             'help' => 'La ville où le pilote reçoit un garage gratuitement, sans contrôle du niveau (le tutoriel ne coûte pas d’argent, et le premier garage d’une autre ville coûte une fortune). Si le pilote y a déjà un garage, rien ne change.',
             'example' => 'Étape « locked » : Kruszyn.',
+        ],
+        'device' => [
+            'label' => 'Appareil',
+            'help' => 'Ce sur quoi le mentor écrit au pilote. Il change l’aspect de la fenêtre des messages sur chaque écran du jeu, et le premier message de l’histoire du début.',
+            'example' => 'RideIdle, Téléphone. Un jeu de bateaux, Lettre. Un jeu spatial, Tablette.',
+            'options' => [
+                'phone' => ['label' => 'Téléphone', 'help' => 'Un vieux téléphone tactile à l’écran fêlé, avec des bulles de SMS, comme dans RideIdle.'],
+                'letter' => ['label' => 'Lettre', 'help' => 'Une feuille de papier, « De » au lieu d’un numéro, les messages en paragraphes écrits à la main, la réponse en bouton tamponné. Elle a de la place pour des messages plus longs (jusqu’à 400 caractères).'],
+                'tablet' => ['label' => 'Tablette', 'help' => 'Un panneau de console de science-fiction avec un cadre et une lueur ; les messages en lignes d’un journal.'],
+                'plain' => ['label' => 'Fenêtre simple', 'help' => 'Une fenêtre aux couleurs du jeu, sans aucun appareil, qui va avec tous les jeux.'],
+                'picture' => ['label' => 'Image à vous', 'help' => 'Un cadre tiré de l’image que vous envoyez plus bas ; les messages s’affichent là où est son écran.'],
+            ],
+        ],
+        'part_crack' => [
+            'label' => 'Fêlures de l’écran',
+            'help' => 'Dessine des fêlures sur l’écran du téléphone. Seul le téléphone a des fêlures ; avec les autres appareils, l’interrupteur ne change rien.',
+        ],
+        'part_status_bar' => [
+            'label' => 'Barre d’état',
+            'help' => 'La barre avec le réseau, l’heure et la batterie en haut du téléphone et de la tablette. La lettre et la fenêtre simple n’en ont pas.',
+        ],
+        'part_input' => [
+            'label' => 'Case de réponse',
+            'help' => 'La case « Répondre… » avec le bouton « Envoyer » sous les messages. Elle n’est là que pour l’œil, le pilote répond avec le bouton de réponse de l’étape.',
+        ],
+        'part_who' => [
+            'label' => 'Bouton « Qui est-ce ? »',
+            'help' => 'Le bouton avec lequel le pilote demande qui écrit ; le mentor répond avec le mot « deflect » de la section « Mots du tutoriel ».',
+        ],
+        'messenger_sender' => [
+            'label' => 'Expéditeur de l’appareil',
+            'help' => 'De qui viennent les messages des étapes qui n’ont pas d’expéditeur à elles. Écrivez-le une fois quand le mentor écrit toujours du même endroit, et laissez vide la case « Expéditeur » des étapes.',
+            'example' => 'Capitainerie.',
+            'range' => '40 caractères au plus.',
+        ],
+        'messenger_sender_texts' => [
+            'label' => 'Expéditeur de l’appareil dans les langues',
+            'help' => 'La même chose, quand l’expéditeur se dit autrement dans chaque langue. Ces textes l’emportent sur la case « Expéditeur de l’appareil » ; le polonais et l’anglais sont alors obligatoires.',
+            'range' => '40 caractères au plus dans chaque langue.',
+        ],
+        'icon_upload' => [
+            'label' => 'Icône à vous',
+            'help' => 'Une petite image sur le bouton qui ramène les messages dans la barre d’objectif, au lieu de l’icône de l’appareil. PNG, WebP ou JPG, côtés de :min à :max pixels, carrée de préférence.',
+        ],
+        'icon_remove' => [
+            'label' => 'Retirer l’icône',
+            'help' => 'Retire l’icône à vous à l’enregistrement ; le bouton reprend l’icône de l’appareil.',
+        ],
+        'frame_upload' => [
+            'label' => 'Image du cadre',
+            'help' => 'Une image de l’appareil (une bouteille à la mer, un poste radio, un projecteur d’hologrammes) avec une place transparente pour l’écran. PNG ou WebP avec transparence, côtés de :min à :max pixels. Obligatoire quand l’appareil est « Image à vous ».',
+        ],
+        'frame_remove' => [
+            'label' => 'Retirer le cadre',
+            'help' => 'Retire l’image du cadre à l’enregistrement. Un appareil « Image à vous » sans cadre ne passe pas la vérification.',
+        ],
+        'screen_top' => [
+            'label' => 'Écran depuis le haut (%)',
+            'help' => 'La part de la hauteur de l’image que le cadre prend au-dessus de l’écran. Les messages commencent en dessous.',
+            'range' => '0 à 45 %.',
+        ],
+        'screen_right' => [
+            'label' => 'Écran depuis la droite (%)',
+            'help' => 'La part de la largeur de l’image que le cadre prend à droite de l’écran.',
+            'range' => '0 à 45 %.',
+        ],
+        'screen_bottom' => [
+            'label' => 'Écran depuis le bas (%)',
+            'help' => 'La part de la hauteur de l’image que le cadre prend sous l’écran. Les boutons de réponse sont au-dessus.',
+            'range' => '0 à 45 %.',
+        ],
+        'screen_left' => [
+            'label' => 'Écran depuis la gauche (%)',
+            'help' => 'La part de la largeur de l’image que le cadre prend à gauche de l’écran.',
+            'range' => '0 à 45 %.',
+        ],
+        'label' => [
+            'label' => 'Mot du tutoriel',
+            'help' => 'Le texte d’un message de l’application dans ce jeu. Une case vide est le texte de l’application (affiché en indication). Les noms entre accolades, comme {cash}, doivent rester, car le jeu y met des valeurs.',
+            'example' => 'reward, « Le capitaine t’a envoyé {cash}. »',
+            'range' => '200 caractères au plus dans chaque langue.',
+        ],
+        'story_mode' => [
+            'label' => 'Histoire du début',
+            'help' => 'Ce que le pilote voit entre le choix du nom et le choix d’une épave.',
+            'options' => [
+                'builtin' => ['label' => 'Histoire de l’application', 'help' => 'Les quatre scènes de RideIdle avec l’image et les mots de l’application. C’est ce qu’a un jeu dont le tutoriel ne dit rien d’une histoire.'],
+                'own' => ['label' => 'Histoire à vous', 'help' => 'L’image, les scènes et le premier message de ce jeu, réglés plus bas.'],
+                'none' => ['label' => 'Pas d’histoire', 'help' => 'Le pilote choisit une épave tout de suite. Les scènes déjà dans le document sont gardées pour plus tard.'],
+            ],
+        ],
+        'story_picture_upload' => [
+            'label' => 'Image de l’histoire',
+            'help' => 'Une image sur laquelle la caméra se déplace pendant les scènes. Sans elle, c’est l’image de l’application. PNG, WebP ou JPG, côtés de :min à :max pixels, en paysage de préférence.',
+        ],
+        'story_picture_remove' => [
+            'label' => 'Retirer l’image de l’histoire',
+            'help' => 'Retire l’image à l’enregistrement ; les scènes montrent l’image de l’application.',
+        ],
+        'story_scenes' => [
+            'label' => 'Scènes',
+            'help' => 'D’une à six scènes, dans l’ordre. Chacune reste à l’écran le temps fixé ou jusqu’à un toucher ; le premier message arrive dans la dernière.',
+            'example' => 'RideIdle, 4 scènes, 24 s en tout.',
+            'range' => '1 à 6 scènes.',
+        ],
+        'scene_text' => [
+            'label' => 'Mots de la scène',
+            'help' => 'Ce que dit le mentor dans cette scène. {name} est le nom du pilote ; une scène ne remplit aucun autre nom entre accolades.',
+            'example' => '« Gérant de l’atelier, {name}. »',
+            'range' => '200 caractères au plus dans chaque langue.',
+        ],
+        'scene_seconds' => [
+            'label' => 'Durée de la scène (s)',
+            'help' => 'Après autant de secondes, la scène suivante arrive. Un pilote qui demande moins de mouvement avance lui-même.',
+            'example' => 'Aujourd’hui 6, 6, 7 et 5 s.',
+            'range' => '2 à 20 s (le document garde des millisecondes).',
+        ],
+        'scene_camera' => [
+            'label' => 'Mouvement de caméra',
+            'help' => 'Comment la caméra se déplace sur l’image dans cette scène.',
+            'options' => [
+                'zoom-in' => ['label' => 'Rapprocher', 'help' => 'La caméra s’approche du point de mire.'],
+                'zoom-out' => ['label' => 'Éloigner', 'help' => 'La caméra s’éloigne du point de mire.'],
+                'pan-left' => ['label' => 'Glisser à gauche', 'help' => 'La caméra glisse sur l’image vers la gauche.'],
+                'pan-right' => ['label' => 'Glisser à droite', 'help' => 'La caméra glisse sur l’image vers la droite.'],
+                'still' => ['label' => 'Immobile', 'help' => 'La caméra reste sur le point de mire.'],
+            ],
+        ],
+        'scene_focus_x' => [
+            'label' => 'Point de mire depuis la gauche (%)',
+            'help' => 'Où la caméra regarde dans l’image, en pourcentage de la largeur depuis le bord gauche.',
+            'range' => '0 à 100 %.',
+        ],
+        'scene_focus_y' => [
+            'label' => 'Point de mire depuis le haut (%)',
+            'help' => 'Où la caméra regarde dans l’image, en pourcentage de la hauteur depuis le bord du haut.',
+            'range' => '0 à 100 %.',
+        ],
+        'story_sender' => [
+            'label' => 'Expéditeur du premier message',
+            'help' => 'De qui vient le message de la dernière scène. N’importe quel texte, le même dans chaque langue ; une case vide est un message sans expéditeur.',
+            'example' => '+48 555 010 112.',
+            'range' => '40 caractères au plus.',
+        ],
+        'story_sender_texts' => [
+            'label' => 'Expéditeur du premier message dans les langues',
+            'help' => 'La même chose, quand l’expéditeur se dit autrement dans chaque langue. Ces textes l’emportent sur la case d’à côté ; le polonais et l’anglais sont alors obligatoires.',
+            'range' => '40 caractères au plus dans chaque langue.',
+        ],
+        'story_sms' => [
+            'label' => 'Premier message',
+            'help' => 'Le message qui arrive dans la dernière scène, avant que le pilote choisisse une épave. Des cases vides font une dernière scène sans message.',
+            'example' => 'C’est moi. Ne pose pas de questions. Choisis une voiture, je t’envoie la suite par SMS. — K.',
+            'range' => '200 caractères au plus dans chaque langue.',
+        ],
+        'story_label' => [
+            'label' => 'Mot de l’écran de l’histoire',
+            'help' => 'Un libellé de l’écran de l’histoire dans ce jeu, les boutons « Passer » et « Choisir une épave », l’invitation à toucher pour avancer, le compteur de scènes. Une case vide est le texte de l’application.',
+            'range' => '200 caractères au plus dans chaque langue.',
         ],
     ],
 ];

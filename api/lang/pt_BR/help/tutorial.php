@@ -122,10 +122,16 @@ return [
             ],
         ],
         'sender' => [
-            'label' => 'Número do mentor',
-            'help' => 'O número inventado de onde o mentor escreve nesta etapa; aparece no alto do telefone. O mentor está se escondendo, então o número muda a cada etapa.',
-            'example' => '+48 555 010 120.',
-            'range' => 'Exatamente “+48 555 010” e três dígitos.',
+            'label' => 'Remetente',
+            'help' => 'De quem vêm as mensagens desta etapa; aparece no alto do aparelho (telefone, carta, tablet). Qualquer texto, igual em todos os idiomas: um número, um nome, um prefixo de chamada. Um campo vazio é o remetente do aparelho (seção “Aparelho”). No RideIdle o mentor está se escondendo, então cada etapa vem de outro número inventado.',
+            'example' => '+48 555 010 120; Capitania dos portos; Canal 7.',
+            'range' => 'No máximo 40 caracteres.',
+        ],
+        'sender_texts' => [
+            'label' => 'Remetente nos idiomas',
+            'help' => 'Um remetente que soa diferente em cada idioma (um nome, não um número). Quando algo é escrito aqui, o jogo usa esses textos no lugar do campo “Remetente”; polonês e inglês passam a ser obrigatórios.',
+            'example' => 'Kapitanat portu / Harbour master.',
+            'range' => 'No máximo 40 caracteres em cada idioma.',
         ],
         'trigger' => [
             'label' => 'Começa quando',
@@ -181,14 +187,14 @@ return [
             'label' => 'Mensagens do mentor',
             'help' => 'No máximo duas mensagens curtas que o mentor manda ao telefone do piloto quando a etapa começa: em geral uma saudação e o pedido. Uma etapa sem mensagens é cumprida sem mostrar o telefone.',
             'example' => 'Etapa “refuel”: “Número novo, o mesmo eu. Não pergunte.” e “O tanque está quase vazio. Toque em “Encher o tanque” para o carro seguir andando, mesmo quando você não estiver. — K.”',
-            'range' => 'No máximo 2 mensagens de 200 caracteres.',
+            'range' => 'No máximo 2 mensagens de 200 caracteres (400 numa carta).',
             'tip' => 'O telefone aparece quando a etapa começa e some quando o piloto responde ou deixa a etapa para depois. Depois disso, ficam na tela só a barra de meta e o destaque.',
         ],
         'message' => [
             'label' => 'Mensagem',
             'help' => 'O texto de um balão de mensagem no telefone do mentor. A primeira em geral cumprimenta (“Sou eu. O número mudou de novo, como sempre.”), a segunda diz o que fazer e onde, e termina com a assinatura “— K.”. Escreva os nomes das telas e dos botões como o jogo os tem (“Oficina”, “Encher o tanque”).',
             'example' => 'Coloquei um par de pneus novos no seu inventário. Abra “Oficina” na barra de baixo e monte no carro. — K.',
-            'range' => 'No máximo 200 caracteres em cada idioma (em geral 85–170).',
+            'range' => 'No máximo 200 caracteres em cada idioma (em geral 85–170); até 400 quando o aparelho é uma carta.',
         ],
         'reply' => [
             'label' => 'Botão de resposta',
@@ -271,6 +277,165 @@ return [
             'label' => 'Garagem na cidade (recompensa)',
             'help' => 'A cidade onde o piloto ganha uma garagem de graça, sem checar o nível (o tutorial não custa dinheiro, e a primeira garagem em outra cidade custa uma fortuna). Se o piloto já tem garagem lá, nada muda.',
             'example' => 'Etapa “locked”: Kruszyn.',
+        ],
+        'device' => [
+            'label' => 'Aparelho',
+            'help' => 'Onde o mentor escreve para o piloto. Muda a aparência da janela das mensagens em todas as telas do jogo e a primeira mensagem da história de abertura.',
+            'example' => 'RideIdle: Telefone. Um jogo de navios: Carta. Um jogo espacial: Tablet.',
+            'options' => [
+                'phone' => ['label' => 'Telefone', 'help' => 'Um velho telefone de toque com a tela rachada e balões de SMS, como no RideIdle.'],
+                'letter' => ['label' => 'Carta', 'help' => 'Uma folha de papel: “De:” no lugar de um número, as mensagens como parágrafos escritos à mão, a resposta como um botão com carimbo. Cabem mensagens mais longas (até 400 caracteres).'],
+                'tablet' => ['label' => 'Tablet', 'help' => 'Um painel de console de ficção científica com moldura e brilho; as mensagens como linhas de um registro.'],
+                'plain' => ['label' => 'Janela simples', 'help' => 'Uma janela nas cores do jogo, sem aparelho nenhum: serve para qualquer jogo.'],
+                'picture' => ['label' => 'Imagem própria', 'help' => 'Uma moldura da imagem que você envia abaixo; as mensagens aparecem onde fica a tela dela.'],
+            ],
+        ],
+        'part_crack' => [
+            'label' => 'Rachaduras da tela',
+            'help' => 'Desenha rachaduras na tela do telefone. Só o telefone tem rachaduras; nos outros aparelhos a chave não muda nada.',
+        ],
+        'part_status_bar' => [
+            'label' => 'Barra de status',
+            'help' => 'A barra com a rede, o relógio e a bateria no alto do telefone e do tablet. A carta e a janela simples não têm.',
+        ],
+        'part_input' => [
+            'label' => 'Campo de resposta',
+            'help' => 'O campo “Responder…” com o botão “Enviar” embaixo das mensagens. É só para mostrar: o piloto responde com o botão de resposta da etapa.',
+        ],
+        'part_who' => [
+            'label' => 'Botão “Quem é?”',
+            'help' => 'O botão com que o piloto pergunta quem está escrevendo; o mentor responde com a palavra “deflect” da seção “Palavras do tutorial”.',
+        ],
+        'messenger_sender' => [
+            'label' => 'Remetente do aparelho',
+            'help' => 'De quem vêm as mensagens das etapas que não têm remetente próprio. Escreva uma vez quando o mentor escreve sempre do mesmo lugar e deixe vazio o campo “Remetente” das etapas.',
+            'example' => 'Capitania dos portos.',
+            'range' => 'No máximo 40 caracteres.',
+        ],
+        'messenger_sender_texts' => [
+            'label' => 'Remetente do aparelho nos idiomas',
+            'help' => 'O mesmo, quando o remetente soa diferente em cada idioma. Esses textos vencem o campo “Remetente do aparelho”; polonês e inglês passam a ser obrigatórios.',
+            'range' => 'No máximo 40 caracteres em cada idioma.',
+        ],
+        'icon_upload' => [
+            'label' => 'Ícone próprio',
+            'help' => 'Uma imagem pequena no botão que traz as mensagens de volta na barra de meta, no lugar do ícone do aparelho. PNG, WebP ou JPG, lados de :min a :max pixels, de preferência quadrada.',
+        ],
+        'icon_remove' => [
+            'label' => 'Remover o ícone',
+            'help' => 'Tira o ícone próprio ao salvar; o botão volta ao ícone do aparelho.',
+        ],
+        'frame_upload' => [
+            'label' => 'Imagem da moldura',
+            'help' => 'Uma imagem do aparelho (uma garrafa com carta, um rádio, um projetor de holograma) com um lugar transparente para a tela. PNG ou WebP com transparência, lados de :min a :max pixels. Obrigatória quando o aparelho é “Imagem própria”.',
+        ],
+        'frame_remove' => [
+            'label' => 'Remover a moldura',
+            'help' => 'Tira a imagem da moldura ao salvar. Um aparelho “Imagem própria” sem moldura não passa na verificação.',
+        ],
+        'screen_top' => [
+            'label' => 'Tela a partir do alto (%)',
+            'help' => 'Quanto da altura da imagem a moldura ocupa acima da tela. As mensagens começam abaixo disso.',
+            'range' => '0–45%.',
+        ],
+        'screen_right' => [
+            'label' => 'Tela a partir da direita (%)',
+            'help' => 'Quanto da largura da imagem a moldura ocupa à direita da tela.',
+            'range' => '0–45%.',
+        ],
+        'screen_bottom' => [
+            'label' => 'Tela a partir de baixo (%)',
+            'help' => 'Quanto da altura da imagem a moldura ocupa abaixo da tela. Os botões de resposta ficam acima disso.',
+            'range' => '0–45%.',
+        ],
+        'screen_left' => [
+            'label' => 'Tela a partir da esquerda (%)',
+            'help' => 'Quanto da largura da imagem a moldura ocupa à esquerda da tela.',
+            'range' => '0–45%.',
+        ],
+        'label' => [
+            'label' => 'Palavra do tutorial',
+            'help' => 'O texto de uma mensagem do app neste jogo. Um campo vazio é o texto do app (mostrado como dica). Nomes entre chaves, como {cash}, precisam ficar, porque o jogo coloca valores neles.',
+            'example' => 'reward: “O capitão te mandou {cash}.”',
+            'range' => 'No máximo 200 caracteres em cada idioma.',
+        ],
+        'story_mode' => [
+            'label' => 'História de abertura',
+            'help' => 'O que o piloto vê entre a escolha do nome e a escolha de uma carcaça.',
+            'options' => [
+                'builtin' => ['label' => 'História do app', 'help' => 'As quatro cenas do RideIdle com a imagem e as palavras do app. É o que tem um jogo cujo tutorial não diz nada sobre uma história.'],
+                'own' => ['label' => 'História própria', 'help' => 'A imagem, as cenas e a primeira mensagem deste jogo, definidas abaixo.'],
+                'none' => ['label' => 'Sem história', 'help' => 'O piloto escolhe uma carcaça de imediato. As cenas que já estão no documento ficam guardadas para depois.'],
+            ],
+        ],
+        'story_picture_upload' => [
+            'label' => 'Imagem da história',
+            'help' => 'Uma imagem sobre a qual a câmera se move nas cenas. Sem ela, aparece a imagem do app. PNG, WebP ou JPG, lados de :min a :max pixels, de preferência na horizontal.',
+        ],
+        'story_picture_remove' => [
+            'label' => 'Remover a imagem da história',
+            'help' => 'Tira a imagem ao salvar; as cenas mostram a imagem do app.',
+        ],
+        'story_scenes' => [
+            'label' => 'Cenas',
+            'help' => 'De uma a seis cenas, em ordem. Cada uma fica na tela pelo seu tempo ou até um toque; a primeira mensagem chega na última.',
+            'example' => 'RideIdle: 4 cenas, 24 s no total.',
+            'range' => '1–6 cenas.',
+        ],
+        'scene_text' => [
+            'label' => 'Palavras da cena',
+            'help' => 'O que o mentor diz nesta cena. {name} é o nome do piloto; a cena não preenche outros nomes entre chaves.',
+            'example' => '“Gerente da oficina: {name}.”',
+            'range' => 'No máximo 200 caracteres em cada idioma.',
+        ],
+        'scene_seconds' => [
+            'label' => 'Tempo da cena (s)',
+            'help' => 'Depois de tantos segundos chega a próxima cena. Um piloto que pede menos movimento avança sozinho.',
+            'example' => 'Hoje 6, 6, 7 e 5 s.',
+            'range' => '2–20 s (o documento guarda milissegundos).',
+        ],
+        'scene_camera' => [
+            'label' => 'Movimento da câmera',
+            'help' => 'Como a câmera se move sobre a imagem nesta cena.',
+            'options' => [
+                'zoom-in' => ['label' => 'Aproximar', 'help' => 'A câmera se aproxima do ponto de foco.'],
+                'zoom-out' => ['label' => 'Afastar', 'help' => 'A câmera se afasta do ponto de foco.'],
+                'pan-left' => ['label' => 'Deslizar para a esquerda', 'help' => 'A câmera desliza sobre a imagem para a esquerda.'],
+                'pan-right' => ['label' => 'Deslizar para a direita', 'help' => 'A câmera desliza sobre a imagem para a direita.'],
+                'still' => ['label' => 'Parada', 'help' => 'A câmera fica parada no ponto de foco.'],
+            ],
+        ],
+        'scene_focus_x' => [
+            'label' => 'Ponto de foco a partir da esquerda (%)',
+            'help' => 'Para onde na imagem a câmera olha, em porcentagem da largura a partir da borda esquerda.',
+            'range' => '0–100%.',
+        ],
+        'scene_focus_y' => [
+            'label' => 'Ponto de foco a partir do alto (%)',
+            'help' => 'Para onde na imagem a câmera olha, em porcentagem da altura a partir da borda de cima.',
+            'range' => '0–100%.',
+        ],
+        'story_sender' => [
+            'label' => 'Remetente da primeira mensagem',
+            'help' => 'De quem vem a mensagem da última cena. Qualquer texto, igual em todos os idiomas; um campo vazio é uma mensagem sem remetente.',
+            'example' => '+48 555 010 112.',
+            'range' => 'No máximo 40 caracteres.',
+        ],
+        'story_sender_texts' => [
+            'label' => 'Remetente da primeira mensagem nos idiomas',
+            'help' => 'O mesmo, quando o remetente soa diferente em cada idioma. Esses textos vencem o campo ao lado; polonês e inglês passam a ser obrigatórios.',
+            'range' => 'No máximo 40 caracteres em cada idioma.',
+        ],
+        'story_sms' => [
+            'label' => 'Primeira mensagem',
+            'help' => 'A mensagem que chega na última cena, antes de o piloto escolher uma carcaça. Campos vazios são uma última cena sem mensagem.',
+            'example' => 'Sou eu. Não pergunte. Escolha um carro, o resto mando por SMS. — K.',
+            'range' => 'No máximo 200 caracteres em cada idioma.',
+        ],
+        'story_label' => [
+            'label' => 'Palavra da tela da história',
+            'help' => 'Um rótulo da tela da história neste jogo: os botões “Pular” e “Escolher carcaça”, a dica de tocar para avançar, o contador de cenas. Um campo vazio é o texto do app.',
+            'range' => 'No máximo 200 caracteres em cada idioma.',
         ],
     ],
 ];

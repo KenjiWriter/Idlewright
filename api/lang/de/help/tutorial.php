@@ -122,10 +122,16 @@ return [
             ],
         ],
         'sender' => [
-            'label' => 'Nummer des Mentors',
-            'help' => 'Die ausgedachte Nummer, von der der Mentor in diesem Schritt schreibt; sie steht oben auf dem Handy. Der Mentor versteckt sich, also ändert sich die Nummer mit jedem Schritt.',
-            'example' => '+48 555 010 120.',
-            'range' => 'Genau „+48 555 010“ und drei Ziffern.',
+            'label' => 'Absender',
+            'help' => 'Von wem die Nachrichten dieses Schritts kommen; das steht oben auf dem Gerät (Handy, Brief, Tablet). Beliebiger Text, in jeder Sprache gleich: eine Nummer, ein Name, ein Rufzeichen. Ein leeres Feld ist der Absender des Geräts (Abschnitt „Gerät“). In RideIdle versteckt sich der Mentor, also kommt jeder Schritt von einer anderen ausgedachten Nummer.',
+            'example' => '+48 555 010 120; Hafenmeister; Kanal 7.',
+            'range' => 'Höchstens 40 Zeichen.',
+        ],
+        'sender_texts' => [
+            'label' => 'Absender in den Sprachen',
+            'help' => 'Ein Absender, der in jeder Sprache anders klingt (ein Name, keine Nummer). Sobald hier etwas steht, nimmt das Spiel diese Texte statt des Felds „Absender“; Polnisch und Englisch sind dann Pflicht.',
+            'example' => 'Kapitanat portu / Harbour master.',
+            'range' => 'Höchstens 40 Zeichen pro Sprache.',
         ],
         'trigger' => [
             'label' => 'Beginnt, wenn',
@@ -181,14 +187,14 @@ return [
             'label' => 'Nachrichten des Mentors',
             'help' => 'Höchstens zwei kurze Nachrichten, die der Mentor beim Start des Schritts aufs Handy des Fahrers schickt: meist eine Begrüßung und die Bitte. Ein Schritt ohne Nachrichten wird ausgeführt, ohne das Handy zu zeigen.',
             'example' => 'Schritt „refuel“: „Neue Nummer, derselbe ich. Frag nicht.“ und „Der Tank ist fast leer. Tippe auf „Volltanken“, damit das Auto weiterfährt, auch wenn du weg bist. — K.“',
-            'range' => 'Höchstens 2 Nachrichten zu 200 Zeichen.',
+            'range' => 'Höchstens 2 Nachrichten zu 200 Zeichen (im Brief zu 400).',
             'tip' => 'Das Handy erscheint, wenn der Schritt beginnt, und verschwindet, wenn der Fahrer antwortet oder den Schritt auf später verschiebt. Danach bleiben nur die Zielleiste und die Hervorhebung auf dem Bildschirm.',
         ],
         'message' => [
             'label' => 'Nachricht',
             'help' => 'Der Text einer Sprechblase auf dem Handy des Mentors. Die erste begrüßt meist („Ich bin’s. Die Nummer ist wieder eine andere.“), die zweite sagt, was zu tun ist und wo, und endet mit der Unterschrift „— K.“. Schreibe die Namen von Bildschirmen und Tasten so, wie das Spiel sie hat („Werkstatt“, „Volltanken“).',
             'example' => 'Ich habe dir ein neues Paar Reifen ins Inventar gelegt. Öffne unten in der Leiste „Werkstatt“ und zieh sie auf das Auto. — K.',
-            'range' => 'Höchstens 200 Zeichen pro Sprache (üblich 85–170).',
+            'range' => 'Höchstens 200 Zeichen pro Sprache (üblich 85–170); bis 400, wenn das Gerät ein Brief ist.',
         ],
         'reply' => [
             'label' => 'Antworttaste',
@@ -271,6 +277,165 @@ return [
             'label' => 'Garage in Stadt (Belohnung)',
             'help' => 'Die Stadt, in der der Fahrer eine Garage geschenkt bekommt, ohne Stufenprüfung (das Tutorial kostet kein Bargeld, und die erste Garage in einer anderen Stadt kostet ein Vermögen). Hat der Fahrer dort schon eine Garage, ändert sich nichts.',
             'example' => 'Schritt „locked“: Kruszyn.',
+        ],
+        'device' => [
+            'label' => 'Gerät',
+            'help' => 'Worauf der Mentor dem Fahrer schreibt. Es ändert, wie das Fenster der Nachrichten auf jedem Bildschirm des Spiels aussieht, und die erste Nachricht der Geschichte zum Start.',
+            'example' => 'RideIdle: Handy. Ein Spiel über Schiffe: Brief. Ein Weltraumspiel: Tablet.',
+            'options' => [
+                'phone' => ['label' => 'Handy', 'help' => 'Ein altes Touch-Handy mit gesprungenem Bildschirm und Sprechblasen von SMS, wie in RideIdle.'],
+                'letter' => ['label' => 'Brief', 'help' => 'Ein Blatt Papier: „Von:“ statt einer Nummer, die Nachrichten als handgeschriebene Absätze, die Antwort als Taste mit Stempel. Es hat Platz für längere Nachrichten (bis 400 Zeichen).'],
+                'tablet' => ['label' => 'Tablet', 'help' => 'Ein Bedienfeld einer Science-Fiction-Konsole mit Rahmen und Leuchten; die Nachrichten als Zeilen eines Logbuchs.'],
+                'plain' => ['label' => 'Einfaches Fenster', 'help' => 'Ein Fenster in den Farben des Spiels, ganz ohne Gerät: passt zu jedem Spiel.'],
+                'picture' => ['label' => 'Eigenes Bild', 'help' => 'Ein Rahmen aus dem Bild, das du unten hochlädst; die Nachrichten erscheinen dort, wo sein Bildschirm ist.'],
+            ],
+        ],
+        'part_crack' => [
+            'label' => 'Sprünge im Bildschirm',
+            'help' => 'Zeichnet Sprünge auf den Bildschirm des Handys. Nur das Handy hat Sprünge; bei den anderen Geräten ändert der Schalter nichts.',
+        ],
+        'part_status_bar' => [
+            'label' => 'Statusleiste',
+            'help' => 'Die Leiste mit Netz, Uhr und Akku oben auf Handy und Tablet. Brief und einfaches Fenster haben keine.',
+        ],
+        'part_input' => [
+            'label' => 'Antwortfeld',
+            'help' => 'Das Feld „Antworten…“ mit der Taste „Senden“ unter den Nachrichten. Es ist nur zum Ansehen: Der Fahrer antwortet mit der Antworttaste des Schritts.',
+        ],
+        'part_who' => [
+            'label' => 'Taste „Wer ist das?“',
+            'help' => 'Die Taste, mit der der Fahrer fragt, wer schreibt; der Mentor antwortet mit dem Wort „deflect“ aus dem Abschnitt „Wörter des Tutorials“.',
+        ],
+        'messenger_sender' => [
+            'label' => 'Absender des Geräts',
+            'help' => 'Von wem die Nachrichten der Schritte kommen, die keinen eigenen Absender haben. Trage ihn einmal ein, wenn der Mentor immer vom selben Ort schreibt, und lass das Feld „Absender“ der Schritte leer.',
+            'example' => 'Hafenmeister.',
+            'range' => 'Höchstens 40 Zeichen.',
+        ],
+        'messenger_sender_texts' => [
+            'label' => 'Absender des Geräts in den Sprachen',
+            'help' => 'Dasselbe, wenn der Absender in jeder Sprache anders klingt. Diese Texte gewinnen gegen das Feld „Absender des Geräts“; Polnisch und Englisch sind dann Pflicht.',
+            'range' => 'Höchstens 40 Zeichen pro Sprache.',
+        ],
+        'icon_upload' => [
+            'label' => 'Eigenes Symbol',
+            'help' => 'Ein kleines Bild auf der Taste, die die Nachrichten in der Zielleiste zurückholt, statt des Symbols des Geräts. PNG, WebP oder JPG, Seiten von :min bis :max Pixeln, am besten quadratisch.',
+        ],
+        'icon_remove' => [
+            'label' => 'Symbol entfernen',
+            'help' => 'Nimmt das eigene Symbol beim Speichern weg; die Taste zeigt wieder das Symbol des Geräts.',
+        ],
+        'frame_upload' => [
+            'label' => 'Bild des Rahmens',
+            'help' => 'Ein Bild des Geräts (eine Flaschenpost, ein Funkgerät, ein Hologrammprojektor) mit einer durchsichtigen Stelle für den Bildschirm. PNG oder WebP mit Transparenz, Seiten von :min bis :max Pixeln. Pflicht, wenn das Gerät „Eigenes Bild“ ist.',
+        ],
+        'frame_remove' => [
+            'label' => 'Rahmen entfernen',
+            'help' => 'Nimmt das Bild des Rahmens beim Speichern weg. Ein Gerät „Eigenes Bild“ ohne Rahmen besteht die Prüfung nicht.',
+        ],
+        'screen_top' => [
+            'label' => 'Bildschirm von oben (%)',
+            'help' => 'Wie viel der Höhe des Bilds der Rahmen über dem Bildschirm einnimmt. Die Nachrichten beginnen darunter.',
+            'range' => '0–45%.',
+        ],
+        'screen_right' => [
+            'label' => 'Bildschirm von rechts (%)',
+            'help' => 'Wie viel der Breite des Bilds der Rahmen rechts vom Bildschirm einnimmt.',
+            'range' => '0–45%.',
+        ],
+        'screen_bottom' => [
+            'label' => 'Bildschirm von unten (%)',
+            'help' => 'Wie viel der Höhe des Bilds der Rahmen unter dem Bildschirm einnimmt. Die Antworttasten liegen darüber.',
+            'range' => '0–45%.',
+        ],
+        'screen_left' => [
+            'label' => 'Bildschirm von links (%)',
+            'help' => 'Wie viel der Breite des Bilds der Rahmen links vom Bildschirm einnimmt.',
+            'range' => '0–45%.',
+        ],
+        'label' => [
+            'label' => 'Wort des Tutorials',
+            'help' => 'Der Text einer Meldung der App in diesem Spiel. Ein leeres Feld ist der Text der App (als Hinweis zu sehen). Namen in geschweiften Klammern wie {cash} müssen bleiben, weil das Spiel Werte in sie einsetzt.',
+            'example' => 'reward: „Der Kapitän hat dir {cash} geschickt.“',
+            'range' => 'Höchstens 200 Zeichen pro Sprache.',
+        ],
+        'story_mode' => [
+            'label' => 'Geschichte zum Start',
+            'help' => 'Was der Fahrer zwischen der Namenswahl und der Wahl eines Wracks sieht.',
+            'options' => [
+                'builtin' => ['label' => 'Geschichte der App', 'help' => 'Die vier Szenen von RideIdle mit dem Bild und den Wörtern der App. So ist es in einem Spiel, dessen Tutorial nichts über eine Geschichte sagt.'],
+                'own' => ['label' => 'Eigene Geschichte', 'help' => 'Bild, Szenen und erste Nachricht dieses Spiels, unten eingestellt.'],
+                'none' => ['label' => 'Keine Geschichte', 'help' => 'Der Fahrer wählt sofort ein Wrack. Die Szenen, die schon im Dokument stehen, bleiben für später.'],
+            ],
+        ],
+        'story_picture_upload' => [
+            'label' => 'Bild der Geschichte',
+            'help' => 'Ein Bild, über das sich die Kamera in den Szenen bewegt. Ohne es wird das Bild der App gezeigt. PNG, WebP oder JPG, Seiten von :min bis :max Pixeln, am besten im Querformat.',
+        ],
+        'story_picture_remove' => [
+            'label' => 'Bild der Geschichte entfernen',
+            'help' => 'Nimmt das Bild beim Speichern weg; die Szenen zeigen das Bild der App.',
+        ],
+        'story_scenes' => [
+            'label' => 'Szenen',
+            'help' => 'Eine bis sechs Szenen, der Reihe nach. Jede bleibt für ihre Zeit oder bis zu einem Tippen auf dem Bildschirm; in der letzten kommt die erste Nachricht.',
+            'example' => 'RideIdle: 4 Szenen, zusammen 24 s.',
+            'range' => '1–6 Szenen.',
+        ],
+        'scene_text' => [
+            'label' => 'Wörter der Szene',
+            'help' => 'Was der Mentor in dieser Szene sagt. {name} ist der Name des Fahrers; andere Namen in Klammern füllt eine Szene nicht aus.',
+            'example' => '„Leiter der Werkstatt: {name}.“',
+            'range' => 'Höchstens 200 Zeichen pro Sprache.',
+        ],
+        'scene_seconds' => [
+            'label' => 'Zeit der Szene (s)',
+            'help' => 'Nach so vielen Sekunden kommt die nächste Szene. Ein Fahrer, der um weniger Bewegung bittet, blättert selbst weiter.',
+            'example' => 'Jetzt 6, 6, 7 und 5 s.',
+            'range' => '2–20 s (das Dokument speichert Millisekunden).',
+        ],
+        'scene_camera' => [
+            'label' => 'Kamerafahrt',
+            'help' => 'Wie sich die Kamera in dieser Szene über das Bild bewegt.',
+            'options' => [
+                'zoom-in' => ['label' => 'Heranzoomen', 'help' => 'Die Kamera fährt an den Blickpunkt heran.'],
+                'zoom-out' => ['label' => 'Wegzoomen', 'help' => 'Die Kamera fährt vom Blickpunkt weg.'],
+                'pan-left' => ['label' => 'Schwenk nach links', 'help' => 'Die Kamera gleitet nach links über das Bild.'],
+                'pan-right' => ['label' => 'Schwenk nach rechts', 'help' => 'Die Kamera gleitet nach rechts über das Bild.'],
+                'still' => ['label' => 'Stillstand', 'help' => 'Die Kamera steht auf dem Blickpunkt.'],
+            ],
+        ],
+        'scene_focus_x' => [
+            'label' => 'Blickpunkt von links (%)',
+            'help' => 'Wohin im Bild die Kamera schaut, in Prozent der Breite vom linken Rand.',
+            'range' => '0–100%.',
+        ],
+        'scene_focus_y' => [
+            'label' => 'Blickpunkt von oben (%)',
+            'help' => 'Wohin im Bild die Kamera schaut, in Prozent der Höhe vom oberen Rand.',
+            'range' => '0–100%.',
+        ],
+        'story_sender' => [
+            'label' => 'Absender der ersten Nachricht',
+            'help' => 'Von wem die Nachricht der letzten Szene kommt. Beliebiger Text, in jeder Sprache gleich; ein leeres Feld ist eine Nachricht ohne Absender.',
+            'example' => '+48 555 010 112.',
+            'range' => 'Höchstens 40 Zeichen.',
+        ],
+        'story_sender_texts' => [
+            'label' => 'Absender der ersten Nachricht in den Sprachen',
+            'help' => 'Dasselbe, wenn der Absender in jeder Sprache anders klingt. Diese Texte gewinnen gegen das Feld daneben; Polnisch und Englisch sind dann Pflicht.',
+            'range' => 'Höchstens 40 Zeichen pro Sprache.',
+        ],
+        'story_sms' => [
+            'label' => 'Erste Nachricht',
+            'help' => 'Die Nachricht, die in der letzten Szene kommt, bevor der Fahrer ein Wrack wählt. Leere Felder sind eine letzte Szene ohne Nachricht.',
+            'example' => 'Ich bin’s. Frag nicht. Such dir ein Auto aus, den Rest schicke ich per SMS. — K.',
+            'range' => 'Höchstens 200 Zeichen pro Sprache.',
+        ],
+        'story_label' => [
+            'label' => 'Wort des Geschichtsbildschirms',
+            'help' => 'Eine Beschriftung des Geschichtsbildschirms in diesem Spiel: die Tasten „Überspringen“ und „Wrack wählen“, der Hinweis zum Weitertippen, der Szenenzähler. Ein leeres Feld ist der Text der App.',
+            'range' => 'Höchstens 200 Zeichen pro Sprache.',
         ],
     ],
 ];

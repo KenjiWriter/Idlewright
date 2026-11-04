@@ -122,10 +122,16 @@ return [
             ],
         ],
         'sender' => [
-            'label' => 'Mentor’s number',
-            'help' => 'The made-up number the mentor writes from at this step; it shows at the top of the phone. The mentor is in hiding, so the number changes with every step.',
-            'example' => '+48 555 010 120.',
-            'range' => 'Exactly “+48 555 010” and three digits.',
+            'label' => 'Sender',
+            'help' => 'Who the messages of this step come from; it shows at the top of the device (the phone, the letter, the tablet). Any text, the same in every language: a number, a name, a call sign. An empty box is the sender of the device (section “Device”). In RideIdle the mentor is in hiding, so every step comes from another made-up number.',
+            'example' => '+48 555 010 120; Harbour master; Channel 7.',
+            'range' => 'At most 40 characters.',
+        ],
+        'sender_texts' => [
+            'label' => 'Sender in the languages',
+            'help' => 'A sender that sounds different in each language (a name, not a number). Once anything is written here, the game uses these texts instead of the box “Sender”; Polish and English are then required.',
+            'example' => 'Kapitanat portu / Harbour master.',
+            'range' => 'At most 40 characters in each language.',
         ],
         'trigger' => [
             'label' => 'Starts when',
@@ -181,14 +187,14 @@ return [
             'label' => 'Messages of the mentor',
             'help' => 'At most two short messages that the mentor sends to the driver’s phone when the step starts: usually a greeting and the request. A step without messages is carried out without showing the phone.',
             'example' => 'Step “refuel”: “New number, same me. Don’t ask.” and “The tank is almost empty. Tap “Fill up” so the car keeps driving, even when you’re away. — K.”',
-            'range' => 'At most 2 messages of 200 characters.',
+            'range' => 'At most 2 messages of 200 characters (400 in a letter).',
             'tip' => 'The phone appears when the step starts and goes away when the driver answers or leaves the step for later. Only the goal bar and the highlight stay on the screen after that.',
         ],
         'message' => [
             'label' => 'Message',
             'help' => 'The text of one message bubble on the mentor’s phone. The first usually greets (“It’s me. The number is different again.”), the second says what to do and where, and ends with the signature “— K.”. Write the names of screens and buttons as the game has them (“Workshop”, “Fill up”).',
             'example' => 'I put a new pair of tires in your inventory. Open “Workshop” on the bottom bar and fit them on the car. — K.',
-            'range' => 'At most 200 characters in each language (typically 85–170).',
+            'range' => 'At most 200 characters in each language (typically 85–170); up to 400 when the device is a letter.',
         ],
         'reply' => [
             'label' => 'Reply button',
@@ -271,6 +277,165 @@ return [
             'label' => 'Garage in city (reward)',
             'help' => 'The city where the driver gets a garage for nothing, with no level check (the tutorial costs no cash, and the first garage in another city costs a fortune). If the driver already has a garage there, nothing changes.',
             'example' => 'Step “locked”: Kruszyn.',
+        ],
+        'device' => [
+            'label' => 'Device',
+            'help' => 'What the mentor writes to the driver on. It changes how the window of the messages looks on every screen of the game, and the first message of the opening story.',
+            'example' => 'RideIdle: Phone. A game about ships: Letter. A space game: Tablet.',
+            'options' => [
+                'phone' => ['label' => 'Phone', 'help' => 'An old touch phone with a cracked screen and text message bubbles, as in RideIdle.'],
+                'letter' => ['label' => 'Letter', 'help' => 'A sheet of paper: “From:” instead of a number, the messages as handwritten paragraphs, the answer as a stamped button. It has room for longer messages (up to 400 characters).'],
+                'tablet' => ['label' => 'Tablet', 'help' => 'A panel of a science fiction console with a frame and a glow; the messages as lines of a log.'],
+                'plain' => ['label' => 'Plain window', 'help' => 'A window in the colours of the game, with no device at all: it fits any game.'],
+                'picture' => ['label' => 'Your own picture', 'help' => 'A frame from the picture you upload below; the messages show where its screen is.'],
+            ],
+        ],
+        'part_crack' => [
+            'label' => 'Cracks of the screen',
+            'help' => 'Draws cracks on the screen of the phone. Only the phone has cracks; with the other devices the switch changes nothing.',
+        ],
+        'part_status_bar' => [
+            'label' => 'Status bar',
+            'help' => 'The bar with the network, the clock and the battery at the top of the phone and the tablet. The letter and the plain window have none.',
+        ],
+        'part_input' => [
+            'label' => 'Answer box',
+            'help' => 'The box “Reply…” with the button “Send” under the messages. It is only for show: the driver answers with the reply button of the step.',
+        ],
+        'part_who' => [
+            'label' => 'Button “Who is it?”',
+            'help' => 'The button with which the driver asks who is writing; the mentor answers with the word “deflect” from the section “Words of the tutorial”.',
+        ],
+        'messenger_sender' => [
+            'label' => 'Sender of the device',
+            'help' => 'Who the messages of the steps that name no sender of their own come from. Write it once when the mentor always writes from the same place, and leave the box “Sender” of the steps empty.',
+            'example' => 'Harbour master.',
+            'range' => 'At most 40 characters.',
+        ],
+        'messenger_sender_texts' => [
+            'label' => 'Sender of the device in the languages',
+            'help' => 'The same, when the sender sounds different in each language. These texts win over the box “Sender of the device”; Polish and English are then required.',
+            'range' => 'At most 40 characters in each language.',
+        ],
+        'icon_upload' => [
+            'label' => 'Icon of your own',
+            'help' => 'A small picture on the button that brings the messages back on the goal bar, instead of the icon of the device. PNG, WebP or JPG, sides from :min to :max pixels, best square.',
+        ],
+        'icon_remove' => [
+            'label' => 'Remove the icon',
+            'help' => 'Takes the icon of your own off when the draft is saved; the button goes back to the icon of the device.',
+        ],
+        'frame_upload' => [
+            'label' => 'Picture of the frame',
+            'help' => 'A picture of the device (a bottle with a letter, a radio set, a hologram projector) with a see-through place for the screen. PNG or WebP with transparency, sides from :min to :max pixels. Required when the device is “Your own picture”.',
+        ],
+        'frame_remove' => [
+            'label' => 'Remove the frame',
+            'help' => 'Takes the picture of the frame off when the draft is saved. A device “Your own picture” without a frame does not pass the checks.',
+        ],
+        'screen_top' => [
+            'label' => 'Screen from the top (%)',
+            'help' => 'How much of the height of the picture the frame above the screen takes. The messages start below it.',
+            'range' => '0–45%.',
+        ],
+        'screen_right' => [
+            'label' => 'Screen from the right (%)',
+            'help' => 'How much of the width of the picture the frame to the right of the screen takes.',
+            'range' => '0–45%.',
+        ],
+        'screen_bottom' => [
+            'label' => 'Screen from the bottom (%)',
+            'help' => 'How much of the height of the picture the frame below the screen takes. The reply buttons are above it.',
+            'range' => '0–45%.',
+        ],
+        'screen_left' => [
+            'label' => 'Screen from the left (%)',
+            'help' => 'How much of the width of the picture the frame to the left of the screen takes.',
+            'range' => '0–45%.',
+        ],
+        'label' => [
+            'label' => 'Word of the tutorial',
+            'help' => 'The text of a message of the app in this game. An empty box is the text of the app (shown as a hint). Names in braces, such as {cash}, must stay, because the game puts values in them.',
+            'example' => 'reward: “The captain sent you {cash}.”',
+            'range' => 'At most 200 characters in each language.',
+        ],
+        'story_mode' => [
+            'label' => 'Opening story',
+            'help' => 'What the driver sees between giving a name and choosing a wreck.',
+            'options' => [
+                'builtin' => ['label' => 'Story of the app', 'help' => 'The four scenes of RideIdle with the picture and the words of the app. This is what a game whose tutorial says nothing of a story has.'],
+                'own' => ['label' => 'Story of your own', 'help' => 'The picture, the scenes and the first message of this game, set below.'],
+                'none' => ['label' => 'No story', 'help' => 'The driver chooses a wreck at once. The scenes already in the document are kept for later.'],
+            ],
+        ],
+        'story_picture_upload' => [
+            'label' => 'Picture of the story',
+            'help' => 'One picture that the camera moves over in the scenes. Without it the picture of the app is shown. PNG, WebP or JPG, sides from :min to :max pixels, best in landscape.',
+        ],
+        'story_picture_remove' => [
+            'label' => 'Remove the picture of the story',
+            'help' => 'Takes the picture off when the draft is saved; the scenes show the picture of the app.',
+        ],
+        'story_scenes' => [
+            'label' => 'Scenes',
+            'help' => 'From one to six scenes, in order. Each stays on the screen for its time or until a tap; the first message comes in the last one.',
+            'example' => 'RideIdle: 4 scenes, 24 s in all.',
+            'range' => '1–6 scenes.',
+        ],
+        'scene_text' => [
+            'label' => 'Words of the scene',
+            'help' => 'What the mentor says in this scene. {name} is the name of the driver; a scene fills in no other name in braces.',
+            'example' => '“Manager of the workshop: {name}.”',
+            'range' => 'At most 200 characters in each language.',
+        ],
+        'scene_seconds' => [
+            'label' => 'Time of the scene (s)',
+            'help' => 'After this many seconds the next scene comes. A driver who asks for less motion moves on by themselves.',
+            'example' => 'Now 6, 6, 7 and 5 s.',
+            'range' => '2–20 s (the document keeps milliseconds).',
+        ],
+        'scene_camera' => [
+            'label' => 'Camera move',
+            'help' => 'How the camera moves over the picture in this scene.',
+            'options' => [
+                'zoom-in' => ['label' => 'Zoom in', 'help' => 'The camera moves closer to the point of focus.'],
+                'zoom-out' => ['label' => 'Zoom out', 'help' => 'The camera moves away from the point of focus.'],
+                'pan-left' => ['label' => 'Pan left', 'help' => 'The camera slides across the picture to the left.'],
+                'pan-right' => ['label' => 'Pan right', 'help' => 'The camera slides across the picture to the right.'],
+                'still' => ['label' => 'Still', 'help' => 'The camera stands on the point of focus.'],
+            ],
+        ],
+        'scene_focus_x' => [
+            'label' => 'Point of focus from the left (%)',
+            'help' => 'Where in the picture the camera looks, in percent of the width from the left edge.',
+            'range' => '0–100%.',
+        ],
+        'scene_focus_y' => [
+            'label' => 'Point of focus from the top (%)',
+            'help' => 'Where in the picture the camera looks, in percent of the height from the top edge.',
+            'range' => '0–100%.',
+        ],
+        'story_sender' => [
+            'label' => 'Sender of the first message',
+            'help' => 'Who the message of the last scene comes from. Any text, the same in every language; an empty box is a message with no sender.',
+            'example' => '+48 555 010 112.',
+            'range' => 'At most 40 characters.',
+        ],
+        'story_sender_texts' => [
+            'label' => 'Sender of the first message in the languages',
+            'help' => 'The same, when the sender sounds different in each language. These texts win over the box beside it; Polish and English are then required.',
+            'range' => 'At most 40 characters in each language.',
+        ],
+        'story_sms' => [
+            'label' => 'First message',
+            'help' => 'The message that comes in the last scene, before the driver chooses a wreck. Empty boxes are a last scene with no message.',
+            'example' => 'It’s me. Don’t ask. Pick a car, I’ll text you the rest. — K.',
+            'range' => 'At most 200 characters in each language.',
+        ],
+        'story_label' => [
+            'label' => 'Word of the story screen',
+            'help' => 'A label of the story screen in this game: the buttons “Skip” and “Choose a wreck”, the hint to tap on, the scene counter. An empty box is the text of the app.',
+            'range' => 'At most 200 characters in each language.',
         ],
     ],
 ];

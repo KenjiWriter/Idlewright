@@ -7,7 +7,7 @@ return [
             'help' => 'Samouczek prowadzi nowego kierowcę SMS-ami od mentora (K.) przez pierwsze minuty, pierwszy dzień i pierwszy tydzień gry. Zmiany zapisują się najpierw jako szkic i trafiają do gry dopiero z następną opublikowaną paczką.',
             'steps' => [
                 'U góry ustaw „Pierwszy przejazd”: paliwo na starcie, okrążenie pierwszej awarii, najdłuższe pierwsze zlecenie, kwotę, którą pokrywa mentor, i (opcjonalnie) ogłoszenie na giełdzie.',
-                'Dodaj krok: nadaj mu stały klucz, fazę i numer mentora, a potem wybierz, kiedy się zaczyna i kiedy kończy (fakty o kierowcy, np. lap_completed albo cash:450).',
+                'Dodaj krok: nadaj mu stały klucz, fazę i nadawcę (albo zostaw go pustego, gdy pisze nadawca urządzenia), a potem wybierz, kiedy się zaczyna i kiedy kończy (fakty o kierowcy, np. lap_completed albo cash:450).',
                 'Napisz cel na pasku celu, do dwóch wiadomości mentora i napis przycisku odpowiedzi; opcjonalnie dopisz, na co krok czeka. Krok bez wiadomości jest wykonywany bez pokazywania.',
                 'Wskaż, co ekran ma podświetlić, i zlecenia warsztatu, które krok skraca; w razie potrzeby ustaw część na start kroku i nagrodę na koniec.',
                 'Nie zmieniaj kluczy i nie usuwaj kroków, w których są gracze: publikacja takiej paczki jest odrzucana.',

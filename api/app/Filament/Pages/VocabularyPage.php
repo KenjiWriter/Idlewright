@@ -160,6 +160,7 @@ class VocabularyPage extends RulesDocumentPage
                 ->live()
                 ->afterStateUpdated(fn () => $this->fillForm()),
             Text::make(__('admin.vocabulary.shown', ['shown' => count($shown['keys']), 'matching' => $shown['matching']]).' '.__('admin.vocabulary.hint')),
+            Text::make(__('admin.tutorial.vocabulary_moved')),
             ...VocabularyFields::schema($shown['keys'], $catalog, $document, $this->vocabulary()->packSlotKeys()),
         ];
     }

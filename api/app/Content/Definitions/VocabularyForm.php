@@ -56,7 +56,8 @@ final class VocabularyForm
      */
     public function keys(array $document): array
     {
-        $keys = array_keys($this->catalog->all());
+        // The words of the tutorial and of its story are set on the page of the tutorial: the vocabulary shows only those it already has, so that they can be cleared.
+        $keys = array_values(array_filter(array_keys($this->catalog->all()), static fn (string $key): bool => ! self::isTutorialWord($key)));
 
         foreach ($this->packSlotKeys() as $key) {
             $keys[] = $key;
@@ -69,6 +70,12 @@ final class VocabularyForm
         }
 
         return $keys;
+    }
+
+    /** A message of the tutorial or of its story, which the page of the tutorial says in the words of the game. */
+    public static function isTutorialWord(string $key): bool
+    {
+        return str_starts_with($key, 'tutorial.') || str_starts_with($key, 'story.');
     }
 
     /**

@@ -122,10 +122,16 @@ return [
             ],
         ],
         'sender' => [
-            'label' => 'Numer mentora',
-            'help' => 'Zmyślony numer, z którego mentor pisze w tym kroku; widać go na górze telefonu. Mentor się ukrywa, więc zmienia numer w każdym kroku.',
-            'example' => '+48 555 010 120.',
-            'range' => 'Dokładnie „+48 555 010” i trzy cyfry.',
+            'label' => 'Nadawca',
+            'help' => 'Od kogo są wiadomości tego kroku; widać to na górze urządzenia (telefonu, listu, tabletu). Dowolny tekst, ten sam w każdym języku: numer, nazwa, znak wywoławczy. Puste pole to nadawca urządzenia (sekcja „Urządzenie”). W RideIdle mentor się ukrywa, więc w każdym kroku pisze z innego zmyślonego numeru.',
+            'example' => '+48 555 010 120; Kapitanat portu; Kanał 7.',
+            'range' => 'Najwyżej 40 znaków.',
+        ],
+        'sender_texts' => [
+            'label' => 'Nadawca w językach',
+            'help' => 'Nadawca, który w każdym języku brzmi inaczej (nazwa, a nie numer). Gdy wpiszesz tu cokolwiek, gra bierze te teksty zamiast pola „Nadawca”; polski i angielski są wtedy wymagane.',
+            'example' => 'Kapitanat portu / Harbour master.',
+            'range' => 'Najwyżej 40 znaków w każdym języku.',
         ],
         'trigger' => [
             'label' => 'Zaczyna się, gdy',
@@ -181,14 +187,14 @@ return [
             'label' => 'Wiadomości mentora',
             'help' => 'Najwyżej dwie krótkie wiadomości, które mentor wysyła na telefon kierowcy na starcie kroku: zwykle powitanie i prośba. Krok bez wiadomości jest wykonywany bez pokazywania telefonu.',
             'example' => 'Krok „refuel”: „Nowy numer, stary ja. Nie pytaj.” i „Bak prawie pusty. Dotknij „Zatankuj do pełna”, żeby auto jechało dalej, nawet gdy Cię nie będzie. — K.”',
-            'range' => 'Najwyżej 2 wiadomości po 200 znaków.',
+            'range' => 'Najwyżej 2 wiadomości po 200 znaków (w liście po 400).',
             'tip' => 'Telefon pojawia się, gdy krok się zaczyna, i znika, gdy kierowca odpowie albo odłoży krok. Dopiero potem na ekranie zostaje sam pasek celu i podświetlenie.',
         ],
         'message' => [
             'label' => 'Wiadomość',
             'help' => 'Treść jednej wiadomości w dymku na telefonie mentora. Pierwsza zwykle wita („To ja. Numer znowu inny.”), druga mówi, co zrobić i gdzie, i kończy się podpisem „— K.”. Nazwy ekranów i przycisków pisz tak, jak są w grze („Warsztat”, „Zatankuj do pełna”).',
             'example' => 'Dorzuciłem Ci do inwentarza nowe opony. Wejdź w „Warsztat” na dolnym pasku i załóż je na auto. — K.',
-            'range' => 'Najwyżej 200 znaków w każdym języku (typowo 85–170).',
+            'range' => 'Najwyżej 200 znaków w każdym języku (typowo 85–170); gdy urządzenie to list, do 400.',
         ],
         'reply' => [
             'label' => 'Przycisk odpowiedzi',
@@ -271,6 +277,165 @@ return [
             'label' => 'Garaż w mieście (nagroda)',
             'help' => 'Miasto, w którym kierowca dostaje garaż za darmo, bez sprawdzania poziomu (samouczek nie kosztuje gotówki, a pierwszy garaż w innym mieście kosztuje majątek). Jeśli kierowca ma tam już garaż, nic się nie zmienia.',
             'example' => 'Krok „locked”: Kruszyn.',
+        ],
+        'device' => [
+            'label' => 'Urządzenie',
+            'help' => 'Na czym mentor pisze do kierowcy. Zmienia wygląd okna wiadomości na każdym ekranie gry i pierwszej wiadomości w historii na start.',
+            'example' => 'RideIdle: Telefon. Gra o statkach: List. Gra kosmiczna: Tablet.',
+            'options' => [
+                'phone' => ['label' => 'Telefon', 'help' => 'Stary telefon dotykowy z pękniętym ekranem i dymkami SMS-ów, jak w RideIdle.'],
+                'letter' => ['label' => 'List', 'help' => 'Kartka papieru: „Od:” zamiast numeru, wiadomości jako akapity pisane ręcznie, odpowiedź jako przycisk ze stemplem. Mieści dłuższe wiadomości (do 400 znaków).'],
+                'tablet' => ['label' => 'Tablet', 'help' => 'Panel konsoli science fiction z ramką i poświatą; wiadomości jako wiersze dziennika.'],
+                'plain' => ['label' => 'Zwykłe okno', 'help' => 'Okno w kolorach gry, bez żadnego urządzenia: pasuje do każdej gry.'],
+                'picture' => ['label' => 'Własny obraz', 'help' => 'Ramka z obrazu, który wgrywasz poniżej; wiadomości pokazują się w miejscu ekranu.'],
+            ],
+        ],
+        'part_crack' => [
+            'label' => 'Pęknięcia ekranu',
+            'help' => 'Rysuje pęknięcia na ekranie telefonu. Pęknięcia ma tylko telefon; przy innych urządzeniach przełącznik nic nie zmienia.',
+        ],
+        'part_status_bar' => [
+            'label' => 'Pasek stanu',
+            'help' => 'Pasek z siecią, zegarem i baterią u góry telefonu i tabletu. List i zwykłe okno go nie mają.',
+        ],
+        'part_input' => [
+            'label' => 'Pole odpowiedzi',
+            'help' => 'Pole „Odpowiedz…” z przyciskiem „Wyślij” pod wiadomościami. Jest tylko na pokaz: kierowca odpowiada przyciskiem odpowiedzi kroku.',
+        ],
+        'part_who' => [
+            'label' => 'Przycisk „Kto to?”',
+            'help' => 'Przycisk, którym kierowca pyta, kto pisze; mentor odpowiada słowem „deflect” z sekcji „Słowa samouczka”.',
+        ],
+        'messenger_sender' => [
+            'label' => 'Nadawca urządzenia',
+            'help' => 'Od kogo są wiadomości kroków, które nie mają własnego nadawcy. Wpisz go raz, gdy mentor pisze zawsze z tego samego miejsca, a pola „Nadawca” w krokach zostaw puste.',
+            'example' => 'Kapitanat portu.',
+            'range' => 'Najwyżej 40 znaków.',
+        ],
+        'messenger_sender_texts' => [
+            'label' => 'Nadawca urządzenia w językach',
+            'help' => 'To samo, gdy nadawca brzmi inaczej w każdym języku. Te teksty wygrywają z polem „Nadawca urządzenia”; polski i angielski są wtedy wymagane.',
+            'range' => 'Najwyżej 40 znaków w każdym języku.',
+        ],
+        'icon_upload' => [
+            'label' => 'Własna ikona',
+            'help' => 'Mały obraz na przycisku, który przywraca wiadomości na pasku celu, zamiast ikony urządzenia. PNG, WebP albo JPG, boki od :min do :max pikseli, najlepiej kwadrat.',
+        ],
+        'icon_remove' => [
+            'label' => 'Usuń ikonę',
+            'help' => 'Zdejmuje własną ikonę przy zapisie; przycisk wraca do ikony urządzenia.',
+        ],
+        'frame_upload' => [
+            'label' => 'Obraz ramki',
+            'help' => 'Obraz urządzenia (butelka z listem, radiostacja, holoprojektor) z przezroczystym miejscem na ekran. PNG albo WebP z przezroczystością, boki od :min do :max pikseli. Wymagany, gdy urządzenie to „Własny obraz”.',
+        ],
+        'frame_remove' => [
+            'label' => 'Usuń obraz ramki',
+            'help' => 'Zdejmuje obraz ramki przy zapisie. Urządzenie „Własny obraz” bez ramki nie przejdzie sprawdzenia.',
+        ],
+        'screen_top' => [
+            'label' => 'Ekran od góry (%)',
+            'help' => 'Jaką część wysokości obrazu zajmuje ramka nad ekranem. Wiadomości zaczynają się poniżej.',
+            'range' => '0–45%.',
+        ],
+        'screen_right' => [
+            'label' => 'Ekran od prawej (%)',
+            'help' => 'Jaką część szerokości obrazu zajmuje ramka na prawo od ekranu.',
+            'range' => '0–45%.',
+        ],
+        'screen_bottom' => [
+            'label' => 'Ekran od dołu (%)',
+            'help' => 'Jaką część wysokości obrazu zajmuje ramka pod ekranem. Przyciski odpowiedzi są nad tą częścią.',
+            'range' => '0–45%.',
+        ],
+        'screen_left' => [
+            'label' => 'Ekran od lewej (%)',
+            'help' => 'Jaką część szerokości obrazu zajmuje ramka na lewo od ekranu.',
+            'range' => '0–45%.',
+        ],
+        'label' => [
+            'label' => 'Słowo samouczka',
+            'help' => 'Tekst komunikatu aplikacji w tej grze. Puste pole to tekst aplikacji (widać go jako podpowiedź). Nazwy w nawiasach klamrowych, np. {cash}, muszą zostać, bo gra wstawia w nie wartości.',
+            'example' => 'reward: „Kapitan przysłał Ci {cash}.”',
+            'range' => 'Najwyżej 200 znaków w każdym języku.',
+        ],
+        'story_mode' => [
+            'label' => 'Historia na start',
+            'help' => 'Co kierowca widzi między nadaniem imienia a wyborem wraku.',
+            'options' => [
+                'builtin' => ['label' => 'Historia aplikacji', 'help' => 'Cztery sceny RideIdle z obrazem i słowami aplikacji. Tak jest w grze, której samouczek nic nie mówi o historii.'],
+                'own' => ['label' => 'Własna historia', 'help' => 'Obraz, sceny i pierwsza wiadomość tej gry, ustawione poniżej.'],
+                'none' => ['label' => 'Bez historii', 'help' => 'Kierowca od razu wybiera wrak. Sceny, które już są w dokumencie, zostają na później.'],
+            ],
+        ],
+        'story_picture_upload' => [
+            'label' => 'Obraz historii',
+            'help' => 'Jeden obraz, po którym kamera porusza się w scenach. Bez niego jest obraz aplikacji. PNG, WebP albo JPG, boki od :min do :max pikseli, najlepiej poziomy.',
+        ],
+        'story_picture_remove' => [
+            'label' => 'Usuń obraz historii',
+            'help' => 'Zdejmuje obraz przy zapisie; sceny pokażą obraz aplikacji.',
+        ],
+        'story_scenes' => [
+            'label' => 'Sceny',
+            'help' => 'Od jednej do sześciu scen, w kolejności. Każda zostaje na ekranie przez swój czas albo do dotknięcia; w ostatniej przychodzi pierwsza wiadomość.',
+            'example' => 'RideIdle: 4 sceny, razem 24 s.',
+            'range' => '1–6 scen.',
+        ],
+        'scene_text' => [
+            'label' => 'Słowa sceny',
+            'help' => 'Co mówi mentor w tej scenie. {name} to imię kierowcy; innych nazw w klamrach scena nie wypełnia.',
+            'example' => '„Zarządca dziupli: {name}.”',
+            'range' => 'Najwyżej 200 znaków w każdym języku.',
+        ],
+        'scene_seconds' => [
+            'label' => 'Czas sceny (s)',
+            'help' => 'Po tylu sekundach przychodzi następna scena. Kierowca, który prosi o mniej ruchu, przewija sceny sam.',
+            'example' => 'Obecnie 6, 6, 7 i 5 s.',
+            'range' => '2–20 s (dokument zapisuje milisekundy).',
+        ],
+        'scene_camera' => [
+            'label' => 'Ruch kamery',
+            'help' => 'Jak kamera porusza się po obrazie w tej scenie.',
+            'options' => [
+                'zoom-in' => ['label' => 'Zbliżenie', 'help' => 'Kamera podjeżdża do punktu skupienia.'],
+                'zoom-out' => ['label' => 'Oddalenie', 'help' => 'Kamera odjeżdża od punktu skupienia.'],
+                'pan-left' => ['label' => 'Przesuw w lewo', 'help' => 'Kamera przesuwa się po obrazie w lewo.'],
+                'pan-right' => ['label' => 'Przesuw w prawo', 'help' => 'Kamera przesuwa się po obrazie w prawo.'],
+                'still' => ['label' => 'Bez ruchu', 'help' => 'Kamera stoi na punkcie skupienia.'],
+            ],
+        ],
+        'scene_focus_x' => [
+            'label' => 'Punkt skupienia od lewej (%)',
+            'help' => 'Gdzie na obrazie patrzy kamera, w procentach szerokości od lewej krawędzi.',
+            'range' => '0–100%.',
+        ],
+        'scene_focus_y' => [
+            'label' => 'Punkt skupienia od góry (%)',
+            'help' => 'Gdzie na obrazie patrzy kamera, w procentach wysokości od górnej krawędzi.',
+            'range' => '0–100%.',
+        ],
+        'story_sender' => [
+            'label' => 'Nadawca pierwszej wiadomości',
+            'help' => 'Od kogo jest wiadomość w ostatniej scenie. Dowolny tekst, ten sam w każdym języku; puste pole to wiadomość bez nadawcy.',
+            'example' => '+48 555 010 112.',
+            'range' => 'Najwyżej 40 znaków.',
+        ],
+        'story_sender_texts' => [
+            'label' => 'Nadawca pierwszej wiadomości w językach',
+            'help' => 'To samo, gdy nadawca brzmi inaczej w każdym języku. Te teksty wygrywają z polem obok; polski i angielski są wtedy wymagane.',
+            'range' => 'Najwyżej 40 znaków w każdym języku.',
+        ],
+        'story_sms' => [
+            'label' => 'Pierwsza wiadomość',
+            'help' => 'Wiadomość, która przychodzi w ostatniej scenie, zanim kierowca wybierze wrak. Puste pola to ostatnia scena bez wiadomości.',
+            'example' => 'To ja. Nie pytaj. Wybierz auto, resztę wyślę SMS-em. — K.',
+            'range' => 'Najwyżej 200 znaków w każdym języku.',
+        ],
+        'story_label' => [
+            'label' => 'Słowo ekranu historii',
+            'help' => 'Napis ekranu historii w tej grze: przyciski „Pomiń” i „Wybierz wraka”, podpowiedź przewijania, licznik scen. Puste pole to tekst aplikacji.',
+            'range' => 'Najwyżej 200 znaków w każdym języku.',
         ],
     ],
 ];

@@ -7,7 +7,7 @@ return [
             'help' => 'O tutorial conduz um piloto novo pelos primeiros minutos, pelo primeiro dia e pela primeira semana do jogo com mensagens de texto do mentor (K.). As mudanças são salvas primeiro como rascunho e só chegam ao jogo com o próximo pacote publicado.',
             'steps' => [
                 'No alto, ajuste “A primeira saída”: o combustível na largada, a volta da primeira pane, o primeiro trabalho no máximo, a quantia que o mentor cobre e (opcionalmente) o anúncio na bolsa de carros.',
-                'Adicione uma etapa: dê a ela uma chave fixa, uma fase e o número do mentor, e depois escolha quando ela começa e quando termina (fatos sobre o piloto, por exemplo lap_completed ou cash:450).',
+                'Adicione uma etapa: dê a ela uma chave fixa, uma fase e um remetente (ou deixe vazio quando quem escreve é o remetente do aparelho), e depois escolha quando ela começa e quando termina (fatos sobre o piloto, por exemplo lap_completed ou cash:450).',
                 'Escreva a meta da barra de meta, até duas mensagens do mentor e as palavras do botão de resposta; se precisar, acrescente o que a etapa espera. Uma etapa sem mensagens é cumprida sem ser mostrada.',
                 'Escolha o que a tela destaca e os trabalhos da oficina que a etapa encurta; se precisar, defina uma peça para o início da etapa e uma recompensa para o fim.',
                 'Não mude chaves nem remova etapas em que há jogadores: a publicação de um pacote assim é recusada.',

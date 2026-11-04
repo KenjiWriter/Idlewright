@@ -177,7 +177,9 @@ describe('what the form shows', function () {
 
         expect($areas['slot']['changed'])->toBe(1)
             ->and($areas['gone']['total'])->toBe(1)
-            ->and(array_sum(array_column($areas, 'total')))->toBe(count(MessageCatalog::fromConfig()->all()) + 1);
+            // The words of the tutorial and of its story are set on the page of the tutorial, not here.
+            ->and(array_sum(array_column($areas, 'total')))->toBe(count(array_filter(array_keys(MessageCatalog::fromConfig()->all()), fn (string $key): bool => ! VocabularyForm::isTutorialWord($key))) + 1)
+            ->and($areas)->not->toHaveKey('tutorial')->not->toHaveKey('story');
     });
 
     it('shows an area, what a search finds, or only what is changed, and no more than a page', function () {
