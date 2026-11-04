@@ -32,6 +32,94 @@
       "additionalProperties": false
     },
     "version": { "type": "string", "pattern": "^[0-9]{4}\\.[0-9]{1,2}\\.[0-9]+$" },
+    "messenger": {
+      "description": "What the mentor writes on, as the game draws it: the device, its parts that may be left out, the sender of a step that names none, a picture of the game's own, and the words of the tutorial that the game says in its own way. A tutorial without it is the old cracked phone of RideIdle, with the words of the app.",
+      "type": "object",
+      "properties": {
+        "device": {
+          "description": "phone an old touch phone with a cracked screen and bubbles of text messages; letter a sheet of paper, the sender as 'From', the messages as paragraphs and the answer as a stamped button; tablet a panel of a science fiction console, the messages as lines of a log; plain a window in the colours of the game, with no device at all; picture the frame of picture.frame, with the messages in its screen.",
+          "enum": ["phone", "letter", "tablet", "plain", "picture"]
+        },
+        "parts": {
+          "description": "The parts of the device that are drawn, each of them on when left out: crack the cracks of the screen (phone), status_bar the bar with the network, the clock and the battery (phone, tablet), input the box to answer in under the messages, who the button that asks who is writing.",
+          "type": "object",
+          "properties": {
+            "crack": { "type": "boolean" },
+            "status_bar": { "type": "boolean" },
+            "input": { "type": "boolean" },
+            "who": { "type": "boolean" }
+          },
+          "additionalProperties": false
+        },
+        "sender": { "description": "Who the messages of a step that names no sender come from.", "$ref": "#/$defs/sender" },
+        "icon": { "description": "The small picture on the button that brings the messages back, instead of the one of the device.", "$ref": "common.schema.json#/$defs/image" },
+        "picture": {
+          "description": "The device of the game's own (device picture): a picture of its frame, with a see-through place for the screen, and where the screen is, as the part of the picture between the screen and each edge, in percent.",
+          "type": "object",
+          "properties": {
+            "frame": { "$ref": "common.schema.json#/$defs/image" },
+            "screen": {
+              "type": "object",
+              "properties": {
+                "top": { "type": "integer", "minimum": 0, "maximum": 45 },
+                "right": { "type": "integer", "minimum": 0, "maximum": 45 },
+                "bottom": { "type": "integer", "minimum": 0, "maximum": 45 },
+                "left": { "type": "integer", "minimum": 0, "maximum": 45 }
+              },
+              "required": ["top", "right", "bottom", "left"],
+              "additionalProperties": false
+            }
+          },
+          "required": ["frame", "screen"],
+          "additionalProperties": false
+        },
+        "labels": { "description": "The words of the device and of the tutorial that the game says in its own way, by the name of the message of the app without tutorial. in front (network, who, deflect, input, send, skipText, reward, goalLabel ...). A message left out keeps the text of the app.", "$ref": "#/$defs/labels" }
+      },
+      "required": ["device"],
+      "if": { "properties": { "device": { "const": "picture" } } },
+      "then": { "required": ["picture"] },
+      "additionalProperties": false
+    },
+    "story": {
+      "description": "The story that comes between the name of a new driver and the choice of a wreck: one picture, scenes with a moving camera and the words of the mentor, and the first message in the last one. A tutorial without it tells the story of RideIdle with the words and the picture of the app; enabled false tells none.",
+      "type": "object",
+      "properties": {
+        "enabled": { "type": "boolean" },
+        "picture": { "description": "The picture the scenes are cut from. Without it the picture of the app is shown.", "$ref": "common.schema.json#/$defs/image" },
+        "scenes": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 6,
+          "items": {
+            "type": "object",
+            "properties": {
+              "text": { "description": "The words of the scene. {name} is the name of the driver.", "$ref": "common.schema.json#/$defs/i18n" },
+              "ms": { "description": "How long the scene stays before the next one comes by itself.", "type": "integer", "minimum": 2000, "maximum": 20000 },
+              "camera": { "description": "How the camera moves over the picture: zoom-in comes closer, zoom-out goes away, pan-left and pan-right slide across, still stands.", "enum": ["zoom-in", "zoom-out", "pan-left", "pan-right", "still"] },
+              "focus": {
+                "description": "The point of the picture the camera looks at, in percent from the left and from the top.",
+                "type": "object",
+                "properties": {
+                  "x": { "type": "integer", "minimum": 0, "maximum": 100 },
+                  "y": { "type": "integer", "minimum": 0, "maximum": 100 }
+                },
+                "required": ["x", "y"],
+                "additionalProperties": false
+              }
+            },
+            "required": ["text", "ms", "camera", "focus"],
+            "additionalProperties": false
+          }
+        },
+        "sender": { "description": "Who the first message comes from.", "$ref": "#/$defs/sender" },
+        "sms": { "description": "The first message, shown in the last scene. Without it the last scene has none.", "$ref": "common.schema.json#/$defs/i18n" },
+        "labels": { "description": "The words of the screen of the story, by the name of the message of the app without story. in front (next, skip, choose, role, scene).", "$ref": "#/$defs/labels" }
+      },
+      "required": ["enabled"],
+      "if": { "properties": { "enabled": { "const": true } } },
+      "then": { "required": ["scenes"] },
+      "additionalProperties": false
+    },
     "steps": {
       "description": "In the order the driver meets them. A step starts when the one before it is done and its trigger holds, and ends when its completion holds.",
       "type": "array",
@@ -49,12 +137,12 @@
           },
           "goal": { "description": "The goal of the step in a few words, as the driver reads it on the bar of the goal at every screen of the game, from the moment the step is next until it is done: what to do, not why.", "$ref": "common.schema.json#/$defs/i18n" },
           "waiting": { "description": "What the step waits for before it starts, in a few words, for a step whose trigger is more than the step before it being done (a rain on the forecast, the cash for a purchase): it is shown on the bar of the goal while the step is next and has not started.", "$ref": "common.schema.json#/$defs/i18n" },
-          "sender": { "description": "The made-up number the mentor writes from. It changes with every step, because the mentor is in hiding.", "type": "string", "pattern": "^\\+48 555 010 [0-9]{3}$" },
+          "sender": { "description": "Who the messages of this step come from, as the top of the device shows it: a number, a name, a call sign. A step without one comes from the sender of the messenger. In RideIdle the mentor is in hiding and writes from another made-up number at every step.", "$ref": "#/$defs/sender" },
           "sms": {
-            "description": "At most two short messages: a greeting and the request. A step without any is carried out without being shown.",
+            "description": "At most two short messages: a greeting and the request. A step without any is carried out without being shown. A message has at most 200 characters, and 400 in a letter (the validator says so).",
             "type": "array",
             "maxItems": 2,
-            "items": { "$ref": "common.schema.json#/$defs/i18n" }
+            "items": { "$ref": "#/$defs/message" }
           },
           "reply": { "description": "The words of the button that answers the messages.", "$ref": "common.schema.json#/$defs/i18n" },
           "optional": { "description": "The driver may leave the step for later: the phone has a second button (decline), the step is left out with no reward, and the next one goes on.", "type": "boolean" },
@@ -90,7 +178,7 @@
         },
         "if": { "properties": { "sms": { "minItems": 1 } }, "required": ["sms"] },
         "then": { "required": ["reply"] },
-        "required": ["key", "phase", "trigger", "completion", "target", "goal", "sender", "sms", "reward"],
+        "required": ["key", "phase", "trigger", "completion", "target", "goal", "sms", "reward"],
         "additionalProperties": false
       }
     }
@@ -98,6 +186,42 @@
   "required": ["schema", "version", "steps", "script"],
   "additionalProperties": false,
   "$defs": {
+    "sender": {
+      "description": "A sender: the same text in every language (a number), or a text in the languages of the game (a name), at most 40 characters.",
+      "oneOf": [
+        { "type": "string", "minLength": 1, "maxLength": 40, "pattern": "^[^\\n]+$" },
+        {
+          "type": "object",
+          "properties": {
+            "en": { "type": "string", "minLength": 1, "maxLength": 40 },
+            "pl": { "type": "string", "minLength": 1, "maxLength": 40 },
+            "fr": { "type": "string", "minLength": 1, "maxLength": 40 },
+            "de": { "type": "string", "minLength": 1, "maxLength": 40 },
+            "pt-BR": { "type": "string", "minLength": 1, "maxLength": 40 }
+          },
+          "required": ["en", "pl"],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "message": {
+      "description": "A message of the mentor in the languages of the game. English and Polish are required, the others fall back to English.",
+      "type": "object",
+      "properties": {
+        "en": { "type": "string", "minLength": 1, "maxLength": 400 },
+        "pl": { "type": "string", "minLength": 1, "maxLength": 400 },
+        "fr": { "type": "string", "minLength": 1, "maxLength": 400 },
+        "de": { "type": "string", "minLength": 1, "maxLength": 400 },
+        "pt-BR": { "type": "string", "minLength": 1, "maxLength": 400 }
+      },
+      "required": ["en", "pl"],
+      "additionalProperties": false
+    },
+    "labels": {
+      "type": "object",
+      "propertyNames": { "pattern": "^[a-z][A-Za-z0-9]*$", "maxLength": 40 },
+      "additionalProperties": { "$ref": "common.schema.json#/$defs/i18n" }
+    },
     "condition": {
       "description": "A fact about the driver that the server can read. Plain ones: none always holds; run_started the driver has a run; driving the car has been sent out and is not waiting in the garage any more; lap_completed it has finished a lap; fuel_low the tank holds less than a quarter; fuel_restored it holds at least four fifths; breakdown the car stands broken down; recovered it does not (it ends a step that starts on breakdown: on any other step it holds from the start); acknowledged the driver has answered the messages of the step (a completion only: the messages are shown after the step starts, so as a trigger it never holds); job_queued the driver has put a job in the queue of the workshop; crate_opened the driver has opened a crate; travel_started the driver has sent a car on a journey; travel_done the car of the driver has arrived from its journey; rain_forecast the forecast of the track of the car shows rain; merge_done, service_done and upgrade_done a job of that kind was done since the step started; car_bought the driver bought a car from the exchange since the step started; equipment_bought the driver bought something for the workshop since the step started; email_confirmed the e-mail of the driver is confirmed; garage_bought the driver bought a garage since the step started; city_open there is a city with a track the driver may drive on, where they have no garage yet. mission_taken the driver has taken the reward of a mission (at any time, as crate_opened counts any crate); gig_taken the driver has taken a gig (one that was taken back does not count). With a number or a word after a colon: tires_mounted:kind the car has tires of that kind on; car_level:n the car is at level n at least; cash:n the driver holds n dollars at least; returned:n the driver came back after at least n minutes away.",
       "oneOf": [

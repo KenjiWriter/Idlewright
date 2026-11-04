@@ -1,6 +1,82 @@
 {
   "schema": 0,
   "version": "2026.10.4",
+  "messenger": {
+    "device": "phone"
+  },
+  "story": {
+    "enabled": true,
+    "scenes": [
+      {
+        "text": {
+          "en": "“Listen, I have to disappear for a while.”",
+          "pl": "„Słuchaj, muszę zniknąć na jakiś czas.”",
+          "fr": "« Écoute, je dois disparaître un moment. »",
+          "de": "„Hör zu, ich muss für eine Weile verschwinden.“",
+          "pt-BR": "“Escute, preciso sumir por um tempo.”"
+        },
+        "ms": 6000,
+        "camera": "zoom-in",
+        "focus": {
+          "x": 50,
+          "y": 55
+        }
+      },
+      {
+        "text": {
+          "en": "“I’m leaving you the workshop: the keys, the tools and three wrecks.”",
+          "pl": "„Zostawiam Ci dziuplę: klucze, narzędzia i trzy wraki.”",
+          "fr": "« Je te laisse l’atelier : les clés, les outils et trois épaves. »",
+          "de": "„Ich lasse dir die Werkstatt: die Schlüssel, das Werkzeug und drei Wracks.“",
+          "pt-BR": "“Estou deixando a oficina para você: as chaves, as ferramentas e três carcaças.”"
+        },
+        "ms": 6000,
+        "camera": "pan-right",
+        "focus": {
+          "x": 50,
+          "y": 70
+        }
+      },
+      {
+        "text": {
+          "en": "“Złomowo lives on racing. Pick a car, rebuild it and drive.”",
+          "pl": "„Złomowo żyje z wyścigów. Wybierz auto, odbuduj je i jedź.”",
+          "fr": "« Złomowo vit des courses. Choisis une voiture, retape-la et roule. »",
+          "de": "„Złomowo lebt vom Rennsport. Such dir ein Auto aus, bau es wieder auf und fahr.“",
+          "pt-BR": "“Złomowo vive de corridas. Escolha um carro, reconstrua e corra.”"
+        },
+        "ms": 7000,
+        "camera": "zoom-in",
+        "focus": {
+          "x": 78,
+          "y": 60
+        }
+      },
+      {
+        "text": {
+          "en": "“Manager of the workshop: {name}.”",
+          "pl": "„Zarządca dziupli: {name}.”",
+          "fr": "« Gérant de l’atelier : {name}. »",
+          "de": "„Leiter der Werkstatt: {name}.“",
+          "pt-BR": "“Gerente da oficina: {name}.”"
+        },
+        "ms": 5000,
+        "camera": "zoom-out",
+        "focus": {
+          "x": 50,
+          "y": 12
+        }
+      }
+    ],
+    "sender": "+48 555 010 112",
+    "sms": {
+      "en": "It’s me. Don’t ask. Pick a car, I’ll text you the rest. — K.",
+      "pl": "To ja. Nie pytaj. Wybierz auto, resztę wyślę SMS-em. — K.",
+      "fr": "C’est moi. Ne pose pas de questions. Choisis une voiture, je t’envoie la suite par SMS. — K.",
+      "de": "Ich bin’s. Frag nicht. Such dir ein Auto aus, den Rest schicke ich dir per SMS. — K.",
+      "pt-BR": "Sou eu. Não pergunte. Escolha um carro, o resto eu mando por SMS. — K."
+    }
+  },
   "steps": [
     {
       "key": "wreck",
