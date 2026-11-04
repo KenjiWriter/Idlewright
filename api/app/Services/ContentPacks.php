@@ -34,7 +34,7 @@ use InvalidArgumentException;
 final class ContentPacks
 {
     /** The folder of the documents in the content tree => the kind of the definition in the database. */
-    private const KINDS = ['vehicles' => 'vehicle', 'parts' => 'part', 'rules' => 'rules', 'tables' => 'table'];
+    public const KINDS = ['vehicles' => 'vehicle', 'parts' => 'part', 'rules' => 'rules', 'tables' => 'table'];
 
     private const NUMBER = '/^[0-9]{4}\.[0-9]{1,2}\.[0-9]+$/';
 
