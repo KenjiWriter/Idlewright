@@ -343,6 +343,29 @@ Powinny być `<title>` i `og:title` tej gry, `og:image` na jej domenie i `lang` 
 
 **Co sprawdzono.** Szablon i ustawienia globalne przeszły `nginx -t` na nginx 1.27.3 (ten z Laragona, na Windowsie, po wyrenderowaniu ścieżek, portów i gniazda PHP na adres TCP, bo Windows nie ma gniazd unix). Ten nginx stał przed prawdziwym API (php-cgi, tymczasowa baza SQLite, druga gra na hoście `ships.localhost`) i: 34 sprawdzenia `User-Agent` dały to, co trzeba (23 roboty z listy, 2 zapisy innymi literami, 3 żądania o inny adres albo HEAD: `/`, strona z sekretem w adresie, `/garage`; po stronie ludzi: dwie przeglądarki, `curl`, inny robot, brak nagłówka, a robot z POST dostaje to co każdy POST); druga gra dostała swój tytuł, `lang` i `og:url` na swojej domenie, z poprawnie zakodowanymi `<`, `&`, `"` i `$`; z 17 zapytań (strony, `/index.html`, pliki, 404 plików, `/.env`, POST, HEAD, robot proszący o plik, `/__rideidle_preview`) 16 odpowiedziało **bajt w bajt** tak jak nginx ze starym szablonem (poza `Date`), a jedyna różnica to `/__rideidle_preview` (404); 150 jednoczesnych zapytań robota: 56 odpowiedzi 429, takich samych zapytań człowieka: wszystkie 200; przy wyłączonym PHP (502) i przy API bez bazy (500) robot dostał `index.html` z kodem 200, a `/api/…` zwróciło 500. Skrypt `game-site.sh` przechodzi 74 sprawdzenia i `shellcheck`. **Nie sprawdzono:** nginx na Ubuntu z PHP-FPM i gniazdem unix, `http2` w `listen`, TLS z prawdziwym certyfikatem, prawdziwych debuggerów serwisów społecznościowych ani tego, jak naprawdę podpisują się ich roboty (lista to nazwy z ich dokumentacji, z pamięci).
 
+## Treść z bazy (`CONTENT_SOURCE=database`)
+
+Przy `CONTENT_SOURCE=files` pierwsza gra czyta pliki `content/` z wydania, a **paczki z panelu pomija**, nawet gdy są „żywe”. Z czego czyta gra, mówi `content:status`, a w panelu kafel „Gra czyta z” na stronie „Przegląd gry”. Żeby zmiany z panelu trafiały do gry, ustaw `CONTENT_SOURCE=database`; od tej chwili „Uruchom” w panelu działa od razu, bez restartu.
+
+**Zanim przełączysz**, panel musi mieć treść tego wydania. Panel pracuje na tym, co jest w bazie, a to pochodzi z paczki zaimportowanej kiedyś z plików: wydanie, które dodało dokumenty (misje, zlecenia, słownik), jej nie zmienia. Połącz je:
+
+```bash
+cd /var/www/rideidle/current/api
+sudo -u www-data php8.4 artisan content:rebase --dry-run
+sudo -u www-data php8.4 artisan content:rebase
+```
+
+Polecenie dokłada do treści panelu to, co zmieniły pliki od ostatniego razu, i zostawia to, co zmienił panel; wynik to szkice (opis: `docs/api-runs.md`, „Treść z bazy a nowe wydania”). Potem w panelu: „Zmiany do publikacji”, publikacja i „Uruchom” nowej paczki. Dopiero wtedy:
+
+```bash
+sudo sed -i 's/^CONTENT_SOURCE=.*/CONTENT_SOURCE=database/' /var/www/rideidle/shared/.env
+cd /var/www/rideidle/current/api && sudo -u www-data php8.4 artisan config:cache && sudo systemctl reload php8.4-fpm && sudo systemctl restart rideidle-queue
+```
+
+**Po każdym wydaniu, które zmienia `content/`** (przy `database`): wdrożenie niczego w bazie nie nadpisuje, więc powtórz `content:rebase` (najpierw z `--dry-run`) i opublikuj szkice w panelu. Gdy polecenie wypisze miejsca zmienione i w panelu, i w plikach, wybierz stronę: `--prefer=panel` albo `--prefer=files`.
+
+**Powrót na pliki:** ten sam `sed` z `files` zamiast `database` i te same trzy polecenia po nim.
+
 ## Na co dzień
 
 **Nowe wydanie:** `deploy/upload.sh release deploy@raceidle.cerasusdigital.pl`.

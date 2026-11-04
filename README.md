@@ -291,7 +291,7 @@ npm run dev                    # http://localhost:5173, /api idzie do DEV_API_TA
 docker compose -f docker/compose.yaml up -d
 ```
 
-- Treść gra czyta domyślnie z plików repozytorium (`CONTENT_SOURCE=files`). Żeby pracować w panelu na treści z bazy (szkice, paczki, publikacje), ustaw `CONTENT_SOURCE=database` i wczytaj paczkę: `php artisan content:import --activate`.
+- Treść gra czyta domyślnie z plików repozytorium (`CONTENT_SOURCE=files`). Żeby pracować w panelu na treści z bazy (szkice, paczki, publikacje), ustaw `CONTENT_SOURCE=database` i wczytaj paczkę: `php artisan content:import --activate`. Gdy baza ma już paczki, a wydanie zmienia `content/`, treść panelu dogania pliki polecenie `php artisan content:rebase` (szkice do opublikowania w panelu; `deploy/README.md`, „Treść z bazy”).
 - Pierwszy administrator: `php artisan admin:create ty@example.com --role=publisher`.
 - Maile z `.env.example` idą na `127.0.0.1:1025`, czyli do Mailpita z Dockera.
 - Jeśli port 8000 zajmuje inny projekt, uruchom API na innym (`php artisan serve --port=8011`) i wskaż go w `web/.env.local`: `DEV_API_TARGET=http://127.0.0.1:8011`.
