@@ -129,4 +129,45 @@ describe('StoryView', () => {
 
     await setLocale('en')
   })
+
+  describe('the story of the game', () => {
+    const letter = { device: 'letter' as const, parts: { crack: true, status_bar: true, input: true, who: true }, icon_url: null, frame_url: null, screen: null }
+
+    function tells(data: Record<string, unknown>): void {
+      serveApi(fetchMock, {
+        'GET /api/v1/me': () => respond(200, { data: profile }),
+        'GET /api/v1/tutorial/story': () =>
+          respond(200, { data: { enabled: true, builtin: false, picture_url: '/api/v1/media/harbour.jpg', scenes: [], sender: null, sms: null, messenger: letter, ...data } }),
+      })
+    }
+
+    it('tells its own scenes on its own picture, with the name of the driver and the first message on its device', async () => {
+      tells({
+        scenes: [
+          { text: 'The harbour is yours now.', ms: 4_000, camera: 'pan-left', focus: { x: 30, y: 40 } },
+          { text: 'Captain {name}, the boats wait.', ms: 5_000, camera: 'still', focus: { x: 50, y: 50 } },
+        ],
+        sender: 'Harbour master',
+        sms: 'Pick a boat. I will write.',
+      })
+      const { wrapper } = await show()
+
+      expect(wrapper.get('[data-test="story-text"]').text()).toBe('The harbour is yours now.')
+      expect(wrapper.text()).toContain('Scene 1 of 2')
+      expect(wrapper.get('[data-test="story-picture"]').attributes('src')).toBe('/api/v1/media/harbour.jpg')
+      expect(wrapper.get('[data-test="story-picture"]').attributes('style')).toContain('object-position: 30% 40%')
+
+      await vi.advanceTimersByTimeAsync(4_000)
+      expect(wrapper.get('[data-test="story-text"]').text()).toBe('Captain Maciek_Turbo, the boats wait.')
+      expect(wrapper.get('[data-test="story-sms"]').text()).toBe('Harbour master: Pick a boat. I will write.')
+      expect(wrapper.get('[data-test="story-sms"]').classes()).toContain('story-note-letter')
+    })
+
+    it('goes straight to the choice of a wreck when the game tells no story', async () => {
+      tells({ enabled: false })
+      const { router } = await show()
+
+      await vi.waitFor(() => expect(router.currentRoute.value.name).toBe('choose'))
+    })
+  })
 })

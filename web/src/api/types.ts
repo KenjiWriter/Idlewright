@@ -1026,6 +1026,40 @@ export interface TutorialGoal {
   reward: { cash_cents: number; car_xp: number; xp: number; part: string | null; garage: string | null }
 }
 
+/** What the mentor writes on: the device of the game, as the app draws it. */
+export type TutorialDeviceKind = 'phone' | 'letter' | 'tablet' | 'plain' | 'picture'
+
+/**
+ * The messenger of the tutorial of the game: the device, which of its parts are drawn, the icon of the goal bar, and for a device of the game's own (picture) its
+ * frame and where its screen is, as the part of the picture between the screen and each edge, in percent.
+ */
+export interface TutorialMessenger {
+  device: TutorialDeviceKind
+  parts: { crack: boolean; status_bar: boolean; input: boolean; who: boolean }
+  icon_url: string | null
+  frame_url: string | null
+  screen: { top: number; right: number; bottom: number; left: number } | null
+}
+
+/** How the camera moves over the picture of a scene of the story. */
+export type StoryCamera = 'zoom-in' | 'zoom-out' | 'pan-left' | 'pan-right' | 'still'
+
+/**
+ * GET /api/v1/tutorial/story: the story before the choice of a wreck, in the language of the driver. `builtin` is the story of the app (its own scenes, words
+ * and picture); `enabled` false is a game that tells none. The words of a scene still have {name} in them.
+ */
+export interface TutorialStoryResponse {
+  data: {
+    enabled: boolean
+    builtin: boolean
+    picture_url: string | null
+    scenes: { text: string; ms: number; camera: StoryCamera; focus: { x: number; y: number } }[]
+    sender: string | null
+    sms: string | null
+    messenger: TutorialMessenger
+  }
+}
+
 /** GET /api/v1/tutorial, and the answer of POST /api/v1/tutorial/reply and /skip. */
 export interface TutorialResponse {
   data: {
@@ -1040,6 +1074,8 @@ export interface TutorialResponse {
      * the city whose garage was given (its slug).
      */
     rewarded: { key: string; cash_cents: number; car_xp: number; xp: number; part: string | null; garage: string | null }[]
+    /** What the mentor writes on. Missing in the answer of a server from before the messenger: the old phone. */
+    messenger?: TutorialMessenger
   }
 }
 

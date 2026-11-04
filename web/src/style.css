@@ -1381,11 +1381,11 @@ body {
   /* The phone slides up from the bottom of the screen, unless the driver asked for less motion. */
   @keyframes phone-in {
     from {
-      transform: translateY(70%) rotate(-2deg);
+      transform: translateY(70%) rotate(var(--tilt, -2deg));
     }
 
     to {
-      transform: rotate(-2deg);
+      transform: rotate(var(--tilt, -2deg));
     }
   }
 
@@ -1424,7 +1424,320 @@ body {
   }
 
   .phone-in {
+    transform: rotate(var(--tilt, -2deg));
     animation: phone-in 0.45s ease-out;
+  }
+
+  /* ---------- the tutorial: a letter on paper ---------- */
+  .letter {
+    @apply relative flex flex-col gap-2 overflow-hidden;
+    padding: 18px 18px 16px;
+    border-radius: 3px;
+    color: #2a2216;
+    background:
+      repeating-linear-gradient(transparent 0 25px, rgba(70, 92, 140, 0.18) 25px 26px),
+      radial-gradient(circle at 20% 10%, #fbf4e2, #efe2c2 70%, #e3d1a8);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.5),
+      0 14px 40px rgba(0, 0, 0, 0.7);
+    font-family: 'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive;
+  }
+
+  .ltr-hd {
+    @apply flex items-start justify-between gap-2;
+  }
+
+  .ltr-from {
+    @apply min-w-0 flex-1 truncate;
+    font-size: 17px;
+    font-weight: 700;
+  }
+
+  .ltr-step {
+    @apply flex-none;
+    padding: 1px 6px;
+    border: 1px solid rgba(42, 34, 22, 0.45);
+    border-radius: 2px;
+    font: 700 11px var(--font-sans);
+    color: rgba(42, 34, 22, 0.75);
+  }
+
+  .ltr-date {
+    font: italic 12px var(--font-sans);
+    color: rgba(42, 34, 22, 0.6);
+  }
+
+  .ltr-body {
+    @apply flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto;
+  }
+
+  .ltr-p,
+  .ltr-q {
+    font-size: 15px;
+    line-height: 26px;
+  }
+
+  .ltr-q {
+    @apply self-end;
+    color: #23408a;
+  }
+
+  .ltr-err {
+    font: 13px var(--font-sans);
+    color: #b3261e;
+  }
+
+  .ltr-input {
+    padding-bottom: 2px;
+    border-bottom: 1px dashed rgba(42, 34, 22, 0.45);
+    font-size: 13px;
+    color: rgba(42, 34, 22, 0.5);
+  }
+
+  .ltr-actions {
+    @apply flex flex-none flex-wrap items-center gap-2 pt-1;
+  }
+
+  /* The answer is a stamp: red ink in a box, pressed a little crooked. */
+  .ltr-stamp {
+    @apply inline-flex min-h-11 cursor-pointer items-center px-3;
+    transform: rotate(-3deg);
+    border: 2px solid #b3261e;
+    border-radius: 3px;
+    background: rgba(179, 38, 30, 0.06);
+    color: #b3261e;
+    font: 800 15px var(--font-display);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .ltr-btn {
+    @apply inline-flex min-h-11 cursor-pointer items-center px-2.5;
+    border: 1px solid rgba(42, 34, 22, 0.4);
+    border-radius: 3px;
+    background: transparent;
+    color: #2a2216;
+    font: 700 13px var(--font-sans);
+  }
+
+  .ltr-stamp:disabled,
+  .ltr-btn:disabled {
+    @apply cursor-not-allowed opacity-50;
+  }
+
+  /* ---------- the tutorial: the panel of a console, in the colours of the game ---------- */
+  .tablet {
+    @apply relative flex flex-col;
+    padding: 10px;
+    border-radius: 18px;
+    background: linear-gradient(#232a35, #0c0f14);
+    box-shadow:
+      inset 0 0 0 1px var(--color-line-2),
+      inset 0 0 0 4px #07090c,
+      0 0 24px color-mix(in srgb, var(--color-cyan) 25%, transparent),
+      0 14px 40px rgba(0, 0, 0, 0.7);
+  }
+
+  .tab-scr {
+    @apply relative flex min-h-0 flex-1 flex-col overflow-hidden;
+    border-radius: 10px;
+    border: 1px solid color-mix(in srgb, var(--color-cyan) 45%, transparent);
+    background:
+      repeating-linear-gradient(transparent 0 3px, rgba(255, 255, 255, 0.025) 3px 4px),
+      radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--color-cyan) 14%, #06121a), #05080c 75%);
+    color: var(--color-cyan);
+    font-family: var(--font-mono);
+  }
+
+  .tab-ps {
+    @apply flex h-6 flex-none items-center justify-between px-2.5;
+    border-bottom: 1px solid color-mix(in srgb, var(--color-cyan) 25%, transparent);
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.85;
+  }
+
+  .tab-bat {
+    @apply relative inline-block h-[9px] w-[18px];
+    border: 1px solid currentColor;
+    border-radius: 2px;
+  }
+
+  .tab-bat i {
+    @apply absolute inset-y-px left-px;
+    right: 5px;
+    background: currentColor;
+  }
+
+  .tab-hd {
+    @apply flex min-h-[38px] flex-none items-center gap-2 px-2.5;
+    border-bottom: 1px solid color-mix(in srgb, var(--color-cyan) 25%, transparent);
+    color: var(--color-ink);
+    font: 700 13px var(--font-mono);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  .tab-step {
+    @apply flex-none;
+    padding: 1px 6px;
+    border: 1px solid color-mix(in srgb, var(--color-cyan) 55%, transparent);
+    border-radius: 3px;
+    color: var(--color-cyan);
+    font-size: 10px;
+  }
+
+  .tab-log {
+    @apply flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto px-2.5 py-2.5;
+  }
+
+  .tab-t {
+    font-size: 10px;
+    opacity: 0.6;
+  }
+
+  .tab-line {
+    padding-left: 14px;
+    text-indent: -14px;
+    color: var(--color-ink);
+    font-size: 13px;
+    line-height: 1.4;
+  }
+
+  .tab-line::before {
+    content: '> ';
+    color: var(--color-cyan);
+  }
+
+  .tab-line.tab-out {
+    @apply self-end;
+    color: var(--color-cyan);
+  }
+
+  .tab-line.tab-out::before {
+    content: '< ';
+  }
+
+  .tab-line.tab-err {
+    color: var(--color-danger);
+  }
+
+  .tab-btn {
+    @apply inline-flex min-h-11 cursor-pointer items-center px-3;
+    border: 1px solid color-mix(in srgb, var(--color-cyan) 55%, transparent);
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--color-cyan) 8%, transparent);
+    color: var(--color-cyan);
+    font: 700 12px var(--font-mono);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .tab-btn.tab-go {
+    border-color: var(--color-cyan);
+    background: var(--color-cyan);
+    color: #031016;
+    box-shadow: 0 0 12px color-mix(in srgb, var(--color-cyan) 45%, transparent);
+  }
+
+  .tab-btn:disabled {
+    @apply cursor-not-allowed opacity-50;
+  }
+
+  .tab-input {
+    @apply flex flex-none items-center gap-2 px-2.5;
+    min-height: 34px;
+    border-top: 1px solid color-mix(in srgb, var(--color-cyan) 25%, transparent);
+    font-size: 11px;
+    opacity: 0.7;
+  }
+
+  .tab-send {
+    @apply flex-none;
+    padding: 2px 6px;
+    border: 1px solid currentColor;
+    border-radius: 3px;
+    font-size: 10px;
+    text-transform: uppercase;
+  }
+
+  /* ---------- the tutorial: a plain window, and a frame of the game's own ---------- */
+  .msgr-plain {
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.7);
+  }
+
+  .msgr-msg {
+    @apply self-start;
+    max-width: 92%;
+    padding: 8px 11px;
+    border: 1px solid var(--color-line-2);
+    border-radius: 10px;
+    border-bottom-left-radius: 3px;
+    background: var(--color-surface-2);
+    color: var(--color-ink);
+    font-size: 14px;
+    line-height: 1.35;
+  }
+
+  .msgr-msg.msgr-out {
+    @apply self-end;
+    border-color: color-mix(in srgb, var(--color-amber) 55%, transparent);
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 3px;
+    background: var(--color-amber-bg);
+  }
+
+  .msgr-picture {
+    filter: drop-shadow(0 14px 30px rgba(0, 0, 0, 0.7));
+  }
+
+  .msgr-screen {
+    background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+    color: var(--color-ink);
+  }
+
+  .msgr-hd {
+    @apply flex flex-none items-center gap-2 px-2 py-1.5;
+    border-bottom: 1px solid var(--color-line);
+    font: 700 13px var(--font-display);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .msgr-step {
+    @apply flex-none;
+    font: 600 10px var(--font-sans);
+    color: var(--color-muted);
+  }
+
+  .msgr-screen .msgr-msg {
+    padding: 5px 8px;
+    font-size: 12px;
+  }
+
+  /* The first message of the story, on a letter or a console instead of the bubble of the phone. */
+  .story-note {
+    padding: 8px 11px;
+    line-height: 1.35;
+  }
+
+  .story-note-letter {
+    transform: rotate(-1deg);
+    border-radius: 2px;
+    background: radial-gradient(circle at 20% 10%, #fbf4e2, #efe2c2 70%, #e3d1a8);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55);
+    color: #2a2216;
+    font-family: 'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive;
+  }
+
+  .story-note-tablet {
+    border: 1px solid color-mix(in srgb, var(--color-cyan) 55%, transparent);
+    border-radius: 6px;
+    background: rgba(4, 10, 14, 0.88);
+    box-shadow: 0 0 14px color-mix(in srgb, var(--color-cyan) 30%, transparent);
+    color: var(--color-ink);
+    font-family: var(--font-mono);
   }
 
   /* The arrow over the navigation that says where the thing of the goal is when it is further down (or up) than the driver sees: a pill the color of what can be pressed. */

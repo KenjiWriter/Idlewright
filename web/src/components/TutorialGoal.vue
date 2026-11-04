@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { RouterLink, useRoute } from 'vue-router'
 
+import TutorialDeviceIcon from '@/components/TutorialDeviceIcon.vue'
 import { endSessionIfUnauthorized } from '@/features/session/unauthorized'
 import { TARGET_SCREEN } from '@/features/tutorial/targets'
 import { useFormat } from '@/i18n/useFormat'
@@ -63,7 +64,10 @@ const reward = computed(() => {
 <template>
   <section v-if="goal" class="goal" :class="{ 'goal-wait': goal.waiting }" :aria-label="t('tutorial.goalAria')" data-test="goal">
     <div class="goal-top">
-      <span class="goal-step" data-test="goal-step">{{ t('tutorial.goalStep', { number: goal.number, total: store.tutorial?.total ?? 0 }) }}</span>
+      <span class="goal-step inline-flex items-center gap-1.5" data-test="goal-step">
+        <TutorialDeviceIcon :messenger="store.messenger" />
+        {{ t('tutorial.goalStep', { number: goal.number, total: store.tutorial?.total ?? 0 }) }}
+      </span>
       <span v-if="goal.optional" class="goal-opt" data-test="goal-optional">{{ t('tutorial.goalOptional') }}</span>
       <span class="goal-dots" aria-hidden="true">
         <i v-for="phase in 4" :key="phase" :class="{ on: phase <= goal.phase }" />
