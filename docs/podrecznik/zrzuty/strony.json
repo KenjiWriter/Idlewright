@@ -605,7 +605,7 @@
       "kroki": [
         {
           "js": "[...document.querySelectorAll('.fi-section-header')].find((e) => e.textContent.includes('Historia na start'))?.click()",
-          "pauza_po": 900
+          "pauza_po": 2000
         }
       ],
       "maks_wysokosc": 2600,
@@ -617,6 +617,12 @@
         {
           "pomoc": "tutorial.messenger_sender",
           "ktory": 0
+        },
+        {
+          "selektor": "button",
+          "zawiera": "Wszystkie kroki od tego nadawcy",
+          "nazwa": "Wszystkie kroki od tego nadawcy",
+          "opis": "czyści pole „Nadawca” we wszystkich krokach i w historii, więc wszędzie pisze nadawca urządzenia; działa, gdy nadawca urządzenia jest wpisany"
         },
         {
           "pomoc": "tutorial.part_crack",

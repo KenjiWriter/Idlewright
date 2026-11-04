@@ -487,7 +487,7 @@ Menu Treść → Samouczek. Góra strony to ustawienia pierwszego przejazdu (pal
 
 Każda gra ma własny samouczek: RideIdle pisze z pękniętego telefonu, gra o statkach może pisać listy, a gra kosmiczna z tabletu albo z urządzenia narysowanego przez grę. Między ustawieniami pierwszego przejazdu a krokami są trzy sekcje:
 
-- **Urządzenie.** Na czym mentor pisze: telefon, list, tablet, zwykłe okno w kolorach gry albo **własny obraz** (wgrywasz obraz ramki z przezroczystym miejscem na ekran i podajesz, ile procent obrazu zostaje od ekranu do każdej krawędzi). Przełączniki wyłączają części urządzenia (pęknięcia ekranu, pasek sieci i baterii, pole odpowiedzi, przycisk „Kto to?”). **Nadawca urządzenia** to nadawca kroków, które nie mają własnego: wpisz go raz, gdy mentor pisze zawsze z tego samego miejsca. **Ikona** to mała ikona na pasku celu (bez niej gra rysuje ikonę urządzenia).
+- **Urządzenie.** Na czym mentor pisze: telefon, list, tablet, zwykłe okno w kolorach gry albo **własny obraz** (wgrywasz obraz ramki z przezroczystym miejscem na ekran i podajesz, ile procent obrazu zostaje od ekranu do każdej krawędzi). Przełączniki wyłączają części urządzenia (pęknięcia ekranu, pasek sieci i baterii, pole odpowiedzi, przycisk „Kto to?”). **Nadawca urządzenia** to nadawca kroków, które nie mają własnego, i pierwszej wiadomości historii, gdy historia nie ma własnego. Krok z własnym nadawcą pisze od niego (tak RideIdle zmienia numer w każdym kroku), więc gdy mentor ma pisać zawsze od tego samego nadawcy, wpisz go i kliknij **„Wszystkie kroki od tego nadawcy”**: przycisk czyści pole „Nadawca” we wszystkich krokach i w historii, a „Zapisz szkic” to zachowuje. **Ikona** to mała ikona na pasku celu (bez niej gra rysuje ikonę urządzenia).
 - **Słowa samouczka.** Każdy komunikat samouczka aplikacji (sieć, „Kto to?”, odpowiedź mentora, „Wyślij”, okno pomijania, komunikaty nagród, pasek celu) w pięciu językach. Puste pole to tekst aplikacji, który widać jako podpowiedź; nazwy w klamrach (`{cash}`) muszą zostać. Te słowa nie są już na stronie Słownik.
 - **Historia na start.** Co gracz widzi między nadaniem imienia a wyborem wraku: **historia aplikacji** (cztery sceny RideIdle), **własna historia** (obraz, od jednej do sześciu scen z czasem, ruchem kamery i punktem skupienia, pierwsza wiadomość i słowa ekranu) albo **bez historii** (gracz od razu wybiera wrak; sceny zostają w dokumencie na później). `{name}` w tekście sceny to imię gracza.
 
@@ -497,12 +497,13 @@ Nadawca kroku to teraz dowolny tekst (numer, nazwa, znak wywoławczy), najwyżej
 
 <!-- legenda:samouczek-urzadzenie -->
 1. **Urządzenie.** Na czym mentor pisze do kierowcy. Zmienia wygląd okna wiadomości na każdym ekranie gry i pierwszej wiadomości w historii na start. Przykład: RideIdle: Telefon. Gra o statkach: List. Gra kosmiczna: Tablet.
-2. **Nadawca urządzenia.** Od kogo są wiadomości kroków, które nie mają własnego nadawcy. Wpisz go raz, gdy mentor pisze zawsze z tego samego miejsca, a pola „Nadawca” w krokach zostaw puste. Zakres: Najwyżej 40 znaków. Przykład: Kapitanat portu.
-3. **Pęknięcia ekranu.** Rysuje pęknięcia na ekranie telefonu. Pęknięcia ma tylko telefon; przy innych urządzeniach przełącznik nic nie zmienia.
-4. **Słowa samouczka.** Rozwiń, żeby powiedzieć słowa samouczka po swojemu; puste pole to tekst aplikacji.
-5. **Historia na start.** Co kierowca widzi między nadaniem imienia a wyborem wraku.
-6. **Sceny.** Od jednej do sześciu scen, w kolejności. Każda zostaje na ekranie przez swój czas albo do dotknięcia; w ostatniej przychodzi pierwsza wiadomość. Zakres: 1–6 scen. Przykład: RideIdle: 4 sceny, razem 24 s.
-7. **Ruch kamery.** Jak kamera porusza się po obrazie w tej scenie.
+2. **Nadawca urządzenia.** Od kogo są wiadomości kroków, które nie mają własnego nadawcy. Od niego jest też pierwsza wiadomość historii na start, gdy historia nie ma własnego nadawcy. Wpisz go raz, gdy mentor pisze zawsze z tego samego miejsca, i kliknij „Wszystkie kroki od tego nadawcy”: kroki, które mają własnego nadawcę, piszą od niego. Zakres: Najwyżej 40 znaków. Przykład: Kapitanat portu.
+3. **Wszystkie kroki od tego nadawcy.** Czyści pole „Nadawca” we wszystkich krokach i w historii, więc wszędzie pisze nadawca urządzenia; działa, gdy nadawca urządzenia jest wpisany.
+4. **Pęknięcia ekranu.** Rysuje pęknięcia na ekranie telefonu. Pęknięcia ma tylko telefon; przy innych urządzeniach przełącznik nic nie zmienia.
+5. **Słowa samouczka.** Rozwiń, żeby powiedzieć słowa samouczka po swojemu; puste pole to tekst aplikacji.
+6. **Historia na start.** Co kierowca widzi między nadaniem imienia a wyborem wraku.
+7. **Sceny.** Od jednej do sześciu scen, w kolejności. Każda zostaje na ekranie przez swój czas albo do dotknięcia; w ostatniej przychodzi pierwsza wiadomość. Zakres: 1–6 scen. Przykład: RideIdle: 4 sceny, razem 24 s.
+8. **Ruch kamery.** Jak kamera porusza się po obrazie w tej scenie.
 <!-- /legenda -->
 
 **Przez asystenta AI:** zaznacz „Samouczek” w Moście AI (rozdział 17). Asystent zmieni urządzenie, nadawców, teksty kroków, słowa i sceny oraz doda nowy krok, ale nie usunie kroku, nie zmieni kolejności i nie wgra obrazu.
