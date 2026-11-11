@@ -118,6 +118,22 @@ final class PackGates
     }
 
     /**
+     * Runs a command of the simulators on the content of a pack and gives back how it ended and what it printed: what the AI assistant of the panel asks of the
+     * simulators that have no other door.
+     *
+     * @param  array<string, mixed>  $options
+     * @return array{exit: int, output: string}
+     */
+    public function command(PackContent $content, string $command, array $options = []): array
+    {
+        return $this->inContentOf($content, static function () use ($command, $options): array {
+            $exit = Artisan::call($command, $options);
+
+            return ['exit' => $exit, 'output' => trim(Artisan::output())];
+        });
+    }
+
+    /**
      * Runs `$work` with the game reading the content of a pack: the pack is written as the `content/` tree in a folder of its own, the game is pointed at it for as long
      * as `$work` runs, and everything is put back after.
      *

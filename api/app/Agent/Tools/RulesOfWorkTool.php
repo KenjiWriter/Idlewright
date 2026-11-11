@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Agent\Tools;
 
+use App\Agent\AgentAnchors;
 use App\Agent\AgentContext;
 use App\Agent\AgentRules;
 use App\Agent\AgentServer;
@@ -20,9 +21,9 @@ final class RulesOfWorkTool extends AgentTool
 
     protected string $title = 'Rules of work';
 
-    protected string $description = 'Call this first. Returns the rules of work of the assistant, the consent you work under (game, level, until when, on whose behalf) and the tools you have now.';
+    protected string $description = 'Call this first. Returns the rules of work of the assistant, the consent you work under (game, level, until when, on whose behalf), the tools you have now and what is out of your reach (the yardstick of the gates, the world while its editor is rebuilt, what no tool does).';
 
-    public function __construct(private readonly AgentContext $context, private readonly CurrentGame $current) {}
+    public function __construct(private readonly AgentContext $context, private readonly CurrentGame $current, private readonly AgentAnchors $anchors) {}
 
     protected function run(Request $request): array
     {
@@ -39,7 +40,8 @@ final class RulesOfWorkTool extends AgentTool
                 'on_behalf_of' => (string) $grant->admin?->email,
             ],
             'tools' => AgentServer::toolNamesFor($this->context->level()),
-            'not_yet' => 'This version of the connection reads only. Simulations, plans approved in the panel and writing drafts come in the next stages.',
+            'out_of_reach' => $this->anchors->explain(),
+            'not_yet' => 'This version of the connection reads, counts and keeps a scratch that is never saved. Plans approved in the panel and writing drafts come in the next stages.',
         ];
     }
 }

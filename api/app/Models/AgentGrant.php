@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * person's behalf and never with more than the person may do in that game.
  *
  * @property AgentLevel $level
+ * @property array<string, mixed>|null $scratch the block of changes of the scratch of the assistant (never saved as drafts)
  */
 class AgentGrant extends Model
 {
@@ -23,7 +24,7 @@ class AgentGrant extends Model
     /** @return array<string, string> */
     protected function casts(): array
     {
-        return ['level' => AgentLevel::class, 'expires_at' => 'datetime', 'revoked_at' => 'datetime', 'last_used_at' => 'datetime'];
+        return ['level' => AgentLevel::class, 'expires_at' => 'datetime', 'revoked_at' => 'datetime', 'last_used_at' => 'datetime', 'scratch' => 'array', 'scratch_at' => 'datetime'];
     }
 
     /** @return BelongsTo<Admin, $this> the person on whose behalf the assistant works */
@@ -48,6 +49,12 @@ class AgentGrant extends Model
     public function actions(): HasMany
     {
         return $this->hasMany(AgentAction::class);
+    }
+
+    /** @return HasMany<AgentJob, $this> */
+    public function jobs(): HasMany
+    {
+        return $this->hasMany(AgentJob::class);
     }
 
     /**

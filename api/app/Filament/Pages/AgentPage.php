@@ -10,6 +10,7 @@ use App\Games\CurrentGame;
 use App\Models\Admin;
 use App\Models\AgentAction;
 use App\Models\AgentGrant;
+use App\Models\AgentJob;
 use App\Models\Game;
 use BackedEnum;
 use Filament\Forms\Components\Textarea;
@@ -33,6 +34,9 @@ class AgentPage extends Page implements HasSchemas
 
     /** How many of the last calls of the assistant the page shows. */
     private const TRAIL = 30;
+
+    /** How many of the last studies the assistant had counted the page shows. */
+    private const STUDIES = 20;
 
     protected static ?string $slug = 'agent';
 
@@ -109,6 +113,7 @@ class AgentPage extends Page implements HasSchemas
             'address' => Route::has('agent.mcp') ? route('agent.mcp') : null,
             'grants' => AgentGrant::query()->where('game_id', $game)->active()->with('admin')->withCount('actions')->latest('id')->get(),
             'trail' => AgentAction::query()->where('game_id', $game)->latest('id')->limit(self::TRAIL)->get(),
+            'studies' => AgentJob::query()->where('game_id', $game)->latest('id')->limit(self::STUDIES)->get(),
         ];
     }
 }

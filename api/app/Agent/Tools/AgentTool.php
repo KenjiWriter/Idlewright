@@ -9,6 +9,7 @@ use App\Agent\AgentLevel;
 use App\Agent\AgentText;
 use App\Agent\ToolRefused;
 use App\Models\AgentAction;
+use App\Models\AgentGrant;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -82,25 +83,24 @@ abstract class AgentTool extends Tool
                 $data['warnings'] = $text->warnings();
             }
 
-            $this->trail($request, true, $this->summary($request, $data), $started);
+            $this->trail($grant, $request, true, $this->summary($request, $data), $started);
 
             return Response::structured($data);
         } catch (ToolRefused $refused) {
-            $this->trail($request, false, $refused->getMessage(), $started);
+            $this->trail($grant, $request, false, $refused->getMessage(), $started);
 
             return Response::error($refused->getMessage());
         } catch (ValidationException $invalid) {
             $message = implode(' ', array_merge(...array_values($invalid->errors())));
-            $this->trail($request, false, $message, $started);
+            $this->trail($grant, $request, false, $message, $started);
 
             return Response::error($message);
         }
     }
 
-    private function trail(Request $request, bool $ok, string $summary, int|float $started): void
+    /** The consent is the one the call started under: a study of the simulators forgets what the request holds while it runs. */
+    private function trail(?AgentGrant $grant, Request $request, bool $ok, string $summary, int|float $started): void
     {
-        $grant = app(AgentContext::class)->grant();
-
         if ($grant === null) {
             return;
         }

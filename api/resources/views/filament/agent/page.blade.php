@@ -4,6 +4,7 @@
      * @var string|null $address
      * @var \Illuminate\Support\Collection<int, \App\Models\AgentGrant> $grants
      * @var \Illuminate\Support\Collection<int, \App\Models\AgentAction> $trail
+     * @var \Illuminate\Support\Collection<int, \App\Models\AgentJob> $studies
      */
     $box = 'border: 1px solid rgba(128, 128, 128, .3); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 10px;';
     $muted = 'font-size: 13px; opacity: .7;';
@@ -85,6 +86,44 @@
                                     <td style="{{ $cell }}">
                                         <x-filament::button size="xs" color="danger" wire:click="disconnect({{ $grant->id }})" wire:confirm="{{ __('admin.agent.page.disconnect_confirm') }}" data-test="agent-disconnect">{{ __('admin.agent.page.disconnect') }}</x-filament::button>
                                     </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
+        </div>
+
+        <div style="{{ $box }}" data-test="agent-studies">
+            <strong>{{ __('admin.agent.page.studies') }}</strong>
+            <div style="{{ $muted }}">{{ __('admin.agent.page.studies_intro') }}</div>
+            @if ($studies->isEmpty())
+                <div style="{{ $muted }}">{{ __('admin.agent.page.studies_none') }}</div>
+            @else
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse;">
+                        <thead>
+                            <tr>
+                                <th style="{{ $cell }}">{{ __('admin.agent.page.when') }}</th>
+                                <th style="{{ $cell }}">{{ __('admin.agent.page.study') }}</th>
+                                <th style="{{ $cell }}">{{ __('admin.agent.page.variant') }}</th>
+                                <th style="{{ $cell }}">{{ __('admin.agent.page.status') }}</th>
+                                <th style="{{ $cell }}">{{ __('admin.agent.page.ms') }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($studies as $study)
+                                <tr data-test="agent-study">
+                                    <td style="{{ $cell }}">{{ $study->created_at?->format('Y-m-d H:i:s') }}</td>
+                                    <td style="{{ $cell }}"><code>{{ $study->study }}</code></td>
+                                    <td style="{{ $cell }}">{{ __('admin.agent.page.variants.'.$study->variant) }}</td>
+                                    <td style="{{ $cell }}">
+                                        <x-filament::badge size="sm" :color="match ($study->status) { 'done' => 'success', 'failed' => 'danger', default => 'warning' }">{{ __('admin.agent.page.statuses.'.$study->status) }}</x-filament::badge>
+                                        @if ($study->status === 'failed')
+                                            <div style="{{ $muted }}">{{ \Illuminate\Support\Str::limit((string) $study->error, 200) }}</div>
+                                        @endif
+                                    </td>
+                                    <td style="{{ $cell }}">{{ $study->ms }}</td>
                                 </tr>
                             @endforeach
                         </tbody>

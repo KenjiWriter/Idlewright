@@ -89,6 +89,14 @@ return [
         'default_hours' => 8,
         'max_hours' => 168,
         'calls_per_minute' => 60,
+        // The long studies (the gates, the simulator of the tracks) are counted by the worker of the queue `agent`: one at a time in a game, at most this many an
+        // hour for a consent, and a call waits this long for one before it gives the number of the job to ask for later.
+        'heavy_per_hour' => 20,
+        'wait_seconds' => (int) env('AGENT_WAIT_SECONDS', 50),
+        // A long study that has not ended in this time no longer stops another one (the worker that had it was stopped, say).
+        'stale_minutes' => 15,
+        // How long a study counted on some content answers the same question on the same content again.
+        'cache_hours' => 24,
     ],
 
     // The network of games: the address that Let's Encrypt writes to about the certificates of the domains of the games (it is given to the worker on the server that sets a

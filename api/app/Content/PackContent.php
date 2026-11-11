@@ -30,6 +30,20 @@ final class PackContent extends ContentSource
         return $this->number;
     }
 
+    /** A mark of what the documents say: the same documents give the same mark, whatever order they came in, and any change to one of them changes it. */
+    public function fingerprint(): string
+    {
+        $lines = [];
+
+        foreach ($this->documents as $key => $text) {
+            $lines[] = $key.':'.sha1($text);
+        }
+
+        sort($lines);
+
+        return hash('sha256', implode("\n", $lines));
+    }
+
     public function slugs(string $folder): array
     {
         $slugs = [];

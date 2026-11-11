@@ -25,6 +25,9 @@ return new class extends Migration
             $table->timestamp('revoked_at')->nullable();
             $table->foreignId('revoked_by')->nullable()->constrained('admins')->nullOnDelete();
             $table->timestamp('last_used_at')->nullable();
+            // The scratch of the assistant: one block of changes that is never saved, which the simulators can count on ('what if').
+            $table->longText('scratch')->nullable();
+            $table->timestamp('scratch_at')->nullable();
             $table->timestamps();
 
             $table->index(['admin_id', 'oauth_client_id']);

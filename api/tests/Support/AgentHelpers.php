@@ -2,7 +2,11 @@
 
 declare(strict_types=1);
 
+use App\Agent\AgentContext;
+use App\Agent\AgentLevel;
 use App\Models\AgentGrant;
+use App\Models\Game;
+use Illuminate\Support\Str;
 use phpseclib4\Crypt\RSA;
 
 // Helpers of the tests of the AI assistant (tests/Feature/Agent): the keys of Passport, a client of OAuth as an app of Claude registers it, and the way through the page
@@ -80,4 +84,17 @@ function connectAgent(object $test, array $client, int $level = 2, int $hours = 
     ])->assertOk()->json('access_token');
 
     return [(string) $key, AgentGrant::query()->latest('id')->firstOrFail()];
+}
+
+/** A consent in force for the default game, put in force as the connection does it. */
+function agentGrantInForce(int $level = 1): AgentGrant
+{
+    $admin = signedInAdmin();
+    $grant = AgentGrant::query()->create([
+        'admin_id' => $admin->id, 'game_id' => Game::query()->where('is_default', true)->value('id'), 'oauth_client_id' => (string) Str::uuid(),
+        'client_name' => 'Claude', 'level' => AgentLevel::from($level), 'expires_at' => now()->addHour(),
+    ]);
+    app(AgentContext::class)->set($grant);
+
+    return $grant;
 }

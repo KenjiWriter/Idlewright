@@ -7,6 +7,7 @@ use App\Filament\Pages\AgentPage;
 use App\Models\Admin;
 use App\Models\AgentAction;
 use App\Models\AgentGrant;
+use App\Models\AgentJob;
 use App\Models\Game;
 use Illuminate\Support\Str;
 use Livewire\Livewire;
@@ -31,13 +32,18 @@ it('says how to connect Claude, with the address of the connection, and shows wh
     $admin = signedInAdmin();
     $grant = grantOf($admin);
     AgentAction::query()->create(['agent_grant_id' => $grant->id, 'game_id' => $grant->game_id, 'tool' => 'rules_read', 'summary' => 'rules player: 15 numbers', 'ok' => true, 'ms' => 12]);
+    AgentJob::query()->create(['agent_grant_id' => $grant->id, 'game_id' => $grant->game_id, 'study' => 'run_gates', 'variant' => 'scratch', 'options' => [], 'key' => str_repeat('b', 64), 'status' => AgentJob::FAILED, 'error' => 'The worker stopped: timeout']);
 
     $this->get('/admin/agent')->assertOk()
         ->assertSee(__('admin.agent.title'))
         ->assertSee(url('/agent/mcp'))
         ->assertSee('claude mcp add --transport http idlewright')
         ->assertSee('boss@example.com')
-        ->assertSee('rules player: 15 numbers');
+        ->assertSee('rules player: 15 numbers')
+        ->assertSee(__('admin.agent.page.studies'))
+        ->assertSee('run_gates')
+        ->assertSee(__('admin.agent.page.variants.scratch'))
+        ->assertSee('The worker stopped: timeout');
 });
 
 it('makes the message to start with from the goal, with no key or secret in it', function () {

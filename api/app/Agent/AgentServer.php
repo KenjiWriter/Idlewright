@@ -6,12 +6,28 @@ namespace App\Agent;
 
 use App\Agent\Tools\AgentTool;
 use App\Agent\Tools\CatalogListTool;
+use App\Agent\Tools\ClassJumpTool;
 use App\Agent\Tools\DefinitionReadTool;
 use App\Agent\Tools\DraftsListTool;
+use App\Agent\Tools\FleetStudyTool;
 use App\Agent\Tools\GameOverviewTool;
+use App\Agent\Tools\GigsReportTool;
 use App\Agent\Tools\HelpLookupTool;
+use App\Agent\Tools\JobResultTool;
+use App\Agent\Tools\MissionsBudgetTool;
+use App\Agent\Tools\PiReportTool;
 use App\Agent\Tools\RulesOfWorkTool;
 use App\Agent\Tools\RulesReadTool;
+use App\Agent\Tools\RunGatesTool;
+use App\Agent\Tools\ScratchClearTool;
+use App\Agent\Tools\ScratchReadTool;
+use App\Agent\Tools\ScratchSetTool;
+use App\Agent\Tools\SimulateCarsTool;
+use App\Agent\Tools\SimulateEconomyTool;
+use App\Agent\Tools\StreaksBudgetTool;
+use App\Agent\Tools\TracksSimulateTool;
+use App\Agent\Tools\TransmuteStudyTool;
+use App\Agent\Tools\TuningBudgetTool;
 use App\Agent\Tools\TutorialReadTool;
 use App\Agent\Tools\WorldReadTool;
 use Laravel\Mcp\Server;
@@ -34,11 +50,27 @@ final class AgentServer extends Server
         WorldReadTool::class,
         HelpLookupTool::class,
         DraftsListTool::class,
+        ScratchSetTool::class,
+        ScratchReadTool::class,
+        ScratchClearTool::class,
+        SimulateCarsTool::class,
+        SimulateEconomyTool::class,
+        RunGatesTool::class,
+        MissionsBudgetTool::class,
+        TuningBudgetTool::class,
+        GigsReportTool::class,
+        StreaksBudgetTool::class,
+        FleetStudyTool::class,
+        TransmuteStudyTool::class,
+        PiReportTool::class,
+        ClassJumpTool::class,
+        TracksSimulateTool::class,
+        JobResultTool::class,
     ];
 
     protected string $name = 'Idlewright';
 
-    protected string $version = '2.0.0-v0';
+    protected string $version = '2.0.0-v1';
 
     protected array $tools = self::TOOLS;
 

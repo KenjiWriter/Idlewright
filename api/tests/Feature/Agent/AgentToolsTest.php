@@ -2,47 +2,50 @@
 
 declare(strict_types=1);
 
-use App\Agent\AgentContext;
 use App\Agent\AgentLevel;
 use App\Agent\AgentServer;
 use App\Agent\AgentText;
 use App\Agent\Tools\CatalogListTool;
+use App\Agent\Tools\ClassJumpTool;
 use App\Agent\Tools\DefinitionReadTool;
 use App\Agent\Tools\DraftsListTool;
+use App\Agent\Tools\FleetStudyTool;
 use App\Agent\Tools\GameOverviewTool;
+use App\Agent\Tools\GigsReportTool;
 use App\Agent\Tools\HelpLookupTool;
+use App\Agent\Tools\JobResultTool;
+use App\Agent\Tools\MissionsBudgetTool;
+use App\Agent\Tools\PiReportTool;
 use App\Agent\Tools\RulesOfWorkTool;
 use App\Agent\Tools\RulesReadTool;
+use App\Agent\Tools\RunGatesTool;
+use App\Agent\Tools\ScratchClearTool;
+use App\Agent\Tools\ScratchReadTool;
+use App\Agent\Tools\ScratchSetTool;
+use App\Agent\Tools\SimulateCarsTool;
+use App\Agent\Tools\SimulateEconomyTool;
+use App\Agent\Tools\StreaksBudgetTool;
+use App\Agent\Tools\TracksSimulateTool;
+use App\Agent\Tools\TransmuteStudyTool;
+use App\Agent\Tools\TuningBudgetTool;
 use App\Agent\Tools\TutorialReadTool;
 use App\Agent\Tools\WorldReadTool;
 use App\Models\AgentAction;
-use App\Models\AgentGrant;
 use App\Models\ContentDefinition;
 use App\Models\Game;
 use App\Models\User;
 use App\Services\ContentDrafts;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Queue;
 
 // The tools of the AI assistant that read (V0): they give the game as the panel has it (with the drafts, in the units of the Studio, with what each number is for), they never
 // give a player's data, they clean text that a person cannot see, and every call under a consent leaves a line in the trail.
+
+require_once __DIR__.'/../../Support/AgentHelpers.php';
 
 beforeEach(function () {
     contentPacks()->import(repositoryContent(), activate: true, checkTables: false);
     app()->setLocale('pl');
 });
-
-/** A consent in force for the default game, put in force as the connection does it. */
-function agentGrantInForce(int $level = 1): AgentGrant
-{
-    $admin = signedInAdmin();
-    $grant = AgentGrant::query()->create([
-        'admin_id' => $admin->id, 'game_id' => Game::query()->where('is_default', true)->value('id'), 'oauth_client_id' => (string) Str::uuid(),
-        'client_name' => 'Claude', 'level' => AgentLevel::from($level), 'expires_at' => now()->addHour(),
-    ]);
-    app(AgentContext::class)->set($grant);
-
-    return $grant;
-}
 
 it('reads the experience a driver needs for each level, with the unit, the limits and what the number is for', function () {
     AgentServer::tool(RulesReadTool::class, ['section' => 'player'])
@@ -113,18 +116,39 @@ it('takes out of the names of the game the characters a person cannot see, and s
 
 it('never gives a player\'s data, whatever tool is called', function () {
     User::factory()->create(['name' => 'Tajny Gracz', 'email' => 'tajny.gracz@example.com']);
+    agentGrantInForce();
+    // The long studies are only queued here (they are counted in tests of their own): what is checked is what every tool answers.
+    Queue::fake();
+    config(['ride.agent.wait_seconds' => 0]);
+    $fuel = [['op' => 'scale', 'target' => ['rules' => 'starter'], 'path' => '/fuel/price_cents_per_liter', 'percent' => 10]];
 
     $calls = [
         [RulesOfWorkTool::class, []], [GameOverviewTool::class, []], [RulesReadTool::class, ['section' => 'player']],
         [CatalogListTool::class, ['kind' => 'vehicle']], [DefinitionReadTool::class, ['kind' => 'vehicle', 'slug' => 'rdzak-gt-4']],
         [TutorialReadTool::class, ['texts' => true]], [WorldReadTool::class, []], [HelpLookupTool::class, ['query' => 'gracz']], [DraftsListTool::class, []],
+        [ScratchSetTool::class, ['summary' => 'Paliwo drozej', 'ops' => $fuel]], [ScratchReadTool::class, []],
+        [SimulateCarsTool::class, ['cars' => [['car' => 'rdzak-gt-4']], 'tracks' => ['zlomowo-street'], 'with_scratch' => true]],
+        [SimulateEconomyTool::class, ['variant' => 'scratch', 'players' => ['A']]], [MissionsBudgetTool::class, ['variant' => 'live']],
+        [TuningBudgetTool::class, ['variant' => 'live']], [GigsReportTool::class, ['variant' => 'live']], [StreaksBudgetTool::class, ['variant' => 'live']],
+        [FleetStudyTool::class, ['variant' => 'live']], [TransmuteStudyTool::class, ['variant' => 'live']], [PiReportTool::class, ['variant' => 'live']],
+        [ClassJumpTool::class, ['variant' => 'live']], [TracksSimulateTool::class, ['variant' => 'live']], [RunGatesTool::class, ['variant' => 'drafts']],
+        [JobResultTool::class, ['job' => 1]], [ScratchClearTool::class, []],
     ];
 
-    expect(AgentServer::TOOLS)->toHaveCount(count($calls));
+    expect(AgentServer::TOOLS)->toHaveCount(count($calls))
+        ->and(array_map(static fn (array $call): string => $call[0], $calls))->toEqualCanonicalizing(AgentServer::TOOLS);
 
     foreach ($calls as [$tool, $arguments]) {
         AgentServer::tool($tool, $arguments)->assertDontSee('tajny.gracz@example.com')->assertDontSee('Tajny Gracz');
     }
+});
+
+it('declares a level for every tool, and gives the first level everything that reads and counts', function () {
+    foreach (AgentServer::TOOLS as $class) {
+        expect(app($class)->requiredLevel())->toBeInstanceOf(AgentLevel::class);
+    }
+
+    expect(AgentServer::toolNamesFor(AgentLevel::Read))->toContain('rules_read', 'scratch_set', 'simulate_economy', 'run_gates', 'job_result');
 });
 
 it('leaves a line in the trail of the assistant for every call under a consent, failed or not', function () {
