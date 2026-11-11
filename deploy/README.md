@@ -238,6 +238,21 @@ Panel (`/admin`, Filament) służy do patrzenia na paczki treści i ich uruchami
 
 Zasoby panelu (style i skrypty) publikuje `composer install` (polecenie `filament:upgrade` w `composer.json`), więc nie ma ich w repozytorium, a wydanie je ma. Każde logowanie, wylogowanie i uruchomienie paczki zostaje w dzienniku (`admin_audit_logs`).
 
+## Asystent AI w panelu (most AI v2)
+
+Aplikacja Claude łączy się z hostem panelu (OAuth i MCP: `/oauth/*`, `/.well-known/oauth-*`, `/agent/mcp`), gdy człowiek z panelu da jej zgodę na stronie logowania panelu. Szablon nginx panelu przepuszcza te ścieżki do PHP bez zmian. Projekt: `docs/most-ai-v2-propozycja.md`.
+
+1. **Raz, po wydaniu z tym etapem:** klucze, którymi panel podpisuje klucze dostępu asystenta. Leżą w `shared/storage`, więc przeżywają kolejne wydania:
+
+   ```bash
+   cd /var/www/rideidle/current/api && sudo -u www-data php8.4 artisan passport:keys
+   ```
+
+   Bez nich wydanie klucza (`/oauth/token`) kończy się błędem 500, a reszta panelu i gry działa. **`--force` wymienia klucze i unieważnia klucze wszystkich połączonych asystentów** (trzeba je połączyć od nowa).
+2. Migracje (tabele `oauth_*`, `agent_grants`, `agent_actions`) wchodzą z wydaniem.
+3. **Wyłącznik:** `AGENT_ENABLED=false` w `.env` (potem `config:cache`, `route:cache` i przeładowanie PHP-FPM): trasy asystenta znikają. Adresy powrotu po zgodzie: `AGENT_REDIRECT_DOMAINS` (domyślnie aplikacje Claude i `http://localhost` dla Claude Code).
+4. **Przegląd:** strona panelu „Asystent AI” pokazuje połączenia, przycisk „Rozłącz” i ostatnie działania asystenta; zgody i rozłączenia są też w Dzienniku.
+
 ## Nowa gra na własnej domenie (L4b)
 
 Jedna instalacja prowadzi kilka gier (L4a): każda ma własną treść, własnych graczy i własną domenę, a wszystkie domeny są obsługiwane z **tego samego wydania** (aplikacja z `web/dist`, API z `api/public`). Żądanie trafia do gry, która ma jego host wpisany jako domenę (strona „Gry” w panelu), a **w produkcji host, którego żadna gra nie ma, dostaje 404** (`unknown_game`). Pierwsza gra odpowiada na domenę z `APP_URL`. Dla każdej następnej:

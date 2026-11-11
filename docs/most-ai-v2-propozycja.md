@@ -2,7 +2,7 @@
 
 Cel właściciela: zamiast kopiować instrukcję do czatu i wklejać blok z powrotem, **rozmawiać z Claude'em jak w zwykłym czacie, a on sam pracuje w panelu**: czyta grę, dopytuje, liczy symulatorami, układa strategię, a po zatwierdzeniu planu przez operatora wprowadza zmiany. Docelowo: w pełni samodzielna obsługa gotowych modułów silnika przez AI, z jednym ludzkim „tak” dla planu.
 
-Ta propozycja to sam projekt, bez kodu. Budowa dopiero po „Zatwierdzam”.
+**Stan:** zatwierdzone przez właściciela 2026-11-11 („Zatwierdzam”, D1–D21 w zalecanym kształcie, razem z zależnościami `laravel/mcp` i `laravel/passport`). Etap V0 jest zbudowany na gałęzi `agent-v0`; opis i próba niżej, w „V0: co jest zbudowane”.
 
 ## Co jest dziś (most AI v1)
 
@@ -252,3 +252,25 @@ Po V0 rozmawiasz z asystentem, który czyta grę. Po V2 liczy. Po V4 przechodzi 
 - Jak dobrze symulator postępu (gracz idealny) zgadza się z prawdziwymi graczami.
 - Kosztu wejścia B: to szacunek do sprawdzenia na pierwszych rozmowach.
 - Zachowania prawdziwego modelu (czy dopytuje, zamiast zgadywać): to sprawdzimy razem w V6.
+
+## V0: co jest zbudowane (gałąź `agent-v0`)
+
+- **Łącze MCP** `/agent/mcp` na hoście panelu (`App\Agent\AgentServer`). Instrukcje serwera to zasady pracy (`App\Agent\AgentRules`); te same zwraca narzędzie `zasady`.
+- **Logowanie przez zgodę (OAuth, Passport).** Aplikacja Claude rejestruje się sama, ale tylko z adresem powrotu aplikacji Claude albo `http://localhost` (Claude Code). Człowiek loguje się jak zwykle (hasło i kod z aplikacji) i na stronie „Połączenie asystenta” wybiera grę, poziom i liczbę godzin (1–168, domyślnie 8). Zgodę da tylko włączone konto z aplikacją uwierzytelniającą, a poziom 3 tylko wydawca tej gry. Klucz dostępu żyje godzinę. Każde wywołanie sprawdza zgodę i aktualny stan konta: po „Rozłącz”, po upływie czasu, po wyłączeniu konta albo odebraniu roli klucz przestaje działać od razu. Nowa zgoda tej samej aplikacji kończy poprzednią.
+- **Narzędzia do czytania (poziom 1):** `zasady`, `game_overview`, `rules_read`, `catalog_list`, `definition_read`, `tutorial_read`, `world_read`, `help_lookup`, `drafts_list`. Każde wywołanie zapisuje się w dzienniku asystenta (`agent_actions`), ma limit 60 na minutę, a teksty wracają bez niewidocznych znaków (z ostrzeżeniem, gdzie je usunięto). Żadne narzędzie nie zwraca danych graczy (test sprawdza to dla każdego).
+- **Strona „Asystent AI”** (menu Treść): adres łącza, polecenie dla Claude Code, wiadomość startowa z celem, połączenia w grze z „Rozłącz” (osoba, która dała zgodę, albo wydawca) i ostatnie działania. Zgody i rozłączenia są też w Dzienniku.
+- **Polecenie** `php artisan agent:tool [nazwa] --input='{"section":"player"}' [--game=SLUG]`: to samo narzędzie z wiersza poleceń, bez zgody i bez śladu w dzienniku asystenta.
+
+### Jak wypróbować V0 lokalnie
+
+1. `php artisan migrate`, a potem raz `php artisan passport:keys`.
+2. `php artisan serve` i w panelu strona „Asystent AI”: adres łącza to `http://localhost:8000/agent/mcp`.
+3. W terminalu: `claude mcp add --transport http idlewright http://localhost:8000/agent/mcp`. Potem w Claude Code `/mcp`, „idlewright”, uwierzytelnienie: otworzy się przeglądarka z logowaniem panelu i stroną zgody.
+4. Wklej wiadomość startową ze strony „Asystent AI” i zapytaj na przykład, ile XP trzeba na poziomy 1–15 i skąd gracz je dziś bierze.
+
+Aplikacja Claude w przeglądarce (claude.ai) i aplikacja na komputer łączą się tylko z serwerem dostępnym z internetu, więc tam próba wymaga wdrożenia (`deploy/README.md`, „Asystent AI w panelu”). Łącze dodaje się w ustawieniach łączy (connectors) jako własne łącze z adresem `https://admin.raceidle.cerasusdigital.pl/agent/mcp`.
+
+### Czego V0 nie sprawdziło
+
+- Prawdziwej aplikacji Claude na tym serwerze: rejestrację, logowanie, wymianę kodu na klucz i wywołania sprawdzają testy (`tests/Feature/Agent`), które udają aplikację.
+- Czy claude.ai i aplikacja na komputer czytają instrukcje serwera (dlatego wiadomość startowa każe zacząć od `zasady`).
