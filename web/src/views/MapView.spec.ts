@@ -272,6 +272,44 @@ describe('MapView', () => {
     expect(wrapper.get('[data-test="car-marker"]').attributes('style')).toContain('left: 35.128')
   })
 
+  it('drives the car along the roads of its way, through the city between, as far as the kilometres it has driven', async () => {
+    // From Złomowo to Autodrome there is no road: the way goes through Kruszyn, 38 km and then 30 km.
+    const journey = { from: 'zlomowo', to: 'autodrom', distance_km: 68, start_ms: NOW, arrive_ms: NOW + 680_000 }
+    serve({ 'GET /api/v1/map': () => respond(200, aMap({ travel: journey }, Date.now())) })
+
+    const { wrapper } = await mountView(MapView, '/map')
+    await flushPromises()
+
+    expect(wrapper.findAll('[data-test="route-leg"]')).toHaveLength(2)
+
+    // After 38 of the 68 km the car is in Kruszyn (196, 185), not on the straight line to Autodrome.
+    await vi.advanceTimersByTimeAsync(380_000)
+
+    expect(wrapper.get('[data-test="car-marker"]').attributes('style')).toContain('left: 50.256')
+    expect(wrapper.get('[data-test="car-marker"]').attributes('style')).toContain('top: 41.666')
+  })
+
+  it('shows the way to the city whose sheet is open, with the cities the car would pass', async () => {
+    serve({ 'GET /api/v1/map': () => respond(200, aMap()), 'GET /api/v1/runs/current': noRun })
+
+    const { wrapper } = await mountView(MapView, '/map')
+    await flushPromises()
+
+    // The car is in Złomowo: no way to show yet.
+    expect(wrapper.findAll('[data-test="route-leg"]')).toHaveLength(0)
+
+    await wrapper.get('[data-test="city-autodrom"]').trigger('click')
+
+    expect(wrapper.findAll('[data-test="route-leg"]')).toHaveLength(2)
+    expect(wrapper.get('[data-test="via"]').text()).toBe('Via Kruszyn')
+
+    await wrapper.get('[data-test="city-kruszyn"]').trigger('click')
+
+    // A road leads to Kruszyn straight away: one road, and no city between.
+    expect(wrapper.findAll('[data-test="route-leg"]')).toHaveLength(1)
+    expect(wrapper.find('[data-test="via"]').exists()).toBe(false)
+  })
+
   describe('a boosted journey', () => {
     const boostedMap = (overrides: Partial<MapResponse['data']> = {}, nowMs = NOW) => {
       const map = aMap(overrides, nowMs)

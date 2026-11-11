@@ -1240,6 +1240,7 @@
     "fit": "Dopasowanie {car}",
     "fitLow": "Zmień opony albo auto",
     "route": "{distance} · {time} · {fuel} l paliwa",
+    "via": "Przez: {cities}",
     "locked": "Wymaga poziomu gracza {required} (masz {level}). Zdobywasz XP, jeżdżąc.",
     "level": "LV {level}+",
     "surface": {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import { ApiError } from '@/api/client'
@@ -10,6 +10,7 @@ import SpeedupButton from '@/components/SpeedupButton.vue'
 import { useFlash } from '@/features/run/useFlash'
 import { useLeaveOnSignOut } from '@/features/session/leaveOnSignOut'
 import { endSessionIfUnauthorized } from '@/features/session/unauthorized'
+import { labelPlace, pointAlong, shortestRoute } from '@/game/route'
 import { useUnits } from '@/game/useUnits'
 import { formatDuration } from '@/i18n/format'
 import { useFormat } from '@/i18n/useFormat'
@@ -58,6 +59,8 @@ const now = ref(map.serverNow())
 let ticker: ReturnType<typeof setInterval> | undefined
 let poller: ReturnType<typeof setInterval> | undefined
 let lastAsk = 0
+/** Watches the size of the card of the map, so that the names are placed again when it changes. */
+let resizer: ResizeObserver | undefined
 
 const cities = computed(() => map.map?.cities ?? [])
 const travel = computed(() => map.map?.travel ?? null)
@@ -96,14 +99,16 @@ onMounted(() => {
 onBeforeUnmount(() => {
   clearInterval(ticker)
   clearInterval(poller)
+  resizer?.disconnect()
 })
 
 const position = (city: { x: number; y: number }) => ({ left: `${(city.x / BOARD.width) * 100}%`, top: `${((city.y - BOARD.top) / BOARD.height) * 100}%` })
 const bySlug = (slug: string): MapCity | undefined => cities.value.find((city) => city.slug === slug)
+const roadList = computed(() => map.map?.roads ?? [])
 
 /** The roads, drawn between the cities they join. */
 const roads = computed(() =>
-  (map.map?.roads ?? []).flatMap((road) => {
+  roadList.value.flatMap((road) => {
     const from = bySlug(road.from)
     const to = bySlug(road.to)
 
@@ -111,21 +116,104 @@ const roads = computed(() =>
   }),
 )
 
+/** The way of the car on the roads: the one it is on, or the one it would take to the city whose sheet is open (the shortest, as the server takes it). */
+const shownRoute = computed<string[] | null>(() => {
+  const journey = travel.value
+
+  if (journey) {
+    return shortestRoute(roadList.value, journey.from, journey.to) ?? [journey.from, journey.to]
+  }
+
+  const here = map.map?.here
+  const city = selected.value
+
+  return here && city && !city.here && city.route ? shortestRoute(roadList.value, here, city.slug) : null
+})
+
+/** The roads of that way, drawn over the others. */
+const routeLegs = computed(() => {
+  const route = shownRoute.value ?? []
+
+  return route.slice(1).flatMap((slug, index) => {
+    const from = bySlug(route[index])
+    const to = bySlug(slug)
+
+    return from && to ? [{ key: `${from.slug}-${to.slug}`, x1: from.x, y1: from.y, x2: to.x, y2: to.y }] : []
+  })
+})
+
+/** The cities the car would pass on the way to the city whose sheet is open. */
+const via = computed(() => {
+  const route = shownRoute.value
+
+  return travel.value || !route || route.length < 3 ? [] : route.slice(1, -1).map((slug) => bySlug(slug)?.name ?? slug)
+})
+
 /** How far the journey is, from 0 to 1. */
 const progress = computed(() => (travel.value ? Math.min(1, Math.max(0, (now.value - travel.value.start_ms) / (travel.value.arrive_ms - travel.value.start_ms))) : 0))
 
-/** Where the car is on the board: in its city, or on the straight line between the two cities of a journey (the way itself is not drawn). */
+/** Where the car is on the board: in its city, or on the roads of its journey, road after road, as far as the kilometres it has driven. */
 const marker = computed(() => {
   const journey = travel.value
-  const from = journey ? bySlug(journey.from) : cities.value.find((city) => city.here)
-  const to = journey ? bySlug(journey.to) : undefined
 
-  if (!from) {
-    return null
+  if (journey) {
+    return pointAlong(shownRoute.value ?? [journey.from, journey.to], roadList.value, bySlug, progress.value)
   }
 
-  return to ? { x: from.x + (to.x - from.x) * progress.value, y: from.y + (to.y - from.y) * progress.value } : { x: from.x, y: from.y }
+  const here = cities.value.find((city) => city.here)
+
+  return here ? { x: here.x, y: here.y } : null
 })
+
+/** The card of the map and the size of each name, measured so that a name is never cut by the edge of the card. */
+const board = ref<HTMLElement | null>(null)
+const boardSize = ref({ width: 0, height: 0 })
+const labelSizes = ref<Record<string, { width: number; height: number }>>({})
+const labelElements = new Map<string, HTMLElement>()
+
+function rememberLabel(slug: string, element: unknown): void {
+  if (element instanceof HTMLElement) {
+    labelElements.set(slug, element)
+  } else {
+    labelElements.delete(slug)
+  }
+}
+
+function measure(): void {
+  const card = board.value
+
+  if (!card) {
+    return
+  }
+
+  boardSize.value = { width: card.clientWidth, height: card.clientHeight }
+  labelSizes.value = Object.fromEntries([...labelElements].map(([slug, element]) => [slug, { width: element.offsetWidth, height: element.offsetHeight }]))
+}
+
+watch(board, (card) => {
+  resizer?.disconnect()
+
+  if (card && typeof ResizeObserver !== 'undefined') {
+    resizer = new ResizeObserver(() => measure())
+    resizer.observe(card)
+  }
+})
+watch(cities, () => void nextTick(measure), { flush: 'post' })
+
+/** Where the name of a city goes: under it, moved in from the side where it would be cut, and above it at the bottom of the map. */
+function labelStyle(city: MapCity): Record<string, string> {
+  const size = labelSizes.value[city.slug]
+  const { width, height } = boardSize.value
+
+  // Until the card is measured (or where nothing can be measured), the name is centred under the city.
+  if (!size || size.width === 0 || width === 0) {
+    return { ...position(city), marginTop: '28px', transform: 'translateX(-50%)' }
+  }
+
+  const place = labelPlace(boardSize.value, { x: (city.x / BOARD.width) * width, y: ((city.y - BOARD.top) / BOARD.height) * height }, size)
+
+  return { left: `${place.left}px`, top: `${place.top}px` }
+}
 
 const fromName = computed(() => bySlug(travel.value?.from ?? '')?.name ?? '')
 const toName = computed(() => bySlug(travel.value?.to ?? '')?.name ?? '')
@@ -348,13 +436,26 @@ async function go(city: MapCity, boost = false): Promise<void> {
         />
       </div>
 
-      <section class="card relative aspect-[390/300] overflow-hidden !p-0" :aria-label="t('map.label')" data-test="map">
+      <section ref="board" class="card relative aspect-[390/300] overflow-hidden !p-0" :aria-label="t('map.label')" data-test="map">
         <svg class="absolute inset-0 h-full w-full" :viewBox="`0 ${BOARD.top} ${BOARD.width} ${BOARD.height}`" preserveAspectRatio="none" aria-hidden="true">
           <g fill="none" stroke-linecap="round">
             <g v-for="road in roads" :key="road.key" data-test="road">
               <line :x1="road.x1" :y1="road.y1" :x2="road.x2" :y2="road.y2" stroke="#262C37" stroke-width="12" />
               <line :x1="road.x1" :y1="road.y1" :x2="road.x2" :y2="road.y2" stroke="#3B4252" stroke-width="2" stroke-dasharray="6 8" />
             </g>
+            <!-- The way the car takes, road after road: the one it is on, or the one to the city whose sheet is open. -->
+            <line
+              v-for="leg in routeLegs"
+              :key="`route-${leg.key}`"
+              :x1="leg.x1"
+              :y1="leg.y1"
+              :x2="leg.x2"
+              :y2="leg.y2"
+              stroke="var(--color-cyan)"
+              stroke-opacity="0.85"
+              stroke-width="3"
+              data-test="route-leg"
+            />
           </g>
         </svg>
 
@@ -380,7 +481,12 @@ async function go(city: MapCity, boost = false): Promise<void> {
               <path :d="icon(city)" />
             </svg>
           </button>
-          <div class="pointer-events-none absolute z-[2] -translate-x-1/2 whitespace-nowrap text-center text-[11px] font-semibold leading-tight text-ink" :style="{ ...position(city), marginTop: '28px' }">
+          <div
+            :ref="(element) => rememberLabel(city.slug, element)"
+            class="pointer-events-none absolute z-[2] whitespace-nowrap text-center text-[11px] font-semibold leading-tight text-ink"
+            :style="labelStyle(city)"
+            :data-test="`label-${city.slug}`"
+          >
             {{ city.name }}
             <small class="block font-mono text-[9px] font-normal text-faint">{{ t('map.level', { level: city.level_required }) }} · {{ t(`map.surface.${city.track.surface}`) }}</small>
           </div>
@@ -419,6 +525,7 @@ async function go(city: MapCity, boost = false): Promise<void> {
         </div>
 
         <p v-if="selected.route" class="text-[13px] text-muted" data-test="route">{{ t('map.route', { km: selected.route.km, distance: distanceKm(selected.route.km), time: formatDuration(selected.route.ms), fuel: fixed(selected.route.fuel_ml / 1000, 1) }) }}</p>
+        <p v-if="via.length > 0" class="-mt-1.5 text-[13px] text-muted" data-test="via">{{ t('map.via', { cities: via.join(', ') }) }}</p>
 
         <div class="flex items-center justify-between gap-2.5 text-[13px] text-muted" data-test="garage">
           <span>{{ selected.garage.owned ? t('map.garage', { used: selected.garage.used, capacity: selected.garage.capacity }) : t('map.noGarage') }}</span>

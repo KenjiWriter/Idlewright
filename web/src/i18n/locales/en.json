@@ -1240,6 +1240,7 @@
     "fit": "Fit for {car}",
     "fitLow": "Change the tires or the car",
     "route": "{distance} · {time} · {fuel} l of fuel",
+    "via": "Via {cities}",
     "locked": "Requires player level {required} (you are level {level}). You get XP by driving.",
     "level": "LV {level}+",
     "surface": {

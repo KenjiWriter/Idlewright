@@ -1240,6 +1240,7 @@
     "fit": "Adéquation de {car}",
     "fitLow": "Changez de pneus ou de voiture",
     "route": "{distance} · {time} · {fuel} l de carburant",
+    "via": "Par {cities}",
     "locked": "Niveau de joueur {required} requis (vous êtes niveau {level}). Vous gagnez de l’XP en conduisant.",
     "level": "LV {level}+",
     "surface": {
