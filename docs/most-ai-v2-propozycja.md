@@ -274,3 +274,18 @@ Aplikacja Claude w przeglądarce (claude.ai) i aplikacja na komputer łączą si
 
 - Prawdziwej aplikacji Claude na tym serwerze: rejestrację, logowanie, wymianę kodu na klucz i wywołania sprawdzają testy (`tests/Feature/Agent`), które udają aplikację.
 - Czy claude.ai i aplikacja na komputer czytają instrukcje serwera (dlatego wiadomość startowa każe zacząć od `zasady`).
+
+## V1: co jest zbudowane (gałąź `agent-v0`)
+
+- **Brudnopis „co by było, gdyby”** (`scratch_set`, `scratch_read`, `scratch_clear`): jeden blok `ride-changes/1` w zgodzie asystenta, nigdy nie zapisywany jako szkic. Sprawdza go ten sam mechanizm co most v1; blok z błędem nie zostaje zapisany, a niewidoczne znaki w tekstach są odrzucane. Przy każdym użyciu blok jest sprawdzany jeszcze raz na aktualnych szkicach.
+- **Zasięg asystenta (D16, `App\Agent\AgentAnchors`, z testem):** wolno mu ruszać wszystkie sekcje `rules/starter` poza światem (`regions`, `roads`, `travel`, `tracks`, `track_model`, tylko odczyt), `tutorial`, `vocabulary`, `missions`, auta i części. Nie może ruszać `model`, `branding` ani miarki bramek: `rules/economy`, `ride.missions.budget`, `ride.tuning.budget`, granic `gigs:report` i `tracks:simulate`. Tej miarki nie da się w ogóle nazwać w bloku zmian. Lista jest w odpowiedzi narzędzia `zasady` (`out_of_reach`).
+- **Symulatory jako narzędzia**, każde na wariancie `live`, `drafts` albo `scratch`: `simulate_cars` (auta testowe), `simulate_economy`, `run_gates`, `missions_budget`, `tuning_budget`, `gigs_report`, `streaks_budget`, `fleet_study`, `transmute_study`, `pi_report`, `class_jump`, `tracks_simulate`, a także `job_result`. Opcji, które przesuwają granice bramek, asystent nie dostaje.
+- **Pamięć wyników i kolejka:** wynik jest zapamiętany według skrótu treści, więc to samo pytanie o tę samą treść dostaje gotowy wynik (tabela `agent_jobs`, 24 h). Krótkie liczenia (około 1 s) idą od razu. Długie (`run_gates` około 16 s w testach, `tracks_simulate` około 11 s) idą do kolejki `agent`, po jednym naraz w grze i najwyżej 20 na godzinę na zgodę. Wywołanie czeka do 50 s, a potem oddaje numer zadania dla `job_result`. Strona „Asystent AI” ma tabelę „Liczenia asystenta”.
+- **Wdrożenie:** robotnik `rideidle-queue` z `--queue=default,agent` (szczegóły w `deploy/README.md`).
+
+### Czego V1 nie sprawdziło
+
+- Prawdziwego robotnika kolejki i oczekiwania 50 s za nginx; testy liczą w tym samym procesie.
+- Prawdziwego modelu, który korzysta z brudnopisu.
+
+V2 (symulator postępu `economy:progress`, cele D7, strona „Symulator postępu”) jeszcze nie jest zbudowany. Mapa modelu gry dla V2 jest w notatkach sesji.
