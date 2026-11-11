@@ -19,6 +19,7 @@ const HELP_DYNAMIC_CHOICES = [
     'wizard.copy_from', 'vocabulary.area', 'rules_text.document', 'studio.section', 'model.stat', 'model.role', 'ai.sections',
     'missions.timezone', 'missions.unlock_after_step', 'missions.mission_param', 'missions.budget_car', 'missions.budget_track',
     'gigs.timezone', 'gigs.unlock_after_step', 'gigs.template_kind', 'gigs.night_kind',
+    'progress.car', 'progress.track',
 ];
 
 beforeEach(function () {
