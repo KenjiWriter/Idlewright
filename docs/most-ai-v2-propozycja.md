@@ -2,7 +2,7 @@
 
 Cel właściciela: zamiast kopiować instrukcję do czatu i wklejać blok z powrotem, **rozmawiać z Claude'em jak w zwykłym czacie, a on sam pracuje w panelu**: czyta grę, dopytuje, liczy symulatorami, układa strategię, a po zatwierdzeniu planu przez operatora wprowadza zmiany. Docelowo: w pełni samodzielna obsługa gotowych modułów silnika przez AI, z jednym ludzkim „tak” dla planu.
 
-**Stan:** zatwierdzone przez właściciela 2026-11-11 („Zatwierdzam”, D1–D21 w zalecanym kształcie, razem z zależnościami `laravel/mcp` i `laravel/passport`). Etapy V0, V1 i V2 są zbudowane na gałęzi `agent-v0`; opisy niżej, w sekcjach „V0”, „V1” i „V2: co jest zbudowane”.
+**Stan:** zatwierdzone przez właściciela 2026-11-11 („Zatwierdzam”, D1–D21 w zalecanym kształcie, razem z zależnościami `laravel/mcp` i `laravel/passport`). Etapy V0–V3 są zbudowane na gałęzi `agent-v0`; opisy niżej, w sekcjach „V0” do „V3: co jest zbudowane”.
 
 ## Co jest dziś (most AI v1)
 
@@ -320,3 +320,39 @@ Przykład „poziomy 1–15 w około 2 godziny” wymaga więc przyspieszenia po
 - Pogody, awarii, serwisu, ulepszeń +N, skrzynek, zleceń i kupowania garaży. Są wypisane w założeniach każdej odpowiedzi.
 - Kupowania aut przy zakupach `best`. Nowe auto przychodzi bez części, więc rzadko wygrywa z dopracowanym starym. Symulator nie planuje kilku zakupów naprzód.
 - Strony „Symulator postępu” w przeglądarce; sprawdzają ją testy Livewire.
+
+## V3: co jest zbudowane (gałąź `agent-v0`)
+
+- **Plan to brudnopis z uzasadnieniem.** Narzędzie `plan_submit` (zgoda poziomu 2) zapisuje dokładnie blok z brudnopisu, a do tego:
+  - cel słowami operatora i cele w liczbach (D7);
+  - strategię i odrzucone warianty z powodem;
+  - dźwignie, założenia, ryzyka i to, czego asystent nie sprawdził.
+
+  Plan bez brudnopisu, z brudnopisem, który już nie pasuje do szkiców, z nieczytelnymi celami albo dźwigniami, albo z niewidocznymi znakami jest odrzucany. Narzędzie odpowiada linkiem do strony planu.
+- **Dźwignie w stałej postaci:** `rules:starter#<sekcja>`, `rules:tutorial`, `rules:vocabulary`, `rules:missions`, `kind:part`, `kind:vehicle`, `part:<slug>`, `vehicle:<slug>`. Zmiany poza dźwigniami serwer wypisuje, a strona zaznacza je na czerwono (D17, punkt 5).
+- **Serwer sam liczy plan** (zadanie `MeasureAgentPlan` w kolejce `agent`, około 20 s w testach). Liczy:
+  - cele na żywej paczce i w planie, czyli na szkicach z blokiem;
+  - pięć bramek na planie;
+  - dzień zakupu każdego auta drabinki przez graczy A, B i C, dziś i po planie.
+
+  Operator czyta więc liczby policzone przez serwer, a nie przepisane przez asystenta.
+- **Plan jest związany skrótem** (`content_hash`) z blokiem i ze stanem szkiców w chwili złożenia. Gdy ktoś zmieni szkic, plan staje się „nieaktualny” i nie da się go zatwierdzić; asystent liczy go od nowa i składa nową wersję. Każda poprawka to nowa wersja (`supersedes`): poprzednia dostaje stan „zastąpiony” i wskazuje nowszą.
+- **Decyduje tylko człowiek**, na stronie „Plany asystenta” (menu Treść, `/admin/agent-plans`, z licznikiem planów czekających na decyzję):
+  - **„Zatwierdzam plan”** jest ważne 24 godziny i tylko dla tej wersji i tych szkiców. Plan musi być policzony i aktualny.
+  - **„Odrzuć”** wymaga powodu.
+  - **„Uwaga dla asystenta”** zostawia uwagę, a stan planu się nie zmienia.
+
+  Zdecydować może aktywny edytor albo wydawca, który pracuje w grze planu. Wszystkie trzy decyzje i złożenie planu trafiają do Dziennika.
+- **`plan_status`** mówi asystentowi:
+  - stan planu: czeka, zatwierdzony do kiedy, zatwierdzenie wygasło, odrzucony z powodem albo zastąpiony;
+  - czy plan jest nieaktualny;
+  - jaką uwagę zostawił operator;
+  - jakie liczby policzył serwer.
+- **Drugi zamek poziomów:** serwer MCP i tak nie pokazuje ani nie wywołuje narzędzi spoza poziomu zgody, a do tego każde narzędzie samo odmawia, gdy poziom zgody jest za niski.
+- **Zasady pracy** mają etapy 5 (złóż plan i podaj link) i 6 (czekaj na decyzję na stronie, czytaj `plan_status`, odpowiedz na uwagę, a gdy plan jest nieaktualny, złóż nową wersję).
+
+### Czego V3 nie robi i czego nie sprawdziło
+
+- Zatwierdzony plan jeszcze niczego nie zapisuje: zapis szkiców z planu (`plan_execute`), raport „obiecane / zmierzone”, cofnięcie i zlecenie paczki to V4.
+- Menu „Most AI” nie jest jeszcze połączone z „Asystentem AI” w jedną stronę z kartami (D20); to zostaje na V6.
+- Prawdziwego robotnika kolejki przy liczeniu planu; testy liczą w tym samym procesie.
