@@ -186,6 +186,163 @@ final class WorldBoard
         };
     }
 
+    /**
+     * What a player would read wrong on the map, each with the cities and the roads it is about:
+     * - `edge`: the circle of a city is cut by the edge of the map screen;
+     * - `overlap`: the circles of two cities cover each other;
+     * - `labels`: the names of two cities cover each other (placed as the game places them);
+     * - `through`: a road runs over a city that it does not join, so it looks like a stop;
+     * - `crossing`: two roads cross away from a city, so the crossing looks like a city or a junction;
+     * - `unreachable` (an error, not only a drawing): no road leads to a city from the city where a new driver starts, which the rules refuse when the draft is saved.
+     *
+     * @param  array<string, string>  $surfaces  the name of each surface, as the map writes it under a city
+     * @return list<array{kind: string, error: bool, cities: list<string>, roads: list<string>, params: array<string, string>}>
+     */
+    public function warnings(array $surfaces = []): array
+    {
+        $warnings = [];
+        $slugs = array_keys($this->cities);
+        $name = fn (string $slug): string => $this->cities[$slug]['name'];
+
+        foreach ($this->cities as $slug => $city) {
+            if ($city['x'] < self::RADIUS || $city['x'] > self::WIDTH - self::RADIUS || $city['y'] < self::MIN_Y + self::RADIUS || $city['y'] > self::MAX_Y - self::RADIUS) {
+                $warnings[] = self::warning('edge', [$slug], [], ['city' => $name($slug)]);
+            }
+        }
+
+        $labels = array_map(fn (array $city): array => $this->labelBox($city, $surfaces), $this->cities);
+
+        foreach ($slugs as $index => $a) {
+            foreach (array_slice($slugs, $index + 1) as $b) {
+                if ($this->length($a, $b) < 2 * self::RADIUS) {
+                    $warnings[] = self::warning('overlap', [$a, $b], [], ['a' => $name($a), 'b' => $name($b)]);
+                } elseif (self::boxesMeet($labels[$a], $labels[$b])) {
+                    $warnings[] = self::warning('labels', [$a, $b], [], ['a' => $name($a), 'b' => $name($b)]);
+                }
+            }
+        }
+
+        foreach ($this->roads as $road) {
+            foreach ($this->cities as $slug => $city) {
+                if ($slug !== $road['from'] && $slug !== $road['to'] && $this->distanceToRoad($city, $road) < self::RADIUS) {
+                    $warnings[] = self::warning('through', [$slug], [$road['key']], ['from' => $name($road['from']), 'to' => $name($road['to']), 'city' => $name($slug)]);
+                }
+            }
+        }
+
+        foreach ($this->roads as $index => $first) {
+            foreach (array_slice($this->roads, $index + 1) as $second) {
+                if (array_intersect([$first['from'], $first['to']], [$second['from'], $second['to']]) === [] && $this->roadsCross($first, $second)) {
+                    $warnings[] = self::warning('crossing', [], [$first['key'], $second['key']], [
+                        'a' => $name($first['from']).' – '.$name($first['to']),
+                        'b' => $name($second['from']).' – '.$name($second['to']),
+                    ]);
+                }
+            }
+        }
+
+        $reached = $this->reachable();
+
+        foreach ($slugs as $slug) {
+            if ($this->home !== null && ! in_array($slug, $reached, true)) {
+                $warnings[] = self::warning('unreachable', [$slug], [], ['city' => $name($slug), 'home' => $name($this->home)], error: true);
+            }
+        }
+
+        return $warnings;
+    }
+
+    /** The cities that a road leads to from the city where a new driver starts, that one among them. @return list<string> */
+    public function reachable(): array
+    {
+        if ($this->home === null) {
+            return [];
+        }
+
+        $reached = [$this->home];
+
+        for ($index = 0; $index < count($reached); $index++) {
+            foreach ($this->roads as $road) {
+                foreach ([[$road['from'], $road['to']], [$road['to'], $road['from']]] as [$near, $far]) {
+                    if ($near === $reached[$index] && ! in_array($far, $reached, true)) {
+                        $reached[] = $far;
+                    }
+                }
+            }
+        }
+
+        return $reached;
+    }
+
+    /**
+     * Where the name of a city is on the board, in units, as the game places it: under the circle, moved in from the side where it would be cut, and above the circle
+     * at the bottom of the map. The width is guessed from the letters (11 pixels for the name, 9 for the line under it, on a board 390 wide).
+     *
+     * @param  array{name: string, x: int, y: int, level: int|null, surface: string|null}  $city
+     * @param  array<string, string>  $surfaces
+     * @return array{left: float, top: float, right: float, bottom: float}
+     */
+    private function labelBox(array $city, array $surfaces): array
+    {
+        $under = __('admin.world.board_level', ['level' => $city['level'] ?? 1]).($city['surface'] === null ? '' : ' · '.($surfaces[$city['surface']] ?? $city['surface']));
+        $width = max(mb_strlen($city['name']) * 6.6, mb_strlen($under) * 5.4);
+        $height = 25.0;
+        $left = min(max($city['x'] - $width / 2, 2), self::WIDTH - $width - 2);
+        $below = $city['y'] + 28;
+        $top = $below + $height > self::MAX_Y - 2 ? $city['y'] - 28 - $height : $below;
+
+        return ['left' => $left, 'top' => $top, 'right' => $left + $width, 'bottom' => $top + $height];
+    }
+
+    /** @param  array{left: float, top: float, right: float, bottom: float}  $a  @param  array{left: float, top: float, right: float, bottom: float}  $b */
+    private static function boxesMeet(array $a, array $b): bool
+    {
+        return $a['left'] < $b['right'] && $b['left'] < $a['right'] && $a['top'] < $b['bottom'] && $b['top'] < $a['bottom'];
+    }
+
+    /**
+     * How far the middle of a city is from the line of a road, in units.
+     *
+     * @param  array{x: int, y: int}  $city
+     * @param  array{from: string, to: string}  $road
+     */
+    private function distanceToRoad(array $city, array $road): float
+    {
+        $a = $this->cities[$road['from']];
+        $b = $this->cities[$road['to']];
+        $dx = $b['x'] - $a['x'];
+        $dy = $b['y'] - $a['y'];
+        $squared = $dx * $dx + $dy * $dy;
+        $along = $squared === 0 ? 0.0 : max(0.0, min(1.0, (($city['x'] - $a['x']) * $dx + ($city['y'] - $a['y']) * $dy) / $squared));
+
+        return hypot($city['x'] - ($a['x'] + $along * $dx), $city['y'] - ($a['y'] + $along * $dy));
+    }
+
+    /**
+     * Whether the lines of two roads that share no city cross each other.
+     *
+     * @param  array{from: string, to: string}  $first
+     * @param  array{from: string, to: string}  $second
+     */
+    private function roadsCross(array $first, array $second): bool
+    {
+        [$p, $q, $r, $s] = [$this->cities[$first['from']], $this->cities[$first['to']], $this->cities[$second['from']], $this->cities[$second['to']]];
+        $side = static fn (array $a, array $b, array $c): int => ($b['x'] - $a['x']) * ($c['y'] - $a['y']) <=> ($b['y'] - $a['y']) * ($c['x'] - $a['x']);
+
+        return $side($p, $q, $r) * $side($p, $q, $s) < 0 && $side($r, $s, $p) * $side($r, $s, $q) < 0;
+    }
+
+    /**
+     * @param  list<string>  $cities
+     * @param  list<string>  $roads
+     * @param  array<string, string>  $params
+     * @return array{kind: string, error: bool, cities: list<string>, roads: list<string>, params: array<string, string>}
+     */
+    private static function warning(string $kind, array $cities, array $roads, array $params, bool $error = false): array
+    {
+        return ['kind' => $kind, 'error' => $error, 'cities' => $cities, 'roads' => $roads, 'params' => $params];
+    }
+
     /** A hash of what the board draws, which changes whenever the drawing does. */
     public function hash(): string
     {

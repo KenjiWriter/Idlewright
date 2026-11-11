@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Content\Definitions\JsonDocument;
+use App\Content\Definitions\WorldForm;
 use App\Content\Units\Measures;
 use App\Filament\Pages\RulesJsonPage;
 use App\Filament\Pages\WorldPage;
@@ -36,6 +37,12 @@ function boardState(array $places, array $roads = [], array $tracks = []): array
     return ['regions' => $regions, 'roads' => $lines, 'tracks' => $tracks];
 }
 
+/** The rules of the world of the repository. @return array<string, mixed> */
+function publishedWorld(): array
+{
+    return JsonDocument::decode((string) repositoryContent()->raw('rules/starter'));
+}
+
 /** The draft of the rules of the world. @return array<string, mixed> */
 function worldDraft(): array
 {
@@ -52,6 +59,12 @@ function roadKey(array $roads, string $from, string $to): ?string
     }
 
     return null;
+}
+
+/** @return list<string> the kind and the cities or roads of each note, in a line each */
+function notesOf(WorldBoard $board): array
+{
+    return array_map(fn (array $note): string => $note['kind'].':'.implode(',', [...$note['cities'], ...$note['roads']]), $board->warnings(['asphalt' => 'Asfalt', 'gravel' => 'Żwir']));
 }
 
 describe('the board', function () {
@@ -97,7 +110,62 @@ describe('the board', function () {
     });
 });
 
+describe('the notes of the board', function () {
+    it('have nothing to say about the map of the repository', function () {
+        $board = WorldBoard::of(WorldForm::toState(publishedWorld()), Measures::metric());
+
+        expect(notesOf($board))->toBe([]);
+    });
+
+    it('see what is wrong with the map of the server: cities cut by the edge, two on each other, names on each other and roads over a city', function () {
+        $state = WorldForm::toState(publishedWorld());
+
+        foreach ($state['regions'] as $index => $region) {
+            $state['regions'][$index]['map'] = ['zlomowo' => ['x' => 15, 'y' => 347], 'kruszyn' => ['x' => 16, 'y' => 268], 'suchy-pas' => ['x' => 16, 'y' => 177], 'wilcza-przelecz' => ['x' => 19, 'y' => 81], 'autodrom' => ['x' => 54, 'y' => 83]][$region['slug']];
+        }
+
+        $notes = notesOf(WorldBoard::of($state, Measures::metric()));
+
+        // The roads are keyed by their place in the list here: 2 is Kruszyn – Wilcza Przełęcz and 3 Kruszyn – Autodrom.
+        expect($notes)->toBe([
+            'edge:zlomowo', 'edge:kruszyn', 'edge:suchy-pas', 'edge:wilcza-przelecz', 'edge:autodrom',
+            'labels:zlomowo,kruszyn',
+            'overlap:wilcza-przelecz,autodrom',
+            'through:suchy-pas,2', 'through:suchy-pas,3',
+        ]);
+    });
+
+    it('see two roads that cross away from a city, and not two that meet in one', function () {
+        $board = WorldBoard::of(boardState(
+            ['a' => [100, 100], 'b' => [300, 300], 'c' => [300, 100], 'd' => [100, 300]],
+            [['a', 'b', 10], ['c', 'd', 10], ['a', 'c', 10]],
+        ), Measures::metric());
+
+        expect(notesOf($board))->toBe(['crossing:road-0,road-1']);
+    });
+
+    it('call a city that no road reaches from the start an error', function () {
+        $tracks = ['t1' => ['region' => 'a', 'surface' => 'asphalt', 'min_player_level' => 1]];
+        $warnings = WorldBoard::of(boardState(['a' => [100, 100], 'b' => [300, 100], 'c' => [200, 300]], [['a', 'b', 10]], $tracks), Measures::metric())->warnings();
+
+        expect($warnings)->toHaveCount(1)
+            ->and($warnings[0])->toMatchArray(['kind' => 'unreachable', 'error' => true, 'cities' => ['c'], 'params' => ['city' => 'C', 'home' => 'A']]);
+    });
+});
+
 describe('the map of the world page', function () {
+    it('says under the map that nothing is wrong, and what is once a city is dragged to the edge', function () {
+        signedInAdmin();
+
+        $page = Livewire::test(WorldPage::class)
+            ->assertSee(__('admin.world.warn_title'))
+            ->assertSee(__('admin.world.warn_none'));
+
+        $page->call('moveCity', 'kruszyn', 5, 185)
+            ->assertDontSee(__('admin.world.warn_none'))
+            ->assertSee(__('admin.world.warn.edge', ['city' => 'Kruszyn']));
+    });
+
     it('draws every city with what the game writes under it, and every road', function () {
         signedInAdmin();
 

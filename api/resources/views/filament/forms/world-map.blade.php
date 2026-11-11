@@ -4,6 +4,17 @@
     $board = $getBoard();
     $unit = $getUnit();
     $surfaces = $getSurfaces();
+    $warnings = $board->warnings($surfaces);
+    // The cities and the roads that a warning is about, marked on the map (red where it is an error).
+    $marked = ['cities' => [], 'roads' => []];
+
+    foreach ($warnings as $warning) {
+        foreach (['cities', 'roads'] as $what) {
+            foreach ($warning[$what] as $item) {
+                $marked[$what][$item] = ($marked[$what][$item] ?? '') === 'is-error' || $warning['error'] ? 'is-error' : 'is-warn';
+            }
+        }
+    }
     $icons = [
         'home' => 'M3 20V9l9-5 9 5v11M7 20v-7h10v7M7 16h10',
         'flag' => 'M5 21V4M5 4h12l-2 4 2 4H5',
@@ -42,6 +53,14 @@
         .ri-world-panel input { width: 6rem; padding: .25rem .5rem; border-radius: .375rem; border: 1px solid rgba(127, 127, 127, .4); background: transparent; }
         .ri-world-panel button { padding: .25rem .625rem; border-radius: .375rem; border: 1px solid rgba(127, 127, 127, .4); }
         .ri-world-panel .ri-world-danger { color: #ef4444; border-color: rgba(239, 68, 68, .5); }
+        .ri-world-node.is-warn { border-color: #ffb224; border-style: dashed; opacity: 1; }
+        .ri-world-node.is-error { border-color: #ff7a6b; border-style: dashed; opacity: 1; }
+        .is-warn .ri-world-line { stroke: #ffb224; }
+        .is-error .ri-world-line { stroke: #ff7a6b; }
+        .ri-world-notes { margin: 0; padding: 0; list-style: none; display: grid; gap: .375rem; font-size: .875rem; }
+        .ri-world-notes li { padding-left: 1.25rem; position: relative; }
+        .ri-world-notes li::before { content: '!'; position: absolute; left: 0; top: 0; width: .9rem; text-align: center; font-weight: 700; color: #d97706; }
+        .ri-world-notes li.is-error::before { color: #ef4444; }
     </style>
 
     <p class="ri-world-hint">{{ __('admin.world.board_hint') }}</p>
@@ -162,7 +181,7 @@
                             $b = \Illuminate\Support\Js::from($to['slug']);
                             $ends = "x-bind:x1=\"at({$a}, 'x', {$from['x']})\" x-bind:y1=\"at({$a}, 'y', {$from['y']})\" x-bind:x2=\"at({$b}, 'x', {$to['x']})\" x-bind:y2=\"at({$b}, 'y', {$to['y']})\"";
                         @endphp
-                        <g data-test="world-road" data-road="{{ $road['from'] }}-{{ $road['to'] }}" x-bind:class="{ 'is-chosen': road === @js($road['key']) }">
+                        <g class="{{ $marked['roads'][$road['key']] ?? '' }}" data-test="world-road" data-road="{{ $road['from'] }}-{{ $road['to'] }}" x-bind:class="{ 'is-chosen': road === @js($road['key']) }">
                             <line class="ri-world-bed" x1="{{ $from['x'] }}" y1="{{ $from['y'] }}" x2="{{ $to['x'] }}" y2="{{ $to['y'] }}" {!! $ends !!} />
                             <line class="ri-world-line" x1="{{ $from['x'] }}" y1="{{ $from['y'] }}" x2="{{ $to['x'] }}" y2="{{ $to['y'] }}" {!! $ends !!} />
                             <line class="ri-world-hit" x1="{{ $from['x'] }}" y1="{{ $from['y'] }}" x2="{{ $to['x'] }}" y2="{{ $to['y'] }}" {!! $ends !!} x-on:pointerdown.stop="road = @js($road['key']); picked = null" />
@@ -177,7 +196,7 @@
                     @endphp
                     <button
                         type="button"
-                        class="ri-world-node is-{{ $icon }}"
+                        class="ri-world-node is-{{ $icon }} {{ $marked['cities'][$city['slug']] ?? '' }}"
                         style="left: {{ $city['x'] / WorldBoard::WIDTH * 100 }}%; top: {{ ($city['y'] - WorldBoard::TOP) / WorldBoard::HEIGHT * 100 }}%;"
                         x-bind:style="place(@js($city['slug']), {{ $city['x'] }}, {{ $city['y'] }})"
                         x-bind:class="{ 'is-picked': picked === @js($city['slug']), 'is-dragged': drag && drag.slug === @js($city['slug']) && drag.moved }"
@@ -214,6 +233,19 @@
             @endforeach
 
             <p class="ri-world-muted" x-show="picked === null && road === null">{{ __('admin.world.board_idle') }}</p>
+
+            <div data-test="world-notes">
+                <p style="margin: 0 0 .375rem; font-weight: 600; font-size: .875rem;">{{ __('admin.world.warn_title') }}</p>
+                @if ($warnings === [])
+                    <p class="ri-world-muted">{{ __('admin.world.warn_none') }}</p>
+                @else
+                    <ul class="ri-world-notes">
+                        @foreach ($warnings as $warning)
+                            <li class="{{ $warning['error'] ? 'is-error' : '' }}" data-test="world-note-{{ $warning['kind'] }}">{{ __('admin.world.warn.'.$warning['kind'], $warning['params']) }}</li>
+                        @endforeach
+                    </ul>
+                @endif
+            </div>
         </div>
     @endif
 </div>
