@@ -154,10 +154,13 @@ describe('the world', function () {
             ->and($tracks['zlomowo-street'])->not->toHaveKey('kind');
     });
 
-    it('draws the board of the map with the other cities and the roads between them', function () {
+    it('draws the map of the world with the cities and the roads between them', function () {
         signedInAdmin();
 
-        Livewire::test(WorldPage::class)->assertSeeHtml('stroke-dasharray="6 4"')->assertSeeHtml('x-ref="board"');
+        Livewire::test(WorldPage::class)
+            ->assertSeeHtml('data-test="world-board"')
+            ->assertSeeHtml('data-test="world-city-kruszyn"')
+            ->assertSeeHtml('data-road="zlomowo-kruszyn"');
     });
 
     it('starts again from the draft that was kept, and the draft can be discarded', function () {
