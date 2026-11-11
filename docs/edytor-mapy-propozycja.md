@@ -1,5 +1,7 @@
 # Edytor mapy świata (propozycja, 2026-11-11)
 
+**Stan: zbudowane 2026-11-11 na gałęzi `map-editor`** (właściciel zlecił budowę, więc decyzje D1–D12 przyjęto w zalecanym kształcie). M1: zakładka „Mapa” z przeciąganiem miast i rysowaniem dróg (`WorldBoard`, `WorldMap`, metody `moveCity`, `addRoad`, `removeRoad` strony świata). M2: uwagi do mapy. M3: gra (podpisy bez ucinania, auto po drogach, podświetlona trasa i „Przez: …”, moduł `web/src/game/route.ts`). M4: przewodnik formularza, brakujące `admin.pending.kind.table` i rozdział 5 podręcznika z nowym ekranem `swiat-mapa` (zrzut i legenda z `docs/podrecznik/zrzuty/zrzuty.mjs`; ekran `swiat-miasta` najpierw klika teraz zakładkę „Miasta”).
+
 Cel właściciela: **mapa w panelu ma wyglądać tak, jak zobaczy ją gracz**, a budowanie mapy nie może narzucać miasta-środka, z którego wychodzą wszystkie drogi (dziś Kruszyn). Ma się dać ułożyć dowolną sieć dróg, np. łańcuch miast w kolejności poziomów.
 
 ## Co jest dziś

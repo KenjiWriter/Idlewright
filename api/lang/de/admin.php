@@ -1032,6 +1032,7 @@ return [
             'vehicle' => 'Auto',
             'part' => 'Teil',
             'rules' => 'Regeln',
+            'table' => 'Tabelle',
         ],
         'state' => [
             'new' => 'neu',

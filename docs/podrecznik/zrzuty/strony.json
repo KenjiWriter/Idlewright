@@ -299,8 +299,41 @@
       ],
       "kroki": [
         {
+          "kliknij": "[role=tab]",
+          "zawiera": "Miasta"
+        },
+        {
           "js": "[...document.querySelectorAll('.fi-fo-repeater-item-header')].find((e) => e.offsetParent !== null)?.click()",
           "pauza_po": 900
+        }
+      ]
+    },
+    {
+      "slug": "swiat-mapa",
+      "url": "/admin/world",
+      "czekaj": "form",
+      "maks_wysokosc": 1700,
+      "znaczniki": [
+        {
+          "selektor": "[role=tab]",
+          "zawiera": "Mapa",
+          "nazwa": "Mapa",
+          "opis": "świat tak, jak gracz widzi go na telefonie: miasta przeciąga się, a drogę rysuje kliknięciem dwóch miast"
+        },
+        {
+          "selektor": "[data-test=world-city-kruszyn]",
+          "nazwa": "Miasto",
+          "opis": "chwyć kółko i upuść w nowym miejscu; kliknięcie wybiera miasto (pod mapą pojawiają się jego x i y), a kliknięcie drugiego miasta rysuje drogę z długością podpowiedzianą ze skali mapy"
+        },
+        {
+          "selektor": "[data-test=world-road]",
+          "nazwa": "Droga",
+          "opis": "kliknij drogę, żeby zmienić jej długość albo ją usunąć; żadne miasto nie musi być środkiem"
+        },
+        {
+          "selektor": "[data-test=world-notes]",
+          "nazwa": "Uwagi do mapy",
+          "opis": "co gracz odczyta źle: miasto ucięte przez krawędź, miasta albo nazwy na sobie, droga przez miasto, którego nie łączy, drogi przecinające się poza miastem; na czerwono miasto bez dojazdu z miasta startowego"
         }
       ]
     },

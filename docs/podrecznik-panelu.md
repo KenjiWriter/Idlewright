@@ -327,11 +327,26 @@ Menu Treść → Podgląd części. Wybierz część, auto testowe i rzadkość 
 
 **Cel:** ustawić miasta, drogi między nimi i tory, na których gracze zarabiają.
 
-Menu Treść → Świat. Strona ma zakładki **Miasta**, **Drogi** i **Tory**. Kolejność pozycji zmienia się strzałkami przy każdej z nich.
+Menu Treść → Świat. Strona ma zakładki **Mapa**, **Miasta**, **Drogi** i **Tory**. Kolejność pozycji zmienia się strzałkami przy każdej z nich.
+
+### Mapa
+
+Zakładka **Mapa** pokazuje świat tak, jak gracz zobaczy go na ekranie mapy w telefonie: kółka miast z ikoną (dom w mieście startowym, kłódka tam, gdzie potrzebny jest poziom wyższy niż 1), pod nimi nazwę i linię „LV n+ · nawierzchnia” oraz drogi. Przerywana ramka to pas, w którym całe kółko miasta mieści się na ekranie. Długość nowej drogi panel podpowiada ze skali mapy (mediana „km na jednostkę” istniejących dróg). Drogi mogą tworzyć łańcuch, pętlę albo dowolną sieć, a auto jedzie najkrótszą trasą. Miejsca, których dotyczą uwagi, są obwiedzione na pomarańczowo, a miasto bez dojazdu na czerwono: takiego szkicu nie da się zapisać.
+
+![Świat: mapa](img/podrecznik-swiat-mapa.png)
+
+<!-- legenda:swiat-mapa -->
+1. **Mapa.** Świat tak, jak gracz widzi go na telefonie: miasta przeciąga się, a drogę rysuje kliknięciem dwóch miast.
+2. **Miasto.** Chwyć kółko i upuść w nowym miejscu; kliknięcie wybiera miasto (pod mapą pojawiają się jego x i y), a kliknięcie drugiego miasta rysuje drogę z długością podpowiedzianą ze skali mapy.
+3. **Droga.** Kliknij drogę, żeby zmienić jej długość albo ją usunąć; żadne miasto nie musi być środkiem.
+4. **Uwagi do mapy.** Co gracz odczyta źle: miasto ucięte przez krawędź, miasta albo nazwy na sobie, droga przez miasto, którego nie łączy, drogi przecinające się poza miastem; na czerwono miasto bez dojazdu z miasta startowego.
+<!-- /legenda -->
+
+Zmiany z mapy zachowuje przycisk „Zapisz szkic”, jak wszystkie inne na tej stronie. Gra rysuje mapę tak samo: nazwę przy krawędzi przesuwa do środka, przy dolnej krawędzi stawia ją nad kółkiem, a auto w podróży jedzie po drogach przez miasta pośrednie.
 
 ### Miasta i drogi
 
-Miasto ma własną pogodę (szanse wpisuje się w **procentach**), garaże, warsztat i rynek, co najmniej jeden tor i punkt na mapie, który klika się i przeciąga. Miasto otwiera się graczowi na poziomie swojego najłatwiejszego toru. Droga łączy dwa miasta i ma długość w kilometrach.
+Miasto ma własną pogodę (szanse wpisuje się w **procentach**), garaże, warsztat i rynek, co najmniej jeden tor i miejsce na mapie (x i y, najwygodniej ustawiane w zakładce Mapa, do której prowadzi link „Pokaż na mapie”). Miasto otwiera się graczowi na poziomie swojego najłatwiejszego toru. Droga łączy dwa miasta i ma długość w kilometrach.
 
 ![Świat: miasta](img/podrecznik-swiat-miasta.png)
 

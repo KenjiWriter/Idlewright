@@ -6,6 +6,7 @@ return [
             'label' => 'Jak działa formularz świata',
             'help' => 'Tu ustawiasz miejsca, w których auta zarabiają: miasta z ich pogodą, drogi między nimi i tory. To, co wpiszesz, zapisuje się jako szkic reguł i trafia do graczy dopiero z następną opublikowaną paczką.',
             'steps' => [
+                'Zakładka Mapa: zobacz mapę tak, jak zobaczy ją gracz; przeciągnij miasta na ich miejsca, połącz je drogami kliknięciami i popraw to, co pokazują uwagi pod mapą. Żadne miasto nie musi być środkiem.',
                 'Zakładka Miasta: dodaj miasto ze slugiem, nazwami w językach, miejscem na mapie i szansami pogody (razem 100%).',
                 'Zakładka Drogi: połącz miasta drogami i podaj ich długość w km; od pierwszego miasta musi dać się dojechać do każdego.',
                 'Zakładka Tory: dodaj tor w mieście: nawierzchnia, rodzaj, poziom, długość okrążenia, okrążenie wzorcowe, paliwo, wypłata i XP.',

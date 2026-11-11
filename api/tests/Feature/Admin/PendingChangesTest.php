@@ -218,6 +218,18 @@ describe('the page', function () {
             ->assertSee('Przejdź do publikacji');
     });
 
+    it('names a table with a draft by its kind in words, not by the key of the text', function () {
+        signedInAdmin();
+        // A table is not edited in the panel: its drafts come from content:rebase, which writes them as this does.
+        $table = pendingDefinition('table', 'luck-ppm');
+        $table->forceFill(['draft' => $table->latestVersion->document, 'draft_saved_at' => now()])->save();
+
+        $this->get(PendingChangesPage::getUrl())->assertOk()
+            ->assertSee('data-slug="luck-ppm"', false)
+            ->assertSee(__('admin.pending.kind.table'))
+            ->assertDontSee('admin.pending.kind.table');
+    });
+
     it('is for any admin to read, an editor too', function () {
         signedInAdmin(Admin::ROLE_EDITOR);
 

@@ -6,6 +6,7 @@ return [
             'label' => 'How the world form works',
             'help' => 'Here you set the places where cars earn: cities with their weather, the roads between them and the tracks. What you enter is saved as a draft of the rules and reaches players only with the next published pack.',
             'steps' => [
+                'Tab Map: see the map as a player will; drag the cities to their places, join them with roads by clicking and fix what the notes under the map point out. No city has to be the middle.',
                 'Tab Cities: add a city with a slug, names in the languages, a place on the map and the chances of its weather (100% in all).',
                 'Tab Roads: join the cities with roads and give their length in km; every city must be reachable from the first one.',
                 'Tab Tracks: add a track in a city: surface, kind, level, lap length, reference lap, fuel, reward and XP.',

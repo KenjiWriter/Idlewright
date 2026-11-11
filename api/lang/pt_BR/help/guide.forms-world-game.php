@@ -6,6 +6,7 @@ return [
             'label' => 'Como funciona o formulário do mundo',
             'help' => 'Aqui você define os lugares em que os carros ganham dinheiro: cidades com o seu clima, as estradas entre elas e as pistas. O que você digita é salvo como rascunho das regras e só chega aos jogadores com o próximo pacote publicado.',
             'steps' => [
+                'Aba Mapa: veja o mapa como o jogador o verá; arraste as cidades para o lugar, ligue-as por estradas com cliques e corrija o que as observações sob o mapa apontam. Nenhuma cidade precisa ser o centro.',
                 'Aba Cidades: acrescente uma cidade com slug, nomes nos idiomas, um lugar no mapa e as chances do seu clima (somando 100%).',
                 'Aba Estradas: ligue as cidades por estradas e informe a extensão em km; toda cidade deve ser alcançável a partir da primeira.',
                 'Aba Pistas: acrescente uma pista numa cidade: piso, tipo, nível, extensão da volta, volta de referência, combustível, prêmio e XP.',

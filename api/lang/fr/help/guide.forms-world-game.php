@@ -6,6 +6,7 @@ return [
             'label' => 'Comment fonctionne le formulaire du monde',
             'help' => 'Vous réglez ici les lieux où les voitures gagnent : les villes avec leur météo, les routes qui les relient et les circuits. Ce que vous saisissez est enregistré en brouillon des règles et n’atteint les joueurs qu’avec le prochain pack publié.',
             'steps' => [
+                'Onglet Carte : voyez la carte comme la verra un joueur ; faites glisser les villes à leur place, reliez-les par des routes en cliquant et corrigez ce que signalent les remarques sous la carte. Aucune ville n’a besoin d’être au centre.',
                 'Onglet Villes : ajoutez une ville avec un slug, des noms dans les langues, une place sur la carte et les chances de sa météo (100% en tout).',
                 'Onglet Routes : reliez les villes par des routes et donnez leur longueur en km ; chaque ville doit être atteignable depuis la première.',
                 'Onglet Circuits : ajoutez un circuit dans une ville : revêtement, genre, niveau, longueur du tour, tour de référence, carburant, gain et XP.',

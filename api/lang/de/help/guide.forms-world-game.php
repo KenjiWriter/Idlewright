@@ -6,6 +6,7 @@ return [
             'label' => 'So funktioniert das Formular der Welt',
             'help' => 'Hier stellst du die Orte ein, an denen Autos verdienen: Städte mit ihrem Wetter, die Straßen dazwischen und die Strecken. Was du eingibst, wird als Entwurf der Regeln gespeichert und erreicht die Spieler erst mit dem nächsten veröffentlichten Paket.',
             'steps' => [
+                'Tab Karte: Sieh die Karte so, wie ein Spieler sie sehen wird; ziehe die Städte an ihren Platz, verbinde sie per Klick mit Straßen und behebe, was die Hinweise unter der Karte zeigen. Keine Stadt muss die Mitte sein.',
                 'Tab Städte: Füge eine Stadt mit Slug, Namen in den Sprachen, einem Ort auf der Karte und den Chancen ihres Wetters hinzu (zusammen 100%).',
                 'Tab Straßen: Verbinde die Städte mit Straßen und gib ihre Länge in km an; jede Stadt muss von der ersten aus erreichbar sein.',
                 'Tab Strecken: Füge eine Strecke in einer Stadt hinzu: Untergrund, Art, Stufe, Rundenlänge, Referenzrunde, Kraftstoff, Verdienst und XP.',
