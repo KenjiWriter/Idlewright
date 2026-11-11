@@ -6,6 +6,7 @@ use App\Agent\AgentLevel;
 use App\Agent\AgentServer;
 use App\Agent\AgentText;
 use App\Agent\Tools\CatalogListTool;
+use App\Agent\Tools\CheckTargetsTool;
 use App\Agent\Tools\ClassJumpTool;
 use App\Agent\Tools\DefinitionReadTool;
 use App\Agent\Tools\DraftsListTool;
@@ -24,6 +25,7 @@ use App\Agent\Tools\ScratchReadTool;
 use App\Agent\Tools\ScratchSetTool;
 use App\Agent\Tools\SimulateCarsTool;
 use App\Agent\Tools\SimulateEconomyTool;
+use App\Agent\Tools\SimulateProgressTool;
 use App\Agent\Tools\StreaksBudgetTool;
 use App\Agent\Tools\TracksSimulateTool;
 use App\Agent\Tools\TransmuteStudyTool;
@@ -132,6 +134,7 @@ it('never gives a player\'s data, whatever tool is called', function () {
         [TuningBudgetTool::class, ['variant' => 'live']], [GigsReportTool::class, ['variant' => 'live']], [StreaksBudgetTool::class, ['variant' => 'live']],
         [FleetStudyTool::class, ['variant' => 'live']], [TransmuteStudyTool::class, ['variant' => 'live']], [PiReportTool::class, ['variant' => 'live']],
         [ClassJumpTool::class, ['variant' => 'live']], [TracksSimulateTool::class, ['variant' => 'live']], [RunGatesTool::class, ['variant' => 'drafts']],
+        [SimulateProgressTool::class, ['variant' => 'live', 'minutes' => 30]], [CheckTargetsTool::class, ['variant' => 'live', 'targets' => [['type' => 'level_at_minute', 'level' => 3, 'minute' => 5]]]],
         [JobResultTool::class, ['job' => 1]], [ScratchClearTool::class, []],
     ];
 
@@ -148,7 +151,7 @@ it('declares a level for every tool, and gives the first level everything that r
         expect(app($class)->requiredLevel())->toBeInstanceOf(AgentLevel::class);
     }
 
-    expect(AgentServer::toolNamesFor(AgentLevel::Read))->toContain('rules_read', 'scratch_set', 'simulate_economy', 'run_gates', 'job_result');
+    expect(AgentServer::toolNamesFor(AgentLevel::Read))->toContain('rules_read', 'scratch_set', 'simulate_economy', 'run_gates', 'simulate_progress', 'check_targets', 'job_result');
 });
 
 it('leaves a line in the trail of the assistant for every call under a consent, failed or not', function () {

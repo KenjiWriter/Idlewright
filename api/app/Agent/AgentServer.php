@@ -6,6 +6,7 @@ namespace App\Agent;
 
 use App\Agent\Tools\AgentTool;
 use App\Agent\Tools\CatalogListTool;
+use App\Agent\Tools\CheckTargetsTool;
 use App\Agent\Tools\ClassJumpTool;
 use App\Agent\Tools\DefinitionReadTool;
 use App\Agent\Tools\DraftsListTool;
@@ -24,6 +25,7 @@ use App\Agent\Tools\ScratchReadTool;
 use App\Agent\Tools\ScratchSetTool;
 use App\Agent\Tools\SimulateCarsTool;
 use App\Agent\Tools\SimulateEconomyTool;
+use App\Agent\Tools\SimulateProgressTool;
 use App\Agent\Tools\StreaksBudgetTool;
 use App\Agent\Tools\TracksSimulateTool;
 use App\Agent\Tools\TransmuteStudyTool;
@@ -65,12 +67,14 @@ final class AgentServer extends Server
         PiReportTool::class,
         ClassJumpTool::class,
         TracksSimulateTool::class,
+        SimulateProgressTool::class,
+        CheckTargetsTool::class,
         JobResultTool::class,
     ];
 
     protected string $name = 'Idlewright';
 
-    protected string $version = '2.0.0-v1';
+    protected string $version = '2.0.0-v2';
 
     protected array $tools = self::TOOLS;
 
