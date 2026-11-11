@@ -41,7 +41,7 @@ final class RulesOfWorkTool extends AgentTool
             ],
             'tools' => AgentServer::toolNamesFor($this->context->level()),
             'out_of_reach' => $this->anchors->explain(),
-            'not_yet' => 'This version of the connection reads, counts and keeps a scratch that is never saved. Plans approved in the panel and writing drafts come in the next stages.',
+            'not_yet' => 'This version of the connection reads, counts, keeps a scratch that is never saved and submits plans for a person to decide on. Writing the drafts of an approved plan and ordering a pack come in the next stages.',
         ];
     }
 }

@@ -65,6 +65,11 @@ abstract class AgentTool extends Tool
         $grant = $context->grant();
         $started = hrtime(true);
 
+        // The server of MCP lists and calls only the tools of the level of the consent; this says no again, for any other way a tool may be reached.
+        if (! $context->level()->covers($this->level)) {
+            return Response::error('This tool needs a consent of level '.$this->level->value.'; this one is of level '.$context->level()->value.'. Ask the operator to connect you again with a higher level.');
+        }
+
         if ($grant !== null) {
             $key = "agent-calls:{$grant->id}";
 

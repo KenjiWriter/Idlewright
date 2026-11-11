@@ -17,6 +17,8 @@ use App\Agent\Tools\HelpLookupTool;
 use App\Agent\Tools\JobResultTool;
 use App\Agent\Tools\MissionsBudgetTool;
 use App\Agent\Tools\PiReportTool;
+use App\Agent\Tools\PlanStatusTool;
+use App\Agent\Tools\PlanSubmitTool;
 use App\Agent\Tools\RulesOfWorkTool;
 use App\Agent\Tools\RulesReadTool;
 use App\Agent\Tools\RunGatesTool;
@@ -135,7 +137,8 @@ it('never gives a player\'s data, whatever tool is called', function () {
         [FleetStudyTool::class, ['variant' => 'live']], [TransmuteStudyTool::class, ['variant' => 'live']], [PiReportTool::class, ['variant' => 'live']],
         [ClassJumpTool::class, ['variant' => 'live']], [TracksSimulateTool::class, ['variant' => 'live']], [RunGatesTool::class, ['variant' => 'drafts']],
         [SimulateProgressTool::class, ['variant' => 'live', 'minutes' => 30]], [CheckTargetsTool::class, ['variant' => 'live', 'targets' => [['type' => 'level_at_minute', 'level' => 3, 'minute' => 5]]]],
-        [JobResultTool::class, ['job' => 1]], [ScratchClearTool::class, []],
+        [JobResultTool::class, ['job' => 1]], [PlanSubmitTool::class, ['title' => 'P', 'goal' => 'G', 'strategy' => 'S', 'levers' => ['rules:starter#fuel'], 'targets' => [['type' => 'gates']]]],
+        [PlanStatusTool::class, []], [ScratchClearTool::class, []],
     ];
 
     expect(AgentServer::TOOLS)->toHaveCount(count($calls))

@@ -17,6 +17,8 @@ use App\Agent\Tools\HelpLookupTool;
 use App\Agent\Tools\JobResultTool;
 use App\Agent\Tools\MissionsBudgetTool;
 use App\Agent\Tools\PiReportTool;
+use App\Agent\Tools\PlanStatusTool;
+use App\Agent\Tools\PlanSubmitTool;
 use App\Agent\Tools\RulesOfWorkTool;
 use App\Agent\Tools\RulesReadTool;
 use App\Agent\Tools\RunGatesTool;
@@ -70,11 +72,13 @@ final class AgentServer extends Server
         SimulateProgressTool::class,
         CheckTargetsTool::class,
         JobResultTool::class,
+        PlanSubmitTool::class,
+        PlanStatusTool::class,
     ];
 
     protected string $name = 'Idlewright';
 
-    protected string $version = '2.0.0-v2';
+    protected string $version = '2.0.0-v3';
 
     protected array $tools = self::TOOLS;
 

@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 use App\Agent\AgentContext;
 use App\Agent\AgentLevel;
+use App\Agent\AgentPlans;
+use App\Agent\AgentScratch;
 use App\Models\AgentGrant;
+use App\Models\AgentPlan;
 use App\Models\Game;
 use Illuminate\Support\Str;
 use phpseclib4\Crypt\RSA;
@@ -97,4 +100,28 @@ function agentGrantInForce(int $level = 1): AgentGrant
     app(AgentContext::class)->set($grant);
 
     return $grant;
+}
+
+/**
+ * A plan of the consent in force, submitted as the assistant submits one: its scratch set with the operations, then the scratch submitted with these levers.
+ *
+ * @param  list<array<string, mixed>>  $ops
+ * @param  list<string>  $levers
+ * @param  array<string, mixed>  $more
+ */
+function agentPlanSubmitted(AgentGrant $grant, array $ops, array $levers = ['rules:starter#player'], array $more = []): AgentPlan
+{
+    expect(app(AgentScratch::class)->set($grant, 'Plan na probe', $ops)->ok())->toBeTrue();
+
+    return app(AgentPlans::class)->submit($grant, [
+        'title' => 'Poziom 5 wolniej', 'goal' => 'Poziom 5 ma przyjsc pozniej.', 'strategy' => 'Wyzszy prog XP poziomu 5.', 'levers' => $levers,
+        'targets' => [['type' => 'level_at_minute', 'level' => 5, 'minute' => 75, 'plan' => ['minutes' => 240, 'tutorial' => false, 'travel' => false]]],
+        ...$more,
+    ]);
+}
+
+/** The operation that makes level 5 dearer: 1500 XP instead of 800. */
+function dearerLevelFive(): array
+{
+    return ['op' => 'set', 'target' => ['rules' => 'starter'], 'path' => '/player/early_xp/3', 'value' => 1500, 'unit' => 'plain'];
 }
