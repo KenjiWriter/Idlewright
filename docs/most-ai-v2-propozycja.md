@@ -2,7 +2,7 @@
 
 Cel właściciela: zamiast kopiować instrukcję do czatu i wklejać blok z powrotem, **rozmawiać z Claude'em jak w zwykłym czacie, a on sam pracuje w panelu**: czyta grę, dopytuje, liczy symulatorami, układa strategię, a po zatwierdzeniu planu przez operatora wprowadza zmiany. Docelowo: w pełni samodzielna obsługa gotowych modułów silnika przez AI, z jednym ludzkim „tak” dla planu.
 
-**Stan:** zatwierdzone przez właściciela 2026-11-11 („Zatwierdzam”, D1–D21 w zalecanym kształcie, razem z zależnościami `laravel/mcp` i `laravel/passport`). Etap V0 jest zbudowany na gałęzi `agent-v0`; opis i próba niżej, w „V0: co jest zbudowane”.
+**Stan:** zatwierdzone przez właściciela 2026-11-11 („Zatwierdzam”, D1–D21 w zalecanym kształcie, razem z zależnościami `laravel/mcp` i `laravel/passport`). Etapy V0, V1 i V2 są zbudowane na gałęzi `agent-v0`; opisy niżej, w sekcjach „V0”, „V1” i „V2: co jest zbudowane”.
 
 ## Co jest dziś (most AI v1)
 
@@ -288,4 +288,35 @@ Aplikacja Claude w przeglądarce (claude.ai) i aplikacja na komputer łączą si
 - Prawdziwego robotnika kolejki i oczekiwania 50 s za nginx; testy liczą w tym samym procesie.
 - Prawdziwego modelu, który korzysta z brudnopisu.
 
-V2 (symulator postępu `economy:progress`, cele D7, strona „Symulator postępu”) jeszcze nie jest zbudowany. Mapa modelu gry dla V2 jest w notatkach sesji.
+## V2: co jest zbudowane (gałąź `agent-v0`)
+
+- **Symulator postępu** (`App\Content\Progress\ProgressSimulator`, polecenie `php artisan economy:progress`). Gra jednym idealnym kierowcą od założenia konta: samouczek z nagrodami (fazy 1 i 2, krok co `--step-seconds`, domyślnie 60 s), jazdy na najlepszym otwartym torze albo na wskazanym, tankowanie (z holowaniem, gdy brak gotówki), warsztat z czasem montażu, zakupy, podróże do miast z garażem i misje dnia jako przełącznik. Okrążenie, wypłatę, XP i paliwo liczy kod gry (`RunInputsFactory` i `RunFreezer`), więc zmiana auta, części albo reguły działa tu tak jak w grze. Test sprawdza zgodność z podglądem aut testowych.
+  - **Sposoby gry:** `active` (bez przerw), `every` (wraca co N minut na M minut), `A`, `B`, `C` (wizyty dziennie z kotwic ekonomii, rozłożone na 16 godzin dnia, po 10 minut). Gdy kierowcy nie ma, auto jeździ samo, dopóki starczy paliwa.
+  - **Zakupy:** `none`, `list` (slugi w kolejności) albo `best` (najwięcej dla celu za dolara). Kierowca zawsze zostawia gotówkę na pełny bak. Gracz bez przerw liczy wynik na godzinę jazdy. Gracz, który wraca co jakiś czas, liczy wynik jednej wizyty: bak albo czas do następnej wizyty, co się skończy pierwsze.
+  - **Wynik:** minuta każdego poziomu i skąd przyszło XP (samouczek, jazdy, misje), gotówka, auto i tor przy każdym poziomie, zakupy z minutą, zmiany torów i podróże, uwagi i założenia. Założenia to rzeczy, których symulator nie liczy: pogoda zawsze sucha, bez awarii, serwisu, ulepszeń +N, skrzynek, zleceń i kupowania garaży.
+  - **Czas liczenia:** 120 minut gry to około 0,6 s, 10 dni gracza A około 0,7 s, a 30 dni gracza C około 1,5 s. Dlatego narzędzie liczy od razu, bez kolejki.
+- **Cele w liczbach (D7, `ProgressTargets`):** `level_at_minute`, `can_afford`, `days_to_car` i `gates`, każdy z tolerancją (domyślnie 15%). Dla każdego celu odpowiedź podaje cel, zmierzoną wartość i to, czy jest spełniony.
+- **Narzędzia asystenta:** `simulate_progress` na wariancie `live`, `drafts` albo `scratch`, z celami poziomów i gotówki. `check_targets` sprawdza naraz cele wszystkich czterech rodzajów; każdy cel poziomu może mieć własny plan gry. Z celem `gates` to długie liczenie, więc idzie do kolejki `agent`. Zasady pracy każą asystentowi zapisać cel jako tabelę celów: tę tabelę zatwierdzi operator w V3.
+- **Strona „Symulator postępu”** (menu Treść, `/admin/progress`): ten sam symulator dla ludzi, na żywej paczce albo na szkicach. Pokazuje tabelę poziomów, zakupy, tory i podróże oraz uwagi i założenia, w pięciu językach i z opisami pól w katalogu pomocy.
+
+### Co dziś mówi symulator (żywa treść repozytorium, gracz bez przerw, zakupy `best`)
+
+| Poziom | Minuta | Godziny |
+|---|---|---|
+| 5 | 7,5 | 0,1 |
+| 8 | 10 | 0,2 (samouczek daje 4700 XP) |
+| 9 | 272 | 4,5 |
+| 10 | 625 | 10,4 |
+| 15 | 14 253 | 237,6 |
+| 20 | 27 376 | 456,3 |
+
+Przykład „poziomy 1–15 w około 2 godziny” wymaga więc przyspieszenia poziomów 9–15 mniej więcej stukrotnie. To przesuwa kotwice drabinki (D16), czyli jest decyzją właściciela, a nie zmianą, którą asystent może zrobić sam.
+
+**Spostrzeżenie z symulatora:** gracz, który wraca kilka razy dziennie, zarabia na jednym baku więcej na krótkim torze sprinterskim. Na `zlomowo-yard-dash` bak starcza na około 62 minuty, a na `zlomowo-street` na około 37, bo tory sprinterskie palą 12 ml/s, a standardowe 20 ml/s. Taki gracz wybiera więc sprint, a gracz bez przerw tor standardowy. Warto to wiedzieć przy balansie, ale niczego tu nie zmieniałem.
+
+### Czego V2 nie sprawdziło
+
+- Zgodności z prawdziwymi graczami. Czas kroku samouczka (60 s) to założenie; skalibrujemy go danymi `metrics:report`.
+- Pogody, awarii, serwisu, ulepszeń +N, skrzynek, zleceń i kupowania garaży. Są wypisane w założeniach każdej odpowiedzi.
+- Kupowania aut przy zakupach `best`. Nowe auto przychodzi bez części, więc rzadko wygrywa z dopracowanym starym. Symulator nie planuje kilku zakupów naprzód.
+- Strony „Symulator postępu” w przeglądarce; sprawdzają ją testy Livewire.
