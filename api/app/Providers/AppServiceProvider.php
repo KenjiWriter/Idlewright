@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Agent\AgentContext;
 use App\Content\BotProfiles;
 use App\Content\Branding\Branding;
 use App\Content\Catalog;
@@ -26,6 +27,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Passport\Passport;
 use SocialiteProviders\Apple\Provider;
 use SocialiteProviders\Manager\SocialiteWasCalled;
 
@@ -54,6 +56,10 @@ class AppServiceProvider extends ServiceProvider
         $this->app->scoped(Branding::class, fn () => Branding::fromConfig());
         // The provider that takes no money remembers its pages for as long as the process lives, so what a test starts it can finish.
         $this->app->singleton(FakeProvider::class);
+        // The consent that the tools of the AI assistant run under, for one request.
+        $this->app->scoped(AgentContext::class);
+        // Passport opens only the routes of the connection of the assistant (routes/agent.php), on the host of the panel.
+        Passport::ignoreRoutes();
     }
 
     /**
@@ -63,6 +69,12 @@ class AppServiceProvider extends ServiceProvider
     {
         // The forms of the panel take their labels and helper texts from one catalog (`->helpKey()`).
         FieldHelp::register();
+
+        // The keys of the AI assistant: an hour each, renewed while the consent of the person is in force (which the connection checks at every call), and a page of
+        // consent of the panel where the person chooses the game, the level and the hours.
+        Passport::tokensExpireIn(now()->addHour());
+        Passport::refreshTokensExpireIn(now()->addDays((int) ceil(config('ride.agent.max_hours') / 24)));
+        Passport::authorizationView('agent.consent');
 
         // The sign-ins of the admin panel go to its trail.
         Event::subscribe(AuditAdminSignIn::class);

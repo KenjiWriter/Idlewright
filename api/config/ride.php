@@ -82,6 +82,15 @@ return [
     'admin_domain' => env('ADMIN_DOMAIN') ?: null,
     'admin_locale' => env('ADMIN_LOCALE', 'pl'),
 
+    // The AI assistant of the panel (most AI v2): whether its connection (OAuth and MCP on the host of the panel) is on, how long a consent lasts when the person does
+    // not choose (and the longest it may), and how many calls of tools a consent may make in a minute.
+    'agent' => [
+        'enabled' => (bool) env('AGENT_ENABLED', true),
+        'default_hours' => 8,
+        'max_hours' => 168,
+        'calls_per_minute' => 60,
+    ],
+
     // The network of games: the address that Let's Encrypt writes to about the certificates of the domains of the games (it is given to the worker on the server that sets a
     // domain up), and the public addresses of this server, comma separated, which the domain of a game has to point to (empty: the address that the host of WEB_URL resolves to).
     'network' => [

@@ -13,6 +13,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -20,8 +21,18 @@ return Application::configure(basePath: dirname(__DIR__))
         api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
+        // The connection of the AI assistant (OAuth and MCP), on the host of the panel, when it is switched on.
+        then: function (): void {
+            if (config('ride.agent.enabled')) {
+                $domain = config('ride.admin_domain');
+                ($domain === null ? Route::middleware([]) : Route::domain($domain))->group(base_path('routes/agent.php'));
+            }
+        },
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // A person who is not signed in and is sent to the panel from elsewhere (the page of consent of the AI assistant) signs in on the page of the panel.
+        $middleware->redirectGuestsTo(fn (): string => route('filament.admin.auth.login'));
+
         // The game comes first: the accounts that the guard looks for and the content that is read are those of the game of the host.
         $middleware->api(prepend: [
             ResolveGame::class,
@@ -31,7 +42,7 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
-            fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
+            fn (Request $request) => $request->is('api/*') || $request->is('agent/*') || $request->expectsJson(),
         );
 
         // Refusals of the game rules have a stable `code` for the client next to the translated message.

@@ -14,14 +14,18 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
+use Laravel\Passport\Contracts\OAuthenticatable;
+use Laravel\Passport\HasApiTokens;
 use SensitiveParameter;
 
 /**
  * Somebody who may use the admin panel. An editor looks at the content and prepares it; a publisher also makes a pack live. Both sign in with a password and a
- * code of an authenticator app, and an admin without the app is made to set it up before anything else.
+ * code of an authenticator app, and an admin without the app is made to set it up before anything else. An AI assistant never signs in as one: an admin gives it a
+ * consent (see `AgentGrant`), and the keys of OAuth that the assistant is given are tied to the admin who gave it.
  */
-class Admin extends Authenticatable implements FilamentUser, HasAppAuthentication, HasAppAuthenticationRecovery
+class Admin extends Authenticatable implements FilamentUser, HasAppAuthentication, HasAppAuthenticationRecovery, OAuthenticatable
 {
+    use HasApiTokens;
     use Notifiable;
 
     public const ROLE_EDITOR = 'editor';

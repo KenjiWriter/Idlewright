@@ -49,6 +49,12 @@ return [
             'driver' => 'session',
             'provider' => 'admins',
         ],
+
+        // An AI assistant that an admin gave a consent to (see `AgentGrant`): a key of OAuth issued by Passport, tied to that admin, never a session of the panel.
+        'agent' => [
+            'driver' => 'passport',
+            'provider' => 'admins',
+        ],
     ],
 
     /*
