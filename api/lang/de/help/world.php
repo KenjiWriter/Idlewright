@@ -27,12 +27,19 @@ return [
             'help' => 'Der Name, den Karte, Garagen und Börse zeigen. Englisch und Polnisch sind Pflicht; eine leere Sprache zeigt den englischen Namen.',
             'example' => 'Wilcza-Pass / Wilcza Przełęcz / Wilcza Pass / Col de Wilcza / Passo Wilcza.',
         ],
-        'map' => [
-            'label' => 'Ort auf der Karte',
-            'help' => 'Wo die Stadt auf der Karte des Spiels gezeichnet wird: Klicke auf das Feld oder ziehe den Punkt (oder tippe die beiden Zahlen ein). Graue Punkte sind die anderen Städte, gestrichelte Linien die Straßen.',
-            'example' => 'Kruszyn: x 196, y 185; Złomowo: x 78, y 290.',
-            'range' => 'x von 0 bis 390, y von 0 bis 716 (das Feld ist 390 × 716 groß); der Kartenbildschirm des Spiels zeigt nur y von 60 bis 360.',
-            'tip' => 'Der Ort dient nur dem Zeichnen: Die Länge einer Straße hat ihre eigenen km und wird nicht von der Karte gemessen. Eine Stadt außerhalb des Streifens y 60–360 ist auf dem Kartenbildschirm des Spiels nicht zu sehen.',
+        'map_x' => [
+            'label' => 'Karte: x',
+            'help' => 'Wie weit die Stadt vom linken Rand der Spielkarte entfernt ist, in Einheiten des Feldes (die Karte ist 390 Einheiten breit). Am einfachsten ziehen Sie die Stadt im Reiter Karte; der Link „Auf der Karte zeigen“ öffnet ihn mit dieser Stadt.',
+            'example' => 'Kruszyn: 196 (Mitte der Karte); Złomowo: 78.',
+            'range' => 'Von 0 bis 390; der ganze Kreis einer Stadt ist von 24 bis 366 zu sehen.',
+            'tip' => 'Der Ort dient nur dem Zeichnen: Die Länge einer Straße hat eigene Kilometer und wird nicht auf der Karte gemessen.',
+        ],
+        'map_y' => [
+            'label' => 'Karte: y',
+            'help' => 'Wie weit die Stadt vom oberen Rand des Feldes entfernt ist, in Einheiten des Feldes. Der Kartenbildschirm des Spiels zeigt den Streifen von 60 bis 360, die Stadt muss also darin liegen.',
+            'example' => 'Kruszyn: 185; Złomowo: 290.',
+            'range' => 'Von 60 bis 360; der ganze Kreis einer Stadt ist von 84 bis 336 zu sehen.',
+            'tip' => 'Der Name der Stadt steht unter ihrem Kreis; am unteren Rand setzt ihn das Spiel über den Kreis.',
         ],
         'weather' => [
             'label' => 'Wetter',

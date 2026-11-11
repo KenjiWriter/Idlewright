@@ -11,9 +11,10 @@ use App\Content\TrackConverter;
 use App\Content\TrackNumbers;
 use App\Content\TrackPreview;
 use App\Content\Units\Measures;
-use App\Filament\Forms\Components\MapPoint;
+use App\Filament\Forms\Components\WorldMap;
 use App\Filament\Resources\Definitions\Forms\DefinitionFields;
 use App\Filament\Support\FieldHelp;
+use App\Filament\Support\WorldBoard;
 use App\Services\ContentDrafts;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Hidden;
@@ -28,6 +29,8 @@ use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Text;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
+use Illuminate\Support\HtmlString;
+use Illuminate\Support\Js;
 use InvalidArgumentException;
 
 /**
@@ -50,6 +53,8 @@ final class WorldFields
         return [
             FieldHelp::guide('world'),
             Tabs::make('world')->persistTabInQueryString()->tabs([
+                // The map comes first: the link "Pokaż na mapie" of a city opens the first tab.
+                Tab::make(__('admin.world.map_tab'))->schema([self::map($measures)]),
                 Tab::make(__('admin.world.cities'))->schema(self::cities($weather)),
                 Tab::make(__('admin.world.roads'))->schema(self::roads($measures)),
                 Tab::make(__('admin.world.tracks'))->schema(self::tracks($measures, $document)),
@@ -79,9 +84,26 @@ final class WorldFields
                         TextInput::make('climate_seed')->helpKey('world.climate_seed')->required()->maxLength(64),
                     ]),
                     DefinitionFields::texts('name', __('admin.definitions.name'), 'world.city_name'),
-                    MapPoint::make('map')
-                        ->helpKey('world.map')
-                        ->context(fn (Get $get): array => self::board($get('../../regions'), $get('../../roads'), $get('slug'))),
+                    // Where the city is on the map: dragged on the tab of the map, or written here.
+                    Grid::make(2)->schema([
+                        TextInput::make('map.x')
+                            ->helpKey('world.map_x')
+                            ->numeric()
+                            ->integer()
+                            ->minValue(0)
+                            ->maxValue(WorldBoard::WIDTH)
+                            ->required()
+                            ->live(onBlur: true)
+                            ->hint(fn (Get $get): HtmlString => self::showOnMap($get('slug'))),
+                        TextInput::make('map.y')
+                            ->helpKey('world.map_y')
+                            ->numeric()
+                            ->integer()
+                            ->minValue(WorldBoard::MIN_Y)
+                            ->maxValue(WorldBoard::MAX_Y)
+                            ->required()
+                            ->live(onBlur: true),
+                    ]),
                     Repeater::make('weather')
                         ->helpKey('world.weather')
                         ->minItems(1)
@@ -488,36 +510,27 @@ final class WorldFields
             ->action(fn (array $data, Set $set) => $set('reference', self::referenceOf((string) $data['car'], $stats)));
     }
 
-    /**
-     * What the board of the map shows besides the city that is being placed: the other cities, and the roads between them.
-     *
-     * @param  array<int|string, mixed>|null  $regions
-     * @param  array<int|string, mixed>|null  $roads
-     * @return array{cities: array<string, array{x: int, y: int, name: string}>, roads: list<array{from: string, to: string}>, own: string|null}
-     */
-    private static function board(?array $regions, ?array $roads, mixed $own): array
+    /** The map of the world as the game draws it, from what the tabs of the cities, the roads and the tracks hold. */
+    private static function map(Measures $measures): WorldMap
     {
-        $cities = [];
+        return WorldMap::make()
+            ->board(fn (Get $get): WorldBoard => WorldBoard::of(['regions' => $get('regions'), 'roads' => $get('roads'), 'tracks' => $get('tracks')], $measures))
+            ->unit($measures->travel->shortFor())
+            ->surfaces(FieldHelp::options('world.surface', ['asphalt', 'gravel']));
+    }
 
-        foreach ($regions ?? [] as $region) {
-            $slug = is_string($region['slug'] ?? null) ? trim($region['slug']) : '';
-            $x = $region['map']['x'] ?? null;
-            $y = $region['map']['y'] ?? null;
+    /** The link of a city to the map: it opens the tab of the map (the first one) with the city chosen there. */
+    private static function showOnMap(mixed $slug): HtmlString
+    {
+        $slug = is_string($slug) ? trim($slug) : '';
 
-            if ($slug !== '' && $slug !== $own && is_numeric($x) && is_numeric($y)) {
-                $cities[$slug] = ['x' => (int) $x, 'y' => (int) $y, 'name' => ContentOptions::name($region['name'] ?? [], $slug)];
-            }
+        if ($slug === '') {
+            return new HtmlString('');
         }
 
-        $lines = [];
+        $click = "\$el.closest('.fi-sc-tabs')?.querySelector('.fi-tabs-item')?.click(); \$dispatch('world-board-pick', { slug: ".Js::from($slug).' })';
 
-        foreach ($roads ?? [] as $road) {
-            if (is_string($road['from'] ?? null) && is_string($road['to'] ?? null)) {
-                $lines[] = ['from' => $road['from'], 'to' => $road['to']];
-            }
-        }
-
-        return ['cities' => $cities, 'roads' => $lines, 'own' => is_string($own) && $own !== '' ? $own : null];
+        return new HtmlString('<button type="button" style="text-decoration: underline;" x-on:click="'.e($click).'">'.e(__('admin.world.board_show')).'</button>');
     }
 
     /** @param  array<string, mixed>  $state */

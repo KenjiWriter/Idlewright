@@ -27,12 +27,19 @@ return [
             'help' => 'The name that the map, the garages and the exchange show. English and Polish are required; a language left empty shows the English name.',
             'example' => 'Wilcza Pass / Wilcza Przełęcz / Col de Wilcza / Wilcza-Pass / Passo Wilcza.',
         ],
-        'map' => [
-            'label' => 'Place on the map',
-            'help' => 'Where the city is drawn on the map of the game: click the board or drag the point (or type the two numbers). Grey dots are the other cities, dashed lines the roads.',
-            'example' => 'Kruszyn: x 196, y 185; Złomowo: x 78, y 290.',
-            'range' => 'x from 0 to 390, y from 0 to 716 (the board is 390 × 716); the map screen of the game shows only y from 60 to 360.',
-            'tip' => 'The place is only for drawing: the length of a road is its own km and is not measured from the map. A city outside the strip y 60–360 is not visible on the map screen of the game.',
+        'map_x' => [
+            'label' => 'Map: x',
+            'help' => 'How far from the left edge of the map of the game the city stands, in units of the board (the map is 390 units wide). The easiest way to set it is to drag the city on the Map tab; the link "Show on the map" opens it with this city.',
+            'example' => 'Kruszyn: 196 (the middle of the map); Złomowo: 78.',
+            'range' => 'From 0 to 390; the whole circle of a city is seen from 24 to 366.',
+            'tip' => 'The place is only for drawing: the length of a road has its own kilometres and is not measured on the map.',
+        ],
+        'map_y' => [
+            'label' => 'Map: y',
+            'help' => 'How far from the top edge of the board the city stands, in units of the board. The map screen of the game shows the strip from 60 to 360, so the city has to be in it.',
+            'example' => 'Kruszyn: 185; Złomowo: 290.',
+            'range' => 'From 60 to 360; the whole circle of a city is seen from 84 to 336.',
+            'tip' => 'The name of the city stands under its circle; at the bottom edge the game puts it above the circle.',
         ],
         'weather' => [
             'label' => 'Weather',

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use App\Content\PackValidationResult;
 use App\Content\PackValidator;
-use App\Filament\Forms\Components\MapPoint;
+use App\Filament\Support\WorldBoard;
 
 /**
  * What the validator says of the numbers of the rules that only make sense next to each other: each of these used to get through, and break a draw, a run or a
@@ -247,11 +247,11 @@ describe('the parts', function () {
 });
 
 describe('the map', function () {
-    it('keeps a city inside the strip of the board that the map screen shows, in the schema and in the point of the panel', function () {
+    it('keeps a city inside the strip of the board that the map screen shows, in the schema and on the map of the panel', function () {
         $schema = json_decode((string) file_get_contents(config('ride.content_path').'/schema/rules.schema.json'), true);
         $y = $schema['properties']['regions']['additionalProperties']['properties']['map']['properties']['y'];
 
-        expect([$y['minimum'], $y['maximum']])->toBe([MapPoint::MIN_Y, MapPoint::MAX_Y]);
+        expect([$y['minimum'], $y['maximum']])->toBe([WorldBoard::MIN_Y, WorldBoard::MAX_Y]);
 
         $result = validatedRuleNumbers(function (array $rules): array {
             $rules['regions'][array_key_first($rules['regions'])]['map']['y'] = 500;

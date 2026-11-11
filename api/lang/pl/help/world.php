@@ -27,12 +27,19 @@ return [
             'help' => 'Nazwa, którą pokazują mapa, garaże i giełda. Angielska i polska są wymagane; język bez nazwy pokazuje nazwę angielską.',
             'example' => 'Wilcza Przełęcz / Wilcza Pass / Col de Wilcza / Wilcza-Pass / Passo Wilcza.',
         ],
-        'map' => [
-            'label' => 'Miejsce na mapie',
-            'help' => 'Gdzie miasto jest narysowane na mapie gry: kliknij planszę albo przeciągnij punkt (albo wpisz dwie liczby). Szare kropki to pozostałe miasta, linie przerywane to drogi.',
-            'example' => 'Kruszyn: x 196, y 185; Złomowo: x 78, y 290.',
-            'range' => 'x od 0 do 390, y od 0 do 716 (plansza ma 390 × 716); ekran mapy w grze pokazuje tylko y od 60 do 360.',
-            'tip' => 'Miejsce służy tylko do rysowania: długość drogi ma własne km i nie jest mierzona z mapy. Miasto poza pasem y 60–360 nie jest widoczne na ekranie mapy w grze.',
+        'map_x' => [
+            'label' => 'Mapa: x',
+            'help' => 'Jak daleko od lewej krawędzi mapy gry stoi miasto, w jednostkach planszy (mapa ma 390 jednostek szerokości). Najprościej ustawić to, przeciągając miasto w zakładce Mapa; link „Pokaż na mapie” otwiera ją z tym miastem.',
+            'example' => 'Kruszyn: 196 (środek mapy); Złomowo: 78.',
+            'range' => 'Od 0 do 390; całe kółko miasta widać od 24 do 366.',
+            'tip' => 'Miejsce służy tylko do rysowania: długość drogi ma własne km i nie jest mierzona z mapy.',
+        ],
+        'map_y' => [
+            'label' => 'Mapa: y',
+            'help' => 'Jak daleko od górnej krawędzi planszy stoi miasto, w jednostkach planszy. Ekran mapy w grze pokazuje pas od 60 do 360, więc miasto musi w nim być.',
+            'example' => 'Kruszyn: 185; Złomowo: 290.',
+            'range' => 'Od 60 do 360; całe kółko miasta widać od 84 do 336.',
+            'tip' => 'Nazwa miasta stoi pod kółkiem; przy dolnej krawędzi gra przenosi ją nad kółko.',
         ],
         'weather' => [
             'label' => 'Pogoda',

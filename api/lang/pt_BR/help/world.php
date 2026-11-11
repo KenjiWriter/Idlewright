@@ -27,12 +27,19 @@ return [
             'help' => 'O nome que o mapa, as garagens e a bolsa mostram. Inglês e polonês são obrigatórios; um idioma deixado vazio mostra o nome em inglês.',
             'example' => 'Passo Wilcza / Wilcza Przełęcz / Wilcza Pass / Col de Wilcza / Wilcza-Pass.',
         ],
-        'map' => [
-            'label' => 'Lugar no mapa',
-            'help' => 'Onde a cidade é desenhada no mapa do jogo: clique no quadro ou arraste o ponto (ou digite os dois números). Os pontos cinza são as outras cidades, as linhas tracejadas as estradas.',
-            'example' => 'Kruszyn: x 196, y 185; Złomowo: x 78, y 290.',
-            'range' => 'x de 0 a 390, y de 0 a 716 (o quadro tem 390 × 716); a tela do mapa do jogo mostra só y de 60 a 360.',
-            'tip' => 'O lugar serve só para desenhar: a extensão de uma estrada tem os seus próprios km e não é medida no mapa. Uma cidade fora da faixa y 60–360 não aparece na tela do mapa do jogo.',
+        'map_x' => [
+            'label' => 'Mapa: x',
+            'help' => 'A que distância da borda esquerda do mapa do jogo fica a cidade, em unidades do quadro (o mapa tem 390 unidades de largura). O mais fácil é arrastar a cidade na aba Mapa; o link "Mostrar no mapa" a abre com esta cidade.',
+            'example' => 'Kruszyn: 196 (o meio do mapa); Złomowo: 78.',
+            'range' => 'De 0 a 390; o círculo inteiro de uma cidade aparece de 24 a 366.',
+            'tip' => 'O lugar serve só para desenhar: o comprimento de uma estrada tem seus próprios quilômetros e não é medido no mapa.',
+        ],
+        'map_y' => [
+            'label' => 'Mapa: y',
+            'help' => 'A que distância da borda superior do quadro fica a cidade, em unidades do quadro. A tela do mapa do jogo mostra a faixa de 60 a 360, então a cidade precisa estar nela.',
+            'example' => 'Kruszyn: 185; Złomowo: 290.',
+            'range' => 'De 60 a 360; o círculo inteiro de uma cidade aparece de 84 a 336.',
+            'tip' => 'O nome da cidade fica sob o círculo; na borda de baixo, o jogo o coloca acima do círculo.',
         ],
         'weather' => [
             'label' => 'Clima',

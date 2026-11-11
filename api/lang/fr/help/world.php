@@ -27,12 +27,19 @@ return [
             'help' => 'Le nom qu’affichent la carte, les garages et la bourse. L’anglais et le polonais sont obligatoires ; une langue laissée vide affiche le nom anglais.',
             'example' => 'Col de Wilcza / Wilcza Przełęcz / Wilcza Pass / Wilcza-Pass / Passo Wilcza.',
         ],
-        'map' => [
-            'label' => 'Place sur la carte',
-            'help' => 'L’endroit où la ville est dessinée sur la carte du jeu : cliquez sur le plateau ou faites glisser le point (ou saisissez les deux nombres). Les points gris sont les autres villes, les tirets les routes.',
-            'example' => 'Kruszyn : x 196, y 185 ; Złomowo : x 78, y 290.',
-            'range' => 'x de 0 à 390, y de 0 à 716 (le plateau fait 390 × 716) ; l’écran de la carte du jeu ne montre que y de 60 à 360.',
-            'tip' => 'La place ne sert qu’au dessin : la longueur d’une route a ses propres km et n’est pas mesurée sur la carte. Une ville hors de la bande y 60–360 n’est pas visible sur l’écran de la carte du jeu.',
+        'map_x' => [
+            'label' => 'Carte : x',
+            'help' => 'À quelle distance du bord gauche de la carte du jeu se trouve la ville, en unités du plateau (la carte fait 390 unités de large). Le plus simple est de faire glisser la ville dans l’onglet Carte ; le lien « Voir sur la carte » l’ouvre avec cette ville.',
+            'example' => 'Kruszyn : 196 (le milieu de la carte) ; Złomowo : 78.',
+            'range' => 'De 0 à 390 ; le cercle entier d’une ville est visible de 24 à 366.',
+            'tip' => 'La place ne sert qu’au dessin : la longueur d’une route a ses propres kilomètres et ne se mesure pas sur la carte.',
+        ],
+        'map_y' => [
+            'label' => 'Carte : y',
+            'help' => 'À quelle distance du bord supérieur du plateau se trouve la ville, en unités du plateau. L’écran de la carte du jeu montre la bande de 60 à 360, la ville doit donc s’y trouver.',
+            'example' => 'Kruszyn : 185 ; Złomowo : 290.',
+            'range' => 'De 60 à 360 ; le cercle entier d’une ville est visible de 84 à 336.',
+            'tip' => 'Le nom de la ville est sous son cercle ; au bord inférieur, le jeu le place au-dessus du cercle.',
         ],
         'weather' => [
             'label' => 'Météo',
