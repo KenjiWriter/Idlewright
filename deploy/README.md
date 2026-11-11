@@ -358,13 +358,17 @@ sudo -u www-data php8.4 artisan content:rebase
 Polecenie dokłada do treści panelu to, co zmieniły pliki od ostatniego razu, i zostawia to, co zmienił panel; wynik to szkice (opis: `docs/api-runs.md`, „Treść z bazy a nowe wydania”). Potem w panelu: „Zmiany do publikacji”, publikacja i „Uruchom” nowej paczki. Dopiero wtedy:
 
 ```bash
-sudo sed -i 's/^CONTENT_SOURCE=.*/CONTENT_SOURCE=database/' /var/www/rideidle/shared/.env
-cd /var/www/rideidle/current/api && sudo -u www-data php8.4 artisan config:cache && sudo systemctl reload php8.4-fpm && sudo systemctl restart rideidle-queue
+ENV=/var/www/rideidle/shared/.env
+sudo grep -q '^CONTENT_SOURCE=' $ENV && sudo sed -i 's/^CONTENT_SOURCE=.*/CONTENT_SOURCE=database/' $ENV || echo 'CONTENT_SOURCE=database' | sudo tee -a $ENV >/dev/null
+sudo grep -n '^CONTENT_SOURCE' $ENV
+sudo -u www-data php8.4 /var/www/rideidle/current/api/artisan config:cache && sudo systemctl reload php8.4-fpm && sudo systemctl restart rideidle-queue
 ```
+
+**Linii `CONTENT_SOURCE` może w `.env` nie być** (tak było na serwerze 2026-11-11): wtedy gra bierze domyślne `files`, a samo `sed` niczego nie zmienia. Dlatego polecenie z `grep -q` podmienia wartość, gdy linia jest, i dopisuje ją, gdy jej nie ma; następne pokazuje wynik (ma być jedna linia z `database`). Na koniec sprawdź `content:status` (pierwsze zdanie: „reads its content from the database”) albo kafel „Gra czyta z” w panelu.
 
 **Po każdym wydaniu, które zmienia `content/`** (przy `database`): wdrożenie niczego w bazie nie nadpisuje, więc powtórz `content:rebase` (najpierw z `--dry-run`) i opublikuj szkice w panelu. Gdy polecenie wypisze miejsca zmienione i w panelu, i w plikach, wybierz stronę: `--prefer=panel` albo `--prefer=files`.
 
-**Powrót na pliki:** ten sam `sed` z `files` zamiast `database` i te same trzy polecenia po nim.
+**Powrót na pliki:** te same polecenia z `files` zamiast `database` (w obu miejscach polecenia z `grep -q`).
 
 ## Na co dzień
 
