@@ -249,9 +249,10 @@ Aplikacja Claude łączy się z hostem panelu (OAuth i MCP: `/oauth/*`, `/.well-
    ```
 
    Bez nich wydanie klucza (`/oauth/token`) kończy się błędem 500, a reszta panelu i gry działa. **`--force` wymienia klucze i unieważnia klucze wszystkich połączonych asystentów** (trzeba je połączyć od nowa).
-2. Migracje (tabele `oauth_*`, `agent_grants`, `agent_actions`) wchodzą z wydaniem.
-3. **Wyłącznik:** `AGENT_ENABLED=false` w `.env` (potem `config:cache`, `route:cache` i przeładowanie PHP-FPM): trasy asystenta znikają. Adresy powrotu po zgodzie: `AGENT_REDIRECT_DOMAINS` (domyślnie aplikacje Claude i `http://localhost` dla Claude Code).
-4. **Przegląd:** strona panelu „Asystent AI” pokazuje połączenia, przycisk „Rozłącz” i ostatnie działania asystenta; zgody i rozłączenia są też w Dzienniku.
+2. Migracje (tabele `oauth_*`, `agent_grants`, `agent_actions`, `agent_jobs`) wchodzą z wydaniem.
+3. **Kolejka `agent` (od etapu V1):** długie liczenia asystenta (bramki, symulator torów) robi robotnik kolejki. Szablon `rideidle-queue` ma teraz `--queue=default,agent`. Na serwerze postawionym wcześniej trzeba raz podmienić usługę: albo `sudo bash deploy/provision.sh` z nowego wydania, albo ręcznie dopisać `--queue=default,agent` w `/etc/systemd/system/rideidle-queue.service`, a potem `sudo systemctl daemon-reload && sudo systemctl restart rideidle-queue`. Bez tego krótkie liczenia działają, a długie zostają w stanie „czeka” (strona „Asystent AI”, tabela „Liczenia asystenta”). Ile wywołanie czeka na długie liczenie, zanim odda numer zadania: `AGENT_WAIT_SECONDS` (domyślnie 50). Host panelu z `admin-site.sh` czeka na PHP 120 s, więc 50 s się mieści. Gdy panel nie ma własnego hosta i działa pod `/admin` hosta gry, nginx czeka tylko 30 s: wtedy ustaw `AGENT_WAIT_SECONDS=20`.
+4. **Wyłącznik:** `AGENT_ENABLED=false` w `.env` (potem `config:cache`, `route:cache` i przeładowanie PHP-FPM): trasy asystenta znikają. Adresy powrotu po zgodzie: `AGENT_REDIRECT_DOMAINS` (domyślnie aplikacje Claude i `http://localhost` dla Claude Code).
+5. **Przegląd:** strona panelu „Asystent AI” pokazuje połączenia, przycisk „Rozłącz”, liczenia asystenta i jego ostatnie działania; zgody i rozłączenia są też w Dzienniku.
 
 ## Nowa gra na własnej domenie (L4b)
 
