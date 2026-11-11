@@ -39,7 +39,7 @@ class ProgressPage extends Page implements HasSchemas
 
     protected static ?string $slug = 'progress';
 
-    protected static ?int $navigationSort = 13;
+    protected static ?int $navigationSort = 14;
 
     protected string $view = 'filament.progress.page';
 
