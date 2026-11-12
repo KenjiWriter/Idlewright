@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property list<array<string, mixed>> $changes
  * @property list<string>|null $outside_levers
  * @property array<string, mixed>|null $measured
+ * @property array<string, mixed>|null $report
  */
 class AgentPlan extends Model
 {
@@ -29,6 +30,12 @@ class AgentPlan extends Model
 
     /** A newer version of the plan took its place. */
     public const SUPERSEDED = 'superseded';
+
+    /** Its block was written as drafts. */
+    public const EXECUTED = 'executed';
+
+    /** Its drafts were written and then undone. */
+    public const REVERTED = 'reverted';
 
     public const MEASURING = 'measuring';
 
@@ -44,6 +51,7 @@ class AgentPlan extends Model
         return [
             'targets' => 'array', 'alternatives' => 'array', 'levers' => 'array', 'block' => 'array', 'replacements' => 'array', 'changes' => 'array',
             'outside_levers' => 'array', 'measured' => 'array', 'measured_at' => 'datetime', 'decided_at' => 'datetime', 'approved_until' => 'datetime', 'noted_at' => 'datetime',
+            'executed_at' => 'datetime', 'report' => 'array', 'reported_at' => 'datetime', 'reverted_at' => 'datetime',
         ];
     }
 
@@ -69,6 +77,24 @@ class AgentPlan extends Model
     public function noter(): BelongsTo
     {
         return $this->belongsTo(Admin::class, 'noted_by');
+    }
+
+    /** @return BelongsTo<Admin, $this> on whose behalf the drafts were written */
+    public function executor(): BelongsTo
+    {
+        return $this->belongsTo(Admin::class, 'executed_by');
+    }
+
+    /** @return BelongsTo<AiExchange, $this> the answer of the bridge the plan was written as */
+    public function exchange(): BelongsTo
+    {
+        return $this->belongsTo(AiExchange::class, 'ai_exchange_id')->withoutGlobalScopes();
+    }
+
+    /** @return BelongsTo<ContentPublication, $this> the pack the assistant asked for after the plan */
+    public function publication(): BelongsTo
+    {
+        return $this->belongsTo(ContentPublication::class, 'content_publication_id')->withoutGlobalScopes();
     }
 
     /** @return BelongsTo<self, $this> the version this one replaced */

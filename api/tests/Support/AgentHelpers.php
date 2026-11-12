@@ -6,6 +6,7 @@ use App\Agent\AgentContext;
 use App\Agent\AgentLevel;
 use App\Agent\AgentPlans;
 use App\Agent\AgentScratch;
+use App\Models\Admin;
 use App\Models\AgentGrant;
 use App\Models\AgentPlan;
 use App\Models\Game;
@@ -90,9 +91,9 @@ function connectAgent(object $test, array $client, int $level = 2, int $hours = 
 }
 
 /** A consent in force for the default game, put in force as the connection does it. */
-function agentGrantInForce(int $level = 1): AgentGrant
+function agentGrantInForce(int $level = 1, string $role = Admin::ROLE_EDITOR): AgentGrant
 {
-    $admin = signedInAdmin();
+    $admin = signedInAdmin($role);
     $grant = AgentGrant::query()->create([
         'admin_id' => $admin->id, 'game_id' => Game::query()->where('is_default', true)->value('id'), 'oauth_client_id' => (string) Str::uuid(),
         'client_name' => 'Claude', 'level' => AgentLevel::from($level), 'expires_at' => now()->addHour(),

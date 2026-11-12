@@ -8,6 +8,7 @@ use App\Agent\Tools\ScratchSetTool;
 use App\Content\Bridge\ContentSnapshot;
 use App\Content\Progress\ProgressTargets;
 use App\Content\Publishing\PackGates;
+use App\Filament\Resources\ContentPublications\ContentPublicationResource;
 use App\Games\CurrentGame;
 use App\Jobs\MeasureAgentPlan;
 use App\Models\Admin;
@@ -267,6 +268,14 @@ final class AgentPlans
             'outside_levers' => $plan->outside_levers ?? [],
             'replaced_by' => $newer,
             'hash' => $plan->content_hash,
+            'executed_at' => $plan->executed_at?->toIso8601String(),
+            'executed_on_behalf_of' => $plan->executor?->email,
+            'exchange' => $plan->exchange?->code,
+            'report_status' => $plan->report_status,
+            'report' => $plan->report === null ? null : array_diff_key($plan->report, ['executed_snapshot' => true]),
+            'report_error' => $plan->report_error,
+            'reverted_at' => $plan->reverted_at?->toIso8601String(),
+            'pack' => $plan->publication === null ? null : ['number' => $plan->publication->number, 'status' => $plan->publication->status, 'link' => ContentPublicationResource::getUrl(panel: 'admin'), 'live' => 'Making a pack live ("Uruchom") is always done by a person.'],
         ];
     }
 
@@ -340,7 +349,7 @@ final class AgentPlans
      *
      * @throws PlanRefused
      */
-    private function assertCanAct(AgentPlan $plan, Admin $by): void
+    public function assertCanAct(AgentPlan $plan, Admin $by): void
     {
         if (! $by->is_active || ! $by->canEnter($plan->game_id) || ! in_array($by->roleIn($plan->game_id), [Admin::ROLE_EDITOR, Admin::ROLE_PUBLISHER], true)) {
             throw new PlanRefused('role');
@@ -348,7 +357,7 @@ final class AgentPlans
     }
 
     /** Writes the trail with the game of the plan in force, and puts back the one that was. */
-    private function inGameOf(AgentPlan $plan, callable $work): void
+    public function inGameOf(AgentPlan $plan, callable $work): void
     {
         $before = $this->current->game();
         $this->current->set(Game::query()->find($plan->game_id));
