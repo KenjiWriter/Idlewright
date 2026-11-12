@@ -2,7 +2,7 @@
 
 Cel właściciela: zamiast kopiować instrukcję do czatu i wklejać blok z powrotem, **rozmawiać z Claude'em jak w zwykłym czacie, a on sam pracuje w panelu**: czyta grę, dopytuje, liczy symulatorami, układa strategię, a po zatwierdzeniu planu przez operatora wprowadza zmiany. Docelowo: w pełni samodzielna obsługa gotowych modułów silnika przez AI, z jednym ludzkim „tak” dla planu.
 
-**Stan:** zatwierdzone przez właściciela 2026-11-11 („Zatwierdzam”, D1–D21 w zalecanym kształcie, razem z zależnościami `laravel/mcp` i `laravel/passport`). Etapy V0–V3 są zbudowane na gałęzi `agent-v0`; opisy niżej, w sekcjach „V0” do „V3: co jest zbudowane”.
+**Stan:** zatwierdzone przez właściciela 2026-11-11 („Zatwierdzam”, D1–D21 w zalecanym kształcie, razem z zależnościami `laravel/mcp` i `laravel/passport`). Etapy V0–V4 są zbudowane na gałęzi `agent-v0`; opisy niżej, w sekcjach „V0” do „V4: co jest zbudowane”.
 
 ## Co jest dziś (most AI v1)
 
@@ -353,6 +353,26 @@ Przykład „poziomy 1–15 w około 2 godziny” wymaga więc przyspieszenia po
 
 ### Czego V3 nie robi i czego nie sprawdziło
 
-- Zatwierdzony plan jeszcze niczego nie zapisuje: zapis szkiców z planu (`plan_execute`), raport „obiecane / zmierzone”, cofnięcie i zlecenie paczki to V4.
+- Zapis szkiców z planu, raport „obiecane / zmierzone”, cofnięcie i zlecenie paczki doszły w V4 (niżej).
 - Menu „Most AI” nie jest jeszcze połączone z „Asystentem AI” w jedną stronę z kartami (D20); to zostaje na V6.
 - Prawdziwego robotnika kolejki przy liczeniu planu; testy liczą w tym samym procesie.
+
+## V4: co jest zbudowane (gałąź `agent-v0`)
+
+- **Zapis zatwierdzonego planu** (`plan_execute`, zgoda poziomu 2, albo przycisk „Zapisz szkice z planu” na stronie planu dla człowieka). Blok planu idzie przez sprawdzanie i zapis mostu v1: jedna transakcja, wszystko albo nic. Każdy plan dostaje własny wpis instrukcji v1 z zakresem asystenta, więc zapis widać w historii Mostu AI i działa cofanie v1. Zapis jest odrzucany, gdy:
+  - plan nie jest zatwierdzony;
+  - zatwierdzenie wygasło (24 h);
+  - szkice zmieniły się od złożenia planu;
+  - blok nie daje już dokładnie tych dokumentów, które zatwierdzono.
+
+  Zapisany plan nie da się zapisać drugi raz.
+- **Podpis szkiców:** na stronie „Zmiany do publikacji” szkic, który jest dokładnie tym, co zapisał plan, ma znaczek „Asystent AI, plan nr X (wersja Y), zatwierdził Z: tytuł”. Gdy człowiek zmieni ten szkic, znaczek znika sam. Do Dziennika trafiają „Zapisano plan asystenta w szkicach” oraz zapis mostu z tym samym podpisem.
+- **Raport „obiecane / zmierzone”** (zadanie `ReportAgentPlan` w kolejce `agent`). Po zapisie serwer liczy szkice jeszcze raz (cele, pięć bramek, tempo graczy A, B i C) i stawia każdą liczbę obok tego, co plan obiecał. Symulatory nie losują, więc różnica to alarm: strona pokazuje wtedy czerwony znaczek „ALARM”, a zasady pracy każą asystentowi to zgłosić i zaproponować cofnięcie. Sprawdzone w teście i na lokalnym panelu: wszystkie liczby po zapisie były identyczne z obiecanymi.
+- **Cofnięcie zapisu** (`plan_undo` albo przycisk „Cofnij zapis”) działa jak w moście v1, dopóki nikt nie ruszył tych szkiców; inaczej wypisuje szkice w konflikcie. Cofnięcie nie jest możliwe, gdy paczka z tych szkiców jest właśnie robiona. Cofniętego planu nie można zapisać ponownie, trzeba złożyć nową wersję.
+- **Zlecenie paczki** (`pack_order`, tylko zgoda poziomu 3 wydawcy, D10). Działa tylko po zapisanym planie i tylko wtedy, gdy każdy szkic gry pochodzi z tego planu; cudze szkice są wypisane i asystent ma zapytać operatora. Paczka idzie przez zwykłe „Zrób paczkę” z notatką „Zlecona przez asystenta AI, plan nr X, w imieniu Y” i przez wszystkie bramki. **„Uruchom” robi zawsze człowiek.** `plan_status` podaje numer i stan paczki z linkiem do Publikacji.
+- **Zasady pracy** mają etapy 7 (zapis dopiero po zatwierdzeniu), 8 (raport i alarm) i 9 (paczka na poziomie 3, raport kończy się zdaniem, że paczka czeka na „Uruchom”).
+
+### Czego V4 nie sprawdziło
+
+- Zlecenia paczki z prawdziwym budowaniem paczki: test sprawdza zlecenie i zadanie w kolejce, a budowanie paczki to istniejący, osobno testowany kod.
+- Prawdziwej aplikacji Claude, która przechodzi cały cykl; to zostaje na V6, razem z rozdziałem podręcznika.
