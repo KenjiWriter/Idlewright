@@ -34,6 +34,9 @@
                     @if ($entry['state'] === 'changed')
                         <span style="{{ $muted }}">{{ __('admin.pending.count', ['count' => $entry['count']]) }}</span>
                     @endif
+                    @if (isset($signatures[$definition->kind.':'.$definition->slug]))
+                        <x-filament::badge size="sm" color="info" data-test="pending-agent-plan">{{ $signatures[$definition->kind.':'.$definition->slug] }}</x-filament::badge>
+                    @endif
                     @if ($definition->draft_saved_at)
                         <span style="{{ $muted }}">{{ __('admin.definitions.draft_since', ['when' => $definition->draft_saved_at->format('Y-m-d H:i')]) }}</span>
                     @endif

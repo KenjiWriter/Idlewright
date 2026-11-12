@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Pages;
 
+use App\Agent\AgentPlanExecution;
 use App\Agent\AgentPlans;
 use App\Agent\PlanRefused;
 use App\Filament\Concerns\ForAGame;
@@ -98,6 +99,28 @@ class AgentPlansPage extends Page
             ->action(fn (array $data) => $this->decide(fn (AgentPlans $plans, AgentPlan $plan, Admin $admin) => $plans->note($plan, $admin, (string) $data['note']), 'noted'));
     }
 
+    public function executeAction(): Action
+    {
+        return Action::make('execute')
+            ->label(__('admin.plans.execute'))
+            ->color('primary')
+            ->requiresConfirmation()
+            ->modalHeading(__('admin.plans.execute_heading'))
+            ->modalDescription(__('admin.plans.execute_description'))
+            ->action(fn () => $this->decide(fn (AgentPlans $plans, AgentPlan $plan, Admin $admin) => app(AgentPlanExecution::class)->execute($plan, $admin), 'executed'));
+    }
+
+    public function undoAction(): Action
+    {
+        return Action::make('undo')
+            ->label(__('admin.plans.undo'))
+            ->color('danger')
+            ->requiresConfirmation()
+            ->modalHeading(__('admin.plans.undo_heading'))
+            ->modalDescription(__('admin.plans.undo_description'))
+            ->action(fn () => $this->decide(fn (AgentPlans $plans, AgentPlan $plan, Admin $admin) => app(AgentPlanExecution::class)->undo($plan, $admin), 'reverted'));
+    }
+
     public function open(int $id): void
     {
         $this->plan = $id;
@@ -107,7 +130,7 @@ class AgentPlansPage extends Page
     protected function getViewData(): array
     {
         $game = app(CurrentGame::class)->id();
-        $open = $this->plan === null ? null : AgentPlan::query()->where('game_id', $game)->with(['admin', 'decider', 'noter'])->find($this->plan);
+        $open = $this->plan === null ? null : AgentPlan::query()->where('game_id', $game)->with(['admin', 'decider', 'noter', 'executor', 'exchange', 'publication'])->find($this->plan);
 
         return [
             'plans' => AgentPlan::query()->where('game_id', $game)->with('admin')->latest('id')->limit(self::LIST)->get(),
@@ -131,7 +154,7 @@ class AgentPlansPage extends Page
         try {
             $decision(app(AgentPlans::class), $plan, $admin);
         } catch (PlanRefused $refused) {
-            Notification::make()->danger()->title(__('admin.plans.refused.'.$refused->reason))->send();
+            Notification::make()->danger()->title(__('admin.plans.refused.'.$refused->reason))->body($refused->details === [] ? null : implode(', ', $refused->details))->send();
 
             return;
         }

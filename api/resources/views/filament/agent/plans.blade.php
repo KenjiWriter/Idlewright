@@ -8,7 +8,7 @@
     $muted = 'font-size: 13px; opacity: .7;';
     $cell = 'padding: 6px 10px; text-align: left; border-bottom: 1px solid rgba(128, 128, 128, .2); font-size: .875rem; vertical-align: top;';
     $red = 'background: rgba(220, 38, 38, .15);';
-    $stateColor = fn (string $state): string => match ($state) { 'approved' => 'success', 'rejected' => 'danger', 'submitted' => 'warning', default => 'gray' };
+    $stateColor = fn (string $state): string => match ($state) { 'approved', 'executed' => 'success', 'rejected', 'reverted' => 'danger', 'submitted' => 'warning', default => 'gray' };
     $ok = fn (?bool $value): string => $value === null ? '-' : ($value ? __('admin.plans.met') : __('admin.plans.not_met'));
 @endphp
 
@@ -76,12 +76,83 @@
                     @if (in_array($open->status, ['submitted', 'approved'], true))
                         <x-filament::button color="danger" wire:click="mountAction('reject')" data-test="agent-plan-reject">{{ __('admin.plans.reject') }}</x-filament::button>
                     @endif
+                    @if ($open->status === 'approved' && $open->isApprovedNow() && ! $status['outdated'])
+                        <x-filament::button color="primary" wire:click="mountAction('execute')" data-test="agent-plan-execute">{{ __('admin.plans.execute') }}</x-filament::button>
+                    @endif
+                    @if ($open->status === 'executed')
+                        <x-filament::button color="danger" wire:click="mountAction('undo')" data-test="agent-plan-undo">{{ __('admin.plans.undo') }}</x-filament::button>
+                    @endif
                     @if ($open->status !== 'superseded')
                         <x-filament::button color="gray" wire:click="mountAction('note')" data-test="agent-plan-note">{{ __('admin.plans.note') }}</x-filament::button>
                     @endif
                 </div>
                 <div style="{{ $muted }}">{{ __('admin.plans.approve_hint', ['hours' => \App\Agent\AgentPlans::APPROVAL_HOURS]) }}</div>
             </div>
+
+            @if ($open->executed_at !== null)
+                <div style="{{ $box }}" data-test="agent-plan-execution" @if ($open->report_status === 'measuring') wire:poll.5s @endif>
+                    <strong>{{ __('admin.plans.sections.execution') }}</strong>
+                    <div>{{ __('admin.plans.executed', ['who' => $open->executor?->email ?? '-', 'when' => $open->executed_at->format('Y-m-d H:i'), 'code' => $open->exchange?->code ?? '-']) }}</div>
+                    @if ($open->reverted_at !== null)
+                        <div style="color: rgb(220, 38, 38);">{{ __('admin.plans.reverted', ['when' => $open->reverted_at->format('Y-m-d H:i')]) }}</div>
+                    @endif
+                    @if ($open->report_status === 'measuring')
+                        <div style="{{ $muted }}">{{ __('admin.plans.report_measuring') }}</div>
+                    @elseif ($open->report_status === 'failed')
+                        <div style="color: rgb(220, 38, 38);">{{ __('admin.plans.report_failed') }} {{ $open->report_error }}</div>
+                    @elseif ($open->report_status === 'ready')
+                        @if ($open->report['same'] ?? false)
+                            <x-filament::badge color="success" data-test="agent-plan-report-same">{{ __('admin.plans.report_same') }}</x-filament::badge>
+                        @else
+                            <x-filament::badge color="danger" data-test="agent-plan-report-alarm">{{ __('admin.plans.report_alarm') }}</x-filament::badge>
+                        @endif
+                        @if ($open->report['drafts_changed'] ?? false)
+                            <div style="{{ $muted }}">{{ __('admin.plans.report_drafts_changed') }}</div>
+                        @endif
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <thead>
+                                <tr>
+                                    @foreach (['target', 'promised', 'measured'] as $column)
+                                        <th style="{{ $cell }}">{{ __('admin.plans.columns.'.$column) }}</th>
+                                    @endforeach
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($open->report['targets'] ?? [] as $row)
+                                    <tr style="{{ $row['same'] ? '' : $red }}">
+                                        <td style="{{ $cell }}">{{ $row['target'] }}</td>
+                                        <td style="{{ $cell }}">{{ $row['promised'] ?? '-' }}</td>
+                                        <td style="{{ $cell }}"><strong>{{ $row['measured'] ?? '-' }}</strong></td>
+                                    </tr>
+                                @endforeach
+                                @foreach ($open->report['gates'] ?? [] as $row)
+                                    @unless ($row['same'])
+                                        <tr style="{{ $red }}">
+                                            <td style="{{ $cell }}"><code>{{ $row['name'] }}</code></td>
+                                            <td style="{{ $cell }}">{{ $row['promised'] ? __('admin.plans.passes') : __('admin.plans.fails') }}</td>
+                                            <td style="{{ $cell }}"><strong>{{ $row['measured'] ? __('admin.plans.passes') : __('admin.plans.fails') }}</strong></td>
+                                        </tr>
+                                    @endunless
+                                @endforeach
+                                @foreach ($open->report['pace'] ?? [] as $row)
+                                    @unless ($row['same'])
+                                        <tr style="{{ $red }}">
+                                            <td style="{{ $cell }}">{{ $row['player'] }} {{ $row['car'] }}</td>
+                                            <td style="{{ $cell }}">{{ $row['promised'] ?? '-' }}</td>
+                                            <td style="{{ $cell }}"><strong>{{ $row['measured'] }}</strong></td>
+                                        </tr>
+                                    @endunless
+                                @endforeach
+                            </tbody>
+                        </table>
+                    @endif
+                    @if ($open->publication !== null)
+                        <div data-test="agent-plan-pack">{{ __('admin.plans.pack', ['number' => $open->publication->number, 'status' => __('admin.plans.pack_states.'.$open->publication->status)]) }}
+                            <a href="{{ \App\Filament\Resources\ContentPublications\ContentPublicationResource::getUrl() }}" style="text-decoration: underline;">{{ __('admin.plans.pack_link') }}</a>
+                        </div>
+                    @endif
+                </div>
+            @endif
 
             <div style="{{ $box }}">
                 <strong>{{ __('admin.plans.sections.goal') }}</strong>

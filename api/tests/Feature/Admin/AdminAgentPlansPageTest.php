@@ -3,7 +3,9 @@
 declare(strict_types=1);
 
 use App\Agent\AgentContext;
+use App\Agent\AgentPlans;
 use App\Filament\Pages\AgentPlansPage;
+use App\Models\Admin;
 use App\Models\AgentPlan;
 use App\Models\Game;
 use Illuminate\Support\Facades\Queue;
@@ -83,4 +85,24 @@ it('says why a plan cannot be approved, and shows no plan of another game', func
     $plan->forceFill(['game_id' => $other->id])->save();
 
     $this->get('/admin/agent-plans?plan='.$plan->id)->assertOk()->assertDontSee('Poziom 5 ma przyjsc pozniej.');
+});
+
+it('lets a person write an approved plan as drafts from the page, and undo it', function () {
+    $plan = planOnThePage();
+    app(AgentPlans::class)->approve($plan, Admin::query()->where('email', 'boss@example.com')->firstOrFail());
+
+    Livewire::withQueryParams(['plan' => $plan->id])->test(AgentPlansPage::class)
+        ->assertSee(__('admin.plans.execute'))
+        ->callAction('execute')
+        ->assertNotified(__('admin.plans.done.executed'));
+
+    expect($plan->refresh()->status)->toBe(AgentPlan::EXECUTED);
+
+    $this->get('/admin/agent-plans?plan='.$plan->id)->assertOk()->assertSee('data-test="agent-plan-execution"', false)->assertSee(__('admin.plans.undo'));
+
+    Livewire::withQueryParams(['plan' => $plan->id])->test(AgentPlansPage::class)
+        ->callAction('undo')
+        ->assertNotified(__('admin.plans.done.reverted'));
+
+    expect($plan->refresh()->status)->toBe(AgentPlan::REVERTED);
 });

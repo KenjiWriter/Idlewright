@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace App\Filament\Pages;
 
+use App\Agent\AgentPlanExecution;
 use App\Filament\Concerns\ForAGame;
 use App\Filament\Resources\ContentPublications\ContentPublicationResource;
 use App\Filament\Resources\Parts\PartResource;
 use App\Filament\Resources\Vehicles\VehicleResource;
+use App\Games\CurrentGame;
 use App\Models\ContentDefinition;
 use App\Services\ContentPacks;
 use App\Services\PendingChanges;
@@ -65,6 +67,8 @@ class PendingChangesPage extends Page
             'entries' => $entries,
             'changes' => array_sum(array_column($entries, 'count')),
             'pack' => app(ContentPacks::class)->active()?->number,
+            // The drafts that are still what a plan of the AI assistant wrote, with the line that says so.
+            'signatures' => app(AgentPlanExecution::class)->signatures(app(CurrentGame::class)->id()),
             'publicationsUrl' => ContentPublicationResource::getUrl(),
             'editUrls' => array_combine(
                 array_map(fn (array $entry): int => $entry['definition']->id, $entries),
